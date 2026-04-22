@@ -1,6 +1,6 @@
 # PRD: DripWell.ai
 
-**Version:** 0.1 (DRAFT, PENDING OWNER APPROVAL)
+**Version:** 1.0 (APPROVED)
 **Owner:** Loyd Hale
 **Managed by:** Jeff (CTO)
 **Last updated:** 2026-04-22
