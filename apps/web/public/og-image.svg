@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <g transform="translate(560, 260)">
+    <path d="M40 7C40 7 17 38 17 52.5C17 64.93 27.07 75 39.5 75C51.93 75 62 64.93 62 52.5C62 38 40 7 40 7Z" stroke="#0f7a6a" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="40" cy="55" r="7.5" fill="#0f7a6a"/>
+  </g>
+  <text x="600" y="380" text-anchor="middle" font-family="'Inter', sans-serif" font-size="48" font-weight="600" fill="#0b1220">DripWell</text>
+  <text x="600" y="430" text-anchor="middle" font-family="'Inter', sans-serif" font-size="24" font-weight="400" fill="#64748b">AI Wellness Assessment for IV Therapy Clinics</text>
+</svg>
