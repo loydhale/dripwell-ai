@@ -24,4 +24,10 @@ Rules:
 
 ## Entries
 
-(none yet — will populate as the team works)
+## L-001 — pnpm catalog for shared dependency versions
+Date: 2026-04-22
+Task: TASK-001
+What went wrong: Coder did not use pnpm catalog feature to centralize shared dependency versions (typescript, vite, etc.) across packages. Versions are duplicated in each package.json.
+Root cause: Task NOTES suggested it but it was not treated as a hard requirement.
+Avoid by: When scaffolding monorepos, check if pnpm catalog is appropriate and apply it to dependencies used in multiple packages. This reduces version drift.
+Seen N times: 1

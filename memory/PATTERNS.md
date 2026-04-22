@@ -23,4 +23,16 @@ Rules:
 
 ## Entries
 
-(none yet — will populate as the team works)
+## P-001 — Branded ID types for domain entities
+Date: 2026-04-22
+Where in codebase: packages/shared/src/types/index.ts
+The pattern: Use intersection types (`string & { __brand: 'TypeName' }`) to create nominal types for IDs, preventing accidental mixing of TenantId, AssessmentId, ProviderId at compile time.
+When to use: For every domain entity ID that should not be interchangeable with a plain string.
+Example: `export type TenantId = string & { __brand: 'TenantId' };`
+
+## P-002 — vite-plugin-pwa with external manifest.json
+Date: 2026-04-22
+Where in codebase: apps/web/vite.config.ts, apps/web/manifest.json
+The pattern: Set `manifest: false` in VitePWA config and provide a standalone manifest.json. This keeps the manifest editable without rebuilding and makes it inspectable in DevTools.
+When to use: For all PWA projects where the manifest is static and should be version-controlled separately.
+Example: apps/web/vite.config.ts plugins array
