@@ -31,3 +31,19 @@ What went wrong: Coder did not use pnpm catalog feature to centralize shared dep
 Root cause: Task NOTES suggested it but it was not treated as a hard requirement.
 Avoid by: When scaffolding monorepos, check if pnpm catalog is appropriate and apply it to dependencies used in multiple packages. This reduces version drift.
 Seen N times: 1
+
+## L-002 — Redundant service worker registration when VitePWA injectRegister is active
+Date: 2026-04-22
+Task: TASK-002
+What went wrong: main.ts manually registers the service worker, but VitePWA with injectRegister: 'script-defer' already injects registerSW.js into the built HTML. This creates two registration attempts.
+Root cause: Coder did not notice that VitePWA handles registration automatically when injectRegister is configured.
+Avoid by: When using VitePWA, check the injectRegister setting. If it's set, remove manual navigator.serviceWorker.register() from main.ts. If you need custom registration logic, set injectRegister: false.
+Seen N times: 1
+
+## L-003 — innerHTML injection of large static markup adds LCP overhead
+Date: 2026-04-22
+Task: TASK-002
+What went wrong: Landing page content was injected via container.innerHTML = `...` in TypeScript, meaning the browser must download, parse, and execute JS before any page content renders. On slower connections this delays LCP compared to static HTML.
+Root cause: Coder chose developer convenience (single TS file) over rendering performance. No templating engine was available and no requirement to prerender was given.
+Avoid by: For landing pages with hard LCP targets, prefer static HTML in index.html or build-time prerendering (e.g., vite-plugin-ssr, or simple string replacement in index.html during build). Only use JS injection when the content is genuinely dynamic.
+Seen N times: 1
