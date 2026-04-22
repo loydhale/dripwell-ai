@@ -1,0 +1,40 @@
+# models.yaml
+# Model assignments per role. Change values here to swap LLMs without touching persona files.
+# Any LiteLLM-compatible model string works.
+
+roles:
+  cto:
+    model: "moonshot/kimi-k2.6"
+    temperature: 0.3
+    max_tokens: 8000
+    notes: "Orchestrator. Plans, routes, maintains state. Keep temp low for consistent planning."
+
+  coder:
+    model: "moonshot/kimi-k2.6"
+    temperature: 0.2
+    max_tokens: 16000
+    notes: "Implementer. Low temp for deterministic code. High token limit for full files."
+
+  auditor:
+    model: "openai-codex/gpt-5.4"
+    temperature: 0.1
+    max_tokens: 8000
+    notes: "Reviewer + lessons extractor. Lowest temp for rigorous review."
+
+  lessons_extractor:
+    model: "openai-codex/gpt-5.4"
+    temperature: 0.2
+    max_tokens: 4000
+    notes: "Same model as auditor by default. Pulls learnings from completed tasks into memory files."
+
+# Fallbacks kick in if primary model is unavailable
+fallbacks:
+  cto: "kimi/kimi-code"
+  coder: "kimi/kimi-code"
+  auditor: "openai-codex/gpt-5.2-codex"
+
+# Cost caps per task (rough token budgets before CTO is forced to summarize/chunk)
+budgets:
+  cto_per_task_tokens: 50000
+  coder_per_task_tokens: 100000
+  auditor_per_task_tokens: 40000
