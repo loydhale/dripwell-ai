@@ -1,0 +1,3 @@
+// Schema definition lives here.
+// Migrations and Prisma client generation are handled in TASK-003.
+// This file is a placeholder so the schema location is established.

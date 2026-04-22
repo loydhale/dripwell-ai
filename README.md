@@ -1,29 +1,46 @@
 # DripWell.ai
 
-**AI-powered wellness assessment for IV therapy clinics**
+AI-powered, in-room wellness assessment tool for IV therapy clinics.
 
-DripWell is an AI-powered, in-room wellness assessment tool for IV therapy clinics that observes visual wellness signals through computer vision, conducts adaptive follow-up questioning, and generates provider-approved recommendations drawn from the clinic's actual drip catalog.
+## Development
 
-## Product
+Requires [pnpm](https://pnpm.io) and Node.js 22+.
 
-- **PWA** (tablet-optimized Progressive Web App)
-- **Anonymous patient model** — no PII stored, assessment IDs only
-- **Direct photo upload** — images never stored on device
-- **Paper intake OCR** — photograph paper forms, AI extracts data
-- **Clinical pattern library** — grounded in NFPE methodology
-- **Provider approval gate** — every recommendation reviewed before patient output
+```bash
+# Install dependencies
+pnpm install
 
-## Status
+# Run web app (PWA)
+pnpm dev
 
-- PRD: v0.2 (pending final approval)
-- Stack: Node.js + TypeScript + Fastify + PostgreSQL + Prisma + PWA
-- Vision AI: Gemini 2.5 Pro
-- Pilot: TBD
+# Run admin panel
+pnpm dev:admin
 
-## Getting Started
+# Build everything
+pnpm build
 
-(TBD — will be populated after initial build)
+# Type-check everything
+pnpm typecheck
 
-## License
+# Format code
+pnpm format
+```
 
-(TBD)
+## Monorepo Structure
+
+```
+apps/
+  web/       — PWA (tablet-optimized assessment + landing page)
+  admin/     — Desktop admin panel for super users
+packages/
+  shared/    — Shared types, utilities, Prisma schema
+```
+
+## Tech Stack
+
+- Node.js + TypeScript
+- pnpm workspaces
+- Vite (web + admin)
+- vite-plugin-pwa (PWA support)
+- Prisma (database ORM — schema ready, migrations in TASK-003)
+- Fastify (backend API — scaffold in TASK-004)
