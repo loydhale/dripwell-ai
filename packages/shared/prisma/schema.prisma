@@ -1,3 +1,625 @@
-// Schema definition lives here.
-// Migrations and Prisma client generation are handled in TASK-003.
-// This file is a placeholder so the schema location is established.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  SUPER_USER
+  PROVIDER
+  SYSTEM_ADMIN
+}
+
+enum ItemType {
+  DRIP
+  ADD_ON
+  INJECTION
+  PEPTIDE
+}
+
+enum FlagTier {
+  T1_INFO
+  T2_FOLLOWUP
+  T3_URGENT
+}
+
+enum QuestionCategory {
+  ENERGY_SLEEP
+  HYDRATION
+  STRESS_RECOVERY
+  WOMENS_HEALTH
+  DIET_PATTERN
+  MEDICAL_HISTORY
+  SPECIFIC_SYMPTOMS
+  GOALS
+}
+
+enum PhotoAngle {
+  FACE
+  UNDER_EYES
+  HAND_FOREARM
+  TONGUE
+}
+
+enum SignalName {
+  CONJUNCTIVAL_PALLOR
+  UNDER_EYE_DARKNESS
+  UNDER_EYE_PUFFINESS
+  SCLERA_TINT
+  LIP_DRYNESS
+  LIP_PALLOR
+  ANGULAR_CHEILITIS
+  TONGUE_COLOR
+  TONGUE_SURFACE
+  FACIAL_DULLNESS
+  FACIAL_REDNESS
+  SKIN_TEXTURE
+  NAIL_BED_COLOR
+  NAIL_RIDGING
+  NAIL_SPOONING
+  HAIR_QUALITY
+  POSTURE_AFFECT
+}
+
+enum AuditAction {
+  ASSESSMENT_CREATED
+  PHOTO_CAPTURED
+  SIGNAL_EXTRACTED
+  QUESTION_ANSWERED
+  PATTERN_MATCHED
+  RECOMMENDATION_GENERATED
+  SAFETY_FLAG_RAISED
+  PROVIDER_APPROVED
+  PROVIDER_OVERRIDDEN
+  CATALOG_UPDATED
+  USER_INVITED
+  USER_DEACTIVATED
+  SETTINGS_CHANGED
+}
+
+enum OverrideReason {
+  CLINICAL_DISAGREEMENT
+  PATIENT_PREFERENCE
+  CONTRAINDICATION_RESOLVED
+  INSUFFICIENT_DATA
+  SAFETY_CONCERN
+  OTHER
+}
+
+enum RecommendationStatus {
+  PENDING
+  APPROVED
+  MODIFIED
+  REJECTED
+}
+
+enum AssessmentStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+// ---------------------------------------------------------------------------
+// Multi-tenant tables
+// ---------------------------------------------------------------------------
+
+model Tenant {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  slug            String   @unique
+  state           String
+  medicalDirector String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  locations            Location[]
+  users                User[]
+  assessmentSessions   AssessmentSession[]
+  catalogItems         CatalogItem[]
+  auditLogs            AuditLog[]
+  patientIntakes       PatientIntake[]
+  photoCaptures        PhotoCapture[]
+  visualSignals        VisualSignal[]
+  questionAnswers      QuestionAnswer[]
+  patternMatches       PatternMatch[]
+  recommendations      Recommendation[]
+  safetyFlags          SafetyFlag[]
+  providerOverrides    ProviderOverride[]
+  assessmentHistories  AssessmentHistory[]
+  catalogItemCompatibilities CatalogItemCompatibility[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Location {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @db.Uuid
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  address   String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assessmentSessions AssessmentSession[]
+
+  @@index([tenantId])
+  @@index([isActive])
+}
+
+// ---------------------------------------------------------------------------
+// User tables
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenantId      String?   @db.Uuid
+  tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          UserRole
+  isActive      Boolean   @default(true)
+  mfaEnabled    Boolean   @default(false)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  assessmentSessions       AssessmentSession[]
+  recommendations          Recommendation[]
+  safetyFlagsAcknowledged  SafetyFlag[]         @relation("AcknowledgedBy")
+  providerOverrides        ProviderOverride[]
+  auditLogs                AuditLog[]
+
+  @@index([tenantId])
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+// ---------------------------------------------------------------------------
+// Anonymous patient model
+// ---------------------------------------------------------------------------
+
+model AssessmentSession {
+  id              String            @id @default(uuid()) @db.Uuid
+  tenantId        String            @db.Uuid
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locationId      String?           @db.Uuid
+  location        Location?         @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  providerId      String            @db.Uuid
+  provider        User              @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  anonymousToken  String?           @unique
+  isReturning     Boolean           @default(false)
+  priorSessionId  String?           @db.Uuid
+  priorSession    AssessmentSession? @relation("SessionHistory", fields: [priorSessionId], references: [id], onDelete: SetNull)
+  followUpSessions AssessmentSession[] @relation("SessionHistory")
+  status          AssessmentStatus  @default(IN_PROGRESS)
+  startedAt       DateTime          @default(now())
+  completedAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  patientIntake       PatientIntake?
+  photoCaptures       PhotoCapture[]
+  visualSignals       VisualSignal[]
+  questionAnswers     QuestionAnswer[]
+  patternMatches      PatternMatch[]
+  recommendations     Recommendation[]
+  safetyFlags         SafetyFlag[]
+  providerOverrides   ProviderOverride[]
+  assessmentHistories AssessmentHistory[] @relation("HistorySession")
+  baselineHistories   AssessmentHistory[] @relation("HistoryBaseline")
+  auditLogs           AuditLog[]
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@index([anonymousToken])
+  @@index([status])
+  @@index([createdAt])
+  @@index([priorSessionId])
+}
+
+model PatientIntake {
+  id                 String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String  @unique @db.Uuid
+  assessmentSession  AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId           String   @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  medications        Json?
+  conditions         Json?
+  allergies          Json?
+  menstrualStatus    String?
+  recentIllness      String?
+  supplements        Json?
+  visitGoals         Json?
+  isFromOcr          Boolean  @default(false)
+  ocrConfidence      Float?
+  providerVerifiedAt DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Assessment flow tables
+// ---------------------------------------------------------------------------
+
+model PhotoCapture {
+  id                 String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String  @db.Uuid
+  assessmentSession  AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId           String   @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  angle              PhotoAngle
+  url                String
+  capturedAt         DateTime @default(now())
+  uploadedAt         DateTime?
+  isOfflineSync      Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  visualSignals VisualSignal[]
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([createdAt])
+}
+
+model VisualSignal {
+  id                 String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String  @db.Uuid
+  assessmentSession  AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId           String   @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  photoCaptureId     String?  @db.Uuid
+  photoCapture       PhotoCapture? @relation(fields: [photoCaptureId], references: [id], onDelete: SetNull)
+  signalName         SignalName
+  confidence         Float
+  value              String?
+  rawJson            Json?
+  extractedAt        DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([photoCaptureId])
+  @@index([signalName])
+  @@index([createdAt])
+}
+
+model QuestionAnswer {
+  id                 String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String  @db.Uuid
+  assessmentSession  AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId           String   @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  questionBankId     String   @db.Uuid
+  questionBank       QuestionBank @relation(fields: [questionBankId], references: [id], onDelete: Restrict)
+  questionText       String
+  answerValue        String
+  answerType         String
+  confidenceDelta    Float?
+  answeredAt         DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([questionBankId])
+  @@index([createdAt])
+}
+
+model PatternMatch {
+  id                 String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String  @db.Uuid
+  assessmentSession  AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId           String   @db.Uuid
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  clinicalPatternId  String   @db.Uuid
+  clinicalPattern    ClinicalPattern @relation(fields: [clinicalPatternId], references: [id], onDelete: Restrict)
+  confidence         Float
+  matchedSignals     Json
+  matchedAnswers     Json
+  isPrimary          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([clinicalPatternId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Recommendation tables
+// ---------------------------------------------------------------------------
+
+model Recommendation {
+  id                  String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String  @db.Uuid
+  assessmentSession   AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId            String   @db.Uuid
+  tenant              Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  providerId          String   @db.Uuid
+  provider            User     @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  status              RecommendationStatus @default(PENDING)
+  primaryCatalogItemId String  @db.Uuid
+  primaryItem         CatalogItem @relation("PrimaryRecommendationItem", fields: [primaryCatalogItemId], references: [id], onDelete: Restrict)
+  rationale           String
+  confidence          Float
+  approvedAt          DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  safetyFlags        SafetyFlag[]
+  providerOverrides  ProviderOverride[]
+  recommendationItems RecommendationItem[]
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([providerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model RecommendationItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  recommendationId String   @db.Uuid
+  recommendation   Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  catalogItemId    String   @db.Uuid
+  catalogItem      CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Restrict)
+  isPrimary        Boolean  @default(false)
+  dosageNote       String?
+  createdAt        DateTime @default(now())
+
+  @@index([recommendationId])
+  @@index([catalogItemId])
+}
+
+model SafetyFlag {
+  id                      String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId     String   @db.Uuid
+  assessmentSession       AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId                String   @db.Uuid
+  tenant                  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  recommendationId        String?  @db.Uuid
+  recommendation          Recommendation? @relation(fields: [recommendationId], references: [id], onDelete: SetNull)
+  tier                    FlagTier
+  flagType                String
+  description             String
+  suggestedScript         String?
+  providerAcknowledgedAt  DateTime?
+  providerAcknowledgedById String? @db.Uuid
+  providerAcknowledgedBy  User?    @relation("AcknowledgedBy", fields: [providerAcknowledgedById], references: [id], onDelete: SetNull)
+  isOverridden            Boolean  @default(false)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  providerOverrides ProviderOverride[]
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([recommendationId])
+  @@index([tier])
+  @@index([createdAt])
+}
+
+model ProviderOverride {
+  id                  String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String   @db.Uuid
+  assessmentSession   AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId            String   @db.Uuid
+  tenant              Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  providerId          String   @db.Uuid
+  provider            User     @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  recommendationId    String?  @db.Uuid
+  recommendation      Recommendation? @relation(fields: [recommendationId], references: [id], onDelete: SetNull)
+  safetyFlagId        String?  @db.Uuid
+  safetyFlag          SafetyFlag? @relation(fields: [safetyFlagId], references: [id], onDelete: SetNull)
+  overrideType        String
+  reason              OverrideReason
+  reasonNote          String?
+  originalValue       String?
+  newValue            String?
+  createdAt           DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([providerId])
+  @@index([recommendationId])
+  @@index([safetyFlagId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Clinical pattern library (universal / cross-tenant)
+// ---------------------------------------------------------------------------
+
+model ClinicalPattern {
+  id                         String   @id @default(uuid()) @db.Uuid
+  name                       String   @unique
+  description                String
+  category                   String
+  supportingSignals          Json
+  supportingAnswers          Json
+  conflictingSignals         Json
+  genericRecommendationIntent String
+  clinicalRationale          String
+  safetyFlags                Json
+  isActive                   Boolean  @default(true)
+  version                    Int      @default(1)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  patternMatches PatternMatch[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model SignalTaxonomy {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          SignalName @unique
+  displayName   String
+  description   String
+  bodyRegion    String
+  dataType      String
+  possibleValues Json?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model QuestionBank {
+  id                   String   @id @default(uuid()) @db.Uuid
+  category             QuestionCategory
+  questionText         String
+  answerType           String
+  answerOptions        Json?
+  informationGainWeight Float?
+  followUpQuestions    Json?
+  isActive             Boolean  @default(true)
+  version              Int      @default(1)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  questionAnswers QuestionAnswer[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+// ---------------------------------------------------------------------------
+// Catalog tables
+// ---------------------------------------------------------------------------
+
+model CatalogItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @db.Uuid
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?
+  type             ItemType
+  isActive         Boolean  @default(true)
+  isInStock        Boolean  @default(true)
+  outOfStockReason String?
+  stateRestrictions Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  ingredients              CatalogItemIngredient[]
+  compatibilitiesAsBase    CatalogItemCompatibility[] @relation("BaseItem")
+  compatibilitiesAsCompatible CatalogItemCompatibility[] @relation("CompatibleItem")
+  primaryRecommendations   Recommendation[] @relation("PrimaryRecommendationItem")
+  recommendationItems      RecommendationItem[]
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([isActive])
+  @@index([isInStock])
+}
+
+model Ingredient {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  catalogItems CatalogItemIngredient[]
+
+  @@index([isActive])
+}
+
+model CatalogItemIngredient {
+  id            String   @id @default(uuid()) @db.Uuid
+  catalogItemId String   @db.Uuid
+  catalogItem   CatalogItem @relation(fields: [catalogItemId], references: [id], onDelete: Cascade)
+  ingredientId  String   @db.Uuid
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  dosage        String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@index([catalogItemId])
+  @@index([ingredientId])
+  @@unique([catalogItemId, ingredientId])
+}
+
+model CatalogItemCompatibility {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  baseItemId        String   @db.Uuid
+  baseItem          CatalogItem @relation("BaseItem", fields: [baseItemId], references: [id], onDelete: Cascade)
+  compatibleItemId  String   @db.Uuid
+  compatibleItem    CatalogItem @relation("CompatibleItem", fields: [compatibleItemId], references: [id], onDelete: Cascade)
+  isDefault         Boolean  @default(false)
+  maxQuantity       Int?
+  createdAt         DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([baseItemId])
+  @@index([compatibleItemId])
+  @@unique([baseItemId, compatibleItemId])
+}
+
+// ---------------------------------------------------------------------------
+// Audit / log tables
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tenantId            String?  @db.Uuid
+  tenant              Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  userId              String?  @db.Uuid
+  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assessmentSessionId String?  @db.Uuid
+  assessmentSession   AssessmentSession? @relation(fields: [assessmentSessionId], references: [id], onDelete: SetNull)
+  action              AuditAction
+  entityType          String
+  entityId            String?  @db.Uuid
+  details             Json?
+  ipAddress           String?
+  userAgent           String?
+  createdAt           DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([assessmentSessionId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+model AssessmentHistory {
+  id                  String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String   @db.Uuid
+  assessmentSession   AssessmentSession @relation(name: "HistorySession", fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId            String   @db.Uuid
+  tenant              Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  baselineSessionId   String?  @db.Uuid
+  baselineSession     AssessmentSession? @relation(name: "HistoryBaseline", fields: [baselineSessionId], references: [id], onDelete: SetNull)
+  eventType           String
+  description         String
+  metadata            Json?
+  createdAt           DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([baselineSessionId])
+  @@index([createdAt])
+}
