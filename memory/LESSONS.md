@@ -143,3 +143,19 @@ What went wrong: The Coder implemented "returning patient consistency" (boost co
 Root cause: The Coder read "consistency" and assumed it meant "keep consistent with prior visit" rather than "be consistent for first-time visitors". They did not re-read the PRD default list carefully.
 Avoid by: When implementing bias or default logic, always map the condition explicitly: write the if (isReturning === false) branch first, then the if (isReturning === true) branch. Do not assume the named bias applies to the more complex condition.
 Seen N times: 1
+
+## L-016 — Form edit mode must populate all fields from fetched record
+Date: 2026-04-23
+Task: TASK-015
+What went wrong: The pattern edit form hardcoded `escapeHtml('')` for the `clinicalRationale` textarea, meaning every edit would silently blank out the existing clinical rationale. The edit button fetched the record but the form did not use it.
+Root cause: The Coder wrote a conditional render expression but passed an empty string literal instead of the pattern property.
+Avoid by: When wiring an edit form, copy every field from the fetched record into its corresponding form control. Do a visual spot check: open edit, verify every field shows current data, save without changing anything, verify nothing changed.
+Seen N times: 1
+
+## L-017 — Prisma relation `take` limit breaks `.length` count semantics
+Date: 2026-04-23
+Task: TASK-015
+What went wrong: The clinic overview query set `take: 1` on `assessmentSessions` to get the latest session for `lastActiveAt`, but then used `t.assessmentSessions.length` for `assessmentsThisMonth`. This made the monthly assessment count always 0 or 1 regardless of actual volume.
+Root cause: The Coder conflated a relation array used for display with a relation array used for counting. `take` limits the fetched array, not the underlying count.
+Avoid by: When you need both the latest item and the total count from the same relation, use `_count` with a `where` clause for the count and a separate `take: 1` relation for the latest item. Never use `.length` of a `take`-limited array as a count.
+Seen N times: 1

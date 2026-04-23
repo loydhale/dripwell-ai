@@ -6,7 +6,7 @@ interface HealthData {
   activeClinics: number;
   totalClinics: number;
   totalProviders: number;
-  apiErrorRate: number;
+  healthScore: number;
   aiTokenUsageEstimate: number;
 }
 
@@ -45,7 +45,7 @@ function renderContent(container: HTMLElement, data: HealthData) {
   grid.appendChild(makeCard('Assessments Today', String(data.totalAssessmentsToday), 'All tenants'));
   grid.appendChild(makeCard('Active Clinics', `${data.activeClinics} / ${data.totalClinics}`, 'Tenants with active status'));
   grid.appendChild(makeCard('Total Providers', String(data.totalProviders), 'Across all clinics'));
-  grid.appendChild(makeCard('API Error Rate', `${data.apiErrorRate}%`, 'Proxy estimate (24h)'));
+  grid.appendChild(makeCard('Health Score', `${data.healthScore}%`, 'Proxy estimate (24h, lower is better)'));
   grid.appendChild(makeCard('AI Token Estimate', formatTokens(data.aiTokenUsageEstimate), 'Last 24 hours'));
 
   page.appendChild(grid);
@@ -60,8 +60,8 @@ function renderContent(container: HTMLElement, data: HealthData) {
   note.style.color = 'var(--text-2)';
   note.innerHTML = `
     <strong style="color:var(--ink)">About these metrics</strong><br><br>
-    <strong>API Error Rate</strong> is a proxy estimate based on safety flags and abandoned assessments in the last 24 hours.
-    It is not a true HTTP error rate but gives a directional signal of platform friction.<br><br>
+    <strong>Health Score</strong> is a proxy estimate based on safety flags and abandoned assessments in the last 24 hours.
+    It is not a true HTTP error rate but gives a directional signal of platform friction (lower is better).<br><br>
     <strong>AI Token Estimate</strong> assumes ~4,000 tokens per assessment session (photo analysis + recommendation generation).
     This is a rough estimate for cost tracking, not an exact billing metric.
   `;

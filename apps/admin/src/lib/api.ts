@@ -1,13 +1,39 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 let authToken: string | null = null;
+const IMPERSONATION_TOKEN_KEY = 'dw_imp_token';
+const VENDOR_TOKEN_KEY = 'dw_vendor_token';
 
 export function setToken(token: string | null) {
   authToken = token;
+  if (token) {
+    try { sessionStorage.setItem(VENDOR_TOKEN_KEY, token); } catch { /* ignore */ }
+  } else {
+    try { sessionStorage.removeItem(VENDOR_TOKEN_KEY); } catch { /* ignore */ }
+  }
 }
 
 export function getToken(): string | null {
+  try {
+    const imp = sessionStorage.getItem(IMPERSONATION_TOKEN_KEY);
+    if (imp) return imp;
+  } catch { /* ignore */ }
   return authToken;
+}
+
+export function impersonateStart(token: string) {
+  try { sessionStorage.setItem(IMPERSONATION_TOKEN_KEY, token); } catch { /* ignore */ }
+}
+
+export function impersonateStop() {
+  try { sessionStorage.removeItem(IMPERSONATION_TOKEN_KEY); } catch { /* ignore */ }
+}
+
+export function initTokens() {
+  try {
+    const vendorToken = sessionStorage.getItem(VENDOR_TOKEN_KEY);
+    if (vendorToken) authToken = vendorToken;
+  } catch { /* ignore */ }
 }
 
 async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -17,8 +43,9 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
     ...((options.headers as Record<string, string>) || {}),
   };
 
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+  const token = getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   const response = await fetch(url, {
@@ -28,6 +55,7 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
 
   if (response.status === 401) {
     setToken(null);
+    impersonateStop();
     window.location.hash = '#login';
     throw new Error('Session expired. Please log in again.');
   }
@@ -65,8 +93,9 @@ export async function postMultipart<T>(path: string, formData: FormData): Promis
   const url = `${API_BASE}${path}`;
   const headers: Record<string, string> = {};
 
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+  const token = getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   const response = await fetch(url, {
@@ -77,6 +106,7 @@ export async function postMultipart<T>(path: string, formData: FormData): Promis
 
   if (response.status === 401) {
     setToken(null);
+    impersonateStop();
     window.location.hash = '#login';
     throw new Error('Session expired. Please log in again.');
   }

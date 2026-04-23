@@ -7,10 +7,38 @@ interface Pattern {
   description: string;
   category: string;
   genericRecommendationIntent: string;
+  clinicalRationale: string;
+  supportingSignals: unknown;
+  supportingAnswers: unknown;
+  conflictingSignals: unknown;
+  safetyFlags: unknown;
   isActive: boolean;
   version: number;
   createdAt: string;
   updatedAt: string;
+}
+
+function stringifyJson(value: unknown): string {
+  if (value === null || value === undefined) return '[]';
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return value;
+    }
+  }
+  return JSON.stringify(value, null, 2);
+}
+
+function parseJsonField(raw: string, fieldName: string): unknown {
+  const trimmed = raw.trim();
+  if (!trimmed) return [];
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    throw new Error(`Invalid JSON in ${fieldName}`);
+  }
 }
 
 export function renderVendorPatterns(container: HTMLElement): () => void {
@@ -121,7 +149,7 @@ export function renderVendorPatterns(container: HTMLElement): () => void {
 
     const modal = document.createElement('div');
     modal.className = 'admin-modal';
-    modal.style.maxWidth = '560px';
+    modal.style.maxWidth = '640px';
 
     modal.innerHTML = `
       <div class="admin-modal-header">
@@ -146,7 +174,23 @@ export function renderVendorPatterns(container: HTMLElement): () => void {
         </div>
         <div class="admin-form-row">
           <label>Clinical Rationale</label>
-          <textarea id="pat-rationale" rows="3">${pattern ? escapeHtml('') : ''}</textarea>
+          <textarea id="pat-rationale" rows="3">${pattern ? escapeHtml(pattern.clinicalRationale || '') : ''}</textarea>
+        </div>
+        <div class="admin-form-row">
+          <label>Supporting Signals <span style="font-size:12px;color:var(--text-3)">(JSON array)</span></label>
+          <textarea id="pat-sig" rows="4">${pattern ? escapeHtml(stringifyJson(pattern.supportingSignals)) : '[]'}</textarea>
+        </div>
+        <div class="admin-form-row">
+          <label>Supporting Answers <span style="font-size:12px;color:var(--text-3)">(JSON array)</span></label>
+          <textarea id="pat-ans" rows="4">${pattern ? escapeHtml(stringifyJson(pattern.supportingAnswers)) : '[]'}</textarea>
+        </div>
+        <div class="admin-form-row">
+          <label>Conflicting Signals <span style="font-size:12px;color:var(--text-3)">(JSON array)</span></label>
+          <textarea id="pat-conf" rows="4">${pattern ? escapeHtml(stringifyJson(pattern.conflictingSignals)) : '[]'}</textarea>
+        </div>
+        <div class="admin-form-row">
+          <label>Safety Flags <span style="font-size:12px;color:var(--text-3)">(JSON array)</span></label>
+          <textarea id="pat-safe" rows="4">${pattern ? escapeHtml(stringifyJson(pattern.safetyFlags)) : '[]'}</textarea>
         </div>
       </div>
       <div class="admin-modal-footer">
@@ -175,6 +219,21 @@ export function renderVendorPatterns(container: HTMLElement): () => void {
         return;
       }
 
+      let supportingSignals: unknown;
+      let supportingAnswers: unknown;
+      let conflictingSignals: unknown;
+      let safetyFlags: unknown;
+
+      try {
+        supportingSignals = parseJsonField((modal.querySelector<HTMLTextAreaElement>('#pat-sig')!).value, 'Supporting Signals');
+        supportingAnswers = parseJsonField((modal.querySelector<HTMLTextAreaElement>('#pat-ans')!).value, 'Supporting Answers');
+        conflictingSignals = parseJsonField((modal.querySelector<HTMLTextAreaElement>('#pat-conf')!).value, 'Conflicting Signals');
+        safetyFlags = parseJsonField((modal.querySelector<HTMLTextAreaElement>('#pat-safe')!).value, 'Safety Flags');
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Invalid JSON');
+        return;
+      }
+
       try {
         if (pattern) {
           await put(`/vendor/patterns/${pattern.id}`, {
@@ -183,6 +242,10 @@ export function renderVendorPatterns(container: HTMLElement): () => void {
             description,
             genericRecommendationIntent,
             clinicalRationale,
+            supportingSignals,
+            supportingAnswers,
+            conflictingSignals,
+            safetyFlags,
           });
         } else {
           await post('/vendor/patterns', {
@@ -191,10 +254,10 @@ export function renderVendorPatterns(container: HTMLElement): () => void {
             description,
             genericRecommendationIntent,
             clinicalRationale,
-            supportingSignals: [],
-            supportingAnswers: [],
-            conflictingSignals: [],
-            safetyFlags: [],
+            supportingSignals,
+            supportingAnswers,
+            conflictingSignals,
+            safetyFlags,
           });
         }
         editingId = null;

@@ -40,13 +40,21 @@ export async function getClinicOverview(): Promise<ClinicOverview[]> {
     },
   });
 
+  const monthlyCounts = await prisma.assessmentSession.groupBy({
+    by: ['tenantId'],
+    where: { startedAt: { gte: monthStart } },
+    _count: { id: true },
+  });
+
+  const countMap = new Map(monthlyCounts.map((c) => [c.tenantId, c._count.id]));
+
   return tenants.map((t) => ({
     id: t.id,
     name: t.name,
     slug: t.slug,
     isActive: t.isActive,
     activeProviders: t.users.length,
-    assessmentsThisMonth: t.assessmentSessions.length,
+    assessmentsThisMonth: countMap.get(t.id) || 0,
     lastActiveAt: t.assessmentSessions[0]?.startedAt || null,
     catalogSize: t._count.catalogItems,
   }));
@@ -148,6 +156,11 @@ interface PatternSummary {
   description: string;
   category: string;
   genericRecommendationIntent: string;
+  clinicalRationale: string;
+  supportingSignals: unknown;
+  supportingAnswers: unknown;
+  conflictingSignals: unknown;
+  safetyFlags: unknown;
   isActive: boolean;
   version: number;
   createdAt: Date;
@@ -163,6 +176,11 @@ export async function getPatternLibrary(): Promise<PatternSummary[]> {
       description: true,
       category: true,
       genericRecommendationIntent: true,
+      clinicalRationale: true,
+      supportingSignals: true,
+      supportingAnswers: true,
+      conflictingSignals: true,
+      safetyFlags: true,
       isActive: true,
       version: true,
       createdAt: true,
@@ -203,6 +221,11 @@ export async function createPattern(data: CreatePatternInput): Promise<PatternSu
       description: true,
       category: true,
       genericRecommendationIntent: true,
+      clinicalRationale: true,
+      supportingSignals: true,
+      supportingAnswers: true,
+      conflictingSignals: true,
+      safetyFlags: true,
       isActive: true,
       version: true,
       createdAt: true,
@@ -251,6 +274,11 @@ export async function updatePattern(id: string, data: UpdatePatternInput): Promi
       description: true,
       category: true,
       genericRecommendationIntent: true,
+      clinicalRationale: true,
+      supportingSignals: true,
+      supportingAnswers: true,
+      conflictingSignals: true,
+      safetyFlags: true,
       isActive: true,
       version: true,
       createdAt: true,
@@ -275,6 +303,11 @@ export async function togglePatternActive(id: string): Promise<PatternSummary> {
       description: true,
       category: true,
       genericRecommendationIntent: true,
+      clinicalRationale: true,
+      supportingSignals: true,
+      supportingAnswers: true,
+      conflictingSignals: true,
+      safetyFlags: true,
       isActive: true,
       version: true,
       createdAt: true,
@@ -289,7 +322,7 @@ interface PlatformHealth {
   activeClinics: number;
   totalClinics: number;
   totalProviders: number;
-  apiErrorRate: number;
+  healthScore: number;
   aiTokenUsageEstimate: number;
 }
 
@@ -311,9 +344,9 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     prisma.user.count({ where: { role: 'PROVIDER' } }),
   ]);
 
-  // API error rate is estimated from audit logs with error-like actions in the last 24h.
-  // Since we do not have a dedicated error log table, we approximate with safety flags
-  // and abandoned assessments as proxy signals.
+  // Health score is a proxy estimate based on safety flags and abandoned
+  // assessments in the last 24h. It is not a true HTTP error rate but gives
+  // a directional signal of platform friction (lower is better).
   const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const [safetyFlags24h, abandoned24h, totalAssessments24h] = await Promise.all([
     prisma.safetyFlag.count({ where: { createdAt: { gte: dayAgo } } }),
@@ -322,7 +355,7 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
   ]);
 
   const proxyIssues = safetyFlags24h + abandoned24h;
-  const apiErrorRate = totalAssessments24h > 0
+  const healthScore = totalAssessments24h > 0
     ? Math.round((proxyIssues / totalAssessments24h) * 100)
     : 0;
 
@@ -334,7 +367,7 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     activeClinics,
     totalClinics,
     totalProviders,
-    apiErrorRate,
+    healthScore,
     aiTokenUsageEstimate,
   };
 }

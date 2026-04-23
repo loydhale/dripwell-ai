@@ -1,6 +1,6 @@
 import './styles/admin.css';
-import { getToken, setToken } from './lib/api.js';
-import { setUser, getUser, isSuperUser, isVendor } from './lib/auth.js';
+import { getToken, setToken, initTokens, impersonateStop as apiImpersonateStop } from './lib/api.js';
+import { setUser, getUser, isSuperUser, isVendor, initImpersonation, impersonateStop as authImpersonateStop } from './lib/auth.js';
 import { renderLayout } from './components/Layout.js';
 import { renderLogin } from './pages/Login.js';
 import { renderDashboard } from './pages/Dashboard.js';
@@ -123,6 +123,8 @@ function composeCleanups(a: () => void, b: () => void): () => void {
 }
 
 async function initSession() {
+  initTokens();
+  initImpersonation();
   const token = getToken();
   if (!token) return;
 
@@ -133,6 +135,8 @@ async function initSession() {
     if (!res.ok) {
       setToken(null);
       setUser(null);
+      apiImpersonateStop();
+      authImpersonateStop();
       return;
     }
     const json = await res.json();
@@ -141,10 +145,14 @@ async function initSession() {
     } else {
       setToken(null);
       setUser(null);
+      apiImpersonateStop();
+      authImpersonateStop();
     }
   } catch {
     setToken(null);
     setUser(null);
+    apiImpersonateStop();
+    authImpersonateStop();
   }
 }
 

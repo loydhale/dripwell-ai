@@ -1,5 +1,5 @@
-import { setToken } from '../lib/api.js';
-import { setUser, getUser, isVendor } from '../lib/auth.js';
+import { setToken, impersonateStop as apiImpersonateStop } from '../lib/api.js';
+import { setUser, getUser, isVendor, isImpersonating, getImpersonationClinicName, impersonateStop as authImpersonateStop } from '../lib/auth.js';
 import { get, put } from '../lib/api.js';
 
 const ADMIN_NAV = [
@@ -258,6 +258,34 @@ export function renderLayout(container: HTMLElement, content: HTMLElement): () =
   contentWrap.appendChild(content);
 
   main.appendChild(header);
+
+  if (isImpersonating()) {
+    const banner = document.createElement('div');
+    banner.style.background = '#fff3cd';
+    banner.style.color = '#856404';
+    banner.style.padding = '10px 16px';
+    banner.style.fontSize = '13px';
+    banner.style.fontWeight = '500';
+    banner.style.display = 'flex';
+    banner.style.alignItems = 'center';
+    banner.style.gap = '12px';
+    banner.style.borderBottom = '1px solid #ffeaa7';
+    banner.innerHTML = `
+      <span style="flex:1">
+        Impersonating ${escapeHtml(getImpersonationClinicName() || 'Clinic')}
+      </span>
+      <button id="exit-impersonation" class="admin-btn admin-btn-sm admin-btn-secondary" style="background:#856404;color:#fff;border:none">
+        Exit Impersonation
+      </button>
+    `;
+    banner.querySelector<HTMLButtonElement>('#exit-impersonation')!.addEventListener('click', () => {
+      apiImpersonateStop();
+      authImpersonateStop();
+      window.location.hash = '#vendor-dashboard';
+    });
+    main.appendChild(banner);
+  }
+
   main.appendChild(contentWrap);
 
   container.appendChild(sidebar);
@@ -267,6 +295,14 @@ export function renderLayout(container: HTMLElement, content: HTMLElement): () =
     notifyCleanup();
     container.innerHTML = '';
   };
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 export function setPageTitle(title: string) {

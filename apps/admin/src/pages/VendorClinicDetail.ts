@@ -1,4 +1,5 @@
-import { get, post } from '../lib/api.js';
+import { get, post, impersonateStart as apiImpersonateStart } from '../lib/api.js';
+import { impersonateStart as authImpersonateStart } from '../lib/auth.js';
 import { setPageTitle } from '../components/Layout.js';
 
 interface Provider {
@@ -79,7 +80,9 @@ function renderContent(container: HTMLElement, data: ClinicDetail, clinicId: str
   header.querySelector<HTMLButtonElement>('#clinic-impersonate')!.addEventListener('click', async () => {
     try {
       const res = await post<{ token: string; user: { id: string; email: string; firstName: string; lastName: string; role: string; tenantId: string | null } }>(`/vendor/impersonate/${clinicId}`, {});
-      alert(`Impersonation token generated for ${res.user.firstName} ${res.user.lastName}. In a full implementation this would switch to the admin view.`);
+      apiImpersonateStart(res.token);
+      authImpersonateStart(res.user, data.name);
+      window.location.hash = '#dashboard';
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Impersonation failed');
     }
