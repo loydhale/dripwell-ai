@@ -2,6 +2,7 @@ export interface UserPayload {
   userId: string;
   role: string;
   tenantId: string | null;
+  impersonatedBy?: string;
 }
 
 declare module 'fastify' {

@@ -90,6 +90,7 @@ enum AuditAction {
   USER_INVITED
   USER_DEACTIVATED
   SETTINGS_CHANGED
+  IMPERSONATION_STARTED
 }
 
 enum OverrideReason {
@@ -602,6 +603,7 @@ model AuditLog {
   tenant              Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   userId              String?  @db.Uuid
   user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  impersonatedBy      String?  @db.Uuid
   assessmentSessionId String?  @db.Uuid
   assessmentSession   AssessmentSession? @relation(fields: [assessmentSessionId], references: [id], onDelete: SetNull)
   action              AuditAction
@@ -614,6 +616,7 @@ model AuditLog {
 
   @@index([tenantId])
   @@index([userId])
+  @@index([impersonatedBy])
   @@index([assessmentSessionId])
   @@index([action])
   @@index([entityType])

@@ -20,6 +20,15 @@ export default fp(async function authPlugin(fastify: FastifyInstance) {
   fastify.decorate('authenticate', async function authenticate(request: FastifyRequest, _reply: FastifyReply) {
     try {
       await request.jwtVerify();
+      const payload = request.user as Record<string, unknown>;
+      if (payload.impersonatedBy) {
+        request.user = {
+          userId: payload.userId,
+          role: payload.role,
+          tenantId: payload.tenantId,
+          impersonatedBy: payload.impersonatedBy,
+        } as UserPayload;
+      }
     } catch {
       throw new UnauthorizedError();
     }

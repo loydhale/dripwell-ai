@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { parseBody } from '../lib/validate.js';
 import { NotFoundError, ForbiddenError } from '../lib/errors.js';
+import { generateImpersonationToken } from '../services/admin.js';
 import type { UserPayload } from '../types/index.js';
 
 const deactivateSchema = z.object({
@@ -193,6 +194,33 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     }
   );
 
+  fastify.post(
+    '/admin/login-as/:providerId',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request, reply) => {
+      const { providerId } = request.params as { providerId: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const result = await generateImpersonationToken({
+        providerId,
+        adminId: userPayload.userId,
+        tenantId: userPayload.tenantId,
+        fastify,
+      });
+
+      reply.status(201);
+      return {
+        token: result.token,
+        provider: result.provider,
+        expiresAt: result.expiresAt.toISOString(),
+      };
+    }
+  );
+
   fastify.put(
     '/admin/providers/:id/deactivate',
     { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
@@ -232,6 +260,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         data: {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
+          impersonatedBy: userPayload.impersonatedBy || null,
           action: 'USER_DEACTIVATED',
           entityType: 'User',
           entityId: id,
@@ -281,6 +310,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         data: {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
+          impersonatedBy: userPayload.impersonatedBy || null,
           action: 'USER_INVITED',
           entityType: 'User',
           entityId: id,

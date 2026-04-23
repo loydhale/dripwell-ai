@@ -73,6 +73,13 @@ const modifySchema = z.object({
   confidence: z.number().min(0).max(1).optional(),
 });
 
+function buildAuditLogData(userPayload: UserPayload, base: object) {
+  return {
+    ...base,
+    impersonatedBy: userPayload.impersonatedBy || null,
+  } as any;
+}
+
 export default async function assessmentRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/assessments',
@@ -205,7 +212,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       });
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -213,7 +220,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           entityType: 'PhotoCapture',
           entityId: photoCapture.id,
           details: { angle, url: stored.url },
-        },
+        }),
       });
 
       reply.status(201);
@@ -286,7 +293,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         }
 
         await prisma.auditLog.create({
-          data: {
+          data: buildAuditLogData(userPayload, {
             tenantId: userPayload.tenantId,
             userId: userPayload.userId,
             assessmentSessionId: id,
@@ -299,7 +306,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
               tokenUsage: result.tokenUsage as unknown as object,
               rawResponse: result.rawResponse,
             } as unknown as object,
-          },
+          }),
         });
       }
 
@@ -472,7 +479,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       });
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -485,7 +492,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
             skipped: data.skipped,
             confidenceDelta,
           },
-        },
+        }),
       });
 
       const confidenceRecord: Record<string, number> = {};
@@ -557,7 +564,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       });
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -572,7 +579,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
               confidence: c.confidence,
             })),
           },
-        },
+        }),
       });
 
       await prisma.notification.create({
@@ -655,6 +662,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           tenantId: userPayload.tenantId,
           providerId: userPayload.userId,
           flags: safetyResult.flags,
+          impersonatedBy: userPayload.impersonatedBy,
         });
       }
 
@@ -693,7 +701,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       });
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -706,7 +714,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
             primaryItemId: recommendationResult.primaryItem.catalogItemId,
             intent: recommendationResult.genericIntent,
           },
-        },
+        }),
       });
 
       reply.status(201);
@@ -818,7 +826,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       }
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -830,7 +838,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
             tier: updated.tier,
             acknowledged: true,
           },
-        },
+        }),
       });
 
       reply.status(200);
@@ -923,7 +931,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       });
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -933,7 +941,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           details: {
             notes: data.notes || null,
           },
-        },
+        }),
       });
 
       reply.status(200);
@@ -988,7 +996,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
       });
 
       await prisma.auditLog.create({
-        data: {
+        data: buildAuditLogData(userPayload, {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
@@ -1001,7 +1009,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
             reasonNote: data.reasonNote || null,
             manualRecommendation: data.manualRecommendation || null,
           },
-        },
+        }),
       });
 
       reply.status(200);

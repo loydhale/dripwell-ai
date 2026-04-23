@@ -469,14 +469,16 @@ export async function auditSafetyFlags(params: {
   tenantId: string;
   providerId: string;
   flags: DetectedFlag[];
+  impersonatedBy?: string;
 }): Promise<void> {
-  const { assessmentSessionId, tenantId, providerId, flags } = params;
+  const { assessmentSessionId, tenantId, providerId, flags, impersonatedBy } = params;
 
   for (const flag of flags) {
     await prisma.auditLog.create({
       data: {
         tenantId,
         userId: providerId,
+        impersonatedBy: impersonatedBy || null,
         assessmentSessionId,
         action: 'SAFETY_FLAG_RAISED',
         entityType: 'SafetyFlag',
