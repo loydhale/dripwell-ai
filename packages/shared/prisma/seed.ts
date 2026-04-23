@@ -29,11 +29,13 @@ async function main() {
   // ---------------------------------------------------------------------------
   // Users
   // ---------------------------------------------------------------------------
+  // Password for all test accounts: TestPass123!
+  const testPasswordHash = '$2b$10$E1kClnHSw6gVgGQogO2KUOg4yBQyGXzcbGwuDoon91g9qob4kXFDq';
   const superUser = await prisma.user.create({
     data: {
       tenantId: tenant.id,
       email: 'super@test.com',
-      passwordHash: '$2b$10$hashedplaceholder',
+      passwordHash: testPasswordHash,
       firstName: 'Clinic',
       lastName: 'Owner',
       role: 'SUPER_USER',
@@ -44,7 +46,7 @@ async function main() {
     data: {
       tenantId: tenant.id,
       email: 'provider@test.com',
-      passwordHash: '$2b$10$hashedplaceholder',
+      passwordHash: testPasswordHash,
       firstName: 'Sarah',
       lastName: 'Nurse',
       role: 'PROVIDER',
@@ -57,7 +59,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'vendor@dripwell.ai',
-      passwordHash: '$2b$12$Zr9/xgy8mkt32Yq9iSeJKe0E0ijaD/3V2GaewqMp/pJFolaz7X6qu',
+      passwordHash: testPasswordHash,
       firstName: 'Platform',
       lastName: 'Vendor',
       role: 'SYSTEM_ADMIN',
