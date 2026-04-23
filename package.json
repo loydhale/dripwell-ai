@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @dripwell/web dev",
+    "dev:api": "pnpm --filter @dripwell/api dev",
     "dev:admin": "pnpm --filter @dripwell/admin dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
