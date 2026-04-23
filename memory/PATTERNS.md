@@ -36,3 +36,10 @@ Where in codebase: apps/web/vite.config.ts, apps/web/manifest.json
 The pattern: Set `manifest: false` in VitePWA config and provide a standalone manifest.json. This keeps the manifest editable without rebuilding and makes it inspectable in DevTools.
 When to use: For all PWA projects where the manifest is static and should be version-controlled separately.
 Example: apps/web/vite.config.ts plugins array
+
+## P-003 — Fastify plugin + Zod validation helper for route validation
+Date: 2026-04-22
+Where in codebase: apps/api/src/plugins/auth.ts, apps/api/src/lib/validate.ts, apps/api/src/routes/*.ts
+The pattern: Use a centralized `parseBody(schema)` helper that wraps Zod safeParse and throws a `ValidationError` with structured issue details. Register auth, tenant, and error-handler as Fastify plugins, then apply them via `preValidation` hooks per-route.
+When to use: For all API routes that need request body validation, JWT auth, tenant isolation, or role-based guards.
+Example: `const data = parseBody(createTenantSchema)(request.body);` in tenants.ts

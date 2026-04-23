@@ -63,3 +63,11 @@ What went wrong: Using `return reply.status(201).send({ ... })` in route handler
 Root cause: Fastify v5's TypeScript types for `FastifyReply` after `.status()` do not allow `.send(payload)` chaining in strict mode with bundler moduleResolution.
 Avoid by: Set status code on reply first (`reply.status(201)`), then return the response object directly from the handler (`return { ... }`). Fastify sends the returned value automatically. Same for error handlers.
 Seen N times: 1
+
+## L-006 — Wrong error class for auth failures produces misleading HTTP status
+Date: 2026-04-22
+Task: TASK-004
+What went wrong: Coder used ConflictError (HTTP 409) for invalid email/password and missing user scenarios, which are authentication/authorization failures that should return 401 or 404.
+Root cause: ConflictError was the closest available custom error class, but the Coder did not map error semantics to correct HTTP status codes.
+Avoid by: When adding auth or resource-not-found errors, always match the error class to the intended HTTP status. Auth failures = UnauthorizedError (401). Missing resources = NotFoundError (404). Resource conflicts = ConflictError (409).
+Seen N times: 1
