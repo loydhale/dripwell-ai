@@ -1,5 +1,8 @@
 import '../styles/camera.css';
+import '../styles/questions.css';
 import { renderCameraCapture } from '../components/CameraCapture.js';
+import { renderQuestionDisplay } from '../components/QuestionDisplay.js';
+import type { Question } from '../components/QuestionDisplay.js';
 import { type PhotoAngle } from '../components/ARGuideOverlay.js';
 
 export interface AssessmentFlowState {
@@ -24,6 +27,7 @@ export function renderAssessmentFlow(
   let currentCleanup: (() => void) | null = null;
   let completed: PhotoAngle[] = [];
   let skipped: PhotoAngle[] = [];
+  let phase: 'photos' | 'questions' = 'photos';
 
   container.innerHTML = '';
   container.className = 'assessment-flow-root';
@@ -46,8 +50,8 @@ export function renderAssessmentFlow(
   header.appendChild(subtitle);
   header.appendChild(progressSteps);
 
-  const cameraSlot = document.createElement('div');
-  cameraSlot.className = 'af-camera-slot';
+  const contentSlot = document.createElement('div');
+  contentSlot.className = 'af-camera-slot';
 
   const bottomBar = document.createElement('div');
   bottomBar.className = 'af-bottom-bar';
@@ -68,7 +72,7 @@ export function renderAssessmentFlow(
   statusMsg.className = 'af-status-msg';
 
   container.appendChild(header);
-  container.appendChild(cameraSlot);
+  container.appendChild(contentSlot);
   container.appendChild(statusMsg);
   container.appendChild(bottomBar);
 
@@ -99,16 +103,20 @@ export function renderAssessmentFlow(
     statusMsg.textContent = text;
   }
 
-  function mountCameraForAngle(angle: PhotoAngle) {
+  function clearContent() {
     if (currentCleanup) {
       currentCleanup();
       currentCleanup = null;
     }
-    cameraSlot.innerHTML = '';
+    contentSlot.innerHTML = '';
+  }
+
+  function mountCameraForAngle(angle: PhotoAngle) {
+    clearContent();
     renderSteps();
 
     currentCleanup = renderCameraCapture(
-      cameraSlot,
+      contentSlot,
       {
         angle,
         assessmentId: state.assessmentId,
@@ -144,11 +152,7 @@ export function renderAssessmentFlow(
 
     if (nextIndex >= ALL_ANGLES.length) {
       // All angles done
-      if (currentCleanup) {
-        currentCleanup();
-        currentCleanup = null;
-      }
-      cameraSlot.innerHTML = '';
+      clearContent();
       const doneMsg = document.createElement('div');
       doneMsg.className = 'af-done-msg';
       doneMsg.innerHTML = `
@@ -160,7 +164,7 @@ export function renderAssessmentFlow(
         <h2>All photos captured</h2>
         <p>${completed.length} uploaded, ${skipped.length} skipped.</p>
       `;
-      cameraSlot.appendChild(doneMsg);
+      contentSlot.appendChild(doneMsg);
       nextBtn.style.display = '';
       updateStatus('');
       renderSteps();
@@ -171,12 +175,168 @@ export function renderAssessmentFlow(
     mountCameraForAngle(ALL_ANGLES[currentAngleIndex]);
   }
 
+  // -------------------------------------------------------------------------
+  // Questioning phase
+  // -------------------------------------------------------------------------
+
+  async function fetchNextQuestion(): Promise<{
+    question: Question | null;
+    progress: { questionNumber: number; maxQuestions: number };
+    shouldTerminate: boolean;
+    terminationReason: string | null;
+  }> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/next-question`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch next question: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function postAnswer(questionId: string, answerValue: string, skipped: boolean) {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/answer`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ questionId, answerValue, skipped }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to post answer: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function postEndQuestioning() {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/end-questioning`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to end questioning: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function startQuestioning() {
+    phase = 'questions';
+    title.textContent = 'Follow-up Questions';
+    subtitle.textContent = 'Ask the patient, then tap their answer.';
+    progressSteps.style.display = 'none';
+    nextBtn.style.display = 'none';
+    bottomBar.style.display = 'none';
+    updateStatus('');
+
+    try {
+      const data = await fetchNextQuestion();
+      if (data.shouldTerminate || !data.question) {
+        finishQuestioning();
+        return;
+      }
+      showQuestion(data.question, data.progress);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      updateStatus(`Error loading questions: ${message}`);
+    }
+  }
+
+  function showQuestion(question: Question, progress: { questionNumber: number; maxQuestions: number }) {
+    clearContent();
+    currentCleanup = renderQuestionDisplay(
+      contentSlot,
+      { question, questionNumber: progress.questionNumber, maxQuestions: progress.maxQuestions },
+      {
+        onAnswer: async (questionId, answerValue) => {
+          try {
+            const data = await postAnswer(questionId, answerValue, false);
+            if (data.shouldTerminate || !data.nextQuestion) {
+              finishQuestioning();
+              return;
+            }
+            showQuestion(data.nextQuestion, {
+              questionNumber: data.nextQuestion.progress?.questionNumber || progress.questionNumber + 1,
+              maxQuestions: progress.maxQuestions,
+            });
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            updateStatus(`Error saving answer: ${message}`);
+          }
+        },
+        onSkip: async (questionId) => {
+          try {
+            const data = await postAnswer(questionId, 'skipped', true);
+            if (data.shouldTerminate || !data.nextQuestion) {
+              finishQuestioning();
+              return;
+            }
+            showQuestion(data.nextQuestion, {
+              questionNumber: data.nextQuestion.progress?.questionNumber || progress.questionNumber + 1,
+              maxQuestions: progress.maxQuestions,
+            });
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            updateStatus(`Error skipping question: ${message}`);
+          }
+        },
+        onEndQuestioning: async () => {
+          try {
+            await postEndQuestioning();
+            finishQuestioning();
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            updateStatus(`Error ending questioning: ${message}`);
+          }
+        },
+      }
+    );
+  }
+
+  function finishQuestioning() {
+    clearContent();
+    const doneMsg = document.createElement('div');
+    doneMsg.className = 'af-done-msg';
+    doneMsg.innerHTML = `
+      <div class="af-done-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Assessment complete</h2>
+      <p>Photo analysis and questioning finished.</p>
+    `;
+    contentSlot.appendChild(doneMsg);
+
+    bottomBar.style.display = 'flex';
+    nextBtn.style.display = '';
+    nextBtn.textContent = 'Continue to results';
+    nextBtn.onclick = () => {
+      handlers.onComplete();
+    };
+  }
+
+  // Event handlers
   cancelBtn.addEventListener('click', () => {
     if (handlers.onCancel) handlers.onCancel();
   });
 
   nextBtn.addEventListener('click', () => {
-    handlers.onComplete();
+    if (phase === 'photos') {
+      startQuestioning();
+    }
   });
 
   // Start at the first angle that is not already done
@@ -186,7 +346,6 @@ export function renderAssessmentFlow(
   }
 
   if (startIndex >= ALL_ANGLES.length) {
-    // All already done
     currentAngleIndex = ALL_ANGLES.length - 1;
     advanceAngle();
   } else {
@@ -195,9 +354,6 @@ export function renderAssessmentFlow(
   }
 
   return () => {
-    if (currentCleanup) {
-      currentCleanup();
-      currentCleanup = null;
-    }
+    clearContent();
   };
 }

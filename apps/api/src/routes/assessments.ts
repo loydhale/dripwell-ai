@@ -5,6 +5,16 @@ import { parseBody } from '../lib/validate.js';
 import { getPhotoStorage } from '../lib/storage.js';
 import { NotFoundError, ForbiddenError, ValidationError } from '../lib/errors.js';
 import { analyzePhotos, isConfidenceAcceptable, toPrismaSignalName } from '../services/vision.js';
+import {
+  STATIC_QUESTION_BANK,
+  QUESTION_MOCK_MODE,
+  selectNextQuestion,
+  computePatternConfidences,
+  recordAnswer,
+  getAssessmentSignals,
+  getAssessmentAnswers,
+  formatConfidenceLog,
+} from '../services/questions.js';
 import type { UserPayload } from '../types/index.js';
 
 const createAssessmentSchema = z.object({
@@ -12,6 +22,12 @@ const createAssessmentSchema = z.object({
 });
 
 const photoAngleSchema = z.enum(['FACE', 'UNDER_EYES', 'HAND_FOREARM', 'TONGUE']);
+
+const answerSchema = z.object({
+  questionId: z.string().uuid(),
+  answerValue: z.string().min(1),
+  skipped: z.boolean().optional().default(false),
+});
 
 export default async function assessmentRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -251,6 +267,272 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           lowConfidenceCount: analysis.lowConfidenceCount,
         },
         signals: createdSignals,
+      };
+    }
+  );
+
+  fastify.get(
+    '/assessments/:id/next-question',
+    { preValidation: [fastify.authenticate] },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const signals = await getAssessmentSignals(id, userPayload.tenantId);
+      const answers = await getAssessmentAnswers(id, userPayload.tenantId);
+
+      const result = selectNextQuestion({
+        signals,
+        answers,
+        mockSignals: QUESTION_MOCK_MODE || signals.length === 0,
+      });
+
+      fastify.log.info({
+        assessmentId: id,
+        action: 'NEXT_QUESTION',
+        questionId: result.question?.id ?? null,
+        shouldTerminate: result.shouldTerminate,
+        confidences: formatConfidenceLog(result.patternConfidences),
+      });
+
+      const questionOut = result.question
+        ? {
+            id: result.question.id,
+            category: result.question.category,
+            questionText: result.question.questionText,
+            answerType: result.question.answerType,
+            answerOptions: result.question.answerOptions,
+            isOptional: true,
+          }
+        : null;
+
+      const confidenceRecord: Record<string, number> = {};
+      for (const c of result.patternConfidences) {
+        confidenceRecord[c.pattern] = c.confidence;
+      }
+
+      return {
+        question: questionOut,
+        progress: result.progress,
+        patternConfidences: confidenceRecord,
+        shouldTerminate: result.shouldTerminate,
+        terminationReason: result.terminationReason,
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/answer',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const data = parseBody(answerSchema)(request.body);
+      const question = STATIC_QUESTION_BANK.find((q) => q.id === data.questionId);
+      if (!question) {
+        throw new ValidationError([{ message: 'Unknown question ID' }]);
+      }
+
+      const answerValue = data.skipped ? 'skipped' : data.answerValue;
+
+      // Compute confidence delta for audit / transparency
+      const priorAnswers = await getAssessmentAnswers(id, userPayload.tenantId);
+      const priorConfidences = computePatternConfidences({
+        signals: await getAssessmentSignals(id, userPayload.tenantId),
+        answers: priorAnswers,
+        mockSignals: QUESTION_MOCK_MODE,
+      });
+
+      const newAnswer = await recordAnswer({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+        questionBankId: question.id,
+        questionText: question.questionText,
+        answerValue,
+        answerType: question.answerType,
+        confidenceDelta: null,
+      });
+
+      const postAnswers = [...priorAnswers, { questionBankId: question.id, answerValue }];
+      const postConfidences = computePatternConfidences({
+        signals: await getAssessmentSignals(id, userPayload.tenantId),
+        answers: postAnswers,
+        mockSignals: QUESTION_MOCK_MODE,
+      });
+
+      const topPrior = priorConfidences.sort((a, b) => b.confidence - a.confidence)[0];
+      const topPost = postConfidences.sort((a, b) => b.confidence - a.confidence)[0];
+      const confidenceDelta = topPost.confidence - topPrior.confidence;
+
+      // Update the answer with the computed delta
+      await prisma.questionAnswer.update({
+        where: { id: newAnswer.id },
+        data: { confidenceDelta },
+      });
+
+      const nextResult = selectNextQuestion({
+        signals: await getAssessmentSignals(id, userPayload.tenantId),
+        answers: postAnswers,
+        mockSignals: QUESTION_MOCK_MODE,
+      });
+
+      fastify.log.info({
+        assessmentId: id,
+        action: 'QUESTION_ANSWERED',
+        questionId: question.id,
+        answerValue,
+        skipped: data.skipped,
+        confidenceDelta,
+        topPattern: topPost.pattern,
+        topConfidence: topPost.confidence,
+        confidences: formatConfidenceLog(postConfidences),
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'QUESTION_ANSWERED',
+          entityType: 'QuestionAnswer',
+          entityId: newAnswer.id,
+          details: {
+            questionId: question.id,
+            answerValue,
+            skipped: data.skipped,
+            confidenceDelta,
+          },
+        },
+      });
+
+      const confidenceRecord: Record<string, number> = {};
+      for (const c of postConfidences) {
+        confidenceRecord[c.pattern] = c.confidence;
+      }
+
+      const nextQuestionOut = nextResult.question
+        ? {
+            id: nextResult.question.id,
+            category: nextResult.question.category,
+            questionText: nextResult.question.questionText,
+            answerType: nextResult.question.answerType,
+            answerOptions: nextResult.question.answerOptions,
+            isOptional: true,
+          }
+        : null;
+
+      reply.status(201);
+      return {
+        answer: {
+          id: newAnswer.id,
+          questionBankId: newAnswer.questionBankId,
+          answerValue: newAnswer.answerValue,
+          confidenceDelta: newAnswer.confidenceDelta,
+          answeredAt: newAnswer.answeredAt,
+        },
+        patternConfidences: confidenceRecord,
+        shouldTerminate: nextResult.shouldTerminate,
+        terminationReason: nextResult.terminationReason,
+        nextQuestion: nextQuestionOut,
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/end-questioning',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const answers = await getAssessmentAnswers(id, userPayload.tenantId);
+      const signals = await getAssessmentSignals(id, userPayload.tenantId);
+      const confidences = computePatternConfidences({
+        signals,
+        answers,
+        mockSignals: QUESTION_MOCK_MODE,
+      });
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { status: 'COMPLETED', completedAt: new Date() },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'ASSESSMENT_CREATED',
+          entityType: 'AssessmentSession',
+          entityId: id,
+          details: {
+            event: 'PROVIDER_ENDED_QUESTIONING',
+            answersCount: answers.length,
+            finalConfidences: confidences.map((c) => ({
+              pattern: c.pattern,
+              confidence: c.confidence,
+            })),
+          },
+        },
+      });
+
+      const confidenceRecord: Record<string, number> = {};
+      for (const c of confidences) {
+        confidenceRecord[c.pattern] = c.confidence;
+      }
+
+      reply.status(200);
+      return {
+        status: 'COMPLETED',
+        patternConfidences: confidenceRecord,
+        answersCount: answers.length,
       };
     }
   );

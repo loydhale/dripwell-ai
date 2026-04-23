@@ -1,0 +1,206 @@
+/* --------------------------------------------------------------------------
+   Question Display Styles
+   Clinical, clean, optimized for tablet (primary) and desktop.
+   -------------------------------------------------------------------------- */
+
+.question-display-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0b1c1a;
+  color: #e8f0ee;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.qd-header {
+  flex-shrink: 0;
+  padding: 16px 20px 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.qd-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: #ffffff;
+}
+
+.qd-subtitle {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.qd-progress-wrap {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.qd-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.qd-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #0f7a6a;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.qd-progress-label {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Question card */
+.qd-card {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 20px;
+  gap: 20px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.qd-category {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #0f7a6a;
+  background: rgba(15, 122, 106, 0.12);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.qd-question-text {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  color: #ffffff;
+  max-width: 560px;
+}
+
+/* Options */
+.qd-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.qd-option {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e8f0ee;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.qd-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.qd-option:active {
+  transform: scale(0.99);
+}
+
+.qd-option--selected {
+  background: rgba(15, 122, 106, 0.2);
+  border-color: #0f7a6a;
+  color: #ffffff;
+}
+
+/* Bottom bar */
+.qd-bottom-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 16px;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.qd-btn-skip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.qd-btn-skip:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.qd-btn-end {
+  background: rgba(180, 60, 60, 0.2);
+  border: 1px solid rgba(180, 60, 60, 0.4);
+  color: rgba(255, 200, 200, 0.85);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.qd-btn-end:hover {
+  background: rgba(180, 60, 60, 0.35);
+  border-color: rgba(180, 60, 60, 0.6);
+}
+
+/* Responsive */
+@media (min-width: 640px) {
+  .qd-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .qd-question-text {
+    font-size: 26px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .qd-title {
+    font-size: 24px;
+  }
+
+  .qd-subtitle {
+    font-size: 14px;
+  }
+
+  .qd-question-text {
+    font-size: 28px;
+  }
+
+  .qd-option {
+    font-size: 16px;
+    padding: 16px 20px;
+  }
+}
