@@ -70,7 +70,7 @@ export function renderProviderManager(container: HTMLElement): () => void {
           <td>${formatDate(p.createdAt)}</td>
           <td>
             ${p.isActive
-              ? `<button class="admin-btn admin-btn-sm admin-btn-danger" data-deactivate="${p.id}">Deactivate</button>`
+              ? `<button class="admin-btn admin-btn-sm admin-btn-primary" data-login-as="${p.id}">Login As</button> <button class="admin-btn admin-btn-sm admin-btn-danger" data-deactivate="${p.id}">Deactivate</button>`
               : `<button class="admin-btn admin-btn-sm admin-btn-secondary" data-reactivate="${p.id}">Reactivate</button>`}
           </td>
         `;
@@ -82,6 +82,22 @@ export function renderProviderManager(container: HTMLElement): () => void {
 
     container.innerHTML = '';
     container.appendChild(page);
+
+    tableWrap.querySelectorAll<HTMLButtonElement>('[data-login-as]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-login-as')!;
+        btn.disabled = true;
+        try {
+          const res = await post<{ token: string; provider: Provider }>(`/admin/login-as/${id}`, {});
+          const pwaUrl = import.meta.env.VITE_PWA_URL || 'http://localhost:3002';
+          window.open(`${pwaUrl}#impersonate=${encodeURIComponent(res.token)}`, '_blank');
+        } catch (err) {
+          alert(err instanceof Error ? err.message : 'Failed to login as provider');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
 
     tableWrap.querySelectorAll<HTMLButtonElement>('[data-deactivate]').forEach((btn) => {
       btn.addEventListener('click', async () => {
