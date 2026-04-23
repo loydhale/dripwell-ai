@@ -1,0 +1,91 @@
+.consent-form-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+.cf-header {
+  margin-bottom: 20px;
+}
+
+.cf-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.cf-subtitle {
+  font-size: 14px;
+  color: var(--text-2, #666);
+  margin: 0;
+}
+
+.cf-form {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.cf-checkbox-wrap {
+  margin-bottom: 16px;
+}
+
+.cf-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+}
+
+.cf-checkbox-input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.cf-checkbox-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink, #111);
+}
+
+.cf-checkbox-error {
+  font-size: 12px;
+  color: var(--danger, #dc2626);
+  margin-top: 4px;
+  padding-left: 12px;
+}
+
+.cf-error-msg {
+  background: var(--danger-bg, #fef2f2);
+  border: 1px solid var(--danger, #dc2626);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--danger, #dc2626);
+}
+
+.cf-bottom-bar {
+  display: flex;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #ddd);
+}
+
+.cf-btn-submit {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary, #2563eb);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}

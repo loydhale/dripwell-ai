@@ -86,6 +86,10 @@ enum AuditAction {
   SAFETY_FLAG_RAISED
   PROVIDER_APPROVED
   PROVIDER_OVERRIDDEN
+  PROVIDER_ESCALATED
+  PROVIDER_DEFERRED
+  CONSENT_CAPTURED
+  VITALS_RECORDED
   CATALOG_UPDATED
   USER_INVITED
   USER_DEACTIVATED
@@ -116,6 +120,8 @@ enum AssessmentStatus {
   PENDING_REVIEW
   APPROVED
   OVERRIDDEN
+  ESCALATED
+  DEFERRED
   COMPLETED
   ABANDONED
 }
@@ -151,6 +157,7 @@ model Tenant {
   catalogItemCompatibilities CatalogItemCompatibility[]
   config               Json?    @default("{}")
   notifications        Notification[]
+  changeLogs           AssessmentChangeLog[]
 
   @@index([slug])
   @@index([isActive])
@@ -197,6 +204,7 @@ model User {
   safetyFlagsAcknowledged  SafetyFlag[]         @relation("AcknowledgedBy")
   providerOverrides        ProviderOverride[]
   auditLogs                AuditLog[]
+  changeLogs               AssessmentChangeLog[]
 
   @@index([tenantId])
   @@index([email])
@@ -222,6 +230,8 @@ model AssessmentSession {
   priorSession    AssessmentSession? @relation("SessionHistory", fields: [priorSessionId], references: [id], onDelete: SetNull)
   followUpSessions AssessmentSession[] @relation("SessionHistory")
   status          AssessmentStatus  @default(IN_PROGRESS)
+  vitals          Json?
+  consent         Json?
   startedAt       DateTime          @default(now())
   completedAt     DateTime?
   createdAt       DateTime          @default(now())
@@ -238,6 +248,7 @@ model AssessmentSession {
   assessmentHistories AssessmentHistory[] @relation("HistorySession")
   baselineHistories   AssessmentHistory[] @relation("HistoryBaseline")
   auditLogs           AuditLog[]
+  changeLogs          AssessmentChangeLog[]
 
   @@index([tenantId])
   @@index([providerId])
@@ -656,5 +667,26 @@ model Notification {
 
   @@index([tenantId])
   @@index([isRead])
+  @@index([createdAt])
+}
+
+model AssessmentChangeLog {
+  id                  String   @id @default(uuid()) @db.Uuid
+  assessmentSessionId String   @db.Uuid
+  assessmentSession   AssessmentSession @relation(fields: [assessmentSessionId], references: [id], onDelete: Cascade)
+  tenantId            String   @db.Uuid
+  tenant              Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  providerId          String   @db.Uuid
+  provider            User     @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  actionType          String
+  originalValue       Json?
+  modifiedValue       Json?
+  changedFields       Json?
+  providerName        String
+  createdAt           DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([assessmentSessionId])
+  @@index([providerId])
   @@index([createdAt])
 }

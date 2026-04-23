@@ -194,6 +194,8 @@ function statusBadge(status: string): string {
     PENDING_REVIEW: '<span class="admin-badge admin-badge-warning">Pending</span>',
     APPROVED: '<span class="admin-badge admin-badge-success">Approved</span>',
     OVERRIDDEN: '<span class="admin-badge admin-badge-warning">Overridden</span>',
+    ESCALATED: '<span class="admin-badge admin-badge-danger">Referred Out</span>',
+    DEFERRED: '<span class="admin-badge admin-badge-warning">Pending Follow-up</span>',
     COMPLETED: '<span class="admin-badge admin-badge-success">Completed</span>',
     ABANDONED: '<span class="admin-badge admin-badge-danger">Abandoned</span>',
     PENDING: '<span class="admin-badge admin-badge-warning">Pending</span>',

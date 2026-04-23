@@ -22,6 +22,9 @@ import {
   approveRecommendation,
   overrideRecommendation,
   modifyRecommendation,
+  escalateRecommendation,
+  deferRecommendation,
+  getChangeLog,
 } from '../services/recommendations.js';
 import {
   detectSafetyFlags,
@@ -71,6 +74,34 @@ const modifySchema = z.object({
   primaryCatalogItemId: z.string().uuid().optional(),
   rationale: z.string().optional(),
   confidence: z.number().min(0).max(1).optional(),
+});
+
+const vitalsSchema = z.object({
+  bloodPressureSystolic: z.number().int().min(70).max(220),
+  bloodPressureDiastolic: z.number().int().min(40).max(140),
+  pulse: z.number().int().min(40).max(200),
+  spo2: z.number().int().min(70).max(100),
+  temperature: z.number().min(95).max(108).optional(),
+  respiratoryRate: z.number().int().min(8).max(60).optional(),
+  weight: z.number().min(50).max(600).optional(),
+});
+
+const consentSchema = z.object({
+  photoCaptureConsent: z.boolean(),
+  audioRecordingConsent: z.boolean(),
+  providerSignature: z.boolean(),
+  patientInitials: z.boolean(),
+});
+
+const escalateSchema = z.object({
+  reason: z.enum(['NEEDS_PHYSICIAN_REVIEW', 'COMPLEX_CASE', 'PATIENT_REQUEST', 'OTHER']),
+  notes: z.string().optional(),
+});
+
+const deferSchema = z.object({
+  reason: z.enum(['NEED_MORE_INFO', 'PATIENT_NOT_READY', 'FOLLOW_UP_NEEDED', 'OTHER']),
+  followUpDate: z.string().datetime().optional(),
+  notes: z.string().optional(),
 });
 
 function buildAuditLogData(userPayload: UserPayload, base: object) {
@@ -344,7 +375,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new NotFoundError('Assessment');
       }
 
-      if (assessment.status === 'PENDING_REVIEW' || assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
+      if (assessment.status === 'PENDING_REVIEW' || assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'ESCALATED' || assessment.status === 'DEFERRED' || assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
         throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
@@ -413,7 +444,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new NotFoundError('Assessment');
       }
 
-      if (assessment.status === 'PENDING_REVIEW' || assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
+      if (assessment.status === 'PENDING_REVIEW' || assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'ESCALATED' || assessment.status === 'DEFERRED' || assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
         throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
@@ -628,7 +659,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new NotFoundError('Assessment');
       }
 
-      if (assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'ABANDONED') {
+      if (assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'ESCALATED' || assessment.status === 'DEFERRED' || assessment.status === 'ABANDONED') {
         throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
@@ -1067,6 +1098,311 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         confidence: result.confidence,
         rationale: result.rationale,
       };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/vitals',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'IN_PROGRESS') {
+        throw new ValidationError([{ message: `Assessment must be in progress to record vitals. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(vitalsSchema)(request.body);
+
+      const safetyFlags: string[] = [];
+      if (data.spo2 < 92) {
+        safetyFlags.push(`SpO2 is ${data.spo2}%, below 92% threshold`);
+      }
+      if (data.bloodPressureSystolic > 180 || data.bloodPressureDiastolic > 110) {
+        safetyFlags.push(`Blood pressure is ${data.bloodPressureSystolic}/${data.bloodPressureDiastolic}, above 180/110 threshold`);
+      }
+      if (data.pulse > 120) {
+        safetyFlags.push(`Pulse is ${data.pulse} bpm, above 120 threshold`);
+      }
+
+      const vitals = {
+        bloodPressureSystolic: data.bloodPressureSystolic,
+        bloodPressureDiastolic: data.bloodPressureDiastolic,
+        pulse: data.pulse,
+        spo2: data.spo2,
+        temperature: data.temperature || null,
+        respiratoryRate: data.respiratoryRate || null,
+        weight: data.weight || null,
+      };
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { vitals: vitals as unknown as object },
+      });
+
+      await prisma.auditLog.create({
+        data: buildAuditLogData(userPayload, {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'VITALS_RECORDED',
+          entityType: 'AssessmentSession',
+          entityId: id,
+          details: {
+            vitals,
+            safetyFlags: safetyFlags.length > 0 ? safetyFlags : null,
+          },
+        }),
+      });
+
+      reply.status(200);
+      return {
+        vitals,
+        safetyFlagged: safetyFlags.length > 0,
+        safetyFlags,
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/consent',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'IN_PROGRESS') {
+        throw new ValidationError([{ message: `Assessment must be in progress to capture consent. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(consentSchema)(request.body);
+
+      if (!data.photoCaptureConsent || !data.audioRecordingConsent || !data.providerSignature || !data.patientInitials) {
+        throw new ValidationError([{ message: 'All consent fields must be confirmed before proceeding' }]);
+      }
+
+      const consent = {
+        photoCaptureConsent: data.photoCaptureConsent,
+        audioRecordingConsent: data.audioRecordingConsent,
+        providerSignature: data.providerSignature,
+        patientInitials: data.patientInitials,
+        capturedAt: new Date().toISOString(),
+      };
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { consent: consent as unknown as object },
+      });
+
+      await prisma.auditLog.create({
+        data: buildAuditLogData(userPayload, {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'CONSENT_CAPTURED',
+          entityType: 'AssessmentSession',
+          entityId: id,
+          details: { consent },
+        }),
+      });
+
+      reply.status(200);
+      return { consent };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/escalate',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'PENDING_REVIEW') {
+        throw new ValidationError([{ message: `Assessment must be pending review to escalate. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(escalateSchema)(request.body);
+
+      const result = await escalateRecommendation({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+        providerId: makeProviderId(userPayload.userId),
+        reason: data.reason,
+        notes: data.notes,
+      });
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { status: 'ESCALATED' },
+      });
+
+      await prisma.auditLog.create({
+        data: buildAuditLogData(userPayload, {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'PROVIDER_ESCALATED',
+          entityType: 'AssessmentSession',
+          entityId: id,
+          details: {
+            escalationId: result.escalationId,
+            reason: data.reason,
+            notes: data.notes || null,
+          },
+        }),
+      });
+
+      reply.status(200);
+      return {
+        escalationId: result.escalationId,
+        status: 'ESCALATED',
+        patientOutput: result.patientOutput,
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/defer',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'PENDING_REVIEW') {
+        throw new ValidationError([{ message: `Assessment must be pending review to defer. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(deferSchema)(request.body);
+
+      const result = await deferRecommendation({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+        providerId: makeProviderId(userPayload.userId),
+        reason: data.reason,
+        followUpDate: data.followUpDate,
+        notes: data.notes,
+      });
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { status: 'DEFERRED' },
+      });
+
+      await prisma.auditLog.create({
+        data: buildAuditLogData(userPayload, {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'PROVIDER_DEFERRED',
+          entityType: 'AssessmentSession',
+          entityId: id,
+          details: {
+            deferralId: result.deferralId,
+            reason: data.reason,
+            followUpDate: data.followUpDate || null,
+            notes: data.notes || null,
+          },
+        }),
+      });
+
+      reply.status(200);
+      return {
+        deferralId: result.deferralId,
+        status: 'DEFERRED',
+        patientOutput: result.patientOutput,
+      };
+    }
+  );
+
+  fastify.get(
+    '/assessments/:id/change-log',
+    { preValidation: [fastify.authenticate] },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const logs = await getChangeLog({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+      });
+
+      return { changeLog: logs };
     }
   );
 }

@@ -1,4 +1,4 @@
-import { prisma } from '../lib/prisma.js';
+import { prisma } from '@dripwell/shared';
 import { NotFoundError } from '../lib/errors.js';
 import type { PatternMatchDetail } from './patterns.js';
 import {
@@ -572,6 +572,46 @@ export async function modifyRecommendation(params: {
     },
   });
 
+  // Record in change log
+  const changedFields: string[] = [];
+  if (rationale !== undefined && rationale !== originalRationale) {
+    changedFields.push('rationale');
+  }
+  if (primaryCatalogItemId !== undefined && primaryCatalogItemId !== originalPrimaryId) {
+    changedFields.push('primaryCatalogItemId');
+  }
+  if (confidence !== undefined && confidence !== rec.confidence) {
+    changedFields.push('confidence');
+  }
+
+  if (changedFields.length > 0) {
+    const provider = await prisma.user.findUnique({
+      where: { id: providerId },
+      select: { firstName: true, lastName: true },
+    });
+
+    await prisma.assessmentChangeLog.create({
+      data: {
+        assessmentSessionId,
+        tenantId,
+        providerId,
+        actionType: 'MODIFY',
+        originalValue: {
+          rationale: originalRationale,
+          primaryCatalogItemId: originalPrimaryId,
+          confidence: rec.confidence,
+        } as unknown as object,
+        modifiedValue: {
+          rationale: updatedRec.rationale,
+          primaryCatalogItemId: updatedRec.primaryCatalogItemId,
+          confidence: updatedRec.confidence,
+        } as unknown as object,
+        changedFields: changedFields as unknown as object,
+        providerName: provider ? `${provider.firstName} ${provider.lastName}` : 'Unknown Provider',
+      },
+    });
+  }
+
   const primaryItem = updatedRec.recommendationItems.find((ri) => ri.isPrimary);
   const alternatives = updatedRec.recommendationItems.filter((ri) => !ri.isPrimary);
 
@@ -654,4 +694,210 @@ async function generatePatientOutput(params: {
     whatToExpect,
     disclaimers,
   };
+}
+
+export async function escalateRecommendation(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+  providerId: ProviderId;
+  reason: 'NEEDS_PHYSICIAN_REVIEW' | 'COMPLEX_CASE' | 'PATIENT_REQUEST' | 'OTHER';
+  notes?: string;
+}): Promise<{
+  escalationId: string;
+  patientOutput: PatientOutput;
+}> {
+  const { assessmentSessionId, tenantId, providerId, reason, notes } = params;
+
+  const rec = await prisma.recommendation.findFirst({
+    where: {
+      assessmentSessionId,
+      tenantId,
+      status: { in: ['PENDING', 'MODIFIED'] },
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      recommendationItems: {
+        include: { catalogItem: true },
+      },
+      primaryItem: true,
+    },
+  });
+
+  if (!rec) {
+    throw new NotFoundError('Pending recommendation');
+  }
+
+  await prisma.recommendation.update({
+    where: { id: rec.id },
+    data: { status: 'REJECTED' },
+  });
+
+  const escalation = await prisma.providerOverride.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      recommendationId: rec.id,
+      overrideType: 'ESCALATE',
+      reason: 'OTHER',
+      reasonNote: `Escalated: ${reason}. ${notes || ''}`.trim(),
+      originalValue: rec.rationale,
+      newValue: null,
+    },
+  });
+
+  const provider = await prisma.user.findUnique({
+    where: { id: providerId },
+    select: { firstName: true, lastName: true },
+  });
+
+  await prisma.assessmentChangeLog.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      actionType: 'ESCALATE',
+      originalValue: { rationale: rec.rationale, primaryCatalogItemId: rec.primaryCatalogItemId } as unknown as object,
+      changedFields: ['status'] as unknown as object,
+      providerName: provider ? `${provider.firstName} ${provider.lastName}` : 'Unknown Provider',
+    },
+  });
+
+  const patientOutput: PatientOutput = {
+    title: 'Assessment Referred to Physician',
+    summary: 'Your assessment has been referred to a senior clinician or physician for review.',
+    whatWasObserved: 'Based on your photos and responses, your provider has determined that additional clinical review is needed.',
+    whyThisRecommendation: `Reason for escalation: ${reason.replace(/_/g, ' ').toLowerCase()}.${notes ? ` Notes: ${notes}` : ''}`,
+    whatToExpect: 'A senior clinician or physician will review your assessment and determine the most appropriate treatment plan. You will be contacted with next steps.',
+    disclaimers: [
+      'This assessment requires additional clinical review.',
+      'Please follow up with clinic staff for scheduling.',
+    ],
+  };
+
+  return {
+    escalationId: escalation.id,
+    patientOutput,
+  };
+}
+
+export async function deferRecommendation(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+  providerId: ProviderId;
+  reason: 'NEED_MORE_INFO' | 'PATIENT_NOT_READY' | 'FOLLOW_UP_NEEDED' | 'OTHER';
+  followUpDate?: string;
+  notes?: string;
+}): Promise<{
+  deferralId: string;
+  patientOutput: PatientOutput;
+}> {
+  const { assessmentSessionId, tenantId, providerId, reason, followUpDate, notes } = params;
+
+  const rec = await prisma.recommendation.findFirst({
+    where: {
+      assessmentSessionId,
+      tenantId,
+      status: { in: ['PENDING', 'MODIFIED'] },
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      recommendationItems: {
+        include: { catalogItem: true },
+      },
+      primaryItem: true,
+    },
+  });
+
+  if (!rec) {
+    throw new NotFoundError('Pending recommendation');
+  }
+
+  await prisma.recommendation.update({
+    where: { id: rec.id },
+    data: { status: 'REJECTED' },
+  });
+
+  const deferral = await prisma.providerOverride.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      recommendationId: rec.id,
+      overrideType: 'DEFER',
+      reason: 'OTHER',
+      reasonNote: `Deferred: ${reason}. ${followUpDate ? `Follow-up date: ${followUpDate}. ` : ''}${notes || ''}`.trim(),
+      originalValue: rec.rationale,
+      newValue: null,
+    },
+  });
+
+  const provider = await prisma.user.findUnique({
+    where: { id: providerId },
+    select: { firstName: true, lastName: true },
+  });
+
+  await prisma.assessmentChangeLog.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      actionType: 'DEFER',
+      originalValue: { rationale: rec.rationale, primaryCatalogItemId: rec.primaryCatalogItemId } as unknown as object,
+      changedFields: ['status'] as unknown as object,
+      providerName: provider ? `${provider.firstName} ${provider.lastName}` : 'Unknown Provider',
+    },
+  });
+
+  const patientOutput: PatientOutput = {
+    title: 'Assessment Postponed',
+    summary: 'Your assessment has been postponed. A follow-up plan will be arranged.',
+    whatWasObserved: 'Your provider has reviewed your assessment and determined that additional information or preparation is needed before proceeding.',
+    whyThisRecommendation: `Reason for deferral: ${reason.replace(/_/g, ' ').toLowerCase()}.${followUpDate ? ` A follow-up is planned for ${new Date(followUpDate).toLocaleDateString()}.` : ''}${notes ? ` Notes: ${notes}` : ''}`,
+    whatToExpect: followUpDate
+      ? `Please plan to return on ${new Date(followUpDate).toLocaleDateString()} for a follow-up assessment. Your provider will contact you with any additional instructions.`
+      : 'Your provider will contact you with next steps and any additional information needed.',
+    disclaimers: [
+      'This assessment has been postponed for your safety and wellbeing.',
+      'Please follow up with clinic staff for rescheduling.',
+    ],
+  };
+
+  return {
+    deferralId: deferral.id,
+    patientOutput,
+  };
+}
+
+export async function getChangeLog(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+}): Promise<Array<{
+  id: string;
+  actionType: string;
+  changedFields: string[];
+  originalValue: object | null;
+  modifiedValue: object | null;
+  providerName: string;
+  createdAt: Date;
+}>> {
+  const { assessmentSessionId, tenantId } = params;
+
+  const logs = await prisma.assessmentChangeLog.findMany({
+    where: {
+      assessmentSessionId,
+      tenantId,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return logs.map((log: typeof logs[0]) => ({
+    id: log.id,
+    actionType: log.actionType,
+    changedFields: (log.changedFields as unknown as string[]) || [],
+    originalValue: log.originalValue as unknown as object,
+    modifiedValue: log.modifiedValue as unknown as object,
+    providerName: log.providerName,
+    createdAt: log.createdAt,
+  }));
 }

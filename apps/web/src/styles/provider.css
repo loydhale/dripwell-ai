@@ -432,6 +432,40 @@
   background: #0d6b5d;
 }
 
+.pr-btn-escalate {
+  background: rgba(220, 140, 40, 0.2);
+  border: 1px solid rgba(220, 140, 40, 0.4);
+  color: rgba(255, 220, 160, 0.85);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pr-btn-escalate:hover {
+  background: rgba(220, 140, 40, 0.35);
+  border-color: rgba(220, 140, 40, 0.6);
+}
+
+.pr-btn-defer {
+  background: rgba(100, 100, 200, 0.2);
+  border: 1px solid rgba(100, 100, 200, 0.4);
+  color: rgba(200, 200, 255, 0.85);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pr-btn-defer:hover {
+  background: rgba(100, 100, 200, 0.35);
+  border-color: rgba(100, 100, 200, 0.6);
+}
+
 /* --------------------------------------------------------------------------
    Patient Output Styles
    -------------------------------------------------------------------------- */

@@ -19,6 +19,8 @@ export interface ProviderReviewHandlers {
   onApprove: () => void;
   onOverride: (reason: string, reasonNote: string, manualRecommendation: string) => void;
   onModify: (changes: { rationale?: string; primaryCatalogItemId?: string }) => void;
+  onEscalate?: (reason: string, notes: string) => void;
+  onDefer?: (reason: string, followUpDate: string, notes: string) => void;
 }
 
 export function renderProviderReview(
@@ -261,6 +263,14 @@ export function renderProviderReview(
   const bottomBar = document.createElement('div');
   bottomBar.className = 'pr-bottom-bar';
 
+  const escalateBtn = document.createElement('button');
+  escalateBtn.className = 'pr-btn-escalate';
+  escalateBtn.textContent = 'Escalate';
+
+  const deferBtn = document.createElement('button');
+  deferBtn.className = 'pr-btn-defer';
+  deferBtn.textContent = 'Defer';
+
   const overrideBtn = document.createElement('button');
   overrideBtn.className = 'pr-btn-override';
   overrideBtn.textContent = 'Override';
@@ -273,6 +283,8 @@ export function renderProviderReview(
   approveBtn.className = 'pr-btn-approve';
   approveBtn.textContent = 'Approve';
 
+  bottomBar.appendChild(escalateBtn);
+  bottomBar.appendChild(deferBtn);
   bottomBar.appendChild(overrideBtn);
   bottomBar.appendChild(modifyBtn);
   bottomBar.appendChild(approveBtn);
@@ -388,17 +400,173 @@ export function renderProviderReview(
   modifyCancel.textContent = 'Cancel';
   modifyPanel.appendChild(modifyCancel);
 
+  // Escalate panel (hidden by default)
+  const escalatePanel = document.createElement('div');
+  escalatePanel.className = 'pr-panel pr-panel--hidden';
+
+  const escalateTitle = document.createElement('h3');
+  escalateTitle.className = 'pr-panel-title';
+  escalateTitle.textContent = 'Escalate to Physician';
+  escalatePanel.appendChild(escalateTitle);
+
+  const escalateReasonLabel = document.createElement('label');
+  escalateReasonLabel.className = 'pr-field-label';
+  escalateReasonLabel.textContent = 'Escalation reason';
+  escalatePanel.appendChild(escalateReasonLabel);
+
+  const escalateReasonSelect = document.createElement('select');
+  escalateReasonSelect.className = 'pr-field-input';
+  const escalateReasons = [
+    { value: 'NEEDS_PHYSICIAN_REVIEW', label: 'Needs physician review' },
+    { value: 'COMPLEX_CASE', label: 'Complex case' },
+    { value: 'PATIENT_REQUEST', label: 'Patient request' },
+    { value: 'OTHER', label: 'Other' },
+  ];
+  for (const r of escalateReasons) {
+    const opt = document.createElement('option');
+    opt.value = r.value;
+    opt.textContent = r.label;
+    escalateReasonSelect.appendChild(opt);
+  }
+  escalatePanel.appendChild(escalateReasonSelect);
+
+  const escalateNotesLabel = document.createElement('label');
+  escalateNotesLabel.className = 'pr-field-label';
+  escalateNotesLabel.textContent = 'Notes (optional)';
+  escalatePanel.appendChild(escalateNotesLabel);
+
+  const escalateNotesInput = document.createElement('textarea');
+  escalateNotesInput.className = 'pr-field-textarea';
+  escalateNotesInput.rows = 3;
+  escalateNotesInput.placeholder = 'Add notes about the escalation...';
+  escalatePanel.appendChild(escalateNotesInput);
+
+  const escalateSubmit = document.createElement('button');
+  escalateSubmit.className = 'pr-btn-escalate';
+  escalateSubmit.textContent = 'Confirm Escalation';
+  escalatePanel.appendChild(escalateSubmit);
+
+  const escalateCancel = document.createElement('button');
+  escalateCancel.className = 'pr-btn-modify';
+  escalateCancel.textContent = 'Cancel';
+  escalatePanel.appendChild(escalateCancel);
+
+  // Defer panel (hidden by default)
+  const deferPanel = document.createElement('div');
+  deferPanel.className = 'pr-panel pr-panel--hidden';
+
+  const deferTitle = document.createElement('h3');
+  deferTitle.className = 'pr-panel-title';
+  deferTitle.textContent = 'Defer Assessment';
+  deferPanel.appendChild(deferTitle);
+
+  const deferReasonLabel = document.createElement('label');
+  deferReasonLabel.className = 'pr-field-label';
+  deferReasonLabel.textContent = 'Deferral reason';
+  deferPanel.appendChild(deferReasonLabel);
+
+  const deferReasonSelect = document.createElement('select');
+  deferReasonSelect.className = 'pr-field-input';
+  const deferReasons = [
+    { value: 'NEED_MORE_INFO', label: 'Need more information' },
+    { value: 'PATIENT_NOT_READY', label: 'Patient not ready' },
+    { value: 'FOLLOW_UP_NEEDED', label: 'Follow-up needed' },
+    { value: 'OTHER', label: 'Other' },
+  ];
+  for (const r of deferReasons) {
+    const opt = document.createElement('option');
+    opt.value = r.value;
+    opt.textContent = r.label;
+    deferReasonSelect.appendChild(opt);
+  }
+  deferPanel.appendChild(deferReasonSelect);
+
+  const deferDateLabel = document.createElement('label');
+  deferDateLabel.className = 'pr-field-label';
+  deferDateLabel.textContent = 'Follow-up date (optional)';
+  deferPanel.appendChild(deferDateLabel);
+
+  const deferDateInput = document.createElement('input');
+  deferDateInput.className = 'pr-field-input';
+  deferDateInput.type = 'date';
+  deferPanel.appendChild(deferDateInput);
+
+  const deferNotesLabel = document.createElement('label');
+  deferNotesLabel.className = 'pr-field-label';
+  deferNotesLabel.textContent = 'Notes (optional)';
+  deferPanel.appendChild(deferNotesLabel);
+
+  const deferNotesInput = document.createElement('textarea');
+  deferNotesInput.className = 'pr-field-textarea';
+  deferNotesInput.rows = 3;
+  deferNotesInput.placeholder = 'Add notes about the deferral...';
+  deferPanel.appendChild(deferNotesInput);
+
+  const deferSubmit = document.createElement('button');
+  deferSubmit.className = 'pr-btn-defer';
+  deferSubmit.textContent = 'Confirm Deferral';
+  deferPanel.appendChild(deferSubmit);
+
+  const deferCancel = document.createElement('button');
+  deferCancel.className = 'pr-btn-modify';
+  deferCancel.textContent = 'Cancel';
+  deferPanel.appendChild(deferCancel);
+
   // Assemble
   container.appendChild(header);
   container.appendChild(scrollArea);
   container.appendChild(overridePanel);
   container.appendChild(modifyPanel);
+  container.appendChild(escalatePanel);
+  container.appendChild(deferPanel);
   container.appendChild(bottomBar);
 
   // Event handlers
-  overrideBtn.addEventListener('click', () => {
-    overridePanel.classList.remove('pr-panel--hidden');
+  function hideAllPanels() {
+    overridePanel.classList.add('pr-panel--hidden');
     modifyPanel.classList.add('pr-panel--hidden');
+    escalatePanel.classList.add('pr-panel--hidden');
+    deferPanel.classList.add('pr-panel--hidden');
+  }
+
+  escalateBtn.addEventListener('click', () => {
+    hideAllPanels();
+    escalatePanel.classList.remove('pr-panel--hidden');
+  });
+
+  escalateCancel.addEventListener('click', () => {
+    escalatePanel.classList.add('pr-panel--hidden');
+  });
+
+  escalateSubmit.addEventListener('click', () => {
+    const reason = escalateReasonSelect.value;
+    const notes = escalateNotesInput.value.trim();
+    if (handlers.onEscalate) {
+      handlers.onEscalate(reason, notes);
+    }
+  });
+
+  deferBtn.addEventListener('click', () => {
+    hideAllPanels();
+    deferPanel.classList.remove('pr-panel--hidden');
+  });
+
+  deferCancel.addEventListener('click', () => {
+    deferPanel.classList.add('pr-panel--hidden');
+  });
+
+  deferSubmit.addEventListener('click', () => {
+    const reason = deferReasonSelect.value;
+    const followUpDate = deferDateInput.value;
+    const notes = deferNotesInput.value.trim();
+    if (handlers.onDefer) {
+      handlers.onDefer(reason, followUpDate, notes);
+    }
+  });
+
+  overrideBtn.addEventListener('click', () => {
+    hideAllPanels();
+    overridePanel.classList.remove('pr-panel--hidden');
   });
 
   overrideCancel.addEventListener('click', () => {
@@ -413,8 +581,8 @@ export function renderProviderReview(
   });
 
   modifyBtn.addEventListener('click', () => {
+    hideAllPanels();
     modifyPanel.classList.remove('pr-panel--hidden');
-    overridePanel.classList.add('pr-panel--hidden');
   });
 
   modifyCancel.addEventListener('click', () => {

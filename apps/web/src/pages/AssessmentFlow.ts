@@ -3,11 +3,15 @@ import '../styles/questions.css';
 import '../styles/recommendations.css';
 import '../styles/safety.css';
 import '../styles/provider.css';
+import '../styles/vitals.css';
+import '../styles/consent.css';
 import { renderCameraCapture } from '../components/CameraCapture.js';
 import { renderQuestionDisplay } from '../components/QuestionDisplay.js';
 import { renderSafetyFlagDisplay } from '../components/SafetyFlagDisplay.js';
 import { renderProviderReview } from '../components/ProviderReview.js';
 import { renderPatientOutput } from '../components/PatientOutput.js';
+import { renderVitalsInput } from '../components/VitalsInput.js';
+import { renderConsentForm } from '../components/ConsentForm.js';
 import type { Question } from '../components/QuestionDisplay.js';
 import type { PatternDetail } from '../components/RecommendationPreview.js';
 import type { SafetyFlag, SafetyFlagDisplayState } from '../components/SafetyFlagDisplay.js';
@@ -37,7 +41,7 @@ export function renderAssessmentFlow(
   let currentCleanup: (() => void) | null = null;
   let completed: PhotoAngle[] = [];
   let skipped: PhotoAngle[] = [];
-  let phase: 'photos' | 'questions' | 'safety' | 'recommendation' = 'photos';
+  let phase: 'consent' | 'vitals' | 'photos' | 'questions' | 'safety' | 'recommendation' = 'consent';
 
   container.innerHTML = '';
   container.className = 'assessment-flow-root';
@@ -351,6 +355,125 @@ export function renderAssessmentFlow(
     });
     if (!res.ok) {
       throw new Error(`Failed to modify: ${res.status}`);
+    }
+  }
+
+  async function postEscalate(reason: string, notes: string): Promise<{ patientOutput: PatientOutputState }> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/escalate`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason, notes }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to escalate: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function postDefer(reason: string, followUpDate: string, notes: string): Promise<{ patientOutput: PatientOutputState }> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/defer`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason, followUpDate, notes }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to defer: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // -------------------------------------------------------------------------
+  // Consent phase
+  // -------------------------------------------------------------------------
+
+  function startConsent() {
+    phase = 'consent';
+    title.textContent = 'Informed Consent';
+    subtitle.textContent = 'Both provider and patient must confirm before proceeding.';
+    progressSteps.style.display = 'none';
+    nextBtn.style.display = 'none';
+    bottomBar.style.display = 'none';
+    updateStatus('');
+    clearContent();
+
+    currentCleanup = renderConsentForm(
+      contentSlot,
+      {
+        assessmentId: state.assessmentId,
+        apiBaseUrl: state.apiBaseUrl,
+        token: state.token,
+      },
+      {
+        onComplete: () => {
+          startVitals();
+        },
+      }
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Vitals phase
+  // -------------------------------------------------------------------------
+
+  function startVitals() {
+    phase = 'vitals';
+    title.textContent = 'Vitals Capture';
+    subtitle.textContent = 'Record patient vitals before photo capture.';
+    progressSteps.style.display = 'none';
+    nextBtn.style.display = 'none';
+    bottomBar.style.display = 'none';
+    updateStatus('');
+    clearContent();
+
+    currentCleanup = renderVitalsInput(
+      contentSlot,
+      {
+        assessmentId: state.assessmentId,
+        apiBaseUrl: state.apiBaseUrl,
+        token: state.token,
+      },
+      {
+        onComplete: (_vitals, _safetyFlagged) => {
+          startPhotos();
+        },
+        onSkip: () => {
+          startPhotos();
+        },
+      }
+    );
+  }
+
+  function startPhotos() {
+    phase = 'photos';
+    title.textContent = 'Photo Capture';
+    subtitle.textContent = 'Capture all required angles. Each photo uploads immediately.';
+    progressSteps.style.display = '';
+    bottomBar.style.display = 'flex';
+    nextBtn.style.display = 'none';
+    updateStatus('');
+    clearContent();
+
+    let startIndex = 0;
+    while (startIndex < ALL_ANGLES.length && (completed.includes(ALL_ANGLES[startIndex]) || skipped.includes(ALL_ANGLES[startIndex]))) {
+      startIndex += 1;
+    }
+
+    if (startIndex >= ALL_ANGLES.length) {
+      currentAngleIndex = ALL_ANGLES.length - 1;
+      advanceAngle();
+    } else {
+      currentAngleIndex = startIndex;
+      mountCameraForAngle(ALL_ANGLES[startIndex]);
     }
   }
 
@@ -679,11 +802,51 @@ export function renderAssessmentFlow(
                       updateStatus(`Modify failed: ${message}`);
                     }
                   },
+                  onEscalate: async (reason, notes) => {
+                    try {
+                      updateStatus('Recording escalation...');
+                      const result = await postEscalate(reason, notes);
+                      showPatientOutput(result.patientOutput);
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      updateStatus(`Escalation failed: ${message}`);
+                    }
+                  },
+                  onDefer: async (reason, followUpDate, notes) => {
+                    try {
+                      updateStatus('Recording deferral...');
+                      const result = await postDefer(reason, followUpDate, notes);
+                      showPatientOutput(result.patientOutput);
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      updateStatus(`Deferral failed: ${message}`);
+                    }
+                  },
                 });
               }
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
               updateStatus(`Modify failed: ${message}`);
+            }
+          },
+          onEscalate: async (reason, notes) => {
+            try {
+              updateStatus('Recording escalation...');
+              const result = await postEscalate(reason, notes);
+              showPatientOutput(result.patientOutput);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              updateStatus(`Escalation failed: ${message}`);
+            }
+          },
+          onDefer: async (reason, followUpDate, notes) => {
+            try {
+              updateStatus('Recording deferral...');
+              const result = await postDefer(reason, followUpDate, notes);
+              showPatientOutput(result.patientOutput);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              updateStatus(`Deferral failed: ${message}`);
             }
           },
         }
@@ -727,19 +890,8 @@ export function renderAssessmentFlow(
     }
   });
 
-  // Start at the first angle that is not already done
-  let startIndex = 0;
-  while (startIndex < ALL_ANGLES.length && (completed.includes(ALL_ANGLES[startIndex]) || skipped.includes(ALL_ANGLES[startIndex]))) {
-    startIndex += 1;
-  }
-
-  if (startIndex >= ALL_ANGLES.length) {
-    currentAngleIndex = ALL_ANGLES.length - 1;
-    advanceAngle();
-  } else {
-    currentAngleIndex = startIndex;
-    mountCameraForAngle(ALL_ANGLES[startIndex]);
-  }
+  // Start with consent
+  startConsent();
 
   return () => {
     clearContent();
