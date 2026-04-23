@@ -18,6 +18,12 @@ import {
 import { computePatternMatches, persistPatternMatches, RECOMMENDATION_MOCK_MODE } from '../services/patterns.js';
 import { generateRecommendation } from '../services/recommendations.js';
 import type { UserPayload } from '../types/index.js';
+import {
+  makeAssessmentId,
+  makeTenantId,
+  makeProviderId,
+  makeLocationId,
+} from '@dripwell/shared';
 
 const createAssessmentSchema = z.object({
   locationId: z.string().uuid().optional(),
@@ -589,13 +595,14 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
 
       // Generate recommendation
       const recommendationResult = await generateRecommendation({
-        assessmentSessionId: id,
-        tenantId: userPayload.tenantId,
-        providerId: userPayload.userId,
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+        providerId: makeProviderId(userPayload.userId),
+        locationId: assessment.locationId ? makeLocationId(assessment.locationId) : null,
         topPattern: patternResult.topPatterns[0],
         allPatterns: patternResult.topPatterns,
         isReturning: assessment.isReturning,
-        priorSessionId: assessment.priorSessionId,
+        priorSessionId: assessment.priorSessionId ? makeAssessmentId(assessment.priorSessionId) : null,
       });
 
       await prisma.auditLog.create({

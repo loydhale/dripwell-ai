@@ -1,6 +1,16 @@
 import { prisma } from '../lib/prisma.js';
 import { NotFoundError } from '../lib/errors.js';
 import type { PatternMatchDetail } from './patterns.js';
+import {
+  type AssessmentId,
+  type TenantId,
+  type ProviderId,
+  type RecommendationId,
+  type CatalogItemId,
+  type LocationId,
+  makeRecommendationId,
+  makeCatalogItemId,
+} from '@dripwell/shared';
 
 // Keyword scoring for generic intent -> catalog item matching
 const INTENT_KEYWORD_OVERRIDES: Record<string, string[]> = {
@@ -15,7 +25,7 @@ const INTENT_KEYWORD_OVERRIDES: Record<string, string[]> = {
 };
 
 export interface CatalogItemMatch {
-  catalogItemId: string;
+  catalogItemId: CatalogItemId;
   name: string;
   type: string;
   description: string | null;
@@ -23,7 +33,7 @@ export interface CatalogItemMatch {
 }
 
 export interface RecommendationResult {
-  recommendationId: string;
+  recommendationId: RecommendationId;
   primaryItem: CatalogItemMatch;
   alternatives: CatalogItemMatch[];
   confidence: number;
@@ -33,15 +43,16 @@ export interface RecommendationResult {
 }
 
 export async function generateRecommendation(params: {
-  assessmentSessionId: string;
-  tenantId: string;
-  providerId: string;
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+  providerId: ProviderId;
+  locationId: LocationId | null;
   topPattern: PatternMatchDetail;
   allPatterns: PatternMatchDetail[];
   isReturning: boolean;
-  priorSessionId: string | null;
+  priorSessionId: AssessmentId | null;
 }): Promise<RecommendationResult> {
-  const { assessmentSessionId, tenantId, providerId, topPattern, allPatterns, isReturning, priorSessionId } = params;
+  const { assessmentSessionId, tenantId, providerId, topPattern, allPatterns, isReturning } = params;
 
   const catalogItems = await prisma.catalogItem.findMany({
     where: {
@@ -60,13 +71,11 @@ export async function generateRecommendation(params: {
 
   // Layer 3: First-visit consistency bias
   let adjustedTopConfidence = topPattern.confidence;
-  if (isReturning && priorSessionId) {
-    const priorMatches = await prisma.patternMatch.findMany({
-      where: { assessmentSessionId: priorSessionId },
-      orderBy: { confidence: 'desc' },
-      take: 1,
-    });
-    if (priorMatches.length > 0 && priorMatches[0].clinicalPatternId === topPattern.clinicalPatternId) {
+  const FIRST_VISIT_INTENTS = ['hydration', 'b-complex', 'vitamin b12'];
+  if (!isReturning) {
+    const lowerIntent = topPattern.genericIntent.toLowerCase();
+    const isConservativeFirstVisit = FIRST_VISIT_INTENTS.some((fi) => lowerIntent.includes(fi));
+    if (isConservativeFirstVisit) {
       adjustedTopConfidence = Math.min(1.0, topPattern.confidence + 0.05);
     }
   }
@@ -88,7 +97,7 @@ export async function generateRecommendation(params: {
   if (!primaryItem) {
     const fallback = catalogItems[0];
     primaryItem = {
-      catalogItemId: fallback.id,
+      catalogItemId: makeCatalogItemId(fallback.id),
       name: fallback.name,
       type: fallback.type,
       description: fallback.description,
@@ -133,7 +142,7 @@ export async function generateRecommendation(params: {
       !altItems.some((a) => a.catalogItemId === item.id)
     ) {
       altItems.push({
-        catalogItemId: item.id,
+        catalogItemId: makeCatalogItemId(item.id),
         name: item.name,
         type: item.type,
         description: item.description,
@@ -144,7 +153,7 @@ export async function generateRecommendation(params: {
   }
 
   // Build rationale
-  const rationale = buildRationale(topPattern, adjustedTopConfidence, isAmbiguous, isReturning);
+  const rationale = buildRationale(topPattern, adjustedTopConfidence, isAmbiguous);
 
   // Persist recommendation
   const recommendation = await prisma.recommendation.create({
@@ -174,7 +183,7 @@ export async function generateRecommendation(params: {
   });
 
   return {
-    recommendationId: recommendation.id,
+    recommendationId: makeRecommendationId(recommendation.id),
     primaryItem,
     alternatives: altItems.slice(0, 2),
     confidence: adjustedTopConfidence,
@@ -216,7 +225,7 @@ function scoreCatalogItems(intent: string, catalogItems: Array<{ id: string; nam
   return scored
     .filter((s) => s.score > 0)
     .map((s) => ({
-      catalogItemId: s.item.id,
+      catalogItemId: makeCatalogItemId(s.item.id),
       name: s.item.name,
       type: s.item.type,
       description: s.item.description,
@@ -241,8 +250,7 @@ function extractKeywords(intent: string): string[] {
 function buildRationale(
   pattern: PatternMatchDetail,
   confidence: number,
-  isAmbiguous: boolean,
-  isReturning: boolean
+  isAmbiguous: boolean
 ): string {
   const parts: string[] = [];
   parts.push(`Primary pattern: ${pattern.clinicalPatternName} (confidence ${(confidence * 100).toFixed(0)}%)`);
@@ -264,8 +272,8 @@ function buildRationale(
     parts.push('Pattern confidence is ambiguous; hydration default applied for conservative support');
   }
 
-  if (isReturning) {
-    parts.push('Returning patient: prior session consistency bias applied');
+  if (pattern.clinicalRationale) {
+    parts.push(`Clinical rationale: ${pattern.clinicalRationale}`);
   }
 
   return parts.join('. ') + '.';

@@ -6,6 +6,7 @@ import {
   STATIC_QUESTION_BANK,
   type WellnessPattern,
 } from './questions.js';
+import { makeClinicalPatternId, type ClinicalPatternId } from '@dripwell/shared';
 
 export const RECOMMENDATION_MOCK_MODE = process.env.RECOMMENDATION_MOCK_MODE === 'true';
 
@@ -33,7 +34,7 @@ export interface MatchedAnswerDetail {
 }
 
 export interface PatternMatchDetail {
-  clinicalPatternId: string;
+  clinicalPatternId: ClinicalPatternId;
   clinicalPatternName: string;
   confidence: number;
   genericIntent: string;
@@ -88,7 +89,7 @@ export async function computePatternMatches(params: {
     const matchedAnswers = buildMatchedAnswers(answers, supportingAnswers);
 
     topPatterns.push({
-      clinicalPatternId: dbPattern.id,
+      clinicalPatternId: makeClinicalPatternId(dbPattern.id),
       clinicalPatternName: dbPattern.name,
       confidence: wc.confidence,
       genericIntent: dbPattern.genericRecommendationIntent,
