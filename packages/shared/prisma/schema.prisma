@@ -141,6 +141,7 @@ model Tenant {
   providerOverrides    ProviderOverride[]
   assessmentHistories  AssessmentHistory[]
   catalogItemCompatibilities CatalogItemCompatibility[]
+  config               Json?    @default("{}")
 
   @@index([slug])
   @@index([isActive])

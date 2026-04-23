@@ -17,6 +17,7 @@ const updateTenantSchema = z.object({
   state: z.string().min(1).optional(),
   medicalDirector: z.string().min(1).optional(),
   isActive: z.boolean().optional(),
+  config: z.record(z.any()).optional(),
 });
 
 export default async function tenantRoutes(fastify: FastifyInstance) {
