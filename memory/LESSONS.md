@@ -28,6 +28,14 @@ Root cause: The Coder needed to convert raw database strings into branded types 
 Avoid by: When mapping database records to branded ID types, always use the factory function that matches the target entity. If one does not exist, add it to `@dripwell/shared` instead of bypassing the type system with casts.
 Seen N times: 1
 
+## L-013 — New status values break downstream status-filtered queries
+Date: 2026-04-23
+Task: TASK-010
+What went wrong: Adding `MODIFIED` to RecommendationStatus broke approve, override, and get-pending queries because they all filtered for `status: 'PENDING'` only. After a provider modified a recommendation, they could no longer approve it.
+Root cause: The Coder added a new status without tracing every query that filters by status to see if the new state should be included.
+Avoid by: When adding a new enum value to a status or state field, always grep the codebase for every query that filters by that field. Update them to include the new state if it is part of the normal workflow.
+Seen N times: 1
+
 ---
 
 ## Entries

@@ -64,6 +64,12 @@ export function makeSafetyFlagId(raw: string): SafetyFlagId {
   return raw as SafetyFlagId;
 }
 
+export type OverrideId = string & { __brand: 'OverrideId' };
+
+export function makeOverrideId(raw: string): OverrideId {
+  return raw as OverrideId;
+}
+
 export type UserRole = 'super_user' | 'provider' | 'system_admin';
 
 export interface TenantConfig {

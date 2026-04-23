@@ -8,8 +8,10 @@ import {
   type RecommendationId,
   type CatalogItemId,
   type LocationId,
+  type OverrideId,
   makeRecommendationId,
   makeCatalogItemId,
+  makeOverrideId,
 } from '@dripwell/shared';
 
 // Keyword scoring for generic intent -> catalog item matching
@@ -307,7 +309,7 @@ export async function getPendingRecommendation(params: {
     where: {
       assessmentSessionId,
       tenantId,
-      status: 'PENDING',
+      status: { in: ['PENDING', 'MODIFIED'] },
     },
     orderBy: { createdAt: 'desc' },
     include: {
@@ -363,7 +365,7 @@ export async function approveRecommendation(params: {
     where: {
       assessmentSessionId,
       tenantId,
-      status: 'PENDING',
+      status: { in: ['PENDING', 'MODIFIED'] },
     },
     orderBy: { createdAt: 'desc' },
     include: {
@@ -425,7 +427,7 @@ export async function overrideRecommendation(params: {
   reasonNote?: string;
   manualRecommendation?: string;
 }): Promise<{
-  overrideId: string;
+  overrideId: OverrideId;
   recommendationId: RecommendationId;
 }> {
   const { assessmentSessionId, tenantId, providerId, reason, reasonNote, manualRecommendation } = params;
@@ -434,7 +436,7 @@ export async function overrideRecommendation(params: {
     where: {
       assessmentSessionId,
       tenantId,
-      status: 'PENDING',
+      status: { in: ['PENDING', 'MODIFIED'] },
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -455,7 +457,7 @@ export async function overrideRecommendation(params: {
       providerId,
       recommendationId: rec.id,
       overrideType: 'OVERRIDE',
-      reason: reason as any,
+      reason,
       reasonNote: reasonNote || null,
       originalValue: rec.rationale,
       newValue: manualRecommendation || null,
@@ -463,7 +465,7 @@ export async function overrideRecommendation(params: {
   });
 
   return {
-    overrideId: override.id,
+    overrideId: makeOverrideId(override.id),
     recommendationId: makeRecommendationId(rec.id),
   };
 }
@@ -563,7 +565,7 @@ export async function modifyRecommendation(params: {
       providerId,
       recommendationId: rec.id,
       overrideType: 'MODIFY',
-      reason: 'CLINICAL_JUDGEMENT' as any,
+      reason: 'CLINICAL_JUDGEMENT',
       reasonNote: `Provider modified recommendation. Original rationale: ${originalRationale}`,
       originalValue: originalPrimaryId,
       newValue: primaryCatalogItemId || originalPrimaryId,
