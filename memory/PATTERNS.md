@@ -50,3 +50,17 @@ Where in codebase: apps/api/src/plugins/auth.ts, apps/api/src/lib/validate.ts, a
 The pattern: Use a centralized `parseBody(schema)` helper that wraps Zod safeParse and throws a `ValidationError` with structured issue details. Register auth, tenant, and error-handler as Fastify plugins, then apply them via `preValidation` hooks per-route.
 When to use: For all API routes that need request body validation, JWT auth, tenant isolation, or role-based guards.
 Example: `const data = parseBody(createTenantSchema)(request.body);` in tenants.ts
+
+## P-005 — Polymorphic catalog with type enum
+Date: 2026-04-22
+Where in codebase: packages/shared/prisma/schema.prisma CatalogItem model, apps/api/src/services/recommendations.ts
+The pattern: Catalog items share a single table with a `type` enum or string discriminator (e.g., DRIP, INJECTION, ADD_ON). Recommendation logic can apply type-specific scoring or filtering without separate tables.
+When to use: When a clinic catalog contains multiple product types that share most fields (name, description, ingredients, price) but need behavioral differentiation.
+Example: `if (item.type === 'DRIP') score += 0.5;` in recommendations.ts scoreCatalogItems.
+
+## P-006 — Store full match metadata in JSON audit columns, not just IDs
+Date: 2026-04-22
+Where in codebase: apps/api/src/services/patterns.ts persistPatternMatches
+The pattern: When persisting structured match data to JSON columns, store the full metadata object (including confidence, weight, values) rather than flattening to bare IDs or names. This preserves audit granularity and prevents data loss when the upstream source changes.
+When to use: For any Json field in Prisma that captures derived match or scoring data.
+Example: `matchedSignals: p.matchedSignals as unknown as object` instead of `.map(s => s.signalName)`.

@@ -103,3 +103,11 @@ What went wrong: The next-question endpoint automatically enables mock signals w
 Root cause: The Coder conflated "no signals available" with "test mode" for convenience, creating a hidden production risk.
 Avoid by: Mock mode should be strictly opt-in via explicit configuration. The "no signals" path should either return an error, use zero-signal baseline, or require explicit provider confirmation before proceeding. Never auto-inject synthetic data in production paths.
 Seen N times: 1
+
+## L-011 — Semantic confusion between "first-visit" and "returning patient" logic
+Date: 2026-04-22
+Task: TASK-008
+What went wrong: The Coder implemented "returning patient consistency" (boost confidence when current pattern matches prior session) but the task and PRD required "first-visit consistency bias" (logic for new patients, isReturning === false). These are opposite conditions.
+Root cause: The Coder read "consistency" and assumed it meant "keep consistent with prior visit" rather than "be consistent for first-time visitors". They did not re-read the PRD default list carefully.
+Avoid by: When implementing bias or default logic, always map the condition explicitly: write the if (isReturning === false) branch first, then the if (isReturning === true) branch. Do not assume the named bias applies to the more complex condition.
+Seen N times: 1

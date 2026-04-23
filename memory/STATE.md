@@ -3,21 +3,33 @@
 Single source of truth for where the team is. Any agent can read this and know what to do next.
 
 ## Current status
-TASK-004 complete. Backend API skeleton built and committed. All acceptance criteria verified via 22-point smoke test.
+TASK-008 under Auditor review. Coder implemented three-layer recommendation engine. Auditor found one blocking issue: first-visit consistency bias missing (coder implemented returning-patient consistency instead).
 
 ## Active task
-TASK-004 — Build backend API skeleton (DONE)
+TASK-008 — Recommendation engine (IN_REVIEW)
 
 ## Tasks completed since last drift check
 1. TASK-004: Fastify backend with auth, tenants, catalog, providers, assessments
+2. TASK-005: Camera capture component with AR guidance
+3. TASK-006: Photo upload pipeline with S3 storage
+4. TASK-007: Adaptive questioning engine
 
 ## Last action
-2026-04-22: Coder built and committed apps/api package. Server starts on port 4000. All routes tested end-to-end.
+2026-04-22: Coder built pattern matching service, recommendation service, generate-recommendation endpoint, and RecommendationPreview frontend component.
 
 ## Next step
-Auditor review of TASK-004. After PASS, queue next task per PRD.
+Coder to fix blocking issue: add first-visit consistency bias for isReturning === false in generateRecommendation. Then Auditor will re-review.
 
 ---
+
+### TASK-008 — Recommendation engine
+Status: IN_REVIEW
+Assigned: AUDITOR
+Attempt: 1
+Brief: /tasks/TASK-008.md
+PRD refs: F-6
+Last update: 2026-04-22 — Auditor review complete. FAIL on attempt 1. One blocking finding: first-visit consistency bias not implemented (coder built returning-patient consistency instead). Three suggested fixes also noted.
+Next step: Coder fixes blocking issue, Auditor re-reviews.
 
 ### TASK-004 — Build backend API skeleton
 Status: DONE
@@ -26,7 +38,7 @@ Attempt: 1
 Brief: /tasks/TASK-004.md
 PRD refs: F-1, F-5, F-6, F-7, F-8, F-11
 Last update: 2026-04-22 — Coder implemented all routes, plugins, auth, validation. 22-point curl smoke test passed. Committed to main.
-Next step: Await Auditor review.
+Next step: Complete.
 
 ---
 
