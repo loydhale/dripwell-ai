@@ -26,7 +26,7 @@ export async function buildServer() {
   });
 
   await app.register(cors, {
-    origin: process.env.CORS_ORIGIN || true,
+    origin: (process.env.CORS_ORIGIN === 'true' || !process.env.CORS_ORIGIN) ? true : process.env.CORS_ORIGIN,
     credentials: true,
   });
 
