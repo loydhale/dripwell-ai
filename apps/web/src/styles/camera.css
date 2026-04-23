@@ -1,0 +1,485 @@
+/* --------------------------------------------------------------------------
+   Camera Capture Styles
+   Clinical, clean, optimized for tablet (primary) and desktop.
+   -------------------------------------------------------------------------- */
+
+/* Assessment Flow root */
+.assessment-flow-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0b1c1a;
+  color: #e8f0ee;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.af-header {
+  flex-shrink: 0;
+  padding: 16px 20px 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.af-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: #ffffff;
+}
+
+.af-subtitle {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.af-progress-steps {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.af-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.af-step--active {
+  opacity: 1;
+}
+
+.af-step--done {
+  opacity: 1;
+}
+
+.af-step--done .af-step-dot {
+  background: #0f7a6a;
+  color: #fff;
+}
+
+.af-step--skipped {
+  opacity: 0.35;
+}
+
+.af-step--skipped .af-step-dot {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.af-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.af-step--active .af-step-dot {
+  background: #0f7a6a;
+  color: #fff;
+}
+
+.af-step-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.af-camera-slot {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.af-bottom-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 16px;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.af-btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.af-btn-cancel:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.af-btn-next {
+  background: #0f7a6a;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.af-btn-next:hover {
+  background: #0d6b5d;
+}
+
+.af-status-msg {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 6px 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  min-height: 22px;
+}
+
+.af-done-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 24px;
+}
+
+.af-done-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #0f7a6a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.af-done-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.af-done-msg h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.af-done-msg p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Camera Capture root */
+.camera-capture-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.camera-video,
+.camera-preview-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-overlay-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ar-guide-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ar-guide-svg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px 120px;
+}
+
+.ar-guide-svg svg {
+  width: 100%;
+  height: 100%;
+  max-width: 320px;
+  max-height: 420px;
+}
+
+.ar-top-bar {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(6px);
+  z-index: 3;
+}
+
+.ar-lighting-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #888;
+  flex-shrink: 0;
+}
+
+.ar-lighting-good {
+  background: #2ecc71;
+}
+
+.ar-lighting-fair {
+  background: #f1c40f;
+}
+
+.ar-lighting-poor {
+  background: #e74c3c;
+}
+
+.ar-lighting-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ar-title {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  z-index: 3;
+}
+
+.ar-subtitle {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  z-index: 3;
+  max-width: 80%;
+}
+
+.ar-instruction {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  z-index: 3;
+  max-width: 80%;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 6px 12px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+/* Controls */
+.camera-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 20px 24px;
+  z-index: 4;
+}
+
+.camera-btn-capture {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.camera-btn-capture:hover {
+  background: #f0f0f0;
+}
+
+.camera-btn-capture:active {
+  transform: scale(0.95);
+}
+
+.camera-btn-capture:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.camera-btn-retake,
+.camera-btn-confirm,
+.camera-btn-skip {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  border: none;
+}
+
+.camera-btn-retake {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.camera-btn-retake:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.camera-btn-confirm {
+  background: #0f7a6a;
+  color: #fff;
+}
+
+.camera-btn-confirm:hover {
+  background: #0d6b5d;
+}
+
+.camera-btn-skip {
+  position: absolute;
+  right: 20px;
+  bottom: 28px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.camera-btn-skip:hover {
+  color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Progress */
+.camera-progress-wrap {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  text-align: center;
+}
+
+.camera-progress-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.camera-progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #0f7a6a;
+  border-radius: 2px;
+  transition: width 0.2s linear;
+}
+
+.camera-progress-label {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Error */
+.camera-error-msg {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(180, 30, 30, 0.85);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+  max-width: 80%;
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+/* Responsive adjustments */
+@media (min-width: 1024px) {
+  .ar-guide-svg svg {
+    max-width: 400px;
+    max-height: 520px;
+  }
+
+  .camera-btn-capture {
+    width: 84px;
+    height: 84px;
+  }
+
+  .af-title {
+    font-size: 24px;
+  }
+
+  .af-subtitle {
+    font-size: 14px;
+  }
+}

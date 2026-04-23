@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
+import multipart from '@fastify/multipart';
 import dotenv from 'dotenv';
 
 import errorHandlerPlugin from './plugins/error-handler.js';
@@ -31,6 +32,13 @@ export async function buildServer() {
   await app.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
+  });
+
+  await app.register(multipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10 MB
+      files: 1,
+    },
   });
 
   await app.register(errorHandlerPlugin);
