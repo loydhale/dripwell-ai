@@ -37,6 +37,13 @@ The pattern: Set `manifest: false` in VitePWA config and provide a standalone ma
 When to use: For all PWA projects where the manifest is static and should be version-controlled separately.
 Example: apps/web/vite.config.ts plugins array
 
+## P-004 — XHR with FormData for upload progress when fetch ReadableStream is overkill
+Date: 2026-04-22
+Where in codebase: apps/web/src/lib/upload.ts
+The pattern: Use XMLHttpRequest (XHR) instead of fetch for file uploads when upload progress tracking is required. XHR exposes `xhr.upload.onprogress` natively. Wrap it in a Promise and always resolve with an `{ ok, error?, photoCapture? }` result object so callers never need try/catch.
+When to use: For any file upload that must show a progress bar to the user.
+Example: `uploadPhoto({ assessmentId, angle, blob, onProgress: (p) => { ... } })` in upload.ts
+
 ## P-003 — Fastify plugin + Zod validation helper for route validation
 Date: 2026-04-22
 Where in codebase: apps/api/src/plugins/auth.ts, apps/api/src/lib/validate.ts, apps/api/src/routes/*.ts

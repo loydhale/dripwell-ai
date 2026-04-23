@@ -71,3 +71,19 @@ What went wrong: Coder used ConflictError (HTTP 409) for invalid email/password 
 Root cause: ConflictError was the closest available custom error class, but the Coder did not map error semantics to correct HTTP status codes.
 Avoid by: When adding auth or resource-not-found errors, always match the error class to the intended HTTP status. Auth failures = UnauthorizedError (401). Missing resources = NotFoundError (404). Resource conflicts = ConflictError (409).
 Seen N times: 1
+
+## L-007 — State transition helper call order can suppress UI state
+Date: 2026-04-22
+Task: TASK-005
+What went wrong: `setError()` displayed an error message, but `setCaptureMode()` was called immediately afterward. `setCaptureMode()` unconditionally set `errorMsg.style.display = 'none'`, hiding the error before the user could see it.
+Root cause: State transition helpers were designed to reset all UI state to a known baseline, including clearing errors. When composed sequentially, the second helper overwrote the first helper's visible state.
+Avoid by: Either call `setCaptureMode()` first and then `setError()`, or remove error-clearing from `setCaptureMode()` and make callers explicitly clear errors when they intend to. Prefer helpers that are composable without side-effect collisions.
+Seen N times: 1
+
+## L-008 — CSS pseudo-elements cannot be driven by JavaScript style assignments
+Date: 2026-04-22
+Task: TASK-005
+What went wrong: A progress bar used `::after` for the fill color and tried to update its width via `element.style.width = ...` from JavaScript. The pseudo-element width stayed at `0%` because JS cannot directly style pseudo-elements.
+Root cause: The Coder treated `::after` as a regular child element that could be manipulated via inline styles.
+Avoid by: For any UI element that needs its style updated from JS, use a real child DOM element or a CSS custom property (`--var`). Pseudo-elements are for decorative/static content only.
+Seen N times: 1

@@ -25,3 +25,11 @@ Rules:
 ## Entries
 
 (none yet — will populate as the team works)
+
+## G-001 — iPad Safari getUserMedia may require a recent user gesture context
+Date discovered: 2026-04-22
+Where: apps/web/src/components/CameraCapture.ts, camera.ts
+The gotcha: iPad Safari allows `navigator.mediaDevices.getUserMedia()` only when called from a user gesture handler or a frame created by one. If the camera component mounts programmatically (e.g., after a route change or state update) without a recent click/tap, the call may be rejected even if permission was previously granted.
+Why it's like this: iOS Safari's media permissions model ties getUserMedia to user gesture context for privacy.
+What to do: Add an explicit "Start Camera" button that the provider taps before calling `getUserMedia`, or ensure the component is rendered synchronously inside a click handler.
+What NOT to do: Do not call `getUserMedia()` immediately on component mount and assume it will work on iPad.
