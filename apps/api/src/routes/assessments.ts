@@ -293,6 +293,10 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new NotFoundError('Assessment');
       }
 
+      if (assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
+        throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
+      }
+
       const signals = await getAssessmentSignals(id, userPayload.tenantId);
       const answers = await getAssessmentAnswers(id, userPayload.tenantId);
 
@@ -356,6 +360,10 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
 
       if (!assessment) {
         throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
+        throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
       const data = parseBody(answerSchema)(request.body);
@@ -509,7 +517,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           tenantId: userPayload.tenantId,
           userId: userPayload.userId,
           assessmentSessionId: id,
-          action: 'ASSESSMENT_CREATED',
+          action: 'ASSESSMENT_COMPLETED',
           entityType: 'AssessmentSession',
           entityId: id,
           details: {

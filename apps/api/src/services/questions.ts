@@ -475,10 +475,6 @@ export async function recordAnswer(params: {
   });
 }
 
-export async function findQuestionBankById(id: string) {
-  return prisma.questionBank.findUnique({ where: { id } });
-}
-
 // ---------------------------------------------------------------------------
 // Mock mode flag
 // ---------------------------------------------------------------------------

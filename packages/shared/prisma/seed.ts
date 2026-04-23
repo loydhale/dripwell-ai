@@ -168,6 +168,7 @@ async function main() {
   await prisma.questionBank.createMany({
     data: [
       {
+        id: '11111111-1111-1111-1111-111111111111',
         category: 'ENERGY_SLEEP',
         questionText: 'How many hours of sleep do you average per night?',
         answerType: 'single_choice',
@@ -175,6 +176,7 @@ async function main() {
         informationGainWeight: 0.8,
       },
       {
+        id: '22222222-2222-2222-2222-222222222222',
         category: 'HYDRATION',
         questionText: 'How many glasses of water do you drink daily?',
         answerType: 'single_choice',
@@ -182,6 +184,7 @@ async function main() {
         informationGainWeight: 0.7,
       },
       {
+        id: '33333333-3333-3333-3333-333333333333',
         category: 'STRESS_RECOVERY',
         questionText: 'How would you rate your current stress level?',
         answerType: 'single_choice',
@@ -189,6 +192,7 @@ async function main() {
         informationGainWeight: 0.75,
       },
       {
+        id: '44444444-4444-4444-4444-444444444444',
         category: 'WOMENS_HEALTH',
         questionText: 'Do you experience heavy menstrual bleeding?',
         answerType: 'single_choice',
@@ -196,6 +200,7 @@ async function main() {
         informationGainWeight: 0.65,
       },
       {
+        id: '55555555-5555-5555-5555-555555555555',
         category: 'DIET_PATTERN',
         questionText: 'How would you describe your typical diet?',
         answerType: 'single_choice',
@@ -203,6 +208,7 @@ async function main() {
         informationGainWeight: 0.7,
       },
       {
+        id: '66666666-6666-6666-6666-666666666666',
         category: 'MEDICAL_HISTORY',
         questionText: 'Are you currently taking any iron supplements?',
         answerType: 'single_choice',
@@ -210,6 +216,7 @@ async function main() {
         informationGainWeight: 0.6,
       },
       {
+        id: '77777777-7777-7777-7777-777777777777',
         category: 'SPECIFIC_SYMPTOMS',
         questionText: 'How long have you been feeling unusually fatigued?',
         answerType: 'single_choice',
@@ -217,6 +224,7 @@ async function main() {
         informationGainWeight: 0.8,
       },
       {
+        id: '88888888-8888-8888-8888-888888888888',
         category: 'STRESS_RECOVERY',
         questionText: 'How well do you recover after exercise?',
         answerType: 'single_choice',
@@ -224,6 +232,7 @@ async function main() {
         informationGainWeight: 0.65,
       },
       {
+        id: '99999999-9999-9999-9999-999999999999',
         category: 'ENERGY_SLEEP',
         questionText: 'How many caffeinated drinks do you have per day?',
         answerType: 'single_choice',
@@ -231,6 +240,7 @@ async function main() {
         informationGainWeight: 0.6,
       },
       {
+        id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
         category: 'SPECIFIC_SYMPTOMS',
         questionText: 'Do you experience persistent dry skin?',
         answerType: 'single_choice',
@@ -238,6 +248,7 @@ async function main() {
         informationGainWeight: 0.7,
       },
       {
+        id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
         category: 'SPECIFIC_SYMPTOMS',
         questionText: 'Do you experience frequent muscle cramps?',
         answerType: 'single_choice',
@@ -245,6 +256,7 @@ async function main() {
         informationGainWeight: 0.75,
       },
       {
+        id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
         category: 'GOALS',
         questionText: 'What is your primary goal for this visit?',
         answerType: 'single_choice',
