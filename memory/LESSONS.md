@@ -36,7 +36,23 @@ Root cause: The Coder added a new status without tracing every query that filter
 Avoid by: When adding a new enum value to a status or state field, always grep the codebase for every query that filters by that field. Update them to include the new state if it is part of the normal workflow.
 Seen N times: 1
 
+## L-014 — AI-generated flag not propagated through bulk import paths
+Date: 2026-04-23
+Task: TASK-014
+What went wrong: The `aiGeneratedDescription` field exists in the schema and UI, but the bulk import API (`/catalog/import`) does not accept or set it. Items imported from image upload with AI-generated descriptions will not carry the AI flag.
+Root cause: The Coder added the flag for individual edits via PUT `/catalog/:id` but did not extend the import item DTO to include it.
+Avoid by: When adding a tracking flag for AI-generated content, trace every creation path (individual create, bulk import, AI-assisted flows) and ensure the flag can be set on all of them.
+Seen N times: 1
+
 ---
+
+## L-015 — CSV DTO fields drift from database schema
+Date: 2026-04-23
+Task: TASK-014
+What went wrong: The CSV preview and import schemas include a `price` field, but `CatalogItem` has no `price` column in the Prisma schema. The field is parsed, validated, and passed through the API but silently dropped during persistence.
+Root cause: The Coder added `price` to match the task brief without verifying the database schema actually supports it.
+Avoid by: Before adding a field to an import DTO, check the Prisma schema. If the schema lacks the field, either add the migration first or remove the field from the DTO to avoid confusing the caller.
+Seen N times: 1
 
 ## Entries
 

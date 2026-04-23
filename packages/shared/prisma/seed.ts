@@ -52,6 +52,19 @@ async function main() {
   });
 
   // ---------------------------------------------------------------------------
+  // Vendor (System Admin)
+  // ---------------------------------------------------------------------------
+  await prisma.user.create({
+    data: {
+      email: 'vendor@dripwell.ai',
+      passwordHash: '$2b$12$Zr9/xgy8mkt32Yq9iSeJKe0E0ijaD/3V2GaewqMp/pJFolaz7X6qu',
+      firstName: 'Platform',
+      lastName: 'Vendor',
+      role: 'SYSTEM_ADMIN',
+    },
+  });
+
+  // ---------------------------------------------------------------------------
   // Ingredients (universal)
   // ---------------------------------------------------------------------------
   await prisma.ingredient.createMany({

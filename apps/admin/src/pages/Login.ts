@@ -13,7 +13,7 @@ export function renderLogin(container: HTMLElement): () => void {
   card.appendChild(title);
 
   const subtitle = document.createElement('p');
-  subtitle.textContent = 'Log in to manage your clinic';
+  subtitle.textContent = 'Log in to manage your clinic or platform';
   card.appendChild(subtitle);
 
   const errorBox = document.createElement('div');
@@ -61,8 +61,8 @@ export function renderLogin(container: HTMLElement): () => void {
         }
       );
 
-      if (result.user.role !== 'SUPER_USER') {
-        errorBox.textContent = 'Access denied. Super user login only.';
+      if (result.user.role !== 'SUPER_USER' && result.user.role !== 'SYSTEM_ADMIN') {
+        errorBox.textContent = 'Access denied. Admin or vendor login only.';
         errorBox.style.display = 'block';
         submitBtn.disabled = false;
         submitBtn.textContent = 'Log in';
@@ -71,7 +71,7 @@ export function renderLogin(container: HTMLElement): () => void {
 
       setToken(result.token);
       setUser(result.user);
-      window.location.hash = '#dashboard';
+      window.location.hash = result.user.role === 'SYSTEM_ADMIN' ? '#vendor-dashboard' : '#dashboard';
     } catch (err) {
       errorBox.textContent = err instanceof Error ? err.message : 'Login failed';
       errorBox.style.display = 'block';

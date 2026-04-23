@@ -33,7 +33,7 @@ async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T
   }
 
   if (response.status === 403) {
-    throw new Error('Access denied. Super user access required.');
+    throw new Error('Access denied. Admin or vendor access required.');
   }
 
   if (!response.ok) {
@@ -82,7 +82,7 @@ export async function postMultipart<T>(path: string, formData: FormData): Promis
   }
 
   if (response.status === 403) {
-    throw new Error('Access denied. Super user access required.');
+    throw new Error('Access denied. Admin or vendor access required.');
   }
 
   if (!response.ok) {

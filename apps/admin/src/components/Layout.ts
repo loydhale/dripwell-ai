@@ -1,13 +1,20 @@
 import { setToken } from '../lib/api.js';
-import { setUser, getUser } from '../lib/auth.js';
+import { setUser, getUser, isVendor } from '../lib/auth.js';
 import { get, put } from '../lib/api.js';
 
-const NAV_ITEMS = [
+const ADMIN_NAV = [
   { hash: '#dashboard', label: 'Dashboard', icon: '\u25A1' },
   { hash: '#catalog', label: 'Catalog', icon: '\u25C8' },
   { hash: '#providers', label: 'Providers', icon: '\u25CE' },
   { hash: '#settings', label: 'Settings', icon: '\u2699' },
   { hash: '#audit', label: 'Audit Log', icon: '\u25A4' },
+];
+
+const VENDOR_NAV = [
+  { hash: '#vendor-dashboard', label: 'Clinics', icon: '\u25A1' },
+  { hash: '#vendor-patterns', label: 'Patterns', icon: '\u25C8' },
+  { hash: '#vendor-audit', label: 'Audit Log', icon: '\u25A4' },
+  { hash: '#vendor-health', label: 'Health', icon: '\u2699' },
 ];
 
 interface NotificationItem {
@@ -170,20 +177,24 @@ export function renderLayout(container: HTMLElement, content: HTMLElement): () =
 
   const brand = document.createElement('div');
   brand.className = 'admin-sidebar-brand';
-  brand.innerHTML = 'DripWell<span>Admin Panel</span>';
+  const vendorMode = isVendor();
+  brand.innerHTML = vendorMode
+    ? 'DripWell<span>Vendor Panel</span>'
+    : 'DripWell<span>Admin Panel</span>';
   sidebar.appendChild(brand);
 
   const nav = document.createElement('nav');
   nav.className = 'admin-sidebar-nav';
 
-  const currentHash = window.location.hash || '#dashboard';
+  const navItems = vendorMode ? VENDOR_NAV : ADMIN_NAV;
+  const currentHash = window.location.hash || (vendorMode ? '#vendor-dashboard' : '#dashboard');
 
-  for (const item of NAV_ITEMS) {
+  for (const item of navItems) {
     const link = document.createElement('a');
     link.href = item.hash;
     link.textContent = item.label;
     link.innerHTML = `${item.icon} ${item.label}`;
-    if (currentHash === item.hash || (currentHash === '' && item.hash === '#dashboard')) {
+    if (currentHash === item.hash || (currentHash === '' && item.hash === (vendorMode ? '#vendor-dashboard' : '#dashboard'))) {
       link.className = 'active';
     }
     link.addEventListener('click', (e) => {
@@ -261,5 +272,5 @@ export function renderLayout(container: HTMLElement, content: HTMLElement): () =
 export function setPageTitle(title: string) {
   const el = document.getElementById('page-title');
   if (el) el.textContent = title;
-  document.title = `${title} \u2014 DripWell Admin`;
+  document.title = `${title} \u2014 DripWell ${isVendor() ? 'Vendor' : 'Admin'}`;
 }

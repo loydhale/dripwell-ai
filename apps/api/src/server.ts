@@ -15,6 +15,7 @@ import catalogRoutes from './routes/catalog.js';
 import providerRoutes from './routes/providers.js';
 import assessmentRoutes from './routes/assessments.js';
 import adminRoutes from './routes/admin.js';
+import vendorRoutes from './routes/vendor.js';
 
 dotenv.config({ path: new URL('../.env', import.meta.url) });
 
@@ -53,6 +54,7 @@ export async function buildServer() {
   await app.register(providerRoutes);
   await app.register(assessmentRoutes);
   await app.register(adminRoutes);
+  await app.register(vendorRoutes);
 
   return app;
 }

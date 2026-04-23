@@ -21,6 +21,14 @@ export function isSuperUser(): boolean {
   return currentUser?.role === 'SUPER_USER';
 }
 
+export function isVendor(): boolean {
+  return currentUser?.role === 'SYSTEM_ADMIN';
+}
+
+export function isAdminOrVendor(): boolean {
+  return isSuperUser() || isVendor();
+}
+
 export function requireAuth(): User {
   if (!currentUser) {
     window.location.hash = '#login';
