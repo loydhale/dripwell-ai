@@ -336,4 +336,81 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       return { assessments };
     }
   );
+
+  fastify.get(
+    '/admin/notifications',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const limit = Math.min(
+        Number((request.query as Record<string, string>)?.limit) || 20,
+        50
+      );
+
+      const [notifications, unreadCount] = await Promise.all([
+        prisma.notification.findMany({
+          where: { tenantId: userPayload.tenantId },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+        }),
+        prisma.notification.count({
+          where: { tenantId: userPayload.tenantId, isRead: false },
+        }),
+      ]);
+
+      return { notifications, unreadCount };
+    }
+  );
+
+  fastify.put(
+    '/admin/notifications/:id/read',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const notification = await prisma.notification.findFirst({
+        where: { id, tenantId: userPayload.tenantId },
+      });
+
+      if (!notification) {
+        throw new NotFoundError('Notification');
+      }
+
+      const updated = await prisma.notification.update({
+        where: { id },
+        data: { isRead: true },
+      });
+
+      return { notification: updated };
+    }
+  );
+
+  fastify.put(
+    '/admin/notifications/read-all',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      await prisma.notification.updateMany({
+        where: { tenantId: userPayload.tenantId, isRead: false },
+        data: { isRead: true },
+      });
+
+      return { success: true };
+    }
+  );
 }

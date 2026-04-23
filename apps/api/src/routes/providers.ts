@@ -56,6 +56,16 @@ export default async function providerRoutes(fastify: FastifyInstance) {
         },
       });
 
+      await prisma.notification.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          title: 'Provider invited',
+          message: `${provider.firstName} ${provider.lastName} (${provider.email}) has been invited as a provider.`,
+          type: 'PROVIDER_INVITED',
+          entityId: provider.id,
+        },
+      });
+
       return { provider };
     }
   );

@@ -101,6 +101,18 @@ export default async function catalogRoutes(fastify: FastifyInstance) {
         },
       });
 
+      if (data.isInStock === false && existing.isInStock) {
+        await prisma.notification.create({
+          data: {
+            tenantId: userPayload.tenantId,
+            title: 'Catalog item out of stock',
+            message: `${item.name} is now marked as out of stock.${item.outOfStockReason ? ` Reason: ${item.outOfStockReason}` : ''}`,
+            type: 'LOW_STOCK',
+            entityId: item.id,
+          },
+        });
+      }
+
       return { catalogItem: item };
     }
   );

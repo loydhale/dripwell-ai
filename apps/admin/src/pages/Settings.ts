@@ -55,12 +55,6 @@ export function renderSettings(container: HTMLElement): () => void {
           <option value="long" ${config.intakeFormLength === 'long' ? 'selected' : ''}>Long</option>
         </select>
       </div>
-      <div class="admin-form-row">
-        <label>
-          <input id="set-progress" type="checkbox" ${config.showPatientProgress !== false ? 'checked' : ''} />
-          Show patient-visible progress during assessment
-        </label>
-      </div>
       <button class="admin-btn admin-btn-primary" id="set-save">Save Changes</button>
     `;
 
@@ -81,7 +75,6 @@ export function renderSettings(container: HTMLElement): () => void {
 
       const newConfig = {
         intakeFormLength: form.querySelector<HTMLSelectElement>('#set-intake')!.value,
-        showPatientProgress: form.querySelector<HTMLInputElement>('#set-progress')!.checked,
       };
 
       try {

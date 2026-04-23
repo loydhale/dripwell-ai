@@ -7,7 +7,6 @@ import { renderDashboard } from './pages/Dashboard.js';
 import { renderCatalogManager } from './pages/CatalogManager.js';
 import { renderProviderManager } from './pages/ProviderManager.js';
 import { renderSettings } from './pages/Settings.js';
-import { renderAnalytics } from './pages/Analytics.js';
 import { renderAuditLog } from './pages/AuditLog.js';
 
 const app = document.getElementById('app')!;
@@ -64,9 +63,6 @@ function renderRoute() {
       break;
     case '#settings':
       currentCleanup = renderSettings(content);
-      break;
-    case '#analytics':
-      currentCleanup = renderAnalytics(content);
       break;
     case '#audit':
       currentCleanup = renderAuditLog(content);

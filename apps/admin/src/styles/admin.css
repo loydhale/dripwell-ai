@@ -520,3 +520,150 @@ body {
   padding: 6px 10px;
   font-size: 13px;
 }
+
+/* Notification bell */
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-notify-wrapper {
+  position: relative;
+}
+
+.admin-notify-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.admin-notify-btn:hover {
+  background: var(--bg-3);
+  color: var(--ink);
+}
+
+.admin-notify-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-notify-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+}
+
+.admin-notify-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.admin-notify-header button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-notify-header button:hover {
+  text-decoration: underline;
+}
+
+.admin-notify-empty {
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.admin-notify-list {
+  padding: 4px 0;
+}
+
+.admin-notify-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.admin-notify-item:last-child {
+  border-bottom: none;
+}
+
+.admin-notify-item.unread {
+  background: var(--bg-tint);
+}
+
+.admin-notify-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.admin-notify-item-msg {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.admin-notify-item-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.admin-notify-item-action {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.admin-notify-item-action:hover {
+  text-decoration: underline;
+}

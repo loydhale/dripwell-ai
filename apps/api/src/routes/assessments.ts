@@ -575,6 +575,16 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         },
       });
 
+      await prisma.notification.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          title: 'Assessment completed',
+          message: `A new assessment has been completed and is pending review.`,
+          type: 'ASSESSMENT_COMPLETED',
+          entityId: id,
+        },
+      });
+
       const confidenceRecord: Record<string, number> = {};
       for (const c of confidences) {
         confidenceRecord[c.pattern] = c.confidence;

@@ -490,5 +490,15 @@ export async function auditSafetyFlags(params: {
         },
       },
     });
+
+    await prisma.notification.create({
+      data: {
+        tenantId,
+        title: `Safety flag: ${flag.tier}`,
+        message: flag.description,
+        type: 'SAFETY_FLAG',
+        entityId: assessmentSessionId,
+      },
+    });
   }
 }
