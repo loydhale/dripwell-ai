@@ -278,3 +278,378 @@ function buildRationale(
 
   return parts.join('. ') + '.';
 }
+
+export interface PatientOutput {
+  title: string;
+  summary: string;
+  whatWasObserved: string;
+  whyThisRecommendation: string;
+  whatToExpect: string;
+  disclaimers: string[];
+}
+
+export async function getPendingRecommendation(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+}): Promise<{
+  recommendationId: RecommendationId;
+  primaryItem: CatalogItemMatch;
+  alternatives: CatalogItemMatch[];
+  confidence: number;
+  rationale: string;
+  patternName: string;
+  genericIntent: string;
+  status: string;
+} | null> {
+  const { assessmentSessionId, tenantId } = params;
+
+  const rec = await prisma.recommendation.findFirst({
+    where: {
+      assessmentSessionId,
+      tenantId,
+      status: 'PENDING',
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      recommendationItems: {
+        include: { catalogItem: true },
+      },
+      primaryItem: true,
+    },
+  });
+
+  if (!rec) return null;
+
+  const primaryItem = rec.recommendationItems.find((ri) => ri.isPrimary);
+  const alternatives = rec.recommendationItems.filter((ri) => !ri.isPrimary);
+
+  return {
+    recommendationId: makeRecommendationId(rec.id),
+    primaryItem: {
+      catalogItemId: makeCatalogItemId(rec.primaryItem.id),
+      name: rec.primaryItem.name,
+      type: rec.primaryItem.type,
+      description: rec.primaryItem.description,
+      matchReason: primaryItem?.dosageNote || 'Primary recommendation',
+    },
+    alternatives: alternatives.map((alt) => ({
+      catalogItemId: makeCatalogItemId(alt.catalogItem.id),
+      name: alt.catalogItem.name,
+      type: alt.catalogItem.type,
+      description: alt.catalogItem.description,
+      matchReason: alt.dosageNote || 'Alternative recommendation',
+    })),
+    confidence: rec.confidence,
+    rationale: rec.rationale,
+    patternName: rec.rationale.split('.')[0].replace('Primary pattern: ', ''),
+    genericIntent: rec.rationale.includes('Mapped to clinical intent:')
+      ? rec.rationale.split('Mapped to clinical intent:')[1].split('.')[0].trim()
+      : '',
+    status: rec.status,
+  };
+}
+
+export async function approveRecommendation(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+  providerId: ProviderId;
+}): Promise<{
+  recommendationId: RecommendationId;
+  patientOutput: PatientOutput;
+}> {
+  const { assessmentSessionId, tenantId, providerId: _providerId } = params;
+
+  const rec = await prisma.recommendation.findFirst({
+    where: {
+      assessmentSessionId,
+      tenantId,
+      status: 'PENDING',
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      recommendationItems: {
+        include: { catalogItem: true },
+      },
+      primaryItem: true,
+    },
+  });
+
+  if (!rec) {
+    throw new NotFoundError('Pending recommendation');
+  }
+
+  await prisma.recommendation.update({
+    where: { id: rec.id },
+    data: {
+      status: 'APPROVED',
+      approvedAt: new Date(),
+    },
+  });
+
+  const patientOutput = await generatePatientOutput({
+    recommendationId: makeRecommendationId(rec.id),
+    primaryItem: {
+      catalogItemId: makeCatalogItemId(rec.primaryItem.id),
+      name: rec.primaryItem.name,
+      type: rec.primaryItem.type,
+      description: rec.primaryItem.description,
+      matchReason: '',
+    },
+    alternatives: rec.recommendationItems
+      .filter((ri) => !ri.isPrimary)
+      .map((ri) => ({
+        catalogItemId: makeCatalogItemId(ri.catalogItem.id),
+        name: ri.catalogItem.name,
+        type: ri.catalogItem.type,
+        description: ri.catalogItem.description,
+        matchReason: '',
+      })),
+    rationale: rec.rationale,
+    _confidence: rec.confidence,
+    _patternName: rec.rationale.split('.')[0].replace('Primary pattern: ', ''),
+    assessmentSessionId,
+    tenantId,
+  });
+
+  return {
+    recommendationId: makeRecommendationId(rec.id),
+    patientOutput,
+  };
+}
+
+export async function overrideRecommendation(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+  providerId: ProviderId;
+  reason: 'CLINICAL_JUDGEMENT' | 'PATIENT_PREFERENCE' | 'CONTRAINDICATION' | 'OTHER';
+  reasonNote?: string;
+  manualRecommendation?: string;
+}): Promise<{
+  overrideId: string;
+  recommendationId: RecommendationId;
+}> {
+  const { assessmentSessionId, tenantId, providerId, reason, reasonNote, manualRecommendation } = params;
+
+  const rec = await prisma.recommendation.findFirst({
+    where: {
+      assessmentSessionId,
+      tenantId,
+      status: 'PENDING',
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (!rec) {
+    throw new NotFoundError('Pending recommendation');
+  }
+
+  await prisma.recommendation.update({
+    where: { id: rec.id },
+    data: { status: 'REJECTED' },
+  });
+
+  const override = await prisma.providerOverride.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      recommendationId: rec.id,
+      overrideType: 'OVERRIDE',
+      reason: reason as any,
+      reasonNote: reasonNote || null,
+      originalValue: rec.rationale,
+      newValue: manualRecommendation || null,
+    },
+  });
+
+  return {
+    overrideId: override.id,
+    recommendationId: makeRecommendationId(rec.id),
+  };
+}
+
+export async function modifyRecommendation(params: {
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+  providerId: ProviderId;
+  primaryCatalogItemId?: CatalogItemId;
+  rationale?: string;
+  confidence?: number;
+}): Promise<{
+  recommendationId: RecommendationId;
+  primaryItem: CatalogItemMatch;
+  alternatives: CatalogItemMatch[];
+  confidence: number;
+  rationale: string;
+}> {
+  const { assessmentSessionId, tenantId, providerId, primaryCatalogItemId, rationale, confidence } = params;
+
+  const rec = await prisma.recommendation.findFirst({
+    where: {
+      assessmentSessionId,
+      tenantId,
+      status: 'PENDING',
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      recommendationItems: {
+        include: { catalogItem: true },
+      },
+    },
+  });
+
+  if (!rec) {
+    throw new NotFoundError('Pending recommendation');
+  }
+
+  const originalRationale = rec.rationale;
+  const originalPrimaryId = rec.primaryCatalogItemId;
+
+  const updateData: {
+    status: 'MODIFIED';
+    rationale?: string;
+    confidence?: number;
+    primaryCatalogItemId?: string;
+  } = { status: 'MODIFIED' };
+
+  if (rationale !== undefined) updateData.rationale = rationale;
+  if (confidence !== undefined) updateData.confidence = confidence;
+  if (primaryCatalogItemId !== undefined) updateData.primaryCatalogItemId = primaryCatalogItemId;
+
+  const updatedRec = await prisma.recommendation.update({
+    where: { id: rec.id },
+    data: updateData,
+    include: {
+      recommendationItems: {
+        include: { catalogItem: true },
+      },
+      primaryItem: true,
+    },
+  });
+
+  // If primary item changed, update recommendationItems
+  if (primaryCatalogItemId !== undefined && primaryCatalogItemId !== originalPrimaryId) {
+    await prisma.recommendationItem.updateMany({
+      where: { recommendationId: rec.id },
+      data: { isPrimary: false },
+    });
+    const existingItem = await prisma.recommendationItem.findFirst({
+      where: {
+        recommendationId: rec.id,
+        catalogItemId: primaryCatalogItemId,
+      },
+    });
+    if (existingItem) {
+      await prisma.recommendationItem.update({
+        where: { id: existingItem.id },
+        data: { isPrimary: true },
+      });
+    } else {
+      await prisma.recommendationItem.create({
+        data: {
+          recommendationId: rec.id,
+          catalogItemId: primaryCatalogItemId,
+          isPrimary: true,
+        },
+      });
+    }
+  }
+
+  // Log modification for audit / model learning
+  await prisma.providerOverride.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      recommendationId: rec.id,
+      overrideType: 'MODIFY',
+      reason: 'CLINICAL_JUDGEMENT' as any,
+      reasonNote: `Provider modified recommendation. Original rationale: ${originalRationale}`,
+      originalValue: originalPrimaryId,
+      newValue: primaryCatalogItemId || originalPrimaryId,
+    },
+  });
+
+  const primaryItem = updatedRec.recommendationItems.find((ri) => ri.isPrimary);
+  const alternatives = updatedRec.recommendationItems.filter((ri) => !ri.isPrimary);
+
+  return {
+    recommendationId: makeRecommendationId(updatedRec.id),
+    primaryItem: {
+      catalogItemId: makeCatalogItemId(updatedRec.primaryItem.id),
+      name: updatedRec.primaryItem.name,
+      type: updatedRec.primaryItem.type,
+      description: updatedRec.primaryItem.description,
+      matchReason: primaryItem?.dosageNote || 'Primary recommendation',
+    },
+    alternatives: alternatives.map((alt) => ({
+      catalogItemId: makeCatalogItemId(alt.catalogItem.id),
+      name: alt.catalogItem.name,
+      type: alt.catalogItem.type,
+      description: alt.catalogItem.description,
+      matchReason: alt.dosageNote || 'Alternative recommendation',
+    })),
+    confidence: updatedRec.confidence,
+    rationale: updatedRec.rationale,
+  };
+}
+
+async function generatePatientOutput(params: {
+  recommendationId: RecommendationId;
+  primaryItem: CatalogItemMatch;
+  alternatives: CatalogItemMatch[];
+  rationale: string;
+  _confidence: number;
+  _patternName: string;
+  assessmentSessionId: AssessmentId;
+  tenantId: TenantId;
+}): Promise<PatientOutput> {
+  const { primaryItem, alternatives, rationale, assessmentSessionId, tenantId } = params;
+
+  // Fetch supporting signals for the patient output
+  const signals = await prisma.visualSignal.findMany({
+    where: { assessmentSessionId, tenantId },
+    orderBy: { confidence: 'desc' },
+    take: 3,
+  });
+
+  const signalDescriptions = signals.map((s) => {
+    const name = s.signalName.replace(/_/g, ' ').toLowerCase();
+    return `We observed ${name} during your photo analysis`;
+  });
+
+  const title = `Your Personalized IV Therapy Recommendation`;
+
+  const summary = `Based on your assessment, our licensed provider has reviewed and approved a recommendation for ${primaryItem.name}. This recommendation was made after reviewing your photos and responses.`;
+
+  const whatWasObserved = signalDescriptions.length > 0
+    ? `${signalDescriptions.join('. ')}. These visual indicators, along with your responses to our follow-up questions, helped us understand your current wellness needs.`
+    : `Your responses to our follow-up questions helped us understand your current wellness needs.`;
+
+  const whyThisRecommendation = rationale
+    .replace(/Primary pattern: [^.]+\./, '')
+    .replace(/Mapped to clinical intent: [^.]+\./, '')
+    .trim();
+
+  const altText = alternatives.length > 0
+    ? ` Other options that may also support your goals include ${alternatives.map((a) => a.name).join(' and ')}.`
+    : '';
+
+  const whatToExpect = `Your provider recommends ${primaryItem.name}.${altText} This therapy is designed to support your wellness goals based on what we observed during your assessment. Every patient responds differently, and your provider will monitor your progress.`;
+
+  const disclaimers = [
+    'This recommendation has been reviewed and approved by a licensed medical provider.',
+    'This information is for wellness purposes and is not a substitute for professional medical advice, diagnosis, or treatment.',
+    'Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.',
+    'Individual results may vary. Your provider will discuss expected outcomes during your visit.',
+  ];
+
+  return {
+    title,
+    summary,
+    whatWasObserved,
+    whyThisRecommendation,
+    whatToExpect,
+    disclaimers,
+  };
+}

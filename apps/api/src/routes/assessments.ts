@@ -16,7 +16,13 @@ import {
   formatConfidenceLog,
 } from '../services/questions.js';
 import { computePatternMatches, persistPatternMatches, RECOMMENDATION_MOCK_MODE } from '../services/patterns.js';
-import { generateRecommendation } from '../services/recommendations.js';
+import {
+  generateRecommendation,
+  getPendingRecommendation,
+  approveRecommendation,
+  overrideRecommendation,
+  modifyRecommendation,
+} from '../services/recommendations.js';
 import {
   detectSafetyFlags,
   persistSafetyFlags,
@@ -32,6 +38,7 @@ import {
   makeTenantId,
   makeProviderId,
   makeLocationId,
+  makeCatalogItemId,
 } from '@dripwell/shared';
 
 const createAssessmentSchema = z.object({
@@ -48,6 +55,22 @@ const answerSchema = z.object({
 
 const acknowledgeFlagSchema = z.object({
   acknowledged: z.boolean(),
+});
+
+const approveSchema = z.object({
+  notes: z.string().optional(),
+});
+
+const overrideSchema = z.object({
+  reason: z.enum(['CLINICAL_JUDGEMENT', 'PATIENT_PREFERENCE', 'CONTRAINDICATION', 'OTHER']),
+  reasonNote: z.string().optional(),
+  manualRecommendation: z.string().optional(),
+});
+
+const modifySchema = z.object({
+  primaryCatalogItemId: z.string().uuid().optional(),
+  rationale: z.string().optional(),
+  confidence: z.number().min(0).max(1).optional(),
 });
 
 export default async function assessmentRoutes(fastify: FastifyInstance) {
@@ -314,7 +337,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new NotFoundError('Assessment');
       }
 
-      if (assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
+      if (assessment.status === 'PENDING_REVIEW' || assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
         throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
@@ -383,7 +406,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new NotFoundError('Assessment');
       }
 
-      if (assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
+      if (assessment.status === 'PENDING_REVIEW' || assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'COMPLETED' || assessment.status === 'ABANDONED') {
         throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
@@ -530,7 +553,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
 
       await prisma.assessmentSession.update({
         where: { id },
-        data: { status: 'COMPLETED', completedAt: new Date() },
+        data: { status: 'PENDING_REVIEW', completedAt: new Date() },
       });
 
       await prisma.auditLog.create({
@@ -559,7 +582,7 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
 
       reply.status(200);
       return {
-        status: 'COMPLETED',
+        status: 'PENDING_REVIEW',
         patternConfidences: confidenceRecord,
         answersCount: answers.length,
       };
@@ -586,6 +609,10 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
 
       if (!assessment) {
         throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status === 'APPROVED' || assessment.status === 'OVERRIDDEN' || assessment.status === 'ABANDONED') {
+        throw new ValidationError([{ message: `Assessment is already ${assessment.status.toLowerCase()}` }]);
       }
 
       // Compute pattern matches
@@ -648,6 +675,11 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         allPatterns: patternResult.topPatterns,
         isReturning: assessment.isReturning,
         priorSessionId: assessment.priorSessionId ? makeAssessmentId(assessment.priorSessionId) : null,
+      });
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { status: 'PENDING_REVIEW' },
       });
 
       await prisma.auditLog.create({
@@ -802,6 +834,220 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           providerAcknowledgedAt: updated.providerAcknowledgedAt,
           isOverridden: updated.isOverridden,
         },
+      };
+    }
+  );
+
+  fastify.get(
+    '/assessments/:id/recommendation',
+    { preValidation: [fastify.authenticate] },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const rec = await getPendingRecommendation({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+      });
+
+      if (!rec) {
+        throw new NotFoundError('Recommendation');
+      }
+
+      return { recommendation: rec };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/approve',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'PENDING_REVIEW') {
+        throw new ValidationError([{ message: `Assessment must be pending review to approve. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(approveSchema)(request.body);
+
+      const result = await approveRecommendation({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+        providerId: makeProviderId(userPayload.userId),
+      });
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { status: 'APPROVED' },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'PROVIDER_APPROVED',
+          entityType: 'Recommendation',
+          entityId: result.recommendationId,
+          details: {
+            notes: data.notes || null,
+          },
+        },
+      });
+
+      reply.status(200);
+      return {
+        recommendationId: result.recommendationId,
+        status: 'APPROVED',
+        patientOutput: result.patientOutput,
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/override',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'PENDING_REVIEW') {
+        throw new ValidationError([{ message: `Assessment must be pending review to override. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(overrideSchema)(request.body);
+
+      const result = await overrideRecommendation({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+        providerId: makeProviderId(userPayload.userId),
+        reason: data.reason,
+        reasonNote: data.reasonNote,
+        manualRecommendation: data.manualRecommendation,
+      });
+
+      await prisma.assessmentSession.update({
+        where: { id },
+        data: { status: 'OVERRIDDEN' },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'PROVIDER_OVERRIDDEN',
+          entityType: 'Recommendation',
+          entityId: result.recommendationId,
+          details: {
+            overrideId: result.overrideId,
+            reason: data.reason,
+            reasonNote: data.reasonNote || null,
+            manualRecommendation: data.manualRecommendation || null,
+          },
+        },
+      });
+
+      reply.status(200);
+      return {
+        recommendationId: result.recommendationId,
+        overrideId: result.overrideId,
+        status: 'OVERRIDDEN',
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/modify',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      if (assessment.status !== 'PENDING_REVIEW' && assessment.status !== 'IN_PROGRESS') {
+        throw new ValidationError([{ message: `Assessment must be in progress or pending review to modify. Current status: ${assessment.status}` }]);
+      }
+
+      const data = parseBody(modifySchema)(request.body);
+
+      const result = await modifyRecommendation({
+        assessmentSessionId: makeAssessmentId(id),
+        tenantId: makeTenantId(userPayload.tenantId),
+        providerId: makeProviderId(userPayload.userId),
+        primaryCatalogItemId: data.primaryCatalogItemId ? makeCatalogItemId(data.primaryCatalogItemId) : undefined,
+        rationale: data.rationale,
+        confidence: data.confidence,
+      });
+
+      reply.status(200);
+      return {
+        recommendationId: result.recommendationId,
+        status: 'MODIFIED',
+        primaryItem: result.primaryItem,
+        alternatives: result.alternatives,
+        confidence: result.confidence,
+        rationale: result.rationale,
       };
     }
   );

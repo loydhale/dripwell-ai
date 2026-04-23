@@ -2,13 +2,17 @@ import '../styles/camera.css';
 import '../styles/questions.css';
 import '../styles/recommendations.css';
 import '../styles/safety.css';
+import '../styles/provider.css';
 import { renderCameraCapture } from '../components/CameraCapture.js';
 import { renderQuestionDisplay } from '../components/QuestionDisplay.js';
-import { renderRecommendationPreview } from '../components/RecommendationPreview.js';
 import { renderSafetyFlagDisplay } from '../components/SafetyFlagDisplay.js';
+import { renderProviderReview } from '../components/ProviderReview.js';
+import { renderPatientOutput } from '../components/PatientOutput.js';
 import type { Question } from '../components/QuestionDisplay.js';
-import type { RecommendationPreviewState, PatternDetail } from '../components/RecommendationPreview.js';
+import type { PatternDetail } from '../components/RecommendationPreview.js';
 import type { SafetyFlag, SafetyFlagDisplayState } from '../components/SafetyFlagDisplay.js';
+import type { ProviderReviewState } from '../components/ProviderReview.js';
+import type { PatientOutputState } from '../components/PatientOutput.js';
 import { type PhotoAngle } from '../components/ARGuideOverlay.js';
 
 export interface AssessmentFlowState {
@@ -269,7 +273,7 @@ export function renderAssessmentFlow(
     }
   }
 
-  async function fetchRecommendation(): Promise<{ recommendation: Omit<RecommendationPreviewState, 'patterns'>; patterns: PatternDetail[] }> {
+  async function fetchRecommendation(): Promise<{ recommendation: ProviderReviewState; patterns: PatternDetail[] }> {
     const base = state.apiBaseUrl || '';
     const url = `${base}/assessments/${state.assessmentId}/generate-recommendation`;
     const res = await fetch(url, {
@@ -283,6 +287,71 @@ export function renderAssessmentFlow(
       throw new Error(`Failed to generate recommendation: ${res.status}`);
     }
     return res.json();
+  }
+
+  async function getExistingRecommendation(): Promise<{ recommendation: ProviderReviewState; patterns: PatternDetail[] } | null> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/recommendation`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      throw new Error(`Failed to fetch recommendation: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function postApprove(): Promise<{ patientOutput: PatientOutputState }> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/approve`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to approve: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function postOverride(reason: string, reasonNote: string, manualRecommendation: string): Promise<void> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/override`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason, reasonNote, manualRecommendation }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to override: ${res.status}`);
+    }
+  }
+
+  async function postModify(changes: { rationale?: string; primaryCatalogItemId?: string }): Promise<void> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/modify`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(changes),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to modify: ${res.status}`);
+    }
   }
 
   async function startQuestioning() {
@@ -467,18 +536,31 @@ export function renderAssessmentFlow(
   async function showRecommendation() {
     phase = 'recommendation';
     clearContent();
-    title.textContent = 'Recommendation';
-    subtitle.textContent = 'Review the system-generated recommendation.';
+    title.textContent = 'Provider Approval Review';
+    subtitle.textContent = 'Review the AI recommendation, safety flags, and approve or override before patient delivery.';
     progressSteps.style.display = 'none';
     bottomBar.style.display = 'none';
     updateStatus('Generating recommendation...');
 
     try {
-      const data = await fetchRecommendation();
+      let data = await getExistingRecommendation();
+      if (!data) {
+        data = await fetchRecommendation();
+      }
       updateStatus('');
       clearContent();
 
-      const previewState: RecommendationPreviewState = {
+      // Fetch safety flags for display in review
+      let flags: SafetyFlag[] = [];
+      try {
+        const flagData = await fetchSafetyFlags();
+        flags = flagData.flags;
+      } catch {
+        flags = [];
+      }
+
+      const reviewState: ProviderReviewState = {
+        assessmentId: state.assessmentId,
         recommendationId: data.recommendation.recommendationId,
         primaryItem: data.recommendation.primaryItem,
         alternatives: data.recommendation.alternatives,
@@ -487,33 +569,151 @@ export function renderAssessmentFlow(
         patternName: data.recommendation.patternName,
         genericIntent: data.recommendation.genericIntent,
         patterns: data.patterns,
+        flags,
       };
 
-      currentCleanup = renderRecommendationPreview(
+      currentCleanup = renderProviderReview(
         contentSlot,
-        previewState,
+        reviewState,
         {
-          onApprove: () => {
-            handlers.onComplete();
+          onApprove: async () => {
+            try {
+              updateStatus('Approving recommendation...');
+              const result = await postApprove();
+              showPatientOutput(result.patientOutput);
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              updateStatus(`Approval failed: ${message}`);
+            }
           },
-          onReject: () => {
-            updateStatus('Recommendation rejected. Provider will select manually.');
-            bottomBar.style.display = 'flex';
-            nextBtn.style.display = '';
-            nextBtn.textContent = 'Finish';
-            nextBtn.onclick = () => {
-              handlers.onComplete();
-            };
+          onOverride: async (reason, reasonNote, manualRecommendation) => {
+            try {
+              updateStatus('Recording override...');
+              await postOverride(reason, reasonNote, manualRecommendation);
+              clearContent();
+              const msg = document.createElement('div');
+              msg.className = 'af-done-msg';
+              msg.innerHTML = `
+                <div class="af-done-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <h2>Recommendation overridden</h2>
+                <p>Your override has been recorded for model learning.</p>
+              `;
+              contentSlot.appendChild(msg);
+              bottomBar.style.display = 'flex';
+              nextBtn.style.display = '';
+              nextBtn.textContent = 'Finish';
+              nextBtn.onclick = () => handlers.onComplete();
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              updateStatus(`Override failed: ${message}`);
+            }
           },
-          onModify: () => {
-            updateStatus('Modification requested. Provider override flow coming in TASK-010.');
+          onModify: async (changes) => {
+            try {
+              updateStatus('Applying modification...');
+              await postModify(changes);
+              // Re-fetch to show updated recommendation
+              const refreshed = await getExistingRecommendation();
+              if (refreshed) {
+                clearContent();
+                const refreshedReviewState: ProviderReviewState = {
+                  assessmentId: state.assessmentId,
+                  recommendationId: refreshed.recommendation.recommendationId,
+                  primaryItem: refreshed.recommendation.primaryItem,
+                  alternatives: refreshed.recommendation.alternatives,
+                  confidence: refreshed.recommendation.confidence,
+                  rationale: refreshed.recommendation.rationale,
+                  patternName: refreshed.recommendation.patternName,
+                  genericIntent: refreshed.recommendation.genericIntent,
+                  patterns: refreshed.patterns,
+                  flags,
+                };
+                currentCleanup = renderProviderReview(contentSlot, refreshedReviewState, {
+                  onApprove: async () => {
+                    try {
+                      updateStatus('Approving recommendation...');
+                      const result = await postApprove();
+                      showPatientOutput(result.patientOutput);
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      updateStatus(`Approval failed: ${message}`);
+                    }
+                  },
+                  onOverride: async (reason, reasonNote, manualRecommendation) => {
+                    try {
+                      updateStatus('Recording override...');
+                      await postOverride(reason, reasonNote, manualRecommendation);
+                      clearContent();
+                      const msg = document.createElement('div');
+                      msg.className = 'af-done-msg';
+                      msg.innerHTML = `
+                        <div class="af-done-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <h2>Recommendation overridden</h2>
+                        <p>Your override has been recorded for model learning.</p>
+                      `;
+                      contentSlot.appendChild(msg);
+                      bottomBar.style.display = 'flex';
+                      nextBtn.style.display = '';
+                      nextBtn.textContent = 'Finish';
+                      nextBtn.onclick = () => handlers.onComplete();
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      updateStatus(`Override failed: ${message}`);
+                    }
+                  },
+                  onModify: async (c) => {
+                    try {
+                      updateStatus('Applying modification...');
+                      await postModify(c);
+                      showRecommendation();
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : String(err);
+                      updateStatus(`Modify failed: ${message}`);
+                    }
+                  },
+                });
+              }
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              updateStatus(`Modify failed: ${message}`);
+            }
           },
         }
       );
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      updateStatus(`Error generating recommendation: ${message}`);
+      updateStatus(`Error loading recommendation: ${message}`);
     }
+  }
+
+  function showPatientOutput(patientOutput: PatientOutputState) {
+    clearContent();
+    title.textContent = 'Patient Summary';
+    subtitle.textContent = 'Provider-approved, plain-language output for the patient.';
+    progressSteps.style.display = 'none';
+    bottomBar.style.display = 'none';
+    updateStatus('');
+
+    currentCleanup = renderPatientOutput(
+      contentSlot,
+      patientOutput,
+      {
+        onFinish: () => {
+          handlers.onComplete();
+        },
+        onBack: () => {
+          showRecommendation();
+        },
+      }
+    );
   }
 
   // Event handlers
