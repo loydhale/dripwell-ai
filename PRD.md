@@ -140,13 +140,41 @@ When this product is complete:
 - **Priority:** P1
 
 ### Feature F-11: Super User Admin Panel
-- **Description:** Admin interface for catalog management, location settings, user management, analytics, audit logs.
+- **Description:** Admin interface for catalog management, location settings, user management, dashboard, audit logs. Includes notification system, login-as provider feature, and catalog AI enhancement tools.
 - **Acceptance criteria:**
-  - Catalog: view/edit all items, add new (conversational or manual), toggle in/out of stock, soft delete
+  - Catalog: view/edit all items, add new (conversational, manual, CSV upload, or image), toggle in/out of stock, soft delete
+  - AI catalog enhancement: upload menu image or CSV, AI extracts structured catalog with descriptions
   - Location settings: state, medical director, default capture preferences, intake form length
-  - User management: invite providers, manage permissions, deactivate
-  - Analytics: assessments run, acceptance rate, override distribution, flag distribution
-  - Audit log: exportable, tamper-evident record of all actions
+  - User management: invite providers, manage permissions, deactivate, login-as provider
+  - Notifications: notification icon with recent activity alerts
+  - Dashboard: assessment counts, recommendation acceptance rate, override distribution, flag distribution
+  - Audit log: exportable record of all actions
+- **Priority:** P1
+
+### Feature F-11a: Admin Notifications
+- **Description:** Notification bell icon in admin header showing recent system events (new assessments, provider activity, safety flags).
+- **Acceptance criteria:**
+  - Bell icon with unread count badge
+  - Dropdown showing recent notifications
+  - Mark as read functionality
+- **Priority:** P1
+
+### Feature F-11b: Login-As Provider
+- **Description:** Super user can temporarily impersonate a provider to see exactly what they see in the PWA.
+- **Acceptance criteria:**
+  - Admin can select any provider and "login as" them
+  - Opens PWA in provider context (same JWT, provider permissions)
+  - Clear indicator that admin is in impersonation mode
+  - Can exit impersonation and return to admin
+- **Priority:** P1
+
+### Feature F-11c: Catalog Upload & AI Enhancement
+- **Description:** Super user uploads spa menu via CSV or photograph. AI extracts structured catalog and generates clinical descriptions for assessment mapping.
+- **Acceptance criteria:**
+  - CSV upload: map columns to catalog fields, preview before import
+  - Image upload: photograph menu, AI OCR extracts items and prices
+  - AI description generation: for each catalog item, AI generates clinical description (ingredients, benefits, when to recommend)
+  - Manual review: admin verifies AI-generated content before saving
 - **Priority:** P1
 
 ### Feature F-13: Landing Page (Marketing Site)
@@ -165,6 +193,8 @@ When this product is complete:
 - Diagnosis, treatment, cure, or medical device claims
 - Automated patient outreach (no 24/48h outcome check, no SMS, no email automation)
 - Patient names, DOB, or any PII stored in the app (anonymous assessment IDs only)
+- Patient-visible progress toggle (removed per owner feedback — we handle intake forms)
+- Standalone Analytics page (merged into Dashboard per owner feedback)
 - Multi-provider workflow routing or complex scheduling
 - Dark mode (brand is light/bright by design)
 - iPhone version (v1 is tablet-only; iPhone deferred)
