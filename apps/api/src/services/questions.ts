@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma.js';
 interface VisualSignalShape {
   signalName: string;
   confidence: number;
+  value: string | null;
 }
 
 interface QuestionAnswerShape {
@@ -251,9 +252,9 @@ export function computePatternConfidences(params: {
   let effectiveSignals = signals;
   if (mockSignals && signals.length === 0) {
     effectiveSignals = [
-      { signalName: 'CONJUNCTIVAL_PALLOR', confidence: 0.72 },
-      { signalName: 'LIP_DRYNESS', confidence: 0.68 },
-      { signalName: 'UNDER_EYE_DARKNESS', confidence: 0.55 },
+      { signalName: 'CONJUNCTIVAL_PALLOR', confidence: 0.72, value: null },
+      { signalName: 'LIP_DRYNESS', confidence: 0.68, value: null },
+      { signalName: 'UNDER_EYE_DARKNESS', confidence: 0.55, value: null },
     ];
   }
 
@@ -441,7 +442,7 @@ export function formatConfidenceLog(confidences: PatternConfidence[]): string {
 export async function getAssessmentSignals(assessmentSessionId: string, tenantId: string): Promise<VisualSignalShape[]> {
   return prisma.visualSignal.findMany({
     where: { assessmentSessionId, tenantId },
-    select: { signalName: true, confidence: true },
+    select: { signalName: true, confidence: true, value: true },
   });
 }
 

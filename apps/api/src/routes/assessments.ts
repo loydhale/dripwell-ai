@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { parseBody } from '../lib/validate.js';
 import { getPhotoStorage } from '../lib/storage.js';
-import { NotFoundError, ForbiddenError, ValidationError } from '../lib/errors.js';
+import { NotFoundError, ForbiddenError, ValidationError, ConflictError } from '../lib/errors.js';
 import { analyzePhotos, isConfidenceAcceptable, toPrismaSignalName } from '../services/vision.js';
 import {
   STATIC_QUESTION_BANK,
@@ -17,6 +17,15 @@ import {
 } from '../services/questions.js';
 import { computePatternMatches, persistPatternMatches, RECOMMENDATION_MOCK_MODE } from '../services/patterns.js';
 import { generateRecommendation } from '../services/recommendations.js';
+import {
+  detectSafetyFlags,
+  persistSafetyFlags,
+  getSafetyFlags,
+  acknowledgeSafetyFlag,
+  hasUnacknowledgedTier3Flags,
+  auditSafetyFlags,
+  SAFETY_MOCK_MODE,
+} from '../services/safety.js';
 import type { UserPayload } from '../types/index.js';
 import {
   makeAssessmentId,
@@ -35,6 +44,10 @@ const answerSchema = z.object({
   questionId: z.string().uuid(),
   answerValue: z.string().min(1),
   skipped: z.boolean().optional().default(false),
+});
+
+const acknowledgeFlagSchema = z.object({
+  acknowledged: z.boolean(),
 });
 
 export default async function assessmentRoutes(fastify: FastifyInstance) {
@@ -586,6 +599,38 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new ValidationError([{ message: 'No clinical patterns could be matched for this assessment' }]);
       }
 
+      // Detect safety flags and persist them
+      const safetyResult = await detectSafetyFlags({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+        mockMode: SAFETY_MOCK_MODE || QUESTION_MOCK_MODE,
+      });
+
+      if (safetyResult.flags.length > 0) {
+        await persistSafetyFlags({
+          assessmentSessionId: id,
+          tenantId: userPayload.tenantId,
+          flags: safetyResult.flags,
+        });
+
+        await auditSafetyFlags({
+          assessmentSessionId: id,
+          tenantId: userPayload.tenantId,
+          providerId: userPayload.userId,
+          flags: safetyResult.flags,
+        });
+      }
+
+      // Block recommendation generation if unacknowledged Tier 3 flags exist
+      const blockedByTier3 = await hasUnacknowledgedTier3Flags({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+      });
+
+      if (blockedByTier3) {
+        throw new ConflictError('Assessment has unacknowledged urgent safety flags. Provider must review and acknowledge before generating a recommendation.');
+      }
+
       // Persist pattern matches
       await persistPatternMatches({
         assessmentSessionId: id,
@@ -643,6 +688,120 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
           isPrimary: p.isPrimary,
         })),
         allConfidences: patternResult.allConfidences,
+      };
+    }
+  );
+
+  fastify.get(
+    '/assessments/:id/safety-flags',
+    { preValidation: [fastify.authenticate] },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const flags = await getSafetyFlags({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+      });
+
+      return {
+        flags: flags.map((f) => ({
+          id: f.id,
+          tier: f.tier,
+          flagType: f.flagType,
+          description: f.description,
+          suggestedScript: f.suggestedScript,
+          providerAcknowledgedAt: f.providerAcknowledgedAt,
+          isOverridden: f.isOverridden,
+          createdAt: f.createdAt,
+        })),
+        hasUnacknowledgedTier3: flags.some(
+          (f) => f.tier === 'T3_URGENT' && !f.providerAcknowledgedAt && !f.isOverridden
+        ),
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/safety-flags/:flagId/acknowledge',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id, flagId } = request.params as { id: string; flagId: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const data = parseBody(acknowledgeFlagSchema)(request.body);
+      if (!data.acknowledged) {
+        throw new ValidationError([{ message: 'acknowledged must be true' }]);
+      }
+
+      const updated = await acknowledgeSafetyFlag({
+        flagId,
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+        providerId: userPayload.userId,
+      });
+
+      if (!updated) {
+        throw new NotFoundError('Safety flag');
+      }
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'PROVIDER_APPROVED',
+          entityType: 'SafetyFlag',
+          entityId: flagId,
+          details: {
+            flagType: updated.flagType,
+            tier: updated.tier,
+            acknowledged: true,
+          },
+        },
+      });
+
+      reply.status(200);
+      return {
+        flag: {
+          id: updated.id,
+          tier: updated.tier,
+          flagType: updated.flagType,
+          description: updated.description,
+          suggestedScript: updated.suggestedScript,
+          providerAcknowledgedAt: updated.providerAcknowledgedAt,
+          isOverridden: updated.isOverridden,
+        },
       };
     }
   );

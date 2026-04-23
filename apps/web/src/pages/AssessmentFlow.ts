@@ -1,11 +1,14 @@
 import '../styles/camera.css';
 import '../styles/questions.css';
 import '../styles/recommendations.css';
+import '../styles/safety.css';
 import { renderCameraCapture } from '../components/CameraCapture.js';
 import { renderQuestionDisplay } from '../components/QuestionDisplay.js';
 import { renderRecommendationPreview } from '../components/RecommendationPreview.js';
+import { renderSafetyFlagDisplay } from '../components/SafetyFlagDisplay.js';
 import type { Question } from '../components/QuestionDisplay.js';
 import type { RecommendationPreviewState, PatternDetail } from '../components/RecommendationPreview.js';
+import type { SafetyFlag, SafetyFlagDisplayState } from '../components/SafetyFlagDisplay.js';
 import { type PhotoAngle } from '../components/ARGuideOverlay.js';
 
 export interface AssessmentFlowState {
@@ -30,7 +33,7 @@ export function renderAssessmentFlow(
   let currentCleanup: (() => void) | null = null;
   let completed: PhotoAngle[] = [];
   let skipped: PhotoAngle[] = [];
-  let phase: 'photos' | 'questions' | 'recommendation' = 'photos';
+  let phase: 'photos' | 'questions' | 'safety' | 'recommendation' = 'photos';
 
   container.innerHTML = '';
   container.className = 'assessment-flow-root';
@@ -235,6 +238,37 @@ export function renderAssessmentFlow(
     return res.json();
   }
 
+  async function fetchSafetyFlags(): Promise<{ flags: SafetyFlag[]; hasUnacknowledgedTier3: boolean }> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/safety-flags`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch safety flags: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function postAcknowledgeFlag(flagId: string): Promise<void> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/safety-flags/${flagId}/acknowledge`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ acknowledged: true }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to acknowledge flag: ${res.status}`);
+    }
+  }
+
   async function fetchRecommendation(): Promise<{ recommendation: Omit<RecommendationPreviewState, 'patterns'>; patterns: PatternDetail[] }> {
     const base = state.apiBaseUrl || '';
     const url = `${base}/assessments/${state.assessmentId}/generate-recommendation`;
@@ -341,10 +375,93 @@ export function renderAssessmentFlow(
 
     bottomBar.style.display = 'flex';
     nextBtn.style.display = '';
-    nextBtn.textContent = 'Continue to results';
+    nextBtn.textContent = 'Continue to safety review';
     nextBtn.onclick = () => {
-      showRecommendation();
+      showSafetyFlags();
     };
+  }
+
+  async function showSafetyFlags() {
+    phase = 'safety';
+    clearContent();
+    title.textContent = 'Safety Review';
+    subtitle.textContent = 'Reviewing safety flags before generating recommendation...';
+    progressSteps.style.display = 'none';
+    bottomBar.style.display = 'none';
+    updateStatus('Loading safety flags...');
+
+    try {
+      const data = await fetchSafetyFlags();
+      updateStatus('');
+      clearContent();
+
+      const flagState: SafetyFlagDisplayState = {
+        flags: data.flags,
+        hasUnacknowledgedTier3: data.hasUnacknowledgedTier3,
+      };
+
+      currentCleanup = renderSafetyFlagDisplay(
+        contentSlot,
+        flagState,
+        {
+          onAcknowledge: async (flagId) => {
+            try {
+              await postAcknowledgeFlag(flagId);
+              // Re-fetch and re-render
+              const refreshed = await fetchSafetyFlags();
+              const refreshedState: SafetyFlagDisplayState = {
+                flags: refreshed.flags,
+                hasUnacknowledgedTier3: refreshed.hasUnacknowledgedTier3,
+              };
+              clearContent();
+              currentCleanup = renderSafetyFlagDisplay(contentSlot, refreshedState, {
+                onAcknowledge: async (fid) => {
+                  await postAcknowledgeFlag(fid);
+                  const r2 = await fetchSafetyFlags();
+                  const s2: SafetyFlagDisplayState = {
+                    flags: r2.flags,
+                    hasUnacknowledgedTier3: r2.hasUnacknowledgedTier3,
+                  };
+                  clearContent();
+                  currentCleanup = renderSafetyFlagDisplay(contentSlot, s2, {
+                    onAcknowledge: async (f2) => {
+                      await postAcknowledgeFlag(f2);
+                      const r3 = await fetchSafetyFlags();
+                      const s3: SafetyFlagDisplayState = {
+                        flags: r3.flags,
+                        hasUnacknowledgedTier3: r3.hasUnacknowledgedTier3,
+                      };
+                      clearContent();
+                      currentCleanup = renderSafetyFlagDisplay(contentSlot, s3, {
+                        onAcknowledge: async (f3) => {
+                          await postAcknowledgeFlag(f3);
+                          showSafetyFlags();
+                        },
+                        onProceed: () => showRecommendation(),
+                      });
+                    },
+                    onProceed: () => showRecommendation(),
+                  });
+                },
+                onProceed: () => showRecommendation(),
+              });
+            } catch (err) {
+              const message = err instanceof Error ? err.message : String(err);
+              updateStatus(`Error acknowledging flag: ${message}`);
+            }
+          },
+          onProceed: () => showRecommendation(),
+        }
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      updateStatus(`Error loading safety flags: ${message}`);
+      // Allow proceeding to recommendation even if safety flags fail to load
+      bottomBar.style.display = 'flex';
+      nextBtn.style.display = '';
+      nextBtn.textContent = 'Skip to recommendation';
+      nextBtn.onclick = () => showRecommendation();
+    }
   }
 
   async function showRecommendation() {
