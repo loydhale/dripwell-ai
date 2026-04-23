@@ -29,3 +29,16 @@ export function getVisionModel() {
     },
   });
 }
+
+export function getTextModel() {
+  if (isMockMode) {
+    throw new Error('Text model not available in mock mode');
+  }
+  const gemini = getGeminiClient();
+  return gemini.getGenerativeModel({
+    model: 'gemini-2.0-flash',
+    generationConfig: {
+      responseMimeType: 'application/json',
+    },
+  });
+}

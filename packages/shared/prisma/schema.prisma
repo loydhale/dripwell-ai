@@ -522,18 +522,19 @@ model QuestionBank {
 // ---------------------------------------------------------------------------
 
 model CatalogItem {
-  id               String   @id @default(uuid()) @db.Uuid
-  tenantId         String   @db.Uuid
-  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name             String
-  description      String?
-  type             ItemType
-  isActive         Boolean  @default(true)
-  isInStock        Boolean  @default(true)
-  outOfStockReason String?
-  stateRestrictions Json?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                    String   @id @default(uuid()) @db.Uuid
+  tenantId              String   @db.Uuid
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name                  String
+  description           String?
+  aiGeneratedDescription Boolean  @default(false)
+  type                  ItemType
+  isActive              Boolean  @default(true)
+  isInStock             Boolean  @default(true)
+  outOfStockReason      String?
+  stateRestrictions     Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   ingredients              CatalogItemIngredient[]
   compatibilitiesAsBase    CatalogItemCompatibility[] @relation("BaseItem")

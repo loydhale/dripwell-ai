@@ -2,8 +2,14 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { parseBody } from '../lib/validate.js';
-import { NotFoundError, ForbiddenError } from '../lib/errors.js';
+import { NotFoundError, ForbiddenError, ValidationError } from '../lib/errors.js';
 import type { UserPayload } from '../types/index.js';
+import {
+  parseCsvPreview,
+  importCatalogItems,
+  extractMenuFromImage,
+  generateCatalogDescription,
+} from '../services/catalog-import.js';
 
 const createCatalogSchema = z.object({
   name: z.string().min(1),
@@ -21,6 +27,26 @@ const updateCatalogSchema = z.object({
   isInStock: z.boolean().optional(),
   outOfStockReason: z.string().optional(),
   stateRestrictions: z.record(z.any()).optional(),
+  aiGeneratedDescription: z.boolean().optional(),
+});
+
+const importBodySchema = z.object({
+  items: z.array(
+    z.object({
+      name: z.string().min(1),
+      type: z.enum(['DRIP', 'ADD_ON', 'INJECTION', 'PEPTIDE']),
+      description: z.string().optional(),
+      ingredients: z.array(z.string()).default([]),
+      price: z.number().optional(),
+    })
+  ),
+  duplicateAction: z.enum(['UPDATE', 'SKIP']).default('SKIP'),
+});
+
+const generateDescriptionSchema = z.object({
+  name: z.string().min(1),
+  ingredients: z.array(z.string()).default([]),
+  type: z.enum(['DRIP', 'ADD_ON', 'INJECTION', 'PEPTIDE']),
 });
 
 export default async function catalogRoutes(fastify: FastifyInstance) {
@@ -67,9 +93,22 @@ export default async function catalogRoutes(fastify: FastifyInstance) {
           isActive: true,
         },
         orderBy: { createdAt: 'desc' },
+        include: {
+          ingredients: {
+            include: { ingredient: true },
+          },
+        },
       });
 
-      return { items };
+      const serialized = items.map((item) => ({
+        ...item,
+        ingredients: item.ingredients.map((ci) => ({
+          id: ci.ingredient.id,
+          name: ci.ingredient.name,
+        })),
+      }));
+
+      return { items: serialized };
     }
   );
 
@@ -142,6 +181,145 @@ export default async function catalogRoutes(fastify: FastifyInstance) {
       });
 
       return { catalogItem: item };
+    }
+  );
+
+  // ---------------------------------------------------------------------------
+  // CSV Import Preview
+  // ---------------------------------------------------------------------------
+
+  fastify.post(
+    '/catalog/import-preview',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const data = await request.file();
+      if (!data) {
+        throw new ValidationError([{ message: 'CSV file is required' }]);
+      }
+
+      const chunks: Buffer[] = [];
+      for await (const chunk of data.file) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+
+      const mappingRaw = (data.fields.columnMapping as { value?: string } | undefined)?.value;
+      let columnMapping: Record<string, string> | undefined;
+      if (mappingRaw) {
+        try {
+          columnMapping = JSON.parse(mappingRaw) as Record<string, string>;
+        } catch {
+          throw new ValidationError([{ message: 'Invalid columnMapping JSON' }]);
+        }
+      }
+
+      const preview = parseCsvPreview(buffer, columnMapping);
+
+      return { preview };
+    }
+  );
+
+  // ---------------------------------------------------------------------------
+  // CSV Import Execute
+  // ---------------------------------------------------------------------------
+
+  fastify.post(
+    '/catalog/import',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const userPayload = request.user as UserPayload;
+      const body = parseBody(importBodySchema)(request.body);
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const result = await importCatalogItems({
+        tenantId: userPayload.tenantId,
+        items: body.items,
+        duplicateAction: body.duplicateAction,
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          impersonatedBy: userPayload.impersonatedBy || null,
+          action: 'CATALOG_UPDATED',
+          entityType: 'CatalogItem',
+          details: {
+            action: 'bulk_import',
+            created: result.created,
+            updated: result.updated,
+            skipped: result.skipped,
+            failed: result.failed,
+          },
+        },
+      });
+
+      return { result };
+    }
+  );
+
+  // ---------------------------------------------------------------------------
+  // Menu Photo Extraction
+  // ---------------------------------------------------------------------------
+
+  fastify.post(
+    '/catalog/extract-menu',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const data = await request.file();
+      if (!data) {
+        throw new ValidationError([{ message: 'Menu image file is required' }]);
+      }
+
+      const chunks: Buffer[] = [];
+      for await (const chunk of data.file) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+
+      const items = await extractMenuFromImage(buffer, data.mimetype);
+
+      return { items };
+    }
+  );
+
+  // ---------------------------------------------------------------------------
+  // AI Description Generation
+  // ---------------------------------------------------------------------------
+
+  fastify.post(
+    '/catalog/generate-description',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SUPER_USER'])] },
+    async (request) => {
+      const userPayload = request.user as UserPayload;
+      const body = parseBody(generateDescriptionSchema)(request.body);
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const description = await generateCatalogDescription({
+        name: body.name,
+        ingredients: body.ingredients,
+        type: body.type,
+      });
+
+      return { description };
     }
   );
 }

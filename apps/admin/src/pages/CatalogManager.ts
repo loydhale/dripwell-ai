@@ -1,16 +1,26 @@
 import { get, post, put, del } from '../lib/api.js';
 import { setPageTitle } from '../components/Layout.js';
+import { renderCsvUploader } from '../components/CsvUploader.js';
+import { renderImageUploader } from '../components/ImageUploader.js';
+import { renderAiDescriptionModal } from '../components/AiDescriptionModal.js';
+
+interface Ingredient {
+  id: string;
+  name: string;
+}
 
 interface CatalogItem {
   id: string;
   name: string;
   description: string | null;
+  aiGeneratedDescription: boolean;
   type: 'DRIP' | 'ADD_ON' | 'INJECTION' | 'PEPTIDE';
   isInStock: boolean;
   outOfStockReason: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  ingredients?: Ingredient[];
 }
 
 export function renderCatalogManager(container: HTMLElement): () => void {
@@ -18,6 +28,7 @@ export function renderCatalogManager(container: HTMLElement): () => void {
   setPageTitle('Catalog');
 
   let items: CatalogItem[] = [];
+  let currentCleanup: (() => void) | null = null;
 
   async function load() {
     const res = await get<{ items: CatalogItem[] }>('/catalog');
@@ -37,6 +48,33 @@ export function renderCatalogManager(container: HTMLElement): () => void {
     addBtn.textContent = '+ Add Item';
     addBtn.addEventListener('click', () => openAddModal());
     actions.appendChild(addBtn);
+
+    const importCsvBtn = document.createElement('button');
+    importCsvBtn.className = 'admin-btn admin-btn-secondary';
+    importCsvBtn.textContent = 'Import CSV';
+    importCsvBtn.addEventListener('click', () => {
+      currentCleanup = renderCsvUploader(container, {
+        onImportComplete: () => load(),
+        onClose: () => {
+          currentCleanup = null;
+        },
+      });
+    });
+    actions.appendChild(importCsvBtn);
+
+    const uploadMenuBtn = document.createElement('button');
+    uploadMenuBtn.className = 'admin-btn admin-btn-secondary';
+    uploadMenuBtn.textContent = 'Upload Menu Photo';
+    uploadMenuBtn.addEventListener('click', () => {
+      currentCleanup = renderImageUploader(container, {
+        onImportComplete: () => load(),
+        onClose: () => {
+          currentCleanup = null;
+        },
+      });
+    });
+    actions.appendChild(uploadMenuBtn);
+
     page.appendChild(actions);
 
     const tableWrap = document.createElement('div');
@@ -61,15 +99,19 @@ export function renderCatalogManager(container: HTMLElement): () => void {
       const tbody = table.querySelector('tbody')!;
       for (const item of items) {
         const tr = document.createElement('tr');
+        const aiBadge = item.aiGeneratedDescription
+          ? '<span class="admin-badge admin-badge-neutral" style="margin-left:6px">AI</span>'
+          : '';
         tr.innerHTML = `
           <td>
-            <div style="font-weight:600">${item.name}</div>
+            <div style="font-weight:600">${item.name}${aiBadge}</div>
             <div style="font-size:12px;color:var(--text-3)">${item.description || '—'}</div>
           </td>
           <td>${typeLabel(item.type)}</td>
           <td>${stockBadge(item)}</td>
           <td>
             <button class="admin-btn admin-btn-sm admin-btn-secondary" data-edit="${item.id}">Edit</button>
+            <button class="admin-btn admin-btn-sm admin-btn-secondary" data-ai-desc="${item.id}">AI Desc</button>
             <button class="admin-btn admin-btn-sm ${item.isInStock ? 'admin-btn-danger' : 'admin-btn-secondary'}" data-toggle="${item.id}">${item.isInStock ? 'Mark OOS' : 'Mark In Stock'}</button>
             <button class="admin-btn admin-btn-sm admin-btn-danger" data-delete="${item.id}">Delete</button>
           </td>
@@ -91,6 +133,35 @@ export function renderCatalogManager(container: HTMLElement): () => void {
         if (item) openEditModal(item);
       });
     });
+
+    tableWrap.querySelectorAll<HTMLButtonElement>('[data-ai-desc]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-ai-desc')!;
+        const item = items.find((i) => i.id === id);
+        if (!item) return;
+        currentCleanup = renderAiDescriptionModal(
+          {
+            name: item.name,
+            type: item.type,
+            ingredients: item.ingredients?.map((i) => i.name) || [],
+            currentDescription: item.description || undefined,
+          },
+          {
+            onSave: async (description) => {
+              await put(`/catalog/${item.id}`, {
+                description,
+                aiGeneratedDescription: true,
+              });
+              await load();
+            },
+            onClose: () => {
+              currentCleanup = null;
+            },
+          }
+        );
+      });
+    });
+
     tableWrap.querySelectorAll<HTMLButtonElement>('[data-toggle]').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const id = btn.getAttribute('data-toggle')!;
@@ -153,6 +224,9 @@ export function renderCatalogManager(container: HTMLElement): () => void {
   });
 
   return () => {
+    if (currentCleanup) {
+      currentCleanup();
+    }
     container.innerHTML = '';
   };
 }
