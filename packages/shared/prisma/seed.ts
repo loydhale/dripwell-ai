@@ -119,12 +119,55 @@ async function main() {
     },
   });
 
+  const hydrationDrip = await prisma.catalogItem.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Basic Hydration Drip',
+      description: 'Pure saline hydration with electrolyte balance',
+      type: 'DRIP',
+      ingredients: {
+        create: [
+          { ingredientId: ingredientMap.get('Normal Saline')!, dosage: '1000ml' },
+          { ingredientId: ingredientMap.get('Magnesium')!, dosage: '1g' },
+          { ingredientId: ingredientMap.get('Zinc')!, dosage: '10mg' },
+        ],
+      },
+    },
+  });
+
+  const recoveryDrip = await prisma.catalogItem.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Recovery Plus Drip',
+      description: 'Anti-inflammatory recovery drip with glutathione and vitamin C',
+      type: 'DRIP',
+      ingredients: {
+        create: [
+          { ingredientId: ingredientMap.get('Vitamin C')!, dosage: '5g' },
+          { ingredientId: ingredientMap.get('Glutathione')!, dosage: '400mg' },
+          { ingredientId: ingredientMap.get('Normal Saline')!, dosage: '500ml' },
+        ],
+      },
+    },
+  });
+
   // Compatibility: Myers' Cocktail can have Glutathione Push as add-on
   await prisma.catalogItemCompatibility.create({
     data: {
       tenantId: tenant.id,
       baseItemId: myersCocktail.id,
       compatibleItemId: glutathionePush.id,
+      isDefault: false,
+      maxQuantity: 1,
+    },
+  });
+
+  // Compatibility: Hydration Drip can have B12 as add-on
+  await prisma.catalogItemCompatibility.create({
+    data: {
+      tenantId: tenant.id,
+      baseItemId: hydrationDrip.id,
+      compatibleItemId: b12Shot.id,
       isDefault: false,
       maxQuantity: 1,
     },
@@ -280,7 +323,7 @@ async function main() {
       ]),
       supportingAnswers: JSON.stringify([
         { questionCategory: 'ENERGY_SLEEP', expectedAnswerPattern: '<5|5-6' },
-        { questionCategory: 'MEDICAL_HISTORY', expectedAnswerPattern: 'heavy_menstruation' },
+        { questionCategory: 'WOMENS_HEALTH', expectedAnswerPattern: 'yes_sometimes|yes_always' },
       ]),
       conflictingSignals: JSON.stringify([
         { signalName: 'FACIAL_REDNESS', reason: 'suggests inflammation rather than deficiency' },
@@ -290,6 +333,150 @@ async function main() {
       safetyFlags: JSON.stringify([
         { tier: 'T2_FOLLOWUP', type: 'iron_overload_risk', description: 'Screen for hemochromatosis before iron-containing drips' },
       ]),
+    },
+  });
+
+  const b12Folate = await prisma.clinicalPattern.create({
+    data: {
+      name: 'B12/Folate Cluster',
+      description: 'Signs consistent with B-vitamin insufficiency including tongue and neurological indicators',
+      category: 'nutritional',
+      supportingSignals: JSON.stringify([
+        { signalName: 'TONGUE_SURFACE', minConfidence: 0.5, required: false },
+        { signalName: 'ANGULAR_CHEILITIS', minConfidence: 0.5, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'DIET_PATTERN', expectedAnswerPattern: 'restricted|mostly_processed' },
+        { questionCategory: 'MEDICAL_HISTORY', expectedAnswerPattern: 'no' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'Vitamin B12 and folate support',
+      clinicalRationale: 'Tongue surface changes and angular cheilitis are associated with B-vitamin deficiency. Dietary restriction patterns increase likelihood.',
+      safetyFlags: JSON.stringify([]),
+    },
+  });
+
+  const dehydration = await prisma.clinicalPattern.create({
+    data: {
+      name: 'Dehydration',
+      description: 'Visual and reported signs of inadequate hydration status',
+      category: 'hydration',
+      supportingSignals: JSON.stringify([
+        { signalName: 'LIP_DRYNESS', minConfidence: 0.5, required: false },
+        { signalName: 'SKIN_TEXTURE', minConfidence: 0.5, required: false },
+        { signalName: 'SCLERA_TINT', minConfidence: 0.4, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'HYDRATION', expectedAnswerPattern: '<3|3-5' },
+        { questionCategory: 'SPECIFIC_SYMPTOMS', expectedAnswerPattern: 'mild|moderate|severe' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'Hydration IV',
+      clinicalRationale: 'Dry lips and altered skin texture are common visual markers of dehydration. Low daily water intake supports the pattern.',
+      safetyFlags: JSON.stringify([]),
+    },
+  });
+
+  const stressMagnesium = await prisma.clinicalPattern.create({
+    data: {
+      name: 'Stress/Magnesium Depletion',
+      description: 'Signs of chronic stress and associated magnesium depletion',
+      category: 'stress',
+      supportingSignals: JSON.stringify([
+        { signalName: 'FACIAL_REDNESS', minConfidence: 0.5, required: false },
+        { signalName: 'UNDER_EYE_PUFFINESS', minConfidence: 0.5, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'STRESS_RECOVERY', expectedAnswerPattern: 'high|extreme' },
+        { questionCategory: 'ENERGY_SLEEP', expectedAnswerPattern: '<5|5-6' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'Magnesium and hydration blend',
+      clinicalRationale: 'Facial redness and under-eye puffiness can indicate chronic stress. Poor sleep and high reported stress levels increase confidence.',
+      safetyFlags: JSON.stringify([
+        { tier: 'T1_INFO', type: 'stress_screening', description: 'Consider formal stress assessment if patient reports extreme stress' },
+      ]),
+    },
+  });
+
+  const inflammatoryRecovery = await prisma.clinicalPattern.create({
+    data: {
+      name: 'Inflammatory/Recovery State',
+      description: 'Signs suggesting systemic inflammation or need for recovery support',
+      category: 'recovery',
+      supportingSignals: JSON.stringify([
+        { signalName: 'FACIAL_REDNESS', minConfidence: 0.5, required: false },
+        { signalName: 'FACIAL_DULLNESS', minConfidence: 0.5, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'STRESS_RECOVERY', expectedAnswerPattern: 'poor|dont_exercise' },
+        { questionCategory: 'GOALS', expectedAnswerPattern: 'recovery|athletic' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'Anti-inflammatory recovery drip',
+      clinicalRationale: 'Facial redness and dullness may indicate inflammatory state. Poor exercise recovery or athletic goals support this pattern.',
+      safetyFlags: JSON.stringify([]),
+    },
+  });
+
+  const sleepDeprivation = await prisma.clinicalPattern.create({
+    data: {
+      name: 'Sleep Deprivation',
+      description: 'Visual and reported signs consistent with inadequate sleep',
+      category: 'sleep',
+      supportingSignals: JSON.stringify([
+        { signalName: 'UNDER_EYE_DARKNESS', minConfidence: 0.5, required: false },
+        { signalName: 'UNDER_EYE_PUFFINESS', minConfidence: 0.5, required: false },
+        { signalName: 'FACIAL_DULLNESS', minConfidence: 0.5, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'ENERGY_SLEEP', expectedAnswerPattern: '<5|5-6' },
+        { questionCategory: 'SPECIFIC_SYMPTOMS', expectedAnswerPattern: 'few_days|few_weeks|months_or_more' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'B-complex support',
+      clinicalRationale: 'Under-eye darkness and puffiness are classic signs of sleep deprivation. Reported low sleep hours and fatigue duration support the pattern.',
+      safetyFlags: JSON.stringify([]),
+    },
+  });
+
+  const electrolyteImbalance = await prisma.clinicalPattern.create({
+    data: {
+      name: 'Electrolyte Imbalance',
+      description: 'Signs suggesting electrolyte disturbance including muscle and hydration markers',
+      category: 'hydration',
+      supportingSignals: JSON.stringify([
+        { signalName: 'SKIN_TEXTURE', minConfidence: 0.5, required: false },
+        { signalName: 'LIP_DRYNESS', minConfidence: 0.5, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'HYDRATION', expectedAnswerPattern: '<3|3-5' },
+        { questionCategory: 'SPECIFIC_SYMPTOMS', expectedAnswerPattern: 'rarely|sometimes|often' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'Hydration IV with electrolytes',
+      clinicalRationale: 'Skin texture changes and lip dryness suggest fluid/electrolyte issues. Low water intake and muscle cramp reports increase confidence.',
+      safetyFlags: JSON.stringify([]),
+    },
+  });
+
+  const lowEnergy = await prisma.clinicalPattern.create({
+    data: {
+      name: 'Low Energy',
+      description: 'Generalized signs of reduced vitality and energy production',
+      category: 'energy',
+      supportingSignals: JSON.stringify([
+        { signalName: 'FACIAL_DULLNESS', minConfidence: 0.5, required: false },
+        { signalName: 'POSTURE_AFFECT', minConfidence: 0.5, required: false },
+      ]),
+      supportingAnswers: JSON.stringify([
+        { questionCategory: 'GOALS', expectedAnswerPattern: 'energy' },
+        { questionCategory: 'SPECIFIC_SYMPTOMS', expectedAnswerPattern: 'few_weeks|months_or_more' },
+      ]),
+      conflictingSignals: JSON.stringify([]),
+      genericRecommendationIntent: 'B-complex and hydration support',
+      clinicalRationale: 'Facial dullness and posture/affect changes suggest low energy. Patient-reported fatigue duration and energy goals support this pattern.',
+      safetyFlags: JSON.stringify([]),
     },
   });
 

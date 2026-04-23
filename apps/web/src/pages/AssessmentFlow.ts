@@ -1,8 +1,11 @@
 import '../styles/camera.css';
 import '../styles/questions.css';
+import '../styles/recommendations.css';
 import { renderCameraCapture } from '../components/CameraCapture.js';
 import { renderQuestionDisplay } from '../components/QuestionDisplay.js';
+import { renderRecommendationPreview } from '../components/RecommendationPreview.js';
 import type { Question } from '../components/QuestionDisplay.js';
+import type { RecommendationPreviewState, PatternDetail } from '../components/RecommendationPreview.js';
 import { type PhotoAngle } from '../components/ARGuideOverlay.js';
 
 export interface AssessmentFlowState {
@@ -27,7 +30,7 @@ export function renderAssessmentFlow(
   let currentCleanup: (() => void) | null = null;
   let completed: PhotoAngle[] = [];
   let skipped: PhotoAngle[] = [];
-  let phase: 'photos' | 'questions' = 'photos';
+  let phase: 'photos' | 'questions' | 'recommendation' = 'photos';
 
   container.innerHTML = '';
   container.className = 'assessment-flow-root';
@@ -232,6 +235,22 @@ export function renderAssessmentFlow(
     return res.json();
   }
 
+  async function fetchRecommendation(): Promise<{ recommendation: Omit<RecommendationPreviewState, 'patterns'>; patterns: PatternDetail[] }> {
+    const base = state.apiBaseUrl || '';
+    const url = `${base}/assessments/${state.assessmentId}/generate-recommendation`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${state.token || ''}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to generate recommendation: ${res.status}`);
+    }
+    return res.json();
+  }
+
   async function startQuestioning() {
     phase = 'questions';
     title.textContent = 'Follow-up Questions';
@@ -324,8 +343,60 @@ export function renderAssessmentFlow(
     nextBtn.style.display = '';
     nextBtn.textContent = 'Continue to results';
     nextBtn.onclick = () => {
-      handlers.onComplete();
+      showRecommendation();
     };
+  }
+
+  async function showRecommendation() {
+    phase = 'recommendation';
+    clearContent();
+    title.textContent = 'Recommendation';
+    subtitle.textContent = 'Review the system-generated recommendation.';
+    progressSteps.style.display = 'none';
+    bottomBar.style.display = 'none';
+    updateStatus('Generating recommendation...');
+
+    try {
+      const data = await fetchRecommendation();
+      updateStatus('');
+      clearContent();
+
+      const previewState: RecommendationPreviewState = {
+        recommendationId: data.recommendation.recommendationId,
+        primaryItem: data.recommendation.primaryItem,
+        alternatives: data.recommendation.alternatives,
+        confidence: data.recommendation.confidence,
+        rationale: data.recommendation.rationale,
+        patternName: data.recommendation.patternName,
+        genericIntent: data.recommendation.genericIntent,
+        patterns: data.patterns,
+      };
+
+      currentCleanup = renderRecommendationPreview(
+        contentSlot,
+        previewState,
+        {
+          onApprove: () => {
+            handlers.onComplete();
+          },
+          onReject: () => {
+            updateStatus('Recommendation rejected. Provider will select manually.');
+            bottomBar.style.display = 'flex';
+            nextBtn.style.display = '';
+            nextBtn.textContent = 'Finish';
+            nextBtn.onclick = () => {
+              handlers.onComplete();
+            };
+          },
+          onModify: () => {
+            updateStatus('Modification requested. Provider override flow coming in TASK-010.');
+          },
+        }
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      updateStatus(`Error generating recommendation: ${message}`);
+    }
   }
 
   // Event handlers

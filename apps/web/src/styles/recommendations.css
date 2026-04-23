@@ -1,0 +1,341 @@
+/* --------------------------------------------------------------------------
+   Recommendation Preview Styles
+   Clinical, clean, optimized for tablet (primary) and desktop.
+   -------------------------------------------------------------------------- */
+
+.recommendation-preview-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0b1c1a;
+  color: #e8f0ee;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.rp-header {
+  flex-shrink: 0;
+  padding: 16px 20px 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rp-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: #ffffff;
+}
+
+.rp-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.rp-confidence-badge {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rp-confidence--high {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.08);
+}
+
+.rp-confidence--medium {
+  color: #f1c40f;
+  background: rgba(241, 196, 15, 0.08);
+}
+
+.rp-confidence--low {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.08);
+}
+
+/* Primary recommendation card */
+.rp-primary-card {
+  flex-shrink: 0;
+  margin: 16px 20px 0;
+  padding: 20px;
+  background: rgba(15, 122, 106, 0.1);
+  border: 1px solid rgba(15, 122, 106, 0.35);
+  border-radius: 12px;
+}
+
+.rp-item-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #0f7a6a;
+  margin-bottom: 8px;
+}
+
+.rp-item-name {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.rp-item-type {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.rp-item-description {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.rp-match-reason {
+  font-size: 12px;
+  color: rgba(15, 122, 106, 0.85);
+  font-style: italic;
+}
+
+/* Alternatives */
+.rp-alternatives-section {
+  flex-shrink: 0;
+  margin: 12px 20px 0;
+}
+
+.rp-section-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rp-alt-card {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.rp-alt-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.rp-alt-type {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.rp-alt-description {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+
+/* Rationale */
+.rp-rationale-section {
+  flex-shrink: 0;
+  margin: 16px 20px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rp-rationale-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Patterns */
+.rp-patterns-section {
+  flex: 1 1 auto;
+  margin: 16px 20px 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.rp-pattern-card {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.rp-pattern-card--primary {
+  border-color: rgba(15, 122, 106, 0.4);
+  background: rgba(15, 122, 106, 0.06);
+}
+
+.rp-pattern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.rp-pattern-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.rp-pattern-confidence {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f7a6a;
+}
+
+.rp-detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 8px 0 4px;
+}
+
+.rp-detail-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+.rp-detail-list li {
+  margin-bottom: 2px;
+}
+
+/* Bottom bar */
+.rp-bottom-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 16px;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rp-btn-reject {
+  background: rgba(180, 60, 60, 0.2);
+  border: 1px solid rgba(180, 60, 60, 0.4);
+  color: rgba(255, 200, 200, 0.85);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.rp-btn-reject:hover {
+  background: rgba(180, 60, 60, 0.35);
+  border-color: rgba(180, 60, 60, 0.6);
+}
+
+.rp-btn-modify {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.rp-btn-modify:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.rp-btn-approve {
+  background: #0f7a6a;
+  border: none;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rp-btn-approve:hover {
+  background: #0d6b5d;
+}
+
+/* Responsive */
+@media (min-width: 640px) {
+  .rp-title {
+    font-size: 24px;
+  }
+
+  .rp-subtitle {
+    font-size: 14px;
+  }
+
+  .rp-item-name {
+    font-size: 26px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rp-primary-card {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .rp-alternatives-section {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .rp-rationale-section {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .rp-patterns-section {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

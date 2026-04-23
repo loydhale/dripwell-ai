@@ -15,6 +15,8 @@ import {
   getAssessmentAnswers,
   formatConfidenceLog,
 } from '../services/questions.js';
+import { computePatternMatches, persistPatternMatches, RECOMMENDATION_MOCK_MODE } from '../services/patterns.js';
+import { generateRecommendation } from '../services/recommendations.js';
 import type { UserPayload } from '../types/index.js';
 
 const createAssessmentSchema = z.object({
@@ -541,6 +543,99 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         status: 'COMPLETED',
         patternConfidences: confidenceRecord,
         answersCount: answers.length,
+      };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/generate-recommendation',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      // Compute pattern matches
+      const patternResult = await computePatternMatches({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+        mockSignals: RECOMMENDATION_MOCK_MODE || QUESTION_MOCK_MODE,
+      });
+
+      if (patternResult.topPatterns.length === 0) {
+        throw new ValidationError([{ message: 'No clinical patterns could be matched for this assessment' }]);
+      }
+
+      // Persist pattern matches
+      await persistPatternMatches({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+        patterns: patternResult.topPatterns,
+      });
+
+      // Generate recommendation
+      const recommendationResult = await generateRecommendation({
+        assessmentSessionId: id,
+        tenantId: userPayload.tenantId,
+        providerId: userPayload.userId,
+        topPattern: patternResult.topPatterns[0],
+        allPatterns: patternResult.topPatterns,
+        isReturning: assessment.isReturning,
+        priorSessionId: assessment.priorSessionId,
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'RECOMMENDATION_GENERATED',
+          entityType: 'Recommendation',
+          entityId: recommendationResult.recommendationId,
+          details: {
+            patternName: recommendationResult.patternName,
+            confidence: recommendationResult.confidence,
+            primaryItemId: recommendationResult.primaryItem.catalogItemId,
+            intent: recommendationResult.genericIntent,
+          },
+        },
+      });
+
+      reply.status(201);
+      return {
+        recommendation: {
+          id: recommendationResult.recommendationId,
+          primaryItem: recommendationResult.primaryItem,
+          alternatives: recommendationResult.alternatives,
+          confidence: recommendationResult.confidence,
+          rationale: recommendationResult.rationale,
+          patternName: recommendationResult.patternName,
+          genericIntent: recommendationResult.genericIntent,
+        },
+        patterns: patternResult.topPatterns.map((p) => ({
+          clinicalPatternId: p.clinicalPatternId,
+          clinicalPatternName: p.clinicalPatternName,
+          confidence: p.confidence,
+          category: p.category,
+          matchedSignals: p.matchedSignals,
+          matchedAnswers: p.matchedAnswers,
+          isPrimary: p.isPrimary,
+        })),
+        allConfidences: patternResult.allConfidences,
       };
     }
   );
