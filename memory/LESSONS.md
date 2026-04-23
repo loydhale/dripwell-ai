@@ -87,3 +87,19 @@ What went wrong: A progress bar used `::after` for the fill color and tried to u
 Root cause: The Coder treated `::after` as a regular child element that could be manipulated via inline styles.
 Avoid by: For any UI element that needs its style updated from JS, use a real child DOM element or a CSS custom property (`--var`). Pseudo-elements are for decorative/static content only.
 Seen N times: 1
+
+## L-009 — Static question bank IDs must match database rows or FK constraints fail at runtime
+Date: 2026-04-22
+Task: TASK-007
+What went wrong: The static question bank uses hardcoded UUIDs (e.g. '11111111-1111-1111-1111-111111111111') but the Prisma seed generates auto-generated UUIDs for QuestionBank rows. The QuestionAnswer model has a foreign key constraint on questionBankId referencing QuestionBank.id. Any attempt to record an answer fails with a foreign key constraint violation because no QuestionBank row exists with the hardcoded ID.
+Root cause: Coder treated the static question bank and the database schema as independent without ensuring referential integrity between hardcoded IDs and actual DB rows.
+Avoid by: When using static hardcoded IDs that must reference database rows, either (1) seed the DB with those exact IDs, (2) remove the foreign key constraint for static references, or (3) use a separate nullable field for static question references. Always verify a create path end-to-end before considering a task done.
+Seen N times: 1
+
+## L-010 — Mock mode auto-fallback can mask production data issues
+Date: 2026-04-22
+Task: TASK-007
+What went wrong: The next-question endpoint automatically enables mock signals whenever signals.length === 0, regardless of the QUESTION_MOCK_MODE env var. In production, if photo analysis fails or is bypassed, the system silently injects synthetic signals instead of surfacing the missing-data condition.
+Root cause: The Coder conflated "no signals available" with "test mode" for convenience, creating a hidden production risk.
+Avoid by: Mock mode should be strictly opt-in via explicit configuration. The "no signals" path should either return an error, use zero-signal baseline, or require explicit provider confirmation before proceeding. Never auto-inject synthetic data in production paths.
+Seen N times: 1

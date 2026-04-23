@@ -33,3 +33,19 @@ The gotcha: iPad Safari allows `navigator.mediaDevices.getUserMedia()` only when
 Why it's like this: iOS Safari's media permissions model ties getUserMedia to user gesture context for privacy.
 What to do: Add an explicit "Start Camera" button that the provider taps before calling `getUserMedia`, or ensure the component is rendered synchronously inside a click handler.
 What NOT to do: Do not call `getUserMedia()` immediately on component mount and assume it will work on iPad.
+
+## G-002 — Prisma @default(uuid()) generates IDs that never match hardcoded static values
+Date discovered: 2026-04-22
+Where: packages/shared/prisma/schema.prisma QuestionBank model, apps/api/src/services/questions.ts STATIC_QUESTION_BANK
+The gotcha: When a model uses `@id @default(uuid())`, Prisma generates a random UUID on every create. If your code references hardcoded UUIDs (e.g. a static question bank in TypeScript), those IDs will never match the database rows unless you explicitly set the id during seeding.
+Why it's like this: Prisma's default UUID generator is random per insertion.
+What to do: Either (1) seed QuestionBank rows with the exact hardcoded IDs from the static bank, (2) remove the foreign key from QuestionAnswer to QuestionBank and use a separate non-FK string field for static references, or (3) load the static bank into the DB at app startup instead of hardcoding.
+What NOT to do: Do not assume hardcoded UUIDs in code will match auto-generated database rows.
+
+## G-003 — Mock signal auto-fallback hides missing photo analysis in production
+Date discovered: 2026-04-22
+Where: apps/api/src/routes/assessments.ts next-question endpoint, apps/api/src/services/questions.ts computePatternConfidences
+The gotcha: The next-question endpoint passes `mockSignals: QUESTION_MOCK_MODE || signals.length === 0`. When no visual signals exist, it silently injects three synthetic signals with high confidence. This makes it impossible to detect when photo analysis failed or was skipped.
+Why it's like this: The Coder wanted a smooth dev/test experience and conflated "no signals" with "test mode".
+What to do: Make mock mode strictly opt-in via env var only. For the no-signals case, either return a 400 error, proceed with zero-signal baseline (prior only), or require explicit provider confirmation.
+What NOT to do: Do not auto-inject synthetic data in any endpoint that can be hit in production.
