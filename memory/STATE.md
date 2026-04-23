@@ -3,35 +3,30 @@
 Single source of truth for where the team is. Any agent can read this and know what to do next.
 
 ## Current status
-AWAITING_PRD — this CTO instance has been scaffolded but has not yet drafted PRD.md. On next run, CTO should draft PRD from Owner's initial brief.
-
-## Continuous mode
-CONTINUOUS_MODE: OFF
-(When ON, CTO self-prompts next tasks instead of going IDLE. See workflows/CONTINUOUS_MODE.md)
-
-## PRD version
-v0 (not yet drafted)
-
-## PRD approvals needed
-(none yet)
+TASK-004 complete. Backend API skeleton built and committed. All acceptance criteria verified via 22-point smoke test.
 
 ## Active task
-(none)
-
-## Task queue
-(empty)
-
-## Blocked tasks
-(none)
+TASK-004 — Build backend API skeleton (DONE)
 
 ## Tasks completed since last drift check
-0
+1. TASK-004: Fastify backend with auth, tenants, catalog, providers, assessments
 
 ## Last action
-<timestamp>: CTO instance scaffolded by Chief of Staff
+2026-04-22: Coder built and committed apps/api package. Server starts on port 4000. All routes tested end-to-end.
 
 ## Next step
-CTO reads Owner's initial project brief (provided at scaffold time), drafts PRD.md using templates/PRD_TEMPLATE.md, asks one batched round of clarifying questions.
+Auditor review of TASK-004. After PASS, queue next task per PRD.
+
+---
+
+### TASK-004 — Build backend API skeleton
+Status: DONE
+Assigned: CODER
+Attempt: 1
+Brief: /tasks/TASK-004.md
+PRD refs: F-1, F-5, F-6, F-7, F-8, F-11
+Last update: 2026-04-22 — Coder implemented all routes, plugins, auth, validation. 22-point curl smoke test passed. Committed to main.
+Next step: Await Auditor review.
 
 ---
 

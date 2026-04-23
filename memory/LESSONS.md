@@ -47,3 +47,19 @@ What went wrong: Landing page content was injected via container.innerHTML = `..
 Root cause: Coder chose developer convenience (single TS file) over rendering performance. No templating engine was available and no requirement to prerender was given.
 Avoid by: For landing pages with hard LCP targets, prefer static HTML in index.html or build-time prerendering (e.g., vite-plugin-ssr, or simple string replacement in index.html during build). Only use JS injection when the content is genuinely dynamic.
 Seen N times: 1
+
+## L-004 — JWT payload staleness after database mutation
+Date: 2026-04-22
+Task: TASK-004
+What went wrong: Super user registered and logged in (JWT issued with tenantId: null). Then created a tenant, which updated their tenantId in the database. But subsequent API calls with the old JWT still had tenantId: null, causing all tenant-scoped operations to fail with 403.
+Root cause: JWT is stateless and signed at login time. Mutations that change tenant membership do not automatically refresh the token.
+Avoid by: When an API mutation changes a field that is embedded in the JWT (tenantId, role, etc.), re-issue the JWT in the response payload so the client can update its stored token.
+Seen N times: 1
+
+## L-005 — Fastify v5 reply.status().send() chaining breaks TypeScript strict mode
+Date: 2026-04-22
+Task: TASK-004
+What went wrong: Using `return reply.status(201).send({ ... })` in route handlers caused `TS2554: Expected 0 arguments, but got 1` across multiple route files.
+Root cause: Fastify v5's TypeScript types for `FastifyReply` after `.status()` do not allow `.send(payload)` chaining in strict mode with bundler moduleResolution.
+Avoid by: Set status code on reply first (`reply.status(201)`), then return the response object directly from the handler (`return { ... }`). Fastify sends the returned value automatically. Same for error handlers.
+Seen N times: 1
