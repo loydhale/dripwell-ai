@@ -22,6 +22,14 @@ Rules:
 
 ---
 
+## G-004 — persistSafetyFlags deletes all flags before recreate, dropping acknowledgments
+Date discovered: 2026-04-22
+Where: apps/api/src/services/safety.ts persistSafetyFlags
+The gotcha: `persistSafetyFlags` calls `prisma.safetyFlag.deleteMany({ where: { assessmentSessionId, tenantId } })` before creating new flags. If `generate-recommendation` is ever invoked more than once for the same assessment, any provider acknowledgments on Tier 3 flags are silently lost.
+Why it's like this: The Coder treated flag persistence as a simple snapshot that should be recomputed fresh each time.
+What to do: If recomputation is needed, either (1) upsert existing flags instead of deleting, (2) preserve acknowledgments by copying them to the new records, or (3) guard `generate-recommendation` so it can only be called once per assessment.
+What NOT to do: Do not assume `generate-recommendation` will only ever be called once per assessment without an explicit guard.
+
 ## Entries
 
 (none yet — will populate as the team works)

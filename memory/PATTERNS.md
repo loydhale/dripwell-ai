@@ -19,6 +19,13 @@ Rules:
 - Auditor enforces patterns during review
 - If a pattern is no longer used in the codebase, delete it during weekly review
 
+## P-007 — Declarative rule engine with condition + getTriggers pairs
+Date: 2026-04-22
+Where in codebase: apps/api/src/services/safety.ts
+The pattern: Define flag/detection rules as an array of objects where each rule has a `condition` function (boolean check) and a `getTriggers` function (extracts matching evidence). This separates detection logic from evidence collection and makes rules self-documenting and testable in isolation.
+When to use: For any rule-based detection, scoring, or classification system that needs to map raw inputs to structured outputs with traceability.
+Example: `FLAG_RULES` array in safety.ts with `condition(ctx)` and `getTriggers(ctx)` on each rule.
+
 ---
 
 ## Entries

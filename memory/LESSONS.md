@@ -20,6 +20,14 @@ Rules:
 - If a lesson hits 3+ times, Auditor promotes it to GOTCHAS.md on the next weekly review (it's now a project quirk, not a team mistake)
 - Lessons that no longer apply (code has changed) get deleted during weekly review
 
+## L-012 — Wrong branded ID factory used for cross-entity references
+Date: 2026-04-22
+Task: TASK-009
+What went wrong: Coder used `makeSafetyFlagId()` to construct a `ProviderId` value in three places within safety.ts, defeating the branded nominal type system that prevents mixing entity IDs at compile time.
+Root cause: The Coder needed to convert raw database strings into branded types but used the wrong factory function and suppressed the type error with `as unknown as ProviderId` rather than using the correct `makeProviderId`.
+Avoid by: When mapping database records to branded ID types, always use the factory function that matches the target entity. If one does not exist, add it to `@dripwell/shared` instead of bypassing the type system with casts.
+Seen N times: 1
+
 ---
 
 ## Entries
