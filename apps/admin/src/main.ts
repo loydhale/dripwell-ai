@@ -13,6 +13,7 @@ import { renderVendorClinicDetail } from './pages/VendorClinicDetail.js';
 import { renderVendorPatterns } from './pages/VendorPatterns.js';
 import { renderVendorAuditLog } from './pages/VendorAuditLog.js';
 import { renderVendorHealth } from './pages/VendorHealth.js';
+import { renderAssessmentDetail } from './pages/AssessmentDetail.js';
 
 const app = document.getElementById('app')!;
 
@@ -105,6 +106,10 @@ function renderRoute() {
       currentCleanup = renderAuditLog(content);
       break;
     default:
+      if (hash.startsWith('#assessment-detail')) {
+        currentCleanup = renderAssessmentDetail(content);
+        break;
+      }
       window.location.hash = '#dashboard';
       return;
   }

@@ -101,12 +101,16 @@ function renderContent(container: HTMLElement, data: DashboardData) {
       const tr = document.createElement('tr');
       const rec = a.recommendations[0];
       tr.innerHTML = `
-        <td><code style="font-size:12px;color:var(--text-3)">${a.id.slice(0, 8)}</code></td>
+        <td><a href="#assessment-detail?id=${a.id}" style="font-size:12px;color:var(--accent);text-decoration:none" class="assessment-link"><code>${a.id.slice(0, 8)}</code></a></td>
         <td>${a.provider ? `${a.provider.firstName} ${a.provider.lastName}` : '\u2014'}</td>
         <td>${statusBadge(a.status)}</td>
         <td>${formatDate(a.startedAt)}</td>
         <td>${rec ? statusBadge(rec.status) : '\u2014'}</td>
       `;
+      tr.querySelector('.assessment-link')!.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.hash = `#assessment-detail?id=${a.id}`;
+      });
       tbody.appendChild(tr);
     }
     tableWrap.appendChild(table);

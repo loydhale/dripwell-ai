@@ -464,6 +464,33 @@ export async function overrideRecommendation(params: {
     },
   });
 
+  // Record in change log
+  const provider = await prisma.user.findUnique({
+    where: { id: providerId },
+    select: { firstName: true, lastName: true },
+  });
+
+  await prisma.assessmentChangeLog.create({
+    data: {
+      assessmentSessionId,
+      tenantId,
+      providerId,
+      actionType: 'OVERRIDE',
+      originalValue: {
+        rationale: rec.rationale,
+        primaryCatalogItemId: rec.primaryCatalogItemId,
+        confidence: rec.confidence,
+      } as unknown as object,
+      modifiedValue: {
+        manualRecommendation: manualRecommendation || null,
+        reason,
+        reasonNote: reasonNote || null,
+      } as unknown as object,
+      changedFields: ['recommendation'] as unknown as object,
+      providerName: provider ? `${provider.firstName} ${provider.lastName}` : 'Unknown Provider',
+    },
+  });
+
   return {
     overrideId: makeOverrideId(override.id),
     recommendationId: makeRecommendationId(rec.id),

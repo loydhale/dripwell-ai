@@ -49,9 +49,128 @@ interface FlagRule {
 interface RuleContext {
   signals: Array<{ signalName: string; confidence: number; value: string | null }>;
   answers: Array<{ questionBankId: string; answerValue: string }>;
+  vitals?: {
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    pulse?: number;
+    spo2?: number;
+    temperature?: number | null;
+    respiratoryRate?: number | null;
+    weight?: number | null;
+  } | null;
 }
 
 const FLAG_RULES: FlagRule[] = [
+  // Tier 3: Vitals-based urgent flags
+  {
+    name: 'CriticalHypoxemia',
+    tier: 'T3_URGENT',
+    flagType: 'CRITICAL_HYPOXEMIA',
+    description: 'SpO2 below 88% indicates severe hypoxemia. Immediate medical evaluation is required before any IV therapy.',
+    suggestedScript: 'Your oxygen saturation is critically low at below 88%. This requires immediate medical attention. We need to pause any wellness treatments and refer you for urgent evaluation.',
+    condition: (ctx) => {
+      return !!(ctx.vitals?.spo2 !== undefined && ctx.vitals.spo2 < 88);
+    },
+    getTriggers: (_ctx) => {
+      return {
+        signals: [],
+        answers: [],
+      };
+    },
+  },
+  {
+    name: 'CriticalHypertension',
+    tier: 'T3_URGENT',
+    flagType: 'CRITICAL_HYPERTENSION',
+    description: 'Blood pressure above 200/120 is a hypertensive emergency. Immediate medical evaluation is required before any IV therapy.',
+    suggestedScript: 'Your blood pressure is critically elevated. This is a medical emergency that requires immediate evaluation. We must pause any wellness treatments and refer you for urgent care.',
+    condition: (ctx) => {
+      const sys = ctx.vitals?.bloodPressureSystolic;
+      const dia = ctx.vitals?.bloodPressureDiastolic;
+      return !!(sys !== undefined && dia !== undefined && (sys > 200 || dia > 120));
+    },
+    getTriggers: (_ctx) => {
+      return {
+        signals: [],
+        answers: [],
+      };
+    },
+  },
+  {
+    name: 'CriticalTachycardia',
+    tier: 'T3_URGENT',
+    flagType: 'CRITICAL_TACHYCARDIA',
+    description: 'Pulse above 150 bpm indicates severe tachycardia. Immediate medical evaluation is required before any IV therapy.',
+    suggestedScript: 'Your heart rate is critically elevated at above 150 beats per minute. This requires immediate medical attention. We need to pause any wellness treatments and refer you for urgent evaluation.',
+    condition: (ctx) => {
+      return !!(ctx.vitals?.pulse !== undefined && ctx.vitals.pulse > 150);
+    },
+    getTriggers: (_ctx) => {
+      return {
+        signals: [],
+        answers: [],
+      };
+    },
+  },
+
+  // Tier 2: Vitals-based follow-up flags
+  {
+    name: 'LowOxygenSaturation',
+    tier: 'T2_FOLLOWUP',
+    flagType: 'LOW_SPO2',
+    description: 'SpO2 below 92% suggests mild hypoxemia. Recommend follow-up with a physician before proceeding with IV therapy.',
+    suggestedScript: 'Your oxygen saturation is slightly low at below 92%. While not immediately dangerous, I recommend discussing this with a physician before we proceed with IV therapy to ensure it is safe for you.',
+    condition: (ctx) => {
+      const spo2 = ctx.vitals?.spo2;
+      return !!(spo2 !== undefined && spo2 < 92 && spo2 >= 88);
+    },
+    getTriggers: (_ctx) => {
+      return {
+        signals: [],
+        answers: [],
+      };
+    },
+  },
+  {
+    name: 'ElevatedBloodPressure',
+    tier: 'T2_FOLLOWUP',
+    flagType: 'ELEVATED_BP',
+    description: 'Blood pressure above 180/110 indicates hypertension that should be evaluated by a physician before IV therapy.',
+    suggestedScript: 'Your blood pressure is elevated above 180/110. I recommend checking with your physician about whether IV therapy is appropriate for you today, as high blood pressure can affect treatment safety.',
+    condition: (ctx) => {
+      const sys = ctx.vitals?.bloodPressureSystolic;
+      const dia = ctx.vitals?.bloodPressureDiastolic;
+      if (sys === undefined || dia === undefined) return false;
+      const isTier3 = sys > 200 || dia > 120;
+      const isTier2 = sys > 180 || dia > 110;
+      return isTier2 && !isTier3;
+    },
+    getTriggers: (_ctx) => {
+      return {
+        signals: [],
+        answers: [],
+      };
+    },
+  },
+  {
+    name: 'ElevatedPulse',
+    tier: 'T2_FOLLOWUP',
+    flagType: 'ELEVATED_PULSE',
+    description: 'Pulse above 120 bpm suggests tachycardia. Recommend discussing with a physician before proceeding with IV therapy.',
+    suggestedScript: 'Your heart rate is elevated at above 120 beats per minute. This may be due to anxiety, dehydration, or an underlying condition. I recommend a brief discussion with a physician before we proceed with IV therapy.',
+    condition: (ctx) => {
+      const pulse = ctx.vitals?.pulse;
+      if (pulse === undefined) return false;
+      return pulse > 120 && pulse <= 150;
+    },
+    getTriggers: (_ctx) => {
+      return {
+        signals: [],
+        answers: [],
+      };
+    },
+  },
+
   // Tier 3: Urgent / Contraindication
   {
     name: 'JaundiceDetection',
@@ -270,6 +389,22 @@ export async function detectSafetyFlags(params: {
   let signals = await getAssessmentSignals(assessmentSessionId, tenantId);
   let answers = await getAssessmentAnswers(assessmentSessionId, tenantId);
 
+  // Read vitals from the assessment session
+  const session = await prisma.assessmentSession.findFirst({
+    where: { id: assessmentSessionId, tenantId },
+    select: { vitals: true },
+  });
+
+  const vitals = session?.vitals as unknown as {
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    pulse?: number;
+    spo2?: number;
+    temperature?: number | null;
+    respiratoryRate?: number | null;
+    weight?: number | null;
+  } | null | undefined;
+
   if (mockMode || (SAFETY_MOCK_MODE && signals.length === 0)) {
     signals = getMockSignalsForSafety();
     answers = getMockAnswersForSafety();
@@ -278,6 +413,7 @@ export async function detectSafetyFlags(params: {
   const ctx: RuleContext = {
     signals: signals.map((s) => ({ signalName: s.signalName, confidence: s.confidence, value: s.value })),
     answers,
+    vitals,
   };
 
   const flags: DetectedFlag[] = [];

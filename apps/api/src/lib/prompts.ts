@@ -23,16 +23,52 @@ export type SignalTaxonomyName = (typeof SIGNAL_TAXONOMY)[number];
 export interface VisionPromptContext {
   angle: string;
   taxonomy: readonly string[];
+  vitals?: {
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    pulse?: number;
+    spo2?: number;
+    temperature?: number | null;
+    respiratoryRate?: number | null;
+    weight?: number | null;
+  } | null;
 }
 
 export function buildVisionPrompt(ctx: VisionPromptContext): string {
   const taxonomyList = ctx.taxonomy.join(', ');
 
+  let vitalsSection = '';
+  if (ctx.vitals) {
+    const v = ctx.vitals;
+    const parts: string[] = [];
+    if (v.bloodPressureSystolic !== undefined && v.bloodPressureDiastolic !== undefined) {
+      parts.push(`BP ${v.bloodPressureSystolic}/${v.bloodPressureDiastolic}`);
+    }
+    if (v.pulse !== undefined) {
+      parts.push(`pulse ${v.pulse} bpm`);
+    }
+    if (v.spo2 !== undefined) {
+      parts.push(`SpO2 ${v.spo2}%`);
+    }
+    if (v.temperature !== undefined && v.temperature !== null) {
+      parts.push(`temp ${v.temperature}F`);
+    }
+    if (v.respiratoryRate !== undefined && v.respiratoryRate !== null) {
+      parts.push(`respiratory rate ${v.respiratoryRate}`);
+    }
+    if (v.weight !== undefined && v.weight !== null) {
+      parts.push(`weight ${v.weight} lbs`);
+    }
+    if (parts.length > 0) {
+      vitalsSection = `Patient vitals: ${parts.join(', ')}.\n\n`;
+    }
+  }
+
   return `You are a medical wellness photo analysis assistant. Analyze the provided photo and extract structured wellness signals.
 
 PHOTO ANGLE: ${ctx.angle}
 
-INSTRUCTIONS:
+${vitalsSection}INSTRUCTIONS:
 1. Examine the photo carefully for visible wellness indicators.
 2. From the following taxonomy, detect only the signals that are clearly visible and assessable from this photo angle:
    ${taxonomyList}

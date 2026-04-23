@@ -102,8 +102,17 @@ export function isConfidenceAcceptable(confidence: number): boolean {
 
 export async function analyzePhotos(params: {
   photos: PhotoCapture[];
+  vitals?: {
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    pulse?: number;
+    spo2?: number;
+    temperature?: number | null;
+    respiratoryRate?: number | null;
+    weight?: number | null;
+  } | null;
 }): Promise<VisionAnalysisResult> {
-  const { photos } = params;
+  const { photos, vitals } = params;
 
   if (photos.length === 0) {
     return { results: [], totalPhotos: 0, totalSignals: 0, lowConfidenceCount: 0 };
@@ -122,7 +131,7 @@ export async function analyzePhotos(params: {
     }
   } else {
     for (const photo of photos) {
-      const result = await analyzeSinglePhoto(photo);
+      const result = await analyzeSinglePhoto(photo, vitals);
       results.push(result);
     }
   }
@@ -141,7 +150,18 @@ export async function analyzePhotos(params: {
   };
 }
 
-async function analyzeSinglePhoto(photo: PhotoCapture): Promise<PhotoAnalysisResult> {
+async function analyzeSinglePhoto(
+  photo: PhotoCapture,
+  vitals?: {
+    bloodPressureSystolic?: number;
+    bloodPressureDiastolic?: number;
+    pulse?: number;
+    spo2?: number;
+    temperature?: number | null;
+    respiratoryRate?: number | null;
+    weight?: number | null;
+  } | null,
+): Promise<PhotoAnalysisResult> {
   const storage = getPhotoStorage();
   const photoBuffer = await storage.getPhotoBuffer(photo.url);
   const base64Data = photoBuffer.toString('base64');
@@ -150,6 +170,7 @@ async function analyzeSinglePhoto(photo: PhotoCapture): Promise<PhotoAnalysisRes
   const prompt = buildVisionPrompt({
     angle: photo.angle,
     taxonomy: SIGNAL_TAXONOMY,
+    vitals,
   });
 
   let rawText: string;

@@ -293,7 +293,18 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         throw new ValidationError([{ message: 'No photos found for this assessment session' }]);
       }
 
-      const analysis = await analyzePhotos({ photos });
+      const analysis = await analyzePhotos({
+        photos,
+        vitals: assessment.vitals as unknown as {
+          bloodPressureSystolic?: number;
+          bloodPressureDiastolic?: number;
+          pulse?: number;
+          spo2?: number;
+          temperature?: number | null;
+          respiratoryRate?: number | null;
+          weight?: number | null;
+        } | null,
+      });
 
       const createdSignals = [];
       for (const result of analysis.results) {
@@ -1087,6 +1098,22 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
         primaryCatalogItemId: data.primaryCatalogItemId ? makeCatalogItemId(data.primaryCatalogItemId) : undefined,
         rationale: data.rationale,
         confidence: data.confidence,
+      });
+
+      await prisma.auditLog.create({
+        data: buildAuditLogData(userPayload, {
+          tenantId: userPayload.tenantId,
+          userId: userPayload.userId,
+          assessmentSessionId: id,
+          action: 'PROVIDER_MODIFIED',
+          entityType: 'Recommendation',
+          entityId: result.recommendationId,
+          details: {
+            primaryCatalogItemId: data.primaryCatalogItemId || null,
+            rationale: data.rationale || null,
+            confidence: data.confidence || null,
+          },
+        }),
       });
 
       reply.status(200);
