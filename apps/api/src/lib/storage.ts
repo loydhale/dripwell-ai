@@ -1,4 +1,4 @@
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 export interface StoredPhoto {
@@ -14,6 +14,7 @@ export interface PhotoStorage {
     tenantId: string;
     mimeType: string;
   }): Promise<StoredPhoto>;
+  getPhotoBuffer(url: string): Promise<Buffer>;
 }
 
 export class LocalPhotoStorage implements PhotoStorage {
@@ -45,6 +46,15 @@ export class LocalPhotoStorage implements PhotoStorage {
       url: `${this.baseUrl}/${relativePath.replace(/\\/g, '/')}`,
       key: relativePath,
     };
+  }
+
+  async getPhotoBuffer(url: string): Promise<Buffer> {
+    if (!url.startsWith(this.baseUrl)) {
+      throw new Error(`Photo URL ${url} does not belong to this storage`);
+    }
+    const relativePath = url.slice(this.baseUrl.length + 1);
+    const absolutePath = join(this.baseDir, relativePath);
+    return readFile(absolutePath);
   }
 
   private extFromMime(mime: string): string {

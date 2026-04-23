@@ -44,3 +44,10 @@ export class ConflictError extends ApiError {
     this.name = 'ConflictError';
   }
 }
+
+export class ServiceUnavailableError extends ApiError {
+  constructor(message: string) {
+    super(502, 'SERVICE_UNAVAILABLE', message);
+    this.name = 'ServiceUnavailableError';
+  }
+}

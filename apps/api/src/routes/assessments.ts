@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma.js';
 import { parseBody } from '../lib/validate.js';
 import { getPhotoStorage } from '../lib/storage.js';
 import { NotFoundError, ForbiddenError, ValidationError } from '../lib/errors.js';
+import { analyzePhotos, isConfidenceAcceptable, toPrismaSignalName } from '../services/vision.js';
 import type { UserPayload } from '../types/index.js';
 
 const createAssessmentSchema = z.object({
@@ -157,6 +158,100 @@ export default async function assessmentRoutes(fastify: FastifyInstance) {
 
       reply.status(201);
       return { photoCapture };
+    }
+  );
+
+  fastify.post(
+    '/assessments/:id/analyze-photos',
+    { preValidation: [fastify.authenticate] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const userPayload = request.user as UserPayload;
+
+      if (!userPayload.tenantId) {
+        throw new ForbiddenError('User must belong to a tenant');
+      }
+
+      const assessment = await prisma.assessmentSession.findFirst({
+        where: {
+          id,
+          tenantId: userPayload.tenantId,
+        },
+      });
+
+      if (!assessment) {
+        throw new NotFoundError('Assessment');
+      }
+
+      const photos = await prisma.photoCapture.findMany({
+        where: {
+          assessmentSessionId: id,
+          tenantId: userPayload.tenantId,
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (photos.length === 0) {
+        throw new ValidationError([{ message: 'No photos found for this assessment session' }]);
+      }
+
+      const analysis = await analyzePhotos({ photos });
+
+      const createdSignals = [];
+      for (const result of analysis.results) {
+        for (const signal of result.signals) {
+          const prismaName = toPrismaSignalName(signal.name);
+          if (!prismaName) {
+            continue;
+          }
+
+          const isLowConfidence = !isConfidenceAcceptable(signal.confidence);
+
+          const visualSignal = await prisma.visualSignal.create({
+            data: {
+              assessmentSessionId: id,
+              tenantId: userPayload.tenantId,
+              photoCaptureId: result.photoCaptureId,
+              signalName: prismaName as any,
+              confidence: signal.confidence,
+              value: signal.value || null,
+              rawJson: result.rawResponse as unknown as object,
+            },
+          });
+
+          createdSignals.push({
+            ...visualSignal,
+            isLowConfidence,
+          });
+        }
+
+        await prisma.auditLog.create({
+          data: {
+            tenantId: userPayload.tenantId,
+            userId: userPayload.userId,
+            assessmentSessionId: id,
+            action: 'SIGNAL_EXTRACTED',
+            entityType: 'VisualSignal',
+            entityId: result.photoCaptureId,
+            details: {
+              angle: result.angle,
+              signalCount: result.signals.length,
+              tokenUsage: result.tokenUsage as unknown as object,
+              rawResponse: result.rawResponse,
+            } as unknown as object,
+          },
+        });
+      }
+
+      reply.status(200);
+      return {
+        analysis: {
+          totalPhotos: analysis.totalPhotos,
+          totalSignals: analysis.totalSignals,
+          lowConfidenceCount: analysis.lowConfidenceCount,
+        },
+        signals: createdSignals,
+      };
     }
   );
 }

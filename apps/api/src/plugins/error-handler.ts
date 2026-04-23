@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
-import { ApiError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError } from '../lib/errors.js';
+import { ApiError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError, ServiceUnavailableError } from '../lib/errors.js';
 
 export default fp(async function errorHandlerPlugin(fastify: FastifyInstance) {
   fastify.setErrorHandler((error, _request, reply) => {
@@ -25,6 +25,11 @@ export default fp(async function errorHandlerPlugin(fastify: FastifyInstance) {
     }
 
     if (error instanceof ConflictError) {
+      reply.status(error.statusCode);
+      return { error: error.message, code: error.code };
+    }
+
+    if (error instanceof ServiceUnavailableError) {
       reply.status(error.statusCode);
       return { error: error.message, code: error.code };
     }
