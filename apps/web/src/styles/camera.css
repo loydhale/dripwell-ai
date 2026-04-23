@@ -430,9 +430,7 @@
   overflow: hidden;
 }
 
-.camera-progress-bar::after {
-  content: '';
-  display: block;
+.camera-progress-fill {
   height: 100%;
   width: 0%;
   background: #0f7a6a;

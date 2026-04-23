@@ -28,6 +28,7 @@ export function uploadPhoto(params: {
     formData.append('angle', angle);
 
     xhr.open('POST', url, true);
+    xhr.timeout = 30000;
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
@@ -68,6 +69,10 @@ export function uploadPhoto(params: {
 
     xhr.addEventListener('abort', () => {
       resolve({ ok: false, error: 'Upload aborted' });
+    });
+
+    xhr.addEventListener('timeout', () => {
+      resolve({ ok: false, error: 'Upload timed out. Please try again.' });
     });
 
     xhr.send(formData);

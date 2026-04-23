@@ -24,6 +24,7 @@ export function renderCameraCapture(
   let lightingInterval: number | null = null;
   let capturedBlob: Blob | null = null;
   let isUploading = false;
+  let brightnessCanvas: HTMLCanvasElement | null = null;
 
   container.innerHTML = '';
   container.className = 'camera-capture-root';
@@ -69,6 +70,10 @@ export function renderCameraCapture(
   const progressBar = document.createElement('div');
   progressBar.className = 'camera-progress-bar';
 
+  const progressFill = document.createElement('div');
+  progressFill.className = 'camera-progress-fill';
+  progressBar.appendChild(progressFill);
+
   const progressLabel = document.createElement('div');
   progressLabel.className = 'camera-progress-label';
 
@@ -101,7 +106,6 @@ export function renderCameraCapture(
     retakeBtn.style.display = 'none';
     confirmBtn.style.display = 'none';
     progressWrap.style.display = 'none';
-    errorMsg.style.display = 'none';
     capturedBlob = null;
     if (overlayElements) {
       overlayElements.guideSvg.style.display = '';
@@ -149,7 +153,10 @@ export function renderCameraCapture(
       lightingInterval = window.setInterval(() => {
         if (!video.videoWidth || video.style.display === 'none') return;
         try {
-          const canvas = captureFrame(video);
+          if (!brightnessCanvas) {
+            brightnessCanvas = document.createElement('canvas');
+          }
+          const canvas = captureFrame(video, brightnessCanvas);
           const brightness = computeBrightness(canvas);
           const label = getBrightnessLabel(brightness);
           if (overlayElements) {
@@ -186,6 +193,7 @@ export function renderCameraCapture(
       URL.revokeObjectURL(previewImg.src);
       previewImg.src = '';
     }
+    errorMsg.style.display = 'none';
     setCaptureMode();
   });
 
@@ -201,7 +209,7 @@ export function renderCameraCapture(
       apiBaseUrl: state.apiBaseUrl,
       token: state.token,
       onProgress: (p) => {
-        progressBar.style.width = `${p.percent}%`;
+        progressFill.style.width = `${p.percent}%`;
         progressLabel.textContent = `Uploading ${p.percent}%`;
       },
     });
@@ -211,12 +219,12 @@ export function renderCameraCapture(
     if (result.ok) {
       handlers.onComplete(state.angle, { ok: true, photoCapture: result.photoCapture });
     } else {
-      setError(result.error || 'Upload failed. Tap capture to try again.');
       if (previewImg.src) {
         URL.revokeObjectURL(previewImg.src);
         previewImg.src = '';
       }
       setCaptureMode();
+      setError(result.error || 'Upload failed. Tap capture to try again.');
     }
   });
 

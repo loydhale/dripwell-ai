@@ -26,8 +26,8 @@ export async function initCamera(video: HTMLVideoElement): Promise<CameraInitRes
   return { stream, video, cleanup };
 }
 
-export function captureFrame(video: HTMLVideoElement): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
+export function captureFrame(video: HTMLVideoElement, targetCanvas?: HTMLCanvasElement): HTMLCanvasElement {
+  const canvas = targetCanvas || document.createElement('canvas');
   canvas.width = video.videoWidth || 1280;
   canvas.height = video.videoHeight || 720;
   const ctx = canvas.getContext('2d');
