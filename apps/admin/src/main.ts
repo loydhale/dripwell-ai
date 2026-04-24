@@ -14,6 +14,8 @@ import { renderVendorPatterns } from './pages/VendorPatterns.js';
 import { renderVendorAuditLog } from './pages/VendorAuditLog.js';
 import { renderVendorHealth } from './pages/VendorHealth.js';
 import { renderAssessmentDetail } from './pages/AssessmentDetail.js';
+import { renderFeedbackForm } from './pages/FeedbackForm.js';
+import { renderFeedbackKanban } from './pages/FeedbackKanban.js';
 
 const app = document.getElementById('app')!;
 
@@ -72,6 +74,9 @@ function renderRoute() {
       case '#vendor-health':
         currentCleanup = renderVendorHealth(content);
         break;
+      case '#vendor-feedback':
+        currentCleanup = renderFeedbackKanban(content);
+        break;
       default:
         if (hash.startsWith('#vendor-clinic')) {
           currentCleanup = renderVendorClinicDetail(content);
@@ -104,6 +109,9 @@ function renderRoute() {
       break;
     case '#audit':
       currentCleanup = renderAuditLog(content);
+      break;
+    case '#feedback':
+      currentCleanup = renderFeedbackForm(content);
       break;
     default:
       if (hash.startsWith('#assessment-detail')) {

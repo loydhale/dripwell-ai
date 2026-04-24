@@ -158,6 +158,7 @@ model Tenant {
   config               Json?    @default("{}")
   notifications        Notification[]
   changeLogs           AssessmentChangeLog[]
+  feedbacks            Feedback[]
 
   @@index([slug])
   @@index([isActive])
@@ -205,6 +206,7 @@ model User {
   providerOverrides        ProviderOverride[]
   auditLogs                AuditLog[]
   changeLogs               AssessmentChangeLog[]
+  feedbacksSubmitted       Feedback[]
 
   @@index([tenantId])
   @@index([email])
@@ -688,5 +690,69 @@ model AssessmentChangeLog {
   @@index([tenantId])
   @@index([assessmentSessionId])
   @@index([providerId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Feedback tables
+// ---------------------------------------------------------------------------
+
+enum FeedbackType {
+  BUG
+  FEATURE_REQUEST
+  GENERAL
+}
+
+enum FeedbackStatus {
+  BACKLOG
+  IN_PROGRESS
+  DONE
+  WONT_DO
+}
+
+enum FeedbackCategory {
+  SOFTWARE_ISSUE
+  PROCESS_ISSUE
+  DOCUMENTATION
+  OTHER
+}
+
+enum FeedbackDecision {
+  DO_IT
+  DONT_DO_IT
+  MAYBE
+  NEEDS_MORE_INFO
+}
+
+enum FeedbackPriority {
+  P0
+  P1
+  P2
+}
+
+model Feedback {
+  id              String           @id @default(uuid()) @db.Uuid
+  tenantId        String           @db.Uuid
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  submitterId     String           @db.Uuid
+  submitter       User             @relation(fields: [submitterId], references: [id], onDelete: Restrict)
+  type            FeedbackType
+  title           String
+  description     String
+  urgency         String
+  status          FeedbackStatus   @default(BACKLOG)
+  category        FeedbackCategory?
+  decision        FeedbackDecision?
+  priority        FeedbackPriority?
+  assignedTo      String?          @db.Uuid
+  notes           String?
+  promotedTaskId  String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([category])
+  @@index([priority])
   @@index([createdAt])
 }

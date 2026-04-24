@@ -8,6 +8,7 @@ const ADMIN_NAV = [
   { hash: '#providers', label: 'Providers', icon: '\u25CE' },
   { hash: '#settings', label: 'Settings', icon: '\u2699' },
   { hash: '#audit', label: 'Audit Log', icon: '\u25A4' },
+  { hash: '#feedback', label: 'Feedback', icon: '\u2605' },
 ];
 
 const VENDOR_NAV = [
@@ -15,6 +16,7 @@ const VENDOR_NAV = [
   { hash: '#vendor-patterns', label: 'Patterns', icon: '\u25C8' },
   { hash: '#vendor-audit', label: 'Audit Log', icon: '\u25A4' },
   { hash: '#vendor-health', label: 'Health', icon: '\u2699' },
+  { hash: '#vendor-feedback', label: 'Feedback', icon: '\u2605' },
 ];
 
 interface NotificationItem {

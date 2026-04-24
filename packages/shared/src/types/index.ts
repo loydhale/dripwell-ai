@@ -70,6 +70,12 @@ export function makeOverrideId(raw: string): OverrideId {
   return raw as OverrideId;
 }
 
+export type FeedbackId = string & { __brand: 'FeedbackId' };
+
+export function makeFeedbackId(raw: string): FeedbackId {
+  return raw as FeedbackId;
+}
+
 export type UserRole = 'super_user' | 'provider' | 'system_admin';
 
 export interface TenantConfig {

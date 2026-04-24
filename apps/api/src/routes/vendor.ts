@@ -13,6 +13,11 @@ import {
   getCrossTenantAuditLogs,
   impersonateSuperUser,
 } from '../services/vendor.js';
+import {
+  listAllFeedback,
+  updateFeedback,
+  getFeedbackById,
+} from '../services/feedback.js';
 
 const createPatternSchema = z.object({
   name: z.string().min(1),
@@ -46,6 +51,31 @@ const auditLogQuerySchema = z.object({
   to: z.string().datetime().optional(),
   page: z.coerce.number().min(1).optional().default(1),
   limit: z.coerce.number().min(1).max(100).optional().default(50),
+});
+
+const feedbackQuerySchema = z.object({
+  status: z.string().optional(),
+  category: z.string().optional(),
+  decision: z.string().optional(),
+  priority: z.string().optional(),
+  tenantId: z.string().uuid().optional(),
+  search: z.string().optional(),
+  page: z.coerce.number().min(1).optional().default(1),
+  limit: z.coerce.number().min(1).max(100).optional().default(50),
+});
+
+const updateFeedbackSchema = z.object({
+  status: z.enum(['BACKLOG', 'IN_PROGRESS', 'DONE', 'WONT_DO']).optional(),
+  category: z.enum(['SOFTWARE_ISSUE', 'PROCESS_ISSUE', 'DOCUMENTATION', 'OTHER']).optional(),
+  decision: z.enum(['DO_IT', 'DONT_DO_IT', 'MAYBE', 'NEEDS_MORE_INFO']).optional(),
+  priority: z.enum(['P0', 'P1', 'P2']).optional(),
+  assignedTo: z.string().uuid().optional().nullable(),
+  notes: z.string().optional(),
+  promotedTaskId: z.string().optional(),
+});
+
+const promoteFeedbackSchema = z.object({
+  taskId: z.string().min(1),
 });
 
 export default async function vendorRoutes(fastify: FastifyInstance) {
@@ -159,6 +189,59 @@ export default async function vendorRoutes(fastify: FastifyInstance) {
         user: result.user,
         expiresAt: result.expiresAt.toISOString(),
       };
+    }
+  );
+
+  // Vendor feedback kanban
+  fastify.get(
+    '/vendor/feedback',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SYSTEM_ADMIN'])] },
+    async (request) => {
+      const query = feedbackQuerySchema.parse(request.query);
+      const result = await listAllFeedback({
+        status: query.status,
+        category: query.category,
+        decision: query.decision,
+        priority: query.priority,
+        tenantId: query.tenantId,
+        search: query.search,
+        page: query.page,
+        limit: query.limit,
+      });
+      return result;
+    }
+  );
+
+  fastify.put(
+    '/vendor/feedback/:id',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SYSTEM_ADMIN'])] },
+    async (request) => {
+      const { id } = request.params as { id: string };
+      const data = parseBody(updateFeedbackSchema)(request.body);
+      const feedback = await updateFeedback(id, data);
+      return { feedback };
+    }
+  );
+
+  fastify.post(
+    '/vendor/feedback/:id/promote',
+    { preValidation: [fastify.authenticate, fastify.requireRole(['SYSTEM_ADMIN'])] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string };
+      const data = parseBody(promoteFeedbackSchema)(request.body);
+
+      const feedback = await getFeedbackById(id);
+      if (feedback.category !== 'SOFTWARE_ISSUE') {
+        throw new Error('Only software issues can be promoted to tasks');
+      }
+
+      const updated = await updateFeedback(id, {
+        status: 'IN_PROGRESS',
+        promotedTaskId: data.taskId,
+      });
+
+      reply.status(201);
+      return { feedback: updated };
     }
   );
 }
