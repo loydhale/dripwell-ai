@@ -18,12 +18,13 @@ Live-service gap: Vercel connector lists no teams; CLI 62.1.0 reports logged out
 - docs/IMPLEMENTATION_PLAN.md: source-verified eve layout, preserved project context conventions, migration/work packages/validation.
 - docs/archive/PRD-v1.md and STATE-v1.md: preserved historical requirements/state.
 - README.md and PROJECT_CONTEXT.md distinguish actual runtime from target architecture.
-- Complete source on `feat/dripwell-consultation-v2`, ready for its GitHub review PR; main and the existing v1 deployment were not silently switched.
+- Complete source retained on `feat/dripwell-consultation-v2`; main and the existing v1 deployment were not silently switched.
+- Published implementation: [PR #2](https://github.com/loydhale/dripwell-ai/pull/2), source commit `7dd6a26e1b407cad1b06f924e49e651d97875998`. The earlier documentation-only PR #1 is closed as superseded. [Fresh GitHub CI](https://github.com/loydhale/dripwell-ai/actions/runs/36940044025) PASS, including frozen install, all migrations, Next/eve builds, TypeScript and 75 checks.
 - docs/AUDIT_V2.md: independent source/local-runtime PASS; docs/VERIFICATION_REPORT.md and PREVIEW.md: exact checks, screenshots and live-service boundary; docs/DEPLOYMENT.md: real service/bootstrap/release steps.
 
 ## Next resume point
 
-Locate/publish the associated `feat/dripwell-consultation-v2` GitHub PR and retain the reviewed source. Recheck Vercel authentication after Owner completes the pending device sign-in, select the intended team, provision/link PostgreSQL/private Blob/Gateway/Workflow/eve/Stripe/Resend, migrate the intended database, and deploy a synthetic preview. Complete real provider, billing, sharing and retention checks before promotion. Last verified CLI status is logged out and connector teams empty; no live service verification is claimed. Do not resume the superseded photo-assessment queue or rerun passing source checks without new changes/failures.
+Retain the reviewed source and PR #2. Obtain a fresh Vercel connection: the prior device sign-in expired without authentication. Select the intended team, provision/link PostgreSQL/private Blob/Gateway/Workflow/eve/Stripe/Resend, migrate the intended database, and deploy a synthetic preview. Complete real provider, billing, sharing and retention checks before promotion. Last verified CLI status is logged out and connector teams empty; no live service verification is claimed. Do not resume the superseded photo-assessment queue or rerun passing source checks without new changes/failures.
 
 Local verification is available at port 3000 via a production `next start` session with an explicitly fictional database. This is not a published Vercel application or a permanent hosted service. Private test bindings/authenticator material remain outside git.
 
