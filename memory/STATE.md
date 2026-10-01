@@ -2,7 +2,7 @@
 
 ## Current status
 
-V2-PRD documentation complete. Auditor PASS on attempt 1. Owner-requested consultation requirements and implementation plan are prepared on the docs/dripwell-v2-icm-eve-2026-10-01 branch.
+V2-PLUGIN coding-guidance clarification complete. Auditor PASS on attempt 1. V2-PRD documentation complete. Auditor PASS on attempt 1. Owner-requested consultation requirements and implementation plan are prepared on the docs/dripwell-v2-icm-eve-2026-10-01 branch.
 
 ## Deliverables
 
@@ -13,7 +13,7 @@ V2-PRD documentation complete. Auditor PASS on attempt 1. Owner-requested consul
 
 ## Next resume point
 
-Future implementation begins with V2-001 (exact ICM reference and framework versions), V2-002 (starter/ORM/auth decision), and V2-003 (eligible service provisioning/data-path map). Break work packages into small task briefs before execution.
+Future implementation begins with V2-001 (required Vercel Plugin availability/source, exact ICM reference, and framework versions), V2-002 (starter/ORM/auth decision), and V2-003 (eligible service provisioning/data-path map). Break work packages into small task briefs before execution.
 
 No application code or deployment changed. Continuous mode is OFF. Do not automatically resume the superseded photo-assessment queue.
 

@@ -194,6 +194,8 @@ Use apps/web/agent/ for authored eve configuration beside application code, and 
 
 Load owner-approved immutable clinic context from the database under verified tenant/version scope. Agent memory cannot replace active policies or authorize changes. The plan contains the folder tree and migration gates. Current runtime remains Vite/Fastify until implementation migrates it.
 
+**Coding requirement:** Use the open-source [Vercel Plugin](https://github.com/vercel/vercel-plugin) with the development team's coding assistant. Apply its relevant skills and current framework documentation during implementation and review. The plugin is development guidance; eve remains the application's agent runtime. Hosted Vercel Agent is not required for this workflow. Infrastructure and model usage costs remain separate.
+
 ## 6. Data handling and clinical safeguards
 
 - Treat audio, transcripts, summaries, recommendations, and documents as sensitive health data; neutral IDs do not de-identify conversations.

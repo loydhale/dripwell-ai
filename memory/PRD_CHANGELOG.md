@@ -32,3 +32,11 @@ Task trigger: V2-PRD, direct owner request.
 CTO: Owner explicitly requested the scope rewrite and ICM/eve structure; implementation defaults/open terms are labelled, not presumed approved.
 Auditor co-sign: documentation_audit, PASS, 2026-10-01.
 Owner authorization: 2026-10-01 conversation authorizes revised requirements and plan; no production deployment or open commercial terms approved.
+
+## 2026-10-01 — v2.0 — MINOR
+Section changed: Architecture/development requirements.
+Summary: Owner explicitly confirmed mandatory use of the downloadable Vercel Plugin for coding and review.
+Task trigger: V2-PLUGIN, direct.
+CTO: Development workflow clarification, no new product feature or hosted-service requirement.
+Auditor co-sign: documentation_audit, PASS, 2026-10-01.
+Owner authorization: 2026-10-01 conversation.

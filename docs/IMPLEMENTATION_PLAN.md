@@ -11,6 +11,7 @@
 | DripWell | Main at 9fa134fc9005dd0d5d351f14b35882d158dc1de4: instructions, memory, package.json, Prisma schema | Preserve instructions/personas/tasks/memory; audit/reuse tenant, catalog, safety, review, audit concepts; replace photo-first journey |
 | OpenScribe | [Reference](https://github.com/loydhale/openscribe-scribe-template-/tree/dddf1c30fcf8313e4452915ddd9189baa5a3762b): README, audio recorder, upload controller | Reuse capture UX, ordered segment/retry and transcript-to-document patterns after license/API review; replace browser localStorage, local Whisper dependency, Electron shell |
 | eve | [Structure](https://github.com/vercel/eve/blob/ac77188ad0bd16edd20a590ec93e2d26306b9bd0/docs/concepts/project-structure.mdx), [agent slots](https://github.com/vercel/eve/blob/ac77188ad0bd16edd20a590ec93e2d26306b9bd0/docs/reference/agent-files.md), [tenant memory](https://github.com/vercel/eve/blob/ac77188ad0bd16edd20a590ec93e2d26306b9bd0/docs/patterns/multi-tenant-memory.md) | One authored root agent beside application files initially; skills and typed tools implement domain procedures; trusted tenant/encounter scope |
+| Vercel coding guidance | [vercel/vercel-plugin](https://github.com/vercel/vercel-plugin) README and Apache-2.0 license | Required development plugin; use relevant skills and deployment/performance/AI architecture guidance with the existing coding assistant; no hosted Vercel Agent requirement |
 | SaaS shell | [nextjs/saas-starter](https://github.com/nextjs/saas-starter) README | Candidate dashboard/team/billing foundation; evaluate its minimal auth and Drizzle against existing Prisma; retain one authoritative ORM |
 | Tenant routing | [vercel/platforms](https://github.com/vercel/platforms) README | Reference for hostname routing if needed; subdomains unnecessary for v1 isolation; Redis example is not the clinical record store |
 
@@ -19,6 +20,14 @@ OpenScribe explicitly says it is not HIPAA compliant yet; reuse patterns rather 
 Official eve source was inspected at the pinned commit above. Shell package installation was unavailable because this workspace could not connect to its configured proxy; no installed-version compatibility was verified here. At implementation time pin dependencies and read node_modules/eve/docs/README.md, node_modules/ai/docs/, and node_modules/workflow/docs/ before coding.
 
 The owner's separate ICM/eve example remains unconfirmed. Preserve the observed project conventions below; verify any additional ICM rules before scaffolding, without guessing what the acronym expands to.
+
+### Required coding workflow
+
+The owner confirmed the Vercel Plugin must be used for coding. Before V2 implementation, verify its guidance is available in the coding environment; use existing provided skills where present or the documented `npx plugins add vercel/vercel-plugin` installation for supported local assistants.
+
+Record the plugin/source version and relevant loaded skills in each implementation task brief. Apply the eve, AI SDK, Workflow, bootstrap, auth/storage, deployment, performance, and verification guidance where relevant; confirm APIs in the installed-version documentation. Auditor checks this along with task behavior. Specialist deployment/performance/AI architecture guidance can support the existing team roles where available.
+
+The downloadable plugin is development tooling, not a clinic feature or an application runtime dependency. Using it does not require purchasing the hosted Vercel Agent service; AI/model access and any provisioned infrastructure retain their normal costs.
 
 ## 2. Target ICM/eve folder structure
 
@@ -161,7 +170,7 @@ Each row is a work package to split into small coder briefs. Legacy TASK-001 thr
 
 | Phase | Work packages / PRD coverage | Completion evidence |
 | --- | --- | --- |
-| 0. Decisions | V2-001 verify ICM/pinned eve layout; V2-002 starter/ORM/auth comparison; V2-003 eligible service provisioning and PHI map | Verified discovery/versions, one schema strategy, synthetic-only environment |
+| 0. Decisions | V2-001 verify Vercel Plugin availability/source and ICM/pinned eve layout; V2-002 starter/ORM/auth comparison; V2-003 eligible service provisioning and PHI map | Verified discovery/versions, one schema strategy, synthetic-only environment |
 | 1. Foundation | V2-004 PWA/SaaS shell; V2-005 tenant/role boundaries; V2-006 catalog/pricing/membership/config version migration (F-01/02/12) | Two isolated clinics across UI/API/database/agent; activation/rollback; prices persist |
 | 2. Setup | V2-007 eve text/recorded-voice setup; V2-008 catalog images/gap questions; V2-009 editable settings/testing (F-01/02/09) | Owner tests multiple cases and activates; staff cannot publish |
 | 3. Capture | V2-010 consent/recording/uploads; V2-011 durable transcription/summary; V2-012 visible questions/manual intake (F-03/04) | iPad/desktop interruption/retry handling; reviewed facts; missing-answer gating |
