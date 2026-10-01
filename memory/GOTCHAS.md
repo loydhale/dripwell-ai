@@ -57,3 +57,19 @@ The gotcha: The next-question endpoint passes `mockSignals: QUESTION_MOCK_MODE |
 Why it's like this: The Coder wanted a smooth dev/test experience and conflated "no signals" with "test mode".
 What to do: Make mock mode strictly opt-in via env var only. For the no-signals case, either return a 400 error, proceed with zero-signal baseline (prior only), or require explicit provider confirmation.
 What NOT to do: Do not auto-inject synthetic data in any endpoint that can be hit in production.
+
+## G-005 — The environment's bare pnpm is an auto-install shim
+Date discovered: 2026-10-01
+Where: managed coding environment command runner
+The gotcha: Bare `pnpm` may run an implicit dependency installation before a test script and abort without a TTY. It can interfere with parallel work when package files are changing.
+Why it's like this: The environment supplies an automatic dependency-status wrapper.
+What to do: Use the explicitly pinned `npx --yes pnpm@10.32.1` or installed task binaries. Centralize installation and frozen-lock verification with the foundation owner.
+What NOT to do: Do not start independent implicit installations from multiple agents.
+
+## G-006 — Next bundling can virtualize runtime asset resolution
+Date discovered: 2026-10-01
+Where: apps/web/lib/sharing.ts PDF font loading, apps/web/next.config.ts outputFileTracingIncludes
+The gotcha: `createRequire(import.meta.url).resolve('geist/font/sans')` passed direct node PDF checks but produced a virtual project path in the actual Next runtime, causing approved downloads to return HTTP 500.
+Why it's like this: Framework bundling changes module identity and resolution; a resolved module path is not necessarily a physical filesystem path.
+What to do: Resolve these installed font assets from the known application root, include them in the actual API routes' output-file traces, and verify a real Next PDF download plus the optimized build artifacts.
+What NOT to do: Do not claim asset-dependent routes work in Next solely because node unit or integration tests pass.

@@ -1,7 +1,7 @@
 # PRD: DripWell.ai
 
 **Version:** 2.0, consultation workflow  
-**Status:** Drafted from owner-authorized requirements; defaults and open implementation decisions are identified below  
+**Status:** Owner-authorized v2 source implemented; release verification and live service status are recorded in [verification evidence](docs/VERIFICATION_REPORT.md)\
 **Owner:** Loyd Hale  
 **Updated:** 2026-10-01  
 **Plan:** [Implementation plan](docs/IMPLEMENTATION_PLAN.md)  
@@ -192,7 +192,7 @@ Preserve root AGENTS.md, PRD.md, personas/, memory/, tasks/, templates/, and dev
 
 Use apps/web/agent/ for authored eve configuration beside application code, and apps/web/evals/ beside agent/. Follow the pinned framework's instructions/, skills/, tools/, channels/, and memory/ slots. Generated .eve/ is not authored policy or business storage.
 
-Load owner-approved immutable clinic context from the database under verified tenant/version scope. Agent memory cannot replace active policies or authorize changes. The plan contains the folder tree and migration gates. Current runtime remains Vite/Fastify until implementation migrates it.
+Load owner-approved immutable clinic context from the database under verified tenant/version scope. Agent memory cannot replace active policies or authorize changes. The implemented v2 runtime is Next.js with the authored eve agent and Workflow processes. Legacy Vite/Fastify sources remain references; deploying v2 requires the linked services and reviewed migrations in the plan.
 
 **Coding requirement:** Use the open-source [Vercel Plugin](https://github.com/vercel/vercel-plugin) with the development team's coding assistant. Apply its relevant skills and current framework documentation during implementation and review. The plugin is development guidance; eve remains the application's agent runtime. Hosted Vercel Agent is not required for this workflow. Infrastructure and model usage costs remain separate.
 
@@ -238,17 +238,17 @@ Pilot targets: immediate recording controls; question updates within 10 seconds 
 | Topic | Default or decision needed |
 | --- | --- |
 | Exact ICM example | Preserve observed root context/memory conventions and verified eve layout; compare the owner's separate example before scaffolding |
-| Trial activation/counting | Proposed: activate when owner activates the trial; reserve/count a successfully initiated unique initial consultation transactionally; failed initiation is not charged; tests/retries never count |
-| Trial exhaustion | Proposed: whichever occurs first, 14 days or 10 initial consultations; finish already-started visits |
+| Trial activation/counting | Implemented default: owner registration activates the 14-day trial; reserve/count a successfully initiated unique initial consultation transactionally; failed initiation is not charged; tests/retries never count |
+| Trial exhaustion | Implemented default: whichever occurs first, 14 days or 10 initial consultations; finish already-started visits |
 | Referral credit | Proposed: first successfully paid qualifying platform subscription; value, attribution/qualification/refund window, and credit expiry still need definition |
 | Catalog/clinical configuration | Owner supplies actual prices/terms/protocols; missing data stays incomplete; clinical rules need appropriate validation |
-| Services/framework versions | Pin compatible eve/AI SDK/Workflow versions; choose suitable actual hosting/database/auth/storage/transcription/inference |
-| Reminders/retention/sharing | Set pilot timing and retention; choose recipient verification and link expiry before real-data sharing |
+| Services/framework versions | Pinned Next.js 16.3.8, eve 0.69.0, AI SDK 7.0.127, Workflow 5.0.1 and Prisma 6.19.3; database-backed opaque sessions/MFA, private Blob, Gateway transcription/inference, Stripe and Resend. Actual service provisioning remains required |
+| Reminders/retention/sharing | Owner configuration controls timing/retention; sharing uses intended-recipient email verification, bounded expiry and revocation. Confirm clinic settings and service eligibility before real-data sharing |
 
 These decisions do not block this PRD/plan. They are not authorization to invent commercial terms.
 
 ## 10. Scope governance
 
-The owner explicitly requested this consultation-centered rewrite, Vercel infrastructure, ICM/eve structure, exact Kanban triggers, and 14-day/10-consultation trial. This records the authorized direction; it does not claim implementation or separate approval of open defaults.
+The owner explicitly requested this consultation-centered rewrite, Vercel infrastructure, ICM/eve structure, exact Kanban triggers, and 14-day/10-consultation trial, then authorized finishing the software. Implementation follows that scope. The verification report distinguishes implemented source, synthetic checks and live deployment; open commercial terms remain separate decisions.
 
 Record minor clarifications with review. New scope and active clinic-rule changes require owner decisions/version history. Keep development memory separate from the product's owner-controlled improvement process.

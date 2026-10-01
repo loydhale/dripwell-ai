@@ -159,3 +159,43 @@ What went wrong: The clinic overview query set `take: 1` on `assessmentSessions`
 Root cause: The Coder conflated a relation array used for display with a relation array used for counting. `take` limits the fetched array, not the underlying count.
 Avoid by: When you need both the latest item and the total count from the same relation, use `_count` with a `where` clause for the count and a separate `take: 1` relation for the latest item. Never use `.length` of a `take`-limited array as a count.
 Seen N times: 1
+
+## L-018 — Invalid activation predicates can hide required safety questions
+Date: 2026-10-01
+Task: V2-FOUNDATION
+What went wrong: Conditional question activation evaluated a confirmed value without checking its configured question type. A wrong-type negative on an optional parent hid a required safety follow-up and allowed an initial recommendation.
+Root cause: Product eligibility validated answer types, while question activation used the lower-level condition evaluator directly and configuration validation checked references but not operator/value semantics.
+Avoid by: Validate rule types when activating configuration and validate referenced answers before every condition evaluation. Invalid or unconfirmed activation inputs remain unknown, preserving required follow-ups.
+Seen N times: 1
+
+## L-019 — Clinical wellness suggestions must share the safety gate
+Date: 2026-10-01
+Task: V2-FOUNDATION
+What went wrong: A clinical wellness service could be suggested and selection-validated despite an unanswered required safety question.
+Root cause: Initial treatment checked required questions, while wellness matching checked only individual product predicates.
+Avoid by: Apply required clinical screening to every clinical recommendation path, including generated and manually selected future services. Keep nonclinical commercial matching separate.
+Seen N times: 1
+
+## L-020 — Pending evidence must invalidate downstream release authority
+Date: 2026-10-01
+Task: V2-COMBINED
+What went wrong: Recording intake queued new evidence while old approvals and shared documents remained valid until transcript processing completed.
+Root cause: Only explicit approval actions checked pending jobs; care-start and already-approved exports relied on unchanged old revisions.
+Avoid by: Invalidate affected approvals/snapshots atomically when accepting new clinical evidence, or enforce a shared pending-evidence gate at every downstream clinical/export boundary. Preserve idempotent recording retries.
+Seen N times: 1
+
+## L-021 — Zero cash collected is not an unpaid subscription
+Date: 2026-10-01
+Task: V2-COMBINED
+What went wrong: A positive invoice-payment requirement intended for referral qualification also controlled subscriber entitlement, excluding invoices settled by account credit.
+Root cause: Access eligibility and reward qualification shared one payment-amount gate.
+Avoid by: Verify active subscription settlement independently from monetary referral qualification. Cover credit-funded invoices as well as actual free-trial invoices.
+Seen N times: 1
+
+## L-022 — A database discard cannot cancel an in-flight object upload
+Date: 2026-10-01
+Task: V2-COMBINED
+What went wrong: Discard could delete a predicted private Blob pathname and clear its cleanup pointer before a concurrent upload completed. Upload completion then rejected the changed recording status without deleting its newly created object.
+Root cause: Database state transitions and external storage operations were treated as one atomic cancellation, although object creation can finish after the discard transaction and deletion.
+Avoid by: Prevent discard until upload completion or compensate rejected upload completion with deletion of the returned pathname, preserving a durable cleanup pointer when external deletion fails. Exercise the deferred upload/discard ordering in a regression test.
+Seen N times: 1

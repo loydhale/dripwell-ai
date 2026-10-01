@@ -2,7 +2,15 @@
 
 **Date:** 2026-10-01  
 **Contract:** [PRD v2](../PRD.md)  
-**Current state:** Existing Vite/Fastify/Prisma assessment app; v2 application migration/features have not been implemented.
+**Current state:** Owner authorized v2 implementation on 2026-10-01. Source/local runtime on `feat/dripwell-consultation-v2` passed independent audit, 75 checks, optimized Next/eve builds and production-mode browser/PDF verification. Live deployment/provider verification remains blocked by service access; see the verification report.
+
+### Implementation decisions, 2026-10-01
+
+- Preserve the existing Prisma/PostgreSQL schema and identities with additive v2 models. Use same-origin Next.js routes and opaque, database-backed cookie sessions instead of introducing a second ORM or a mandatory new identity service.
+- Inspected the actual MIT Vercel [Next.js SaaS Starter](https://github.com/nextjs/saas-starter/tree/6e33e58b1e553a41fe22e6b941a7229a002de361). Adapt its dashboard/team/subscription patterns to existing identities; do not copy its demonstration account or replace Prisma with Drizzle.
+- Framework dependency installation and version-matched documentation are being verified by the foundation Coder. The application uses authored eve files under `apps/web/agent/`, application workflows under `apps/web/workflows/`, and preserves root project context folders.
+- A separate real PostgreSQL 17 container is available for synthetic integration verification. It is not a provisioned production service or a substitute for Vercel Marketplace installation.
+- Vercel CLI authentication and production service credentials are currently unavailable. Owner authentication was requested while independent implementation proceeds. No live-service or deployment success is claimed.
 
 ## 1. Evidence and reuse decisions
 
@@ -17,7 +25,7 @@
 
 OpenScribe explicitly says it is not HIPAA compliant yet; reuse patterns rather than adopting its deployment/storage defaults.
 
-Official eve source was inspected at the pinned commit above. Shell package installation was unavailable because this workspace could not connect to its configured proxy; no installed-version compatibility was verified here. At implementation time pin dependencies and read node_modules/eve/docs/README.md, node_modules/ai/docs/, and node_modules/workflow/docs/ before coding.
+The initial documentation review inspected the pinned eve source while package installation was unavailable. Implementation now uses installed eve 0.69.0, AI SDK 7.0.127, Workflow 5.0.1 and Next.js 16.3.8 documentation, with versions pinned in the lockfile. Actual eve compiler checks and a running Next.js browser check have passed. Optimized build, combined audit and live integration results belong in the final verification report; documentation alone does not establish compatibility or production readiness.
 
 The owner's separate ICM/eve example remains unconfirmed. Preserve the observed project conventions below; verify any additional ICM rules before scaffolding, without guessing what the acronym expands to.
 
@@ -211,8 +219,8 @@ Use domain/integration tests for critical invariants and browser end-to-end flow
 
 ## 7. Next resume point
 
-Start with V2-001 through V2-003 after the documentation task: verify the exact ICM example if available, compatible versions, starter/ORM strategy, and integration readiness.
+V2 source is implemented with the pinned frameworks, single Prisma ORM and preserved context/agent structure. Recording cleanup regressions, optimized build/start/browser verification and combined audit passed. Publish/retain the reviewed implementation branch and its review PR, then provision the linked Vercel environment and verify real providers. See [verification evidence](VERIFICATION_REPORT.md) and [development state](../memory/STATE.md).
 
-Before external trials, define activation/count/refund and credit value/qualification terms. Before real-client use, validate clinical configuration, consent/retention, service agreements, and recipient verification.
+Registration activates the implemented 14-day/10-start trial; successful unique starts count transactionally. Before monetary referral offers, publish the credit value/qualification/refund policy. Before real-client use, validate clinical configuration, consent/retention, service agreements, and actual recipient delivery.
 
 The PRD records authorized product direction. This plan does not invent commercial terms, clinical protocols, deployed infrastructure, or a verified HIPAA status.

@@ -40,3 +40,10 @@ Task trigger: V2-PLUGIN, direct.
 CTO: Development workflow clarification, no new product feature or hosted-service requirement.
 Auditor co-sign: documentation_audit, PASS, 2026-10-01.
 Owner authorization: 2026-10-01 conversation.
+
+## 2026-10-01 — v2.0 — MINOR
+Section changed: Implementation status, architecture, explicit defaults and scope governance.
+Summary: Recorded the authorized implementation, pinned runtime, registration-based trial activation and recipient-email sharing controls. Preserved open credit terms and distinguished source verification from live deployment.
+Task trigger: Owner instruction to finish the software; V2-COMBINED.
+CTO: Implementation details within the existing v2 scope; no new feature.
+Auditor co-sign: implementation_audit, PASS, 2026-10-01. Minor implementation details remain within owner-authorized v2 scope; source/local runtime verification is distinct from live deployment and commercial decisions.

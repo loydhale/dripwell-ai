@@ -6,32 +6,37 @@ IV consultation recording, guided recommendations, staff review, and owner-contr
 
 [PRD v2](PRD.md) and the [implementation plan](docs/IMPLEMENTATION_PLAN.md) describe the owner-requested consultation workflow, exact Kanban triggers, shareable wellness documents, referrals, and 14-day trials with 10 initial consultations.
 
-The plan preserves the existing ICM project context/memory conventions and specifies eve's authored agent layout. The owner's separate ICM example still needs verification before scaffolding.
+The application preserves the ICM project context/memory conventions and uses eve's authored agent layout beside the Next.js application. A separate owner-provided ICM example has not been supplied; the observed repository conventions remain authoritative.
 
-**Implementation status:** this repository currently runs the earlier Vite/Fastify assessment app. The documentation change does not implement the Next.js/eve migration or change deployment. See [development state](memory/STATE.md).
+**Implementation status:** v2 source includes clinic setup, consented recording and structured intake, catalog-grounded recommendations, tracked staff review, care and wellness outcomes, the six-stage board, owner improvements, trials/referrals, billing, and verified-recipient documents. Independent source/local-runtime audit PASS, 75 checks, Next/eve builds and the production-mode browser/PDF checks are complete. Live Vercel/provider provisioning remains required. See [verification evidence](docs/VERIFICATION_REPORT.md), [development state](memory/STATE.md) and [audit evidence](docs/AUDIT_V2.md).
+
+[View the desktop and mobile screens](docs/PREVIEW.md), captured from a fictional verification clinic in the running application.
 
 ## Current development
 
-Requires pnpm and Node.js 22+. The target eve runtime is Node.js 24, to be verified with pinned dependencies during migration.
+Use Node.js 24 and pnpm 10.32.1. The committed lockfile pins the framework versions. Provision the actual services and follow [deployment guidance](docs/DEPLOYMENT.md); credentials belong in the linked environment, never in source.
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
+pnpm db:generate
+pnpm --filter @dripwell/shared build
 pnpm dev
-pnpm dev:api
-pnpm dev:admin
 pnpm build
 pnpm typecheck
-pnpm format
+pnpm --filter @dripwell/shared test
+pnpm --filter @dripwell/web test
 ```
 
 ## Current layout
 
-- apps/web/: Vite tablet PWA and landing page.
-- apps/admin/: Vite admin panel.
-- apps/api/: Fastify API.
-- packages/shared/: shared types and Prisma schema.
+- apps/web/: Next.js PWA, same-origin API, accounts, clinic/owner/platform screens.
+- apps/web/agent/: authored eve setup agent, scoped tools, instructions and approved-context memory.
+- apps/web/workflows/: application transcription, summary and reminder workflows.
+- apps/web/evals/: extraction and audio validation checks.
+- packages/shared/: browser-safe domain contracts/rules/pricing and additive Prisma schema/migrations.
+- legacy/web/: retained v1 Vite source; apps/admin/ and apps/api/ remain legacy references.
 - personas/, memory/, tasks/, templates/, workflows/: project development instructions, state, learning, and procedures.
 
-The [target folder tree](docs/IMPLEMENTATION_PLAN.md#2-target-icmeve-folder-structure) places authored eve files in apps/web/agent/, evaluations beside that directory, and application Workflow code in apps/web/workflows/. Root memory/ remains development-only.
+Root memory/ and development workflows/ remain development-only. The application agent cannot change active clinic rules; an owner reviews, tests and activates immutable configuration versions. All clinical products and prices must come from the clinic's validated configuration, not demonstration protocols.
 
 The previous [v1 PRD](docs/archive/PRD-v1.md) is retained for historical context.

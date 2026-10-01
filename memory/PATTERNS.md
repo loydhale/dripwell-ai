@@ -71,3 +71,24 @@ Where in codebase: apps/api/src/services/patterns.ts persistPatternMatches
 The pattern: When persisting structured match data to JSON columns, store the full metadata object (including confidence, weight, values) rather than flattening to bare IDs or names. This preserves audit granularity and prevents data loss when the upstream source changes.
 When to use: For any Json field in Prisma that captures derived match or scoring data.
 Example: `matchedSignals: p.matchedSignals as unknown as object` instead of `.map(s => s.signalName)`.
+
+## P-008 — Database-backed sessions reread current authority
+Date: 2026-10-01
+Where in codebase: apps/web/lib/auth.ts, apps/web/tests/auth.node.test.ts
+The pattern: Store only a random opaque cookie token in the browser, hash it in the session table, and load the current active user, tenant, location and approval authority for every request. Role changes, deactivation and revocation apply to existing sessions.
+When to use: V2 authenticated routes and agent channel identity.
+Example: `userFromToken` and its actual PostgreSQL authority/revocation integration test.
+
+## P-009 — One typed eligibility gate for clinical outputs
+Date: 2026-10-01
+Where in codebase: packages/shared/src/v2/engine.ts
+The pattern: Validate declared condition semantics at configuration activation, evaluate only confirmed answers of the configured type, and centralize required clinical screening in product eligibility. Initial and wellness selection both use the same gate.
+When to use: Any generated or staff-selected clinical item, including future services.
+Example: `evaluateConfiguredCondition` and `evaluateProductEligibility`, covered by the foundation audit regression cases.
+
+## P-010 — Bind agent context to the selected location and owner
+Date: 2026-10-01
+Where in codebase: apps/web/app/api/setup/route.ts, apps/web/agent/channels/eve.ts, apps/web/agent/lib/scope.ts
+The pattern: Persist the validated tenant, owner, location and agent session binding when creating a conversation. Recheck that exact binding on continuation, tools and approved memory recall; older unbound conversations remain unavailable instead of inheriting a default location.
+When to use: Multi-location durable setup assistants and private agent sessions.
+Example: The actual PostgreSQL setup-scope suite uses a selected second location and rejects foreign, mismatched, legacy unbound and deactivated-owner contexts.
