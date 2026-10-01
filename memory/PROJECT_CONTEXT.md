@@ -1,51 +1,44 @@
 # PROJECT_CONTEXT.md
 
-Facts about the project this team is working on. The CTO fills this out on first run by inspecting the codebase and asking Owner any missing fundamentals. After that, it only changes when the project fundamentally changes.
+## Project
 
-## Project name
-(auto-detect on first run or ask Owner)
+DripWell.ai, owned by Loyd Hale.
 
-## Purpose
-(one to three sentences on what this project does)
+## Authorized product direction
 
-## Stack
-- Language(s):
-- Framework(s):
-- Runtime:
-- Package manager:
-- Test framework:
-- Deployment target:
+Consultation-centered IV clinic PWA: consented recording, visible question guidance, location-catalog recommendations, tracked staff edits, provider approval, actual care outcomes, post-treatment wellness documents, the specified six-stage board, owner-controlled improvements, referrals, and 14-day trials including 10 initial consultations. See PRD.md.
 
-## Repo conventions
-- Folder structure:
-- Naming conventions:
-- Commit message style:
-- Branching model:
+## Observed implementation
 
-## External services
-- Databases:
-- APIs:
-- Auth providers:
-- Hosting:
+- Language: TypeScript.
+- Runtime: Node.js >=22 in existing package.json.
+- Package manager: pnpm workspaces.
+- Frontend: Vite PWA in apps/web/; Vite admin in apps/admin/.
+- Backend: Fastify in apps/api/.
+- Database: PostgreSQL/Prisma contracts under packages/shared/prisma/.
+- v2 migration, deployment service configuration, and installed framework compatibility are not implemented or verified in this documentation task.
 
-## Known constraints
-- Performance targets:
-- Compliance / regulatory:
-- Budget limits:
+## Target architecture
 
-## Non-goals
-(things this project will NOT do, so we don't drift into them)
+Next.js PWA on Vercel using a suitable SaaS starter, eve, AI SDK, Workflow, PostgreSQL and private artifacts. Target Node.js 24; pin compatible versions and retain one ORM/identity model during foundation work.
 
----
+## ICM/eve structure
 
-## How to populate this file
+Keep AGENTS.md, personas/, memory/, tasks/, templates/, and root development workflows/. The separate owner-provided ICM example is unconfirmed; exact mapping must be checked before scaffolding.
 
-On first run, CTO should:
-1. List files at repo root
-2. Read package.json / pubspec.yaml / requirements.txt / Cargo.toml / go.mod (whichever exists)
-3. Read README if present
-4. Read top-level folders to infer structure
-5. Fill in everything that's obvious from the code
-6. For anything not inferable, ask Owner ONE batched question covering all gaps
+Authored eve files target apps/web/agent/ with instructions/, channels/, skills/, tools/, and read-only approved-context memory/. Evals target apps/web/evals/. Application Workflow code targets apps/web/workflows/, separate from root development workflows/. See docs/IMPLEMENTATION_PLAN.md.
 
-After first run, update this file only when the stack genuinely changes (framework migration, new service added, etc.)
+## Conventions and constraints
+
+- Tenant/role derived from verified server identity; owner-only improvement publishing.
+- Database configuration/version history is authoritative; conversation memory cannot publish policies.
+- Repository memory contains no client data. PHI requires appropriate service agreements, controls, retention/deletion, and restricted traces.
+- Prices are official owner data; existing schema lacks a price field and needs audited migration.
+- Test consultations never count toward trial or conversion reporting.
+- Documentation is published as a reviewable branch/PR; production/runtime remains unchanged.
+
+## References
+
+- OpenScribe: loydhale/openscribe-scribe-template- at dddf1c30fcf8313e4452915ddd9189baa5a3762b.
+- eve project structure: official source at ac77188ad0bd16edd20a590ec93e2d26306b9bd0.
+- Candidate SaaS shell: nextjs/saas-starter; tenant-routing reference: vercel/platforms.

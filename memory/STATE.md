@@ -1,46 +1,31 @@
 # STATE.md
 
-Single source of truth for where the team is. Any agent can read this and know what to do next.
-
 ## Current status
-TASK-008 under Auditor review. Coder implemented three-layer recommendation engine. Auditor found one blocking issue: first-visit consistency bias missing (coder implemented returning-patient consistency instead).
 
-## Active task
-TASK-008 — Recommendation engine (IN_REVIEW)
+V2-PRD documentation complete. Auditor PASS on attempt 1. Owner-requested consultation requirements and implementation plan are prepared on the docs/dripwell-v2-icm-eve-2026-10-01 branch.
 
-## Tasks completed since last drift check
-1. TASK-004: Fastify backend with auth, tenants, catalog, providers, assessments
-2. TASK-005: Camera capture component with AR guidance
-3. TASK-006: Photo upload pipeline with S3 storage
-4. TASK-007: Adaptive questioning engine
+## Deliverables
 
-## Last action
-2026-04-22: Coder built pattern matching service, recommendation service, generate-recommendation endpoint, and RecommendationPreview frontend component.
+- PRD.md: v2 requirements, six exact Kanban triggers, archive, 14-day/10-consultation trial, owner-only improvement.
+- docs/IMPLEMENTATION_PLAN.md: source-verified eve layout, preserved project context conventions, migration/work packages/validation.
+- docs/archive/PRD-v1.md and STATE-v1.md: preserved historical requirements/state.
+- README.md and PROJECT_CONTEXT.md distinguish actual runtime from target architecture.
 
-## Next step
-Coder to fix blocking issue: add first-visit consistency bias for isReturning === false in generateRecommendation. Then Auditor will re-review.
+## Next resume point
 
----
+Future implementation begins with V2-001 (exact ICM reference and framework versions), V2-002 (starter/ORM/auth decision), and V2-003 (eligible service provisioning/data-path map). Break work packages into small task briefs before execution.
 
-### TASK-008 — Recommendation engine
-Status: IN_REVIEW
-Assigned: AUDITOR
-Attempt: 1
-Brief: /tasks/TASK-008.md
-PRD refs: F-6
-Last update: 2026-04-22 — Auditor review complete. FAIL on attempt 1. One blocking finding: first-visit consistency bias not implemented (coder built returning-patient consistency instead). Three suggested fixes also noted.
-Next step: Coder fixes blocking issue, Auditor re-reviews.
+No application code or deployment changed. Continuous mode is OFF. Do not automatically resume the superseded photo-assessment queue.
 
-### TASK-004 — Build backend API skeleton
-Status: DONE
-Assigned: CODER
-Attempt: 1
-Brief: /tasks/TASK-004.md
-PRD refs: F-1, F-5, F-6, F-7, F-8, F-11
-Last update: 2026-04-22 — Coder implemented all routes, plugins, auth, validation. 22-point curl smoke test passed. Committed to main.
-Next step: Complete.
+## Open decisions
 
----
+- Separate owner ICM/eve example unconfirmed; preserve observed conventions and verified eve layout until compared.
+- Trial activation/counting and credit value/qualification/refund terms remain explicit proposals/open decisions.
+- Validate actual clinic protocols/prices, sharing verification, retention/reminder timing, and service eligibility before their rollout.
+
+## Historical state
+
+[Archived v1 state](../docs/archive/STATE-v1.md) retains the old task queue.
 
 ## Format reference (do not delete)
 

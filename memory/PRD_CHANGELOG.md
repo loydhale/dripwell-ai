@@ -24,3 +24,11 @@ Rules:
 ## Entries
 
 (no entries yet — first entry will be v1.0 approval from Owner)
+
+## 2026-10-01 — v2.0 — MAJOR, OWNER-REQUESTED DRAFT
+Section changed: Full PRD; v1 archived in docs/archive/PRD-v1.md.
+Summary: Consultation recording/guidance, tracked staff review, actual care, wellness documents, exact Kanban triggers, owner-controlled improvement, referrals and 14-day/10-consultation trials; Vercel and ICM/eve implementation plan.
+Task trigger: V2-PRD, direct owner request.
+CTO: Owner explicitly requested the scope rewrite and ICM/eve structure; implementation defaults/open terms are labelled, not presumed approved.
+Auditor co-sign: documentation_audit, PASS, 2026-10-01.
+Owner authorization: 2026-10-01 conversation authorizes revised requirements and plan; no production deployment or open commercial terms approved.
