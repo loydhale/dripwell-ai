@@ -113,3 +113,10 @@ Where in codebase: apps/web/lib/clinic.ts, apps/web/components/clinic-context.ts
 The pattern: Validate bounded server-backed search and keyset pages under the current tenant/location/filter, ordered by immutable creation time plus unique ID. Archive browsing includes every retained age while historical metrics keep their own date predicates. New client filter requests invalidate stale responses; page failure preserves loaded records.
 When to use: Retained-record search and pagination that must coexist with period-based outcome dashboards.
 Example: TASK-020 actual PostgreSQL walks 251 tied-time records, finds/restores a 500-day-old visit and retains metric denominators; browser failure/retry and stale-response checks pass.
+
+## P-014 — Each audio segment owns a monotonic active capture budget
+Date: 2026-10-02
+Where in codebase: apps/web/lib/recording-clock.ts, apps/web/components/audio-recorder.tsx
+The pattern: Give every native MediaRecorder its own monotonic active-time clock and remaining-limit timer. Pause cancels its timer without losing fractional elapsed capture; resume schedules the remaining budget; stop freezes duration before asynchronous delivery. Completed durations plus the current clock drive the visible timer, and captured retry metadata remains immutable.
+When to use: Shared consultation and setup voice recording, including pauses, rollover and interrupted/unmounted capture. Do not reuse wall time or a shared old-segment timer to account for audio duration.
+Example: TASK-026 six focused timing regressions plus real synthetic Chromium event observations prove pause exclusion, paused stop and a 60,000 ms rollover after repeated resumes, with ordered nonempty segments.

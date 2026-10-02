@@ -240,3 +240,27 @@ What went wrong: A new actual-PostgreSQL job-result suite passed locally but rej
 Root cause: The safety guard copied one workspace binding without tracing the repository's explicit CI database configuration; local source review did not catch that environment mismatch.
 Avoid by: Read the committed CI environment alongside local verification instructions when adding database-backed regressions. Require an explicit test binding and known disposable database, accept the documented loopback targets, verify rejection before database selection, and require a fresh successful published-head CI instead of generalizing local PASS.
 Seen N times: 1
+
+## L-028 — Paused wall time is not captured audio duration
+Date: 2026-10-02
+Task: TASK-025
+What went wrong: Native browser capture correctly paused its visible timer, but the segment payload included the full paused wall interval. A three-second capture reported 24,089 milliseconds; resume also reset the full one-minute segment timer.
+Root cause: Segment metadata used elapsed wall time while the UI and MediaRecorder used active capture state. Timer restarts did not retain the segment's consumed active-time budget.
+Avoid by: Track monotonic active capture duration per segment, exclude every paused interval and schedule only its remaining capture budget on resume. Preserve those immutable values through retry, and verify real browser metadata alongside visible controls rather than assuming server recording tests exercise the microphone.
+Seen N times: 1
+
+## L-029 — Every visit-exiting link must honor capture state
+Date: 2026-10-02
+Task: TASK-025
+What went wrong: The main sidebar links and logout blocked navigation during recording, but the app-shell wordmark bypassed that protection. Actual SPA navigation stopped/unmounted capture and left a failed final segment without retry or deliberate-discard controls.
+Root cause: The guard was attached to selected navigation controls instead of every app-shell route exit; beforeunload does not run for this Next SPA link. Notification visit links were also unguarded.
+Avoid by: Apply the same busy-capture guard to every app-shell visit-exiting link and verify each destination with active capture, pending upload and failed local segments. Preserve idle navigation and microphone cleanup, and distinguish intentional unmount verification from protected in-app exits.
+Seen N times: 1
+
+## L-030 — DOM presence is not visible error feedback
+Date: 2026-10-02
+Task: TASK-029
+What went wrong: The repaired navigation guard rendered a main role=alert, but the still-open mobile notification panel fully covered it after the blocked click. Desktop functional checks passed while the user received no visible explanation at 390-pixel width.
+Root cause: Alert semantics and DOM presence were checked separately from the overlay that initiated the action. Presentation state retained the covering panel.
+Avoid by: Verify feedback in the actual initiating overlay/viewport and inspect its screenshot or hit-test visibility. Close presentation overlays or otherwise expose the existing explanation when blocking an exit, preserving captured data and idle navigation rather than adding a second capture authority.
+Seen N times: 1

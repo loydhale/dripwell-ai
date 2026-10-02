@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createRecordingSegmentClock, type RecordingSegmentClock } from '@/lib/recording-clock';
 import { ErrorBanner, Icon } from './ui';
 import { useClinic } from './clinic-context';
 
@@ -35,7 +36,8 @@ export function AudioRecorder({
   const recorder = useRef<MediaRecorder | null>(null);
   const active = useRef(false);
   const paused = useRef(false);
-  const segmentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const segmentClock = useRef<RecordingSegmentClock | null>(null);
+  const completedDurationMs = useRef(0);
   const sequence = useRef(0);
   const onSegmentRef = useRef(onSegment);
   onSegmentRef.current = onSegment;
@@ -46,7 +48,13 @@ export function AudioRecorder({
 
   useEffect(() => {
     if (phase !== 'recording') return;
-    const timer = window.setInterval(() => setSeconds((value) => value + 1), 1000);
+    const timer = window.setInterval(() => {
+      setSeconds(
+        Math.floor(
+          (completedDurationMs.current + (segmentClock.current?.durationMs() ?? 0)) / 1000,
+        ),
+      );
+    }, 1000);
     return () => window.clearInterval(timer);
   }, [phase]);
   useEffect(() => {
@@ -64,7 +72,7 @@ export function AudioRecorder({
     return () => {
       mounted.current = false;
       active.current = false;
-      if (segmentTimer.current) clearTimeout(segmentTimer.current);
+      segmentClock.current?.stop();
       if (recorder.current?.state !== 'inactive') recorder.current?.stop();
       stream.current?.getTracks().forEach((track) => track.stop());
     };
@@ -89,6 +97,11 @@ export function AudioRecorder({
     stream.current?.getTracks().forEach((track) => track.stop());
     stream.current = null;
   }
+  function updateSeconds() {
+    setSeconds(
+      Math.floor((completedDurationMs.current + (segmentClock.current?.durationMs() ?? 0)) / 1000),
+    );
+  }
   function captureSegment() {
     if (!stream.current || !active.current) return;
     const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm'].find((type) =>
@@ -102,12 +115,18 @@ export function AudioRecorder({
     const chunks: BlobPart[] = [];
     const id = crypto.randomUUID();
     const segmentSequence = sequence.current++;
-    const started = Date.now();
+    const clock = createRecordingSegmentClock(() => {
+      if (!continuous) active.current = false;
+      if (instance.state !== 'inactive') instance.stop();
+    });
+    segmentClock.current = clock;
     instance.ondataavailable = (event) => {
       if (event.data.size) chunks.push(event.data);
     };
     instance.onerror = () => {
       active.current = false;
+      clock.stop();
+      updateSeconds();
       release();
       setPhase('idle');
       setError(
@@ -115,7 +134,10 @@ export function AudioRecorder({
       );
     };
     instance.onstop = () => {
-      if (segmentTimer.current) clearTimeout(segmentTimer.current);
+      const duration = clock.stop();
+      completedDurationMs.current += duration;
+      if (segmentClock.current === clock) segmentClock.current = null;
+      updateSeconds();
       const blob = new Blob(chunks, { type: instance.mimeType || 'audio/webm' });
       if (blob.size) {
         const extension = blob.type.includes('mp4') ? 'm4a' : 'webm';
@@ -123,7 +145,7 @@ export function AudioRecorder({
           file: new File([blob], `recording-${id}.${extension}`, { type: blob.type }),
           id,
           sequence: segmentSequence,
-          duration: Date.now() - started,
+          duration,
         });
       }
       if (active.current && continuous) captureSegment();
@@ -135,11 +157,7 @@ export function AudioRecorder({
     };
     instance.start();
     if (paused.current) instance.pause();
-    segmentTimer.current = setTimeout(() => {
-      if (instance.state === 'paused') return;
-      if (!continuous) active.current = false;
-      if (instance.state !== 'inactive') instance.stop();
-    }, 60000);
+    else clock.resume();
   }
   async function start() {
     setError('');
@@ -169,6 +187,8 @@ export function AudioRecorder({
           () => {
             if (!active.current) return;
             active.current = false;
+            segmentClock.current?.stop();
+            updateSeconds();
             if (recorder.current?.state !== 'inactive') recorder.current?.stop();
             setError(
               'The microphone was interrupted. Review saved segments and enter any missing conversation details.',
@@ -179,10 +199,13 @@ export function AudioRecorder({
       );
       active.current = true;
       paused.current = false;
+      completedDurationMs.current = 0;
       setSeconds(0);
       setPhase('recording');
       captureSegment();
     } catch (cause) {
+      active.current = false;
+      segmentClock.current?.stop();
       setPhase('idle');
       release();
       setError(
@@ -195,26 +218,26 @@ export function AudioRecorder({
   function pause() {
     if (recorder.current?.state === 'recording') {
       recorder.current.pause();
+      segmentClock.current?.pause();
       paused.current = true;
+      updateSeconds();
       setPhase('paused');
-      if (segmentTimer.current) clearTimeout(segmentTimer.current);
     }
   }
   function resume() {
     if (recorder.current?.state === 'paused') {
       recorder.current.resume();
+      segmentClock.current?.resume();
       paused.current = false;
       setPhase('recording');
-      segmentTimer.current = setTimeout(() => {
-        if (recorder.current?.state === 'recording') recorder.current.stop();
-      }, 60000);
     }
   }
   function stop() {
     active.current = false;
     paused.current = false;
+    segmentClock.current?.stop();
+    updateSeconds();
     setPhase('stopping');
-    if (segmentTimer.current) clearTimeout(segmentTimer.current);
     if (recorder.current?.state !== 'inactive') recorder.current?.stop();
     else {
       release();

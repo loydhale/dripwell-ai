@@ -12,6 +12,8 @@ The application preserves the ICM project context/memory conventions and uses ev
 
 [View the desktop and mobile screens](docs/PREVIEW.md), captured from a fictional verification clinic in the running application.
 
+The [native recording follow-up](docs/AUDIT_RECORDING_CONTROLS.md) additionally found and repaired paused-duration and shell-navigation defects. Local synthetic capture/real 60-second rollover, desktop navigation/retry and targeted mobile warning/recording visibility passed independent review. Fresh published-source CI and the protected-preview update are pending for these repairs; actual local durable-reminder verification is queued. Live transcription/model/email/billing and physical-device evidence remain separate gates.
+
 ## Current development
 
 Use Node.js 24 and pnpm 10.32.1. The committed lockfile pins the framework versions. Provision the actual services and follow [deployment guidance](docs/DEPLOYMENT.md); credentials belong in the linked environment, never in source.

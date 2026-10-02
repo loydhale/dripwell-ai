@@ -37,6 +37,14 @@ function Shell({ children }: { children: ReactNode }) {
     { href: '/settings', label: 'Settings', icon: 'settings' },
   ];
   const unread = data?.notifications.filter((item) => !item.isRead && !item.readAt).length ?? 0;
+  function guardNavigation(event: { preventDefault: () => void }) {
+    if (!captureBusy) return false;
+    event.preventDefault();
+    setMenuOpen(false);
+    setShowNotifications(false);
+    setLogoutError('Stop recording and finish or retry unsaved audio before leaving this page.');
+    return true;
+  }
   async function logout() {
     if (captureBusy) {
       setLogoutError('Save or deliberately discard unsaved recording segments before signing out.');
@@ -52,7 +60,7 @@ function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="workspace">
       <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
-        <Link className="wordmark" href="/dashboard">
+        <Link className="wordmark" href="/dashboard" onClick={guardNavigation}>
           <span className="brand-symbol">
             <Icon name="pulse" size={22} />
           </span>
@@ -74,12 +82,7 @@ function Shell({ children }: { children: ReactNode }) {
               href={locationHref(link.href, locationId)}
               className={`nav-link ${pathname.startsWith(link.href) ? 'active' : ''}`}
               onClick={(event) => {
-                if (captureBusy) {
-                  event.preventDefault();
-                  setLogoutError(
-                    'Stop recording and finish or retry unsaved audio before leaving this page.',
-                  );
-                } else setMenuOpen(false);
+                if (!guardNavigation(event)) setMenuOpen(false);
               }}
             >
               <Icon name={link.icon} />
@@ -207,6 +210,7 @@ function Shell({ children }: { children: ReactNode }) {
                     {item.consultationId ? (
                       <Link
                         href={locationHref(`/consultations/${item.consultationId}`, locationId)}
+                        onClick={guardNavigation}
                       >
                         Open consultation
                       </Link>
@@ -239,6 +243,7 @@ function Shell({ children }: { children: ReactNode }) {
           </div>
         ) : null}
         <main className="page-content">
+          {logoutError ? <ErrorBanner message={logoutError} /> : null}
           {loading && !data ? (
             <div className="loading-state" role="status">
               <div className="loading-ring" />
