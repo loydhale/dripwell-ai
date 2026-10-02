@@ -2,7 +2,7 @@
 
 Updated: 2026-10-02. Branch: `feat/dripwell-consultation-v2`.
 
-Verification uses an isolated PostgreSQL 17 database and an explicitly fictional clinic. No patient data, real treatment, customer purchase, or live provider charge was used. Test environment bindings and authenticator material remain outside the repository.
+Verification uses an isolated PostgreSQL 17 database and an explicitly fictional clinic. No patient data, real treatment, or customer purchase was used. Selected private-storage verification uses bounded nonclinical objects; no AI credits or hosting upgrade were purchased. Test environment bindings and authenticator material remain outside the repository.
 
 ## Current evidence, 2026-10-02
 
@@ -25,6 +25,20 @@ All six targeted HTTP cases passed: anonymous unique-preview SSO protection302, 
 After the owned server stopped before the remaining due times, a plain optimized Next restart left five original runs waiting. One supported explicit World.start lifecycle initialization recovered all five unchanged run IDs. This proves retained-state recovery with explicit local initialization; automatic Next startup recovery and hosted scheduling remain unverified. The Local World is development-only, and the authored hosted15-minute schedule remains unavailable on Hobby. Protection and `ALLOW_REAL_CLIENT_DATA=false` stay intact. These scoped checks do not establish successful hosted capture/transcription or the full two-clinic pilot.
 
 Owned browser/server/recovery processes ended, port4177 closed and the private run directory was removed after archiving six completed runs/zero live waits. Owned fictional records and their rate bucket were cleaned; all13 initial unrelated model counts/full-row digests and unrelated rate-bucket cleanup digests remained unchanged. No application changes, provider calls, hosted clinical writes or migrations were performed for this reminder proof.
+
+### Actual compiled recovery endpoint
+
+[TASK-030](AUDIT_CRON_RECOVERY.md) verifies the actual compiled GET /api/jobs/reconcile on a fresh exclusively owned loopback database with50 schema-only tables, initially empty. Six source-map bindings match reviewedb61/current files, allowing reuse of the optimized artifact. Actual false-gate/equal isolated DB bindings and blank providers were independently checked. Missing and incorrect same-length bearer requests each returned401 with every table count/full-row digest unchanged. One valid GET returned200 in84.88ms and persisted one correctly scoped reminder, failed an old incomplete upload and an unbound non-provider job, and pruned the expected expired challenge/session/rate records while preserving fresh/recent controls. Exactly6 expected tables changed; other44 were unchanged.
+
+Storage remained unavailable: uploadCleanup=null, expiredAudioDeleted=0 and retentionStorageReady=false. There was no Workflow run, trial unit, provider call or hosted mutation. Owned server/database/private secret profile were removed; all50 shared counts/full-row digests and the existing PostgreSQL container were preserved. Independent PASS/learning P-015 and33 frozen private evidence entries are complete. This establishes authenticated local HTTP-to-database recovery, separately from hosted scheduling and physical storage retention. TASK-031 is the bounded selected-private-Blob entrypoint check; earlier direct SDK deletion is retained as distinct evidence.
+
+### Actual selected private-storage retention
+
+[TASK-031](AUDIT_BLOB_RETENTION.md) exercises the reviewed compiled recovery endpoint against the already-selected private Blob store and a fresh nonce/OID-owned loopback database. Six source-map contents/hashes match immutableb61/current source, so the optimized build was reused without a rebuild. Fifty schema-only tables began empty; seven fictional rows contain one test visit and two recording records. Only one expired task-owned path qualifies, the future control is excluded, and generation/upload-cleanup jobs are absent. Only the known selected Blob-token binding was extracted; actual running process checks confirm equal fresh DB/TEST bindings, literalfalse, all non-Blob/OIDC credentials blank and retained Node24 proxy/TLS controls.
+
+Two tiny private nonclinical objects of72/75bytes were created and read back with authenticated useCache:false/exact bytes. One actual compiled GET at18:23:48.488 to18:23:49.406 returned200 in917.91ms/private-no-store, expiredAudioDeleted1/retentionStorageReadytrue, zero reminders and zero upload-cleanup checked/pending/deleted. Before compensation, the expired object was physically absent through an uncached authenticated SDK read; the unexpired object retained exact bytes/ETag/uploadedAt. Only the expired row changed toEXPIRED with an empty path/updatedAt; the complete control row and other49 table digests stayed unchanged. All7 fixture rows remained, with zero jobs/notifications/trial units/Workflow runs.
+
+Cleanup removed only the remaining owned control object and confirmed uncached absence, closed ownedPID95009/port4177, dropped only the exact nonce/OID target after zero connections and removed the private secret profile. All50 shared counts/full-row digests/ledger and the existing container were preserved. This is physical selected-provider deletion plus authored database cleanup through a local compiled request. It does not establish actual capture/upload/transcription, hosted15-minute scheduling, approved transcript/document/backup policies or service eligibility. No source edit, provider substitution, inference/email/billing request, suite repeat, existing-target migration or hosting purchase occurred.
 
 ### Historical deployed baseline
 

@@ -120,3 +120,18 @@ Where in codebase: apps/web/lib/recording-clock.ts, apps/web/components/audio-re
 The pattern: Give every native MediaRecorder its own monotonic active-time clock and remaining-limit timer. Pause cancels its timer without losing fractional elapsed capture; resume schedules the remaining budget; stop freezes duration before asynchronous delivery. Completed durations plus the current clock drive the visible timer, and captured retry metadata remains immutable.
 When to use: Shared consultation and setup voice recording, including pauses, rollover and interrupted/unmounted capture. Do not reuse wall time or a shared old-segment timer to account for audio duration.
 Example: TASK-026 six focused timing regressions plus real synthetic Chromium event observations prove pause exclusion, paused stop and a 60,000 ms rollover after repeated resumes, with ordered nonempty segments.
+
+## P-015: Isolate global maintenance verification with owned schema-only data
+Date: 2026-10-02
+Where in codebase: apps/web/app/api/jobs/reconcile/route.ts, TASK-030 verification
+The pattern: Global recovery/pruning endpoints use a fresh exclusively owned loopback database rather than a shared fixture target. Copy only schema DDL after comparing successful applied migration checksums to reviewed source, keep rolled-back history separate, and prove all initial tables empty. Bind equal explicit DATABASE_URL/TEST_DATABASE_URL and verify database OID, unique shared-object comment marker and container mapping before fixture/server/drop operations. Compare whole-table digests after each auth denial and preserve every shared baseline table through cleanup.
+When to use: Actual compiled maintenance/cron verification that can alter unrelated consultation, job, authentication or rate-limit rows. Keep providers blank unless a separately approved bounded provider test selects only owned artifacts.
+Example: TASK-030 copied50 empty schema tables, proved401/no mutation twice and one authenticated HTTP reminder/recovery/prune pass, then removed only its OID/nonce-guarded database while all50 shared-table digests and the existing container remained unchanged.
+
+
+## P-016: Verify physical provider retention before compensation
+Date: 2026-10-02
+Where in codebase: apps/web/app/api/jobs/reconcile/route.ts, TASK-031 verification
+The pattern: Before enabling an already-selected storage binding, prove the exclusively owned isolated database limits every deletion selector to expected unique owned pathnames and zero upload-cleanup jobs. Create tiny expired/unexpired controls with exact returned-path ownership, verify authenticated origin bytes, exercise one real compiled request, and verify uncached absence plus authored row changes before compensating only the surviving control. A successful delete counter or cleared database path alone is insufficient; retain the unchanged object's bytes/ETag/whole row and all unrelated table digests.
+When to use: Actual provider retention/deletion verification, where ordinary cached reads or finally cleanup could otherwise make a metadata-only operation appear successful. Keep inference/email/billing identities blank and distinguish local compiled provider proof from hosted scheduling and policy eligibility.
+Example: TASK-031's selected private Blob2.8.0 store returned exact72/75-byte objects; one compiled200 request deleted only the expired object, uncached get returned null/notfound before cleanup, the unexpired control and49 other table digests were unchanged, and only the remaining control was compensated. All50 shared digests/resources were preserved.
