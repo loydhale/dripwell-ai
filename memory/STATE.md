@@ -10,7 +10,7 @@ CONTINUOUS_MODE: ON
 Started: 2026-10-02T12:09:13Z
 Started by: "Please create a loop so that you don’t stop working on this until it’s down ."
 Execution status: ACTIVE
-Tasks completed this run: 2
+Tasks completed this run: 3
 Consecutive escalations this run: 0
 Consecutive tasks without learning or meaningful changes: 0
 Recurring continuation: ENABLED, `Finish DripWell`, hourly, automation `6abf9f5e25c08191b939bb96222f1f13`. Creation confirmed 2026-10-02T12:11:10Z; no future execution or coding result claimed. See [continuous-work contract](../docs/CONTINUOUS_WORK.md).
@@ -33,25 +33,25 @@ Attempt: 1
 Brief: [TASK-020](../tasks/TASK-020.md)
 PRD refs: F-08 archive search/restore; F-12 period reporting
 Last update: 2026-10-02 — Independent Auditor PASS for scoped source, two new actual-PG regressions and optimized browser search/pages/retry/stale responses/500-day restore/reporting/location boundaries. Coder's 15 clinic tests/types/build passed; fixtures/browser/server cleaned. P-013 and CHANGELOG/SESSION_LOG recorded.
-Next step: Commit/publish the reviewed repair with [audit evidence](../docs/AUDIT_CONTINUOUS_REPAIRS.md), then complete TASK-021. This repair has not yet been deployed.
+Next step: Published source `84a5c14` passed fresh 81-check CI; [audit evidence](../docs/AUDIT_CONTINUOUS_REPAIRS.md) retains the runtime proof. Deploy both reviewed repairs together after TASK-021 publication/CI; this repair is not yet in the hosted preview.
 
 ### TASK-021 — Return saved results for completed generation jobs
-Status: IN_PROGRESS
-Assigned: CODER
+Status: DONE
+Assigned: AUDITOR
 Attempt: 1
 Brief: [TASK-021](../tasks/TASK-021.md)
 PRD refs: F-05; F-07; F-12 addressable generations
-Last update: 2026-10-02 — TASK-020 independently passed; Coder is tracing current job writers/readers and then implementing the bounded completion/result fix. Mutations held only for the reviewed TASK-020 commit checkpoint.
-Next step: Make successful completion/result handling consistent while preserving previously saved status values, then independently verify scoped job reads and unsuccessful-job behavior.
+Last update: 2026-10-02 — Independent Auditor PASS, attempt 1: six actual-PG real-route/poller regressions, unchanged saved history, canonical new status, hidden unfinished/failed/upload results and exact existing authority. Ordinary Vitest discovery and diff checks passed; L-013/CHANGELOG/SESSION_LOG updated. Coder clinic 15/15 and types also passed.
+Next step: Publish this reviewed patch, verify fresh CI and deploy the two repairs to the protected synthetic preview. TASK-022 proceeds independently against isolated local records.
 
 ### TASK-022 — Verify the complete owner improvement lifecycle
-Status: QUEUED
+Status: IN_PROGRESS
 Assigned: AUDITOR
 Attempt: 1
 Brief: [TASK-022](../tasks/TASK-022.md)
 PRD refs: F-10; section 8 criterion 6
-Last update: 2026-10-02 — Independent gap review identified missing recorded integrated proof of the full evidence/proposal/test/activation/rollback sequence.
-Next step: After TASK-021 review, verify the real existing paths with isolated synthetic data, owner-only authority and unchanged historical snapshots; route any defect to Coder before continuing.
+Last update: 2026-10-02 — TASK-021 independently passed; integrated owner-lifecycle verification is next for Auditor, with source frozen during verification.
+Next step: Verify the real existing paths with isolated synthetic data, owner-only authority and unchanged historical snapshots; route any defect to Coder before continuing. Keep provider/hosted account work separate.
 
 ### Parked release work
 
@@ -87,7 +87,7 @@ Vercel Plugin guidance is available from `skill://plugin_connector_690a90ec05c88
 
 ## Next resume point
 
-Continue the active continuous-work queue before waiting on provider accounts: TASK-020 is independently verified, TASK-021 is in implementation and TASK-022 integrated owner-lifecycle evidence follows its review. The account gates below are parked and do not block these source/verification tasks.
+Continue the active continuous-work queue before waiting on provider accounts: TASK-020 and TASK-021 independently passed; publish/check CI/deploy their reviewed source and complete TASK-022 integrated owner-lifecycle evidence. The account gates below are parked and do not block these source/verification tasks.
 
 The source/runtime repairs, independent audit, exact publication, 79-check CI and protected remote deployment are complete. Hosted inference awaits a supported AI access decision after the Owner requested their ChatGPT subscription. Ordinary API billing is separate; approved SIWC is a real alternative for eligible apps, not a generic shared SaaS entitlement. No commercial registration has been submitted. Once valid access is configured and any source changes independently reviewed, Auditor reuses the retained fictional owner/location and protection session with a fresh idempotency key to verify a real assistant response, durable completed job and measured usage, then replay/continuation. Current failed jobs and their evidence stay intact. Do not reapply migrations or repeat passing source/Blob/mobile checks without a relevant change.
 

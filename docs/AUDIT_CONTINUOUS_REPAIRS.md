@@ -35,3 +35,34 @@ PRD_AUDIT: PASS, repair fulfills existing archive search/restore and reporting r
 The CTO's accompanying `docs/VERIFICATION_REPORT.md` factual correction also passes review: it leads with the actual October 2 connected preview/79-check/deployment evidence and Gateway denial, and dates the superseded October 1 absence of live bindings. It preserves historical evidence and makes no new runtime or provider-success claim.
 
 This PASS covers source and isolated synthetic runtime behavior. The repair has not yet been deployed. Actual AI/transcription/email/billing/scheduler and full hosted pilot verification remain subject to the documented gates; TASK-021 and the full owner improvement lifecycle are next in the approved queue.
+
+## TASK-021, saved successful generation results
+
+AUDIT: TASK-021
+VERDICT: PASS
+ATTEMPT: 1
+BASE PARENT: `84a5c147304c6fc66ef0a148c7f71fba702e6dc3`
+
+The scoped three-file app/test patch repairs the saved-result reader without changing schema or clients. `apps/web/app/api/jobs/[id]/route.ts:15` recognizes both persisted successful values, `COMPLETE` and historical `COMPLETED`, and returns the existing public `complete` status with the exact saved result. `apps/web/lib/clinic.ts:590` writes new deterministic initial/wellness jobs using the existing canonical `COMPLETE` value. Historical rows, IDs, results, model/prompt versions, usage, timestamps and idempotency keys remain intact. Pending, queuing, running, failed and cancelled results remain hidden; both successful upload aliases still exclude private upload pointers.
+
+Independent evidence:
+
+- The six new regressions passed, 6/6 with zero skips, through the project's ordinary Vitest configuration and discovery at 12:52 UTC. The command was `node_modules/.bin/vitest run lib/job-results.integration.test.ts` in `apps/web`, after explicitly loading the private verification environment and selecting the guarded localhost:55432 `dripwell_verification` database.
+- Actual scoped clinic actions produce and persist both deterministic initial and wellness outputs, then the actual job route and actual `waitForJob` consumer return those exact records. Whole persisted jobs are unchanged after retrieval. Historical `COMPLETED` and workflow-style `COMPLETE` fixtures both reopen successfully without rewriting their statuses.
+- The actual route hides partial results for all five unfinished/unsuccessful states. The real polling consumer preserves failed/cancelled errors and observes a persisted running-to-complete transition. Successful `RECORDING_UPLOAD` records reveal no private pointer for either alias.
+- Real database-backed sessions enforce foreign-tenant 404, ordinary staff and another owner's setup-job 403, unauthenticated 401 and malformed ID 400. Consultation reads at a second owned location remain available to both owner and staff; foreign access remains 404.
+- The tests call the actual route in-process, replacing only browser transport, framework cookie delivery and polling delays. They use real PostgreSQL and current session authority. This is source/database/client-contract verification, not a deployed HTTP test or an actual model/Workflow execution. Workflow-style fixtures are explicitly labeled synthetic, and no inference, transcription or provider usage is claimed.
+- Fixture cleanup completed through `afterAll`; no server, email, model request, hosted write, migration, real-data enablement or Auditor application edit occurred. The Coder's clinic 15/15 and web typecheck passed. Independent `git diff --check` passed. No packaging or framework API changed, so the prior optimized build was not repeated without a new concern.
+
+Authority clarification in TASK-021 criterion 3 is co-signed as a statement of existing behavior. `User` has tenant membership and no assigned-location membership (`packages/shared/prisma/schema.prisma:215`); `auth.ts:40` loads the tenant's active locations, with the first as a default (`:49`). `getConsultation` scopes existing detail reads by ID and tenant (`lib/clinic.ts:414`); the job's composite consultation/tenant foreign key preserves that scope (`schema.prisma:1213`). The clarification adds no new role or feature and preserves exact-owner authority for nonconsultation jobs.
+
+The accompanying verification-report update is co-signed. Independent GitHub metadata and logs confirm run `37008021662` completed successfully at exact source `84a5c147`, with 23 domain, 8 auth, 15 clinic, 11 AI-boundary and 24 unit checks, total 81, plus all 10 migrations, types and both builds. That CI run precedes TASK-021 and does not certify this uncommitted patch. The protected preview still uses deployed `90b0565`; neither repair is represented as deployed.
+
+Guidance: Vercel Plugin AI generation persistence and Workflow from c12; installed Workflow 5.0.1 testing documentation, Next.js 16.3.8 route-handler contracts and existing version-matched polling/session code. This patch retains root ICM and authored Eve/Workflow folder conventions.
+
+FINDINGS: none blocking in TASK-021.
+PATTERN_VIOLATIONS: none.
+GOTCHA_HITS: G-005 explicit local tooling and isolated database selection.
+PRD_AUDIT: PASS, fulfills existing F-05/F-07 and F-12 addressable-result requirements; no PRD scope change.
+
+Learning: L-013 recurred for inconsistent terminal-status writers/readers; its counter is now 2. No additional pattern or gotcha. Publish only after CTO updates state; TASK-022 integrated owner improvement verification follows. Full hosted pilot completion and actual provider/account gates remain open.

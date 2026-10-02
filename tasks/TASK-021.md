@@ -26,7 +26,7 @@ Read the AGENTS boot sequence, Coder persona and relevant Vercel Plugin guidance
 
 1. Authorized job GET returns the exact persisted result for existing successful deterministic generation rather than null.
 2. Workflow-style completion and current consumers continue to work; unfinished/failed jobs do not become successes.
-3. Foreign clinic/location/role cannot access job results. Existing verification and any meaningful added test pass.
+3. Foreign-tenant consultation jobs remain inaccessible, including their foreign locations. Own-tenant other-location consultation jobs remain readable under the existing tenant-wide staff authority; an actor's default location is not a membership boundary. Nonconsultation setup jobs retain exact owner/user scope. Existing verification and meaningful added tests pass.
 4. Independent Auditor review and learning complete before commit/publication.
 
 Execute serially after TASK-020 implementation. Coder owns source/tests; CTO owns STATE/briefs; Auditor owns review/learning. Do not commit or push directly.

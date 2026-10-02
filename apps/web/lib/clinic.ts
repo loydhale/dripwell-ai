@@ -587,7 +587,7 @@ async function logGeneration(tx: Tx, actor: ClinicActor, record: Consultation, k
   const now = new Date();
   await tx.generationJob.create({ data: {
     tenantId: actor.tenantId, consultationId: record.id, userId: actor.userId, kind,
-    status: 'COMPLETED', idempotencyKey: `${kind}:${record.id}:${number}`,
+    status: 'COMPLETE', idempotencyKey: `${kind}:${record.id}:${number}`,
     model: 'deterministic-rules', promptVersion: 'dripwell-rules-v2.1', result: jsonValue(result),
     usage: { inputTokens: 0, outputTokens: 0, costCents: 0 }, startedAt: now, completedAt: now,
   } });

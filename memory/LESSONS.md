@@ -34,7 +34,8 @@ Task: TASK-010
 What went wrong: Adding `MODIFIED` to RecommendationStatus broke approve, override, and get-pending queries because they all filtered for `status: 'PENDING'` only. After a provider modified a recommendation, they could no longer approve it.
 Root cause: The Coder added a new status without tracing every query that filters by status to see if the new state should be included.
 Avoid by: When adding a new enum value to a status or state field, always grep the codebase for every query that filters by that field. Update them to include the new state if it is part of the normal workflow.
-Seen N times: 1
+Recurrence: TASK-021, 2026-10-02. Deterministic generation wrote `COMPLETED`, while the result route and polling client recognized `COMPLETE`/`complete`. Trace string status writers/readers as well as enums, use a canonical new-write value, and normalize historical success aliases without rewriting persisted results or treating unfinished jobs as complete.
+Seen N times: 2
 
 ## L-014 — AI-generated flag not propagated through bulk import paths
 Date: 2026-04-23
