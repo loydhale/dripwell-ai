@@ -72,7 +72,7 @@ export const POST = apiRoute(
     const lockKey = `${actor.tenantId}:${createHash('sha256').update(key).digest('hex')}`;
     const prepared = await db.$transaction(async (tx) => {
       // Serialize only creation. Model work happens outside this transaction.
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`;
       const existing = await tx.generationJob.findUnique({
         where: {
           tenantId_idempotencyKey: { tenantId: actor.tenantId, idempotencyKey: key },

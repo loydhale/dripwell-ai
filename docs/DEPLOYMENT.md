@@ -59,3 +59,11 @@ Use Stripe test mode to verify checkout, positive invoice activation, duplicate 
 ## Real client data
 
 `ALLOW_REAL_CLIENT_DATA` remains false until the clinic's required service agreements and the deployed data paths have been reviewed, including inference, transcription, Workflow persistence, eve sessions, private storage, retention, backups, and support access. Set it through trusted deployment configuration only after that review. The sharing reminder accompanies access controls and does not constitute a compliance certification.
+
+## Hosted preview, 2026-10-02
+
+The protected preview is https://dripwell-ai-preview-loyd-1222s-projects.vercel.app, deployment `dpl_2WVRZQRDFQaYq9Gtu3b4NWCn3GJk`, in the dedicated `dripwell-ai` project on `loyd-1222s-projects`. Vercel reports READY. Its isolated Neon PostgreSQL 18.6 database and private Blob store connect to preview/development only. All 10 reviewed migrations and their Prisma checksums/schema inventory passed independent verification. Next.js and eve remote builds, including sandbox initialization, passed. Hosted runtime checks are recorded separately by the deployment Auditor.
+
+The team currently has the Hobby plan. Vercel rejected the authored 15-minute schedule for both production and preview. For this preview, a private staging archive of reviewed commit `d4239d5` differs only in `apps/web/vercel.json`, where `crons=[]`; the Auditor checked all 293 tracked files against the exact commit. The original repository retains `*/15 * * * *`. A CLI `--local-config` override alone did not remove the authored schedule from the composed build output, so this isolated staged configuration was necessary. Preview environments do not run production cron schedules. Upgrade the team to Pro before deploying the original complete configuration.
+
+Deployment protection remains enabled, and `ALLOW_REAL_CLIENT_DATA=false`. The Stripe Marketplace integration requires account-owner acceptance of its terms. Resend requires an owner-controlled sending domain and verified sender. The actual recurring platform subscription price must be configured rather than invented; the referral credit policy remains explicitly unset until the platform operator publishes its terms. These are release gates, not completed live provider tests. No production promotion or Git connection to the old main branch has occurred.

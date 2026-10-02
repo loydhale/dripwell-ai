@@ -294,7 +294,7 @@ export async function platformOverview() {
 
 export async function setReferralPolicy(userId: string, policy: ReferralPolicy | null) {
   return getDb().$transaction(async (tx) => {
-    await tx.$queryRaw`SELECT pg_advisory_xact_lock(735918223)`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(735918223)`;
     const existing = await tx.platformPolicy.findUnique({ where: { id: 'global' } });
     const previous = referralPolicySchema.safeParse(existing?.referralPolicy);
     const history = await tx.$queryRaw<Array<{ version: number }>>`

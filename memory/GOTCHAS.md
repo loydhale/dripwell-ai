@@ -73,3 +73,19 @@ The gotcha: `createRequire(import.meta.url).resolve('geist/font/sans')` passed d
 Why it's like this: Framework bundling changes module identity and resolution; a resolved module path is not necessarily a physical filesystem path.
 What to do: Resolve these installed font assets from the known application root, include them in the actual API routes' output-file traces, and verify a real Next PDF download plus the optimized build artifacts.
 What NOT to do: Do not claim asset-dependent routes work in Next solely because node unit or integration tests pass.
+
+## G-007 — Preview assembly still validates production cron configuration
+Date discovered: 2026-10-02
+Where: Vercel Hobby plan, apps/web/vercel.json and eve 0.69.0 Build Output composition
+The gotcha: A 15-minute cron rejects even an explicit preview deployment on Hobby. A private CLI local-config override did not remove the nested authored cron from the final assembled output.
+Why it's like this: The framework preserves authored Next application cron entries when composing its service output, and the platform validates the resulting schedule during deployment.
+What to do: For an isolated synthetic preview, stage an exact reviewed source archive with only crons empty, compare every tracked file with Git blobs, retain protection and the real-data gate, and explicitly target preview. Use a supported plan for the required production cadence.
+What NOT to do: Do not silently weaken the repository's production schedule or claim preview reminders run when its scheduler is omitted.
+
+## G-008 — Native Node provider fetches need this workspace's HTTP proxy
+Date discovered: 2026-10-02
+Where: managed coding environment, Node 24 provider SDK verification
+The gotcha: The environment provides HTTP/HTTPS proxy variables, but ordinary Node fetch did not use them. Blob SDK uploads and reads timed out even while the Vercel CLI and Python HTTPS requests worked.
+Why it's like this: These clients use different proxy defaults. This is a coding-environment transport issue, separate from hosted provider readiness.
+What to do: Run local Node provider checks with Node 24 --use-env-proxy, retain the configured certificate trust, use bounded requests and compensate synthetic writes. Confirm exact authenticated bytes and anonymous denial.
+What NOT to do: Do not disable TLS verification or change deployed application code to accommodate a local proxy default.

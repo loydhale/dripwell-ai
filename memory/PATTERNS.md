@@ -92,3 +92,10 @@ Where in codebase: apps/web/app/api/setup/route.ts, apps/web/agent/channels/eve.
 The pattern: Persist the validated tenant, owner, location and agent session binding when creating a conversation. Recheck that exact binding on continuation, tools and approved memory recall; older unbound conversations remain unavailable instead of inheriting a default location.
 When to use: Multi-location durable setup assistants and private agent sessions.
 Example: The actual PostgreSQL setup-scope suite uses a selected second location and rejects foreign, mismatched, legacy unbound and deactivated-owner contexts.
+
+## P-011 — Reviewed preview adaptation has an exact source manifest
+Date: 2026-10-02
+Where in codebase: docs/AUDIT_DEPLOYMENT.md, external isolated preview stage
+The pattern: Compare every staged tracked file directly against the selected Git commit, allow only the documented preview configuration difference, and exclude credentials from the upload. Apply exact migrations to an isolated database and separately compare schema plus migration checksums before hosted verification.
+When to use: A platform-plan limitation requires an isolated synthetic preview adaptation without changing approved production behavior.
+Example: The d4239d5 stage compared 293 tracked files, changed only apps/web/vercel.json crons, added only the nonsecret Vercel project link and contained zero environment files.

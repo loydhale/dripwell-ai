@@ -199,3 +199,11 @@ What went wrong: Discard could delete a predicted private Blob pathname and clea
 Root cause: Database state transitions and external storage operations were treated as one atomic cancellation, although object creation can finish after the discard transaction and deletion.
 Avoid by: Prevent discard until upload completion or compensate rejected upload completion with deletion of the returned pathname, preserving a durable cleanup pointer when external deletion fails. Exercise the deferred upload/discard ordering in a regression test.
 Seen N times: 1
+
+## L-023 — PostgreSQL void results cannot be decoded by Prisma queryRaw
+Date: 2026-10-02
+Task: V2-HOSTED-PREVIEW
+What went wrong: Hosted owner setup failed before model execution because an advisory-lock SELECT returned PostgreSQL void through Prisma queryRaw. Referral-policy publication contained the same query shape.
+Root cause: Existing integration checks covered setup scoping but did not execute the HTTP setup preflight's actual lock acquisition.
+Avoid by: Acquire transaction advisory locks through a supported non-result operation or a supported typed result, and test the actual business operation against PostgreSQL. A successful build or healthy eve transport does not exercise that preflight.
+Seen N times: 1
