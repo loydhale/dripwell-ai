@@ -5,7 +5,7 @@ Task: TASK-025
 Reviewed baseline: `dc977548c5d3e402de9a80bfa4681a2ec9829b5d`, unchanged implementation from `5307fda`.
 PRD: F-03, F-09, section 8 criterion 2.
 
-Current result: TASK-026 active-duration repair, TASK-029 attempt 2 navigation/visible-feedback repair and parent TASK-025 attempt 3 scoped recording controls have independent PASS. This is native synthetic-device capture with an intercepted upload boundary, not live provider transcription or full pilot completion. Fresh published-source CI and exact-stage protected deployment remain required.
+Current result: TASK-026 active-duration repair, TASK-029 attempt 2 navigation/visible-feedback repair and parent TASK-025 attempt 3 scoped recording controls have independent PASS. This is native synthetic-device capture with an intercepted upload boundary, not live provider transcription or full pilot completion. TASK-027's exact reviewed recording source is published, passed fresh 93-check CI and is independently verified in the protected preview below. TASK-028 actual local durable reminders remains queued.
 
 ## Evidence boundary and feasibility
 
@@ -166,3 +166,45 @@ PATTERN_VIOLATIONS: none
 GOTCHA_HITS: G-001
 PRD_AUDIT: pass, no scope change
 LEARNING: L-028, L-029, L-030 and P-014 retained; no additional learning
+
+## TASK-027, exact source and pre-deployment gates
+
+The complete 18-file publication checkpoint was independently co-signed and frozen at parent `dc977548c5d3e402de9a80bfa4681a2ec9829b5d`, including path, Git mode and SHA-256 for every changed file. The four application/test hashes remained identical to the source reviewed above. A closing learning/checkpoint entry preceded the freeze. Published commit `b61f6aa0f7fa3ca5fa85540bcd1051db87cd4cd7`, tree `87fb50c24aeca9f6c66cb333617c2e693b7e2937`, independently matches exactly that 18-file artifact and parent. The prepared PR body was separately co-signed; all eight evidence blob URLs resolve to existing files in that immutable commit. It preserves the source-versus-deployed and synthetic-versus-provider distinctions.
+
+Independent GitHub API run/job metadata and the actual run-log archive confirm [CI 37029651774](https://github.com/loydhale/dripwell-ai/actions/runs/37029651774) completed successfully at this exact source, attempt 1, job completion 2026-10-02 15:51:23 UTC. All 93 checks executed with no skips: 23 domain, 8 authentication, 15 clinic, 11 AI-boundary and 36 Vitest cases. The new recording-clock file executed all six cases. Frozen installation, all ten disposable CI migrations, types and both builds passed. This CI's standalone native guard reports one Eve runtime bundle; the new assembled remote deployment's guard still needs direct inspection. The retained earlier hosted two-bundle proof is not substituted for that new build.
+
+Every staged tracked file was independently compared directly with immutable Git blobs, including actual filesystem mode and symlink handling. All 317 tracked blobs passed, all mode `100644`, with zero symlinks. The former deployed source had 308 files, the later documentation parent has 309, and eight new files yield the actual 317 count. The sole semantic tracked difference is `apps/web/vercel.json` with `crons=[]`; its source `*/15 * * * *` schedule is retained unchanged. The only extra file is a byte-identical `.vercel/project.json` containing just the selected nonsecret project/team/name. Private environment/build/dependency/fixture files were absent, and credential-pattern scanning found no hits. A private manifest retains every compared path/blob/mode/hash and the approved adaptation.
+
+These two pre-deployment gates are PASS. Actual protected READY deployment, current source/tree metadata, stable alias, new remote assembled build/native guard and bounded relevant hosted reads with unchanged safety/data state remain required. No new fixture, rebuild, provider operation, hosted clinical write or migration was started by this review. The full pilot and local durable reminder proof remain open.
+
+## TASK-027, actual protected deployment and bounded runtime proof
+
+Deployment `dpl_232QhM74EuWYYnq1vSfAEaqNDo57` is actually READY at `https://dripwell-ledfgwl3i-loyd-1222s-projects.vercel.app`. Independent Vercel API metadata confirms `reviewedSourceCommit=b61f6aa0f7fa3ca5fa85540bcd1051db87cd4cd7`, `reviewedSourceTree=87fb50c24aeca9f6c66cb333617c2e693b7e2937` and preview target `null`. The stable `dripwell-ai-preview-loyd-1222s-projects.vercel.app` alias independently points to that deployment. Project/root remain DripWell and `apps/web`, Node `24.x`, with team OIDC enabled. SSO protection remains `all_except_custom_domains`; the actual unique preview's anonymous response below proves its enforcement.
+
+The actual normal remote build log runs from 16:00:17 through 16:01:33 UTC. Next/Eve compilation passed, default Sandbox initialization both started and completed for one template, and the assembled native guard verified two physical Eve runtime bundles. This differs from the separately recorded one-bundle standalone CI guard. The CLI downloaded 315 deployment files, a transport count separate from the 317 tracked stage blobs compared with Git. No local-prebuilt substitution, authored Sandbox bypass or production promotion occurred.
+
+The standard environment-list response correctly reports the gate encrypted with `decrypted=false`, so its ciphertext was not called a boolean. A supported selected-variable GET with decryption confirmed literal `ALLOW_REAL_CLIENT_DATA=false` for preview/development. Secrets and all provider/environment/session evidence remain private outside Git. The app's actual clinic response additionally denies new real starts.
+
+| Bounded actual read | Evidence |
+| --- | --- |
+| Anonymous unique preview root | HTTP 302 to `vercel.com/sso-api`, without a protection bypass. |
+| Retained fictional owner | HTTP 200, exact existing owner identity, private/no-store. |
+| Current clinic | HTTP 200, zero visits, starts disabled, trial limit 10/used 0, stable configured referral host, private/no-store. |
+| Dashboard | HTTP 200, actual DripWell workspace HTML without an application-error response. |
+| Clinic without app authentication | HTTP 401 `UNAUTHENTICATED`, private/no-store. |
+| Existing location-bound Eve stream | HTTP 200 with seven nonempty stream lines, exercising the newly packaged server's authentication/runtime without sending a message or invoking inference. |
+
+An over-specific private harness initially expected the unauthenticated code `UNAUTHORIZED`; the app correctly returned `UNAUTHENTICATED`. Only that assertion was corrected, and the already successful reads were retained rather than repeated. There was no source defect or application edit.
+
+Read-only hosted SQL before and after these current smoke reads preserves both complete retained GenerationJob rows via their matching whole-row digests, status FAILED and null usage. Counts remain zero consultations, zero active configurations and zero trial-usage rows, with allowance 10 and used 0. Both the current pre-smoke and post-smoke snapshots match the retained earlier inventory. No fresh pre-deployment snapshot was taken for TASK-027, so this is an old-retained-baseline comparison plus before/after current reads, not a fabricated before/after deployment measurement.
+
+All owned check processes ended. No hosted fixture or visit was created, no retained clinical record was mutated, no migrations were reapplied, and no model/transcription/email/billing operation, provider switch, purchase or real-data enablement occurred. The earlier 19-case archive/job/role suite was not rerun. Actual hosted recording/transcription/model success, physical devices, recipient delivery, billing/referral conversion, production schedule/retention and the complete two-clinic pilot remain unverified. TASK-028's approved local durable reminder proof remains independently runnable next.
+
+AUDIT: TASK-027
+VERDICT: PASS, exact protected source deployment and bounded reads
+ATTEMPT: 1
+FINDINGS: none in the bounded brief
+PATTERN_VIOLATIONS: none
+GOTCHA_HITS: G-007, preview cron adaptation; G-009, separate native runtime proof
+PRD_AUDIT: pass, no scope change
+LEARNING: no new lesson, pattern or gotcha; P-011/P-012 and existing evidence-boundary guidance apply

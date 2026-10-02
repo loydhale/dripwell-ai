@@ -26,3 +26,5 @@ Auditor owns an append to docs/AUDIT_RECORDING_CONTROLS.md or a dedicated scoped
 4. Evidence, learning, STATE/CHANGELOG and reviewed publication distinguish local synthetic capture from unfinished hosted/provider pilot gates.
 
 2026-10-02 plan co-sign: Auditor PASS for bounded scope and required reviewed-source/CI/protected-stage gates. No PRD change.
+
+2026-10-02 execution: independent Auditor PASS attempt1 at reviewed source b61f6aa/tree87fb50c. Exact18-file artifact,317-file stage and actual93-check CI passed. Normal remote preview dpl_232QhM74EuWYYnq1vSfAEaqNDo57 is READY at the stable alias, with exact metadata, default Sandbox initialization, two native bundles, literalfalse gate/protection and six targeted HTTP cases passing. Retained FAILED/null-usage job digests and zero clinical/configuration/trial-use counts are unchanged; no provider request, hosted clinical write or migration occurred. See docs/AUDIT_RECORDING_CONTROLS.md. Existing learning applies; no new lesson/pattern/gotcha. The full pilot remains open, and independently runnable TASK-028 is next.
