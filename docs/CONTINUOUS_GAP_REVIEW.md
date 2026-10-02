@@ -69,3 +69,16 @@ FINDINGS: two baseline source gaps routed as TASK-020/TASK-021; no unsupported f
 PATTERN_VIOLATIONS: successful status writer/reader mismatch relates to L-013; no reviewed loop authority expansion.
 GOTCHA_HITS: G-005 pinned tooling, G-009 independently deployed bundles, G-010 runtime account entitlement.
 PRD_AUDIT: pass for review and corrected continuation documentation, no PRD change.
+
+## Post-baseline checkpoint, 2026-10-02
+
+The matrix above preserves TASK-019's original reviewed baseline. Subsequent evidence supersedes its unblocked repair/proposal items:
+
+- TASK-020 fixed retained archive search/pagination and restore; independent actual-PG and optimized-browser checks include a 500-day-old record beyond 250, tied ordering, retry/stale response handling and unchanged reporting denominators.
+- TASK-021 fixed saved successful job responses without rewriting historical statuses or changing tenant-wide location authority. Six actual-handler/poller cases passed, including nonresults and denial boundaries.
+- TASK-022 independently verified the complete local owner proposal/test/activation/rollback lifecycle, preserving both historical visits and their approved artifacts/prices byte for byte. Role/MFA/clinical denials passed with zero provider calls. This completes criterion 6's integrated local proof; the combined hosted provider story remains open.
+- TASK-024 repaired an explicit disposable-database guard that initially rejected the documented CI target. Fresh CI at `5307fdafd49aea4ddc7a884b9d6e1e03881ef886` passed all 87 checks, zero skips, isolated migrations, types and both builds. The failed earlier stage was not deployed.
+- TASK-023's independently compared 308-file stage is deployed to the protected READY preview at that source. Independent build/alias/source/tree and all 19 bounded HTTP cases passed, leaving both failed jobs, null usage and zero clinical/configuration/trial-use counts unchanged. Successful result aliases and populated archive paging are actual-PG/browser/CI proofs, not fabricated hosted successes. This update does not establish the full recording/transcription/model/email/billing/scheduler pilot.
+- The first scheduled continuation arrived during this active pass. The actual running workers and available managed runtime were reconciled, and the same work continued without overlap. The initial `last_run_time:null` observation above is historical, not a claim about current deliveries.
+
+No new feature scope, spending, provider substitution, partner submission, clinical data or external message was introduced. When no changed external dependency or approved independent task remains, retain `WAITING_ON_DEPENDENCIES`, continuous mode ON and the enabled hourly continuation. Completion remains unverified under PRD section 8.
