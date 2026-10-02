@@ -186,6 +186,102 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
     assert.equal(await getDb().notification.count({ where: { consultationId: visit.id, dismissedAt: null } }), 1);
   });
 
+  it('searches and paginates every retained archive record beyond 250 without changing reporting totals', async () => {
+    const archive = await fixture();
+    const db = getDb();
+    const recentAt = new Date(Date.now() - 86400000);
+    const oldAt = new Date(Date.now() - 500 * 86400000);
+    const oldestId = randomUUID();
+    const rows = Array.from({ length: 251 }, (_, index) => ({
+      id: index === 0 ? oldestId : randomUUID(), tenantId: archive.owner.tenantId,
+      locationId: archive.locationId, providerId: index === 0 ? archive.owner.userId : archive.staff.userId,
+      configurationVersionId: archive.configurationId,
+      reference: index === 0 ? 'ARCHIVE-NEEDLE-500-DAYS' : `ARCHIVE-RECENT-${index}`,
+      idempotencyKey: randomUUID(), summary: JSON.parse(JSON.stringify(emptyConsultationSummary())),
+      archivedAt: new Date(), archiveReason: 'Synthetic retained fixture',
+      stage: 'WELLNESS_RECOMMENDATION_TBD' as const,
+      createdAt: index === 0 ? oldAt : recentAt, updatedAt: index === 0 ? oldAt : recentAt,
+    }));
+    await db.consultation.createMany({ data: rows });
+    const period = { from: new Date(Date.now() - 7 * 86400000).toISOString(), to: new Date().toISOString() };
+    const first = await getClinicDashboard(archive.staff, { archived: true, ...period });
+    assert.equal(first.consultationCount, 251);
+    assert.equal(first.consultations.length, 50);
+    assert.equal(first.metrics.denominator, 250);
+    assert.equal(first.metrics.carePending, 250);
+    const expectedIds = [...rows].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime()
+      || right.id.localeCompare(left.id)).map(row => row.id);
+    const foundIds = first.consultations.map(item => item.id);
+    let cursor = first.consultationPagination.nextCursor;
+    while (cursor) {
+      const page = await getClinicDashboard(archive.staff, { archived: true, cursor, ...period });
+      assert.ok(page.consultations.length <= 50);
+      assert.equal(page.metrics.denominator, 250);
+      assert.equal(page.consultationCount, 251);
+      foundIds.push(...page.consultations.map(item => item.id));
+      cursor = page.consultationPagination.nextCursor;
+    }
+    assert.deepEqual(foundIds, expectedIds);
+    assert.equal(new Set(foundIds).size, 251);
+    const search = await getClinicDashboard(archive.staff, { archived: true, search: 'needle-500', ...period });
+    assert.deepEqual(search.consultations.map(item => item.id), [oldestId]);
+    assert.equal(search.consultationCount, 1);
+    assert.equal(search.consultationPagination.nextCursor, null);
+    assert.equal(search.metrics.denominator, 250);
+    const staffSearch = await getClinicDashboard(archive.staff, { archived: true, search: 'test owner', ...period });
+    assert.deepEqual(staffSearch.consultations.map(item => item.id), [oldestId]);
+    const found = await getConsultation(archive.staff, search.consultations[0]!.id);
+    await mutateClinicAction(archive.staff, { action: 'consultation.restore', consultationId: found.consultation.id,
+      expectedVersion: found.consultation.version });
+    const restored = (await getConsultation(archive.staff, oldestId)).consultation;
+    assert.equal(restored.archivedAt, null);
+    assert.equal(restored.stage, 'WELLNESS_RECOMMENDATION_TBD');
+    const restoreEvent = await db.consultationEvent.findFirstOrThrow({ where: {
+      tenantId: archive.owner.tenantId, consultationId: oldestId, action: 'consultation.restore' } });
+    assert.equal(restoreEvent.userId, archive.staff.userId);
+    assert.deepEqual(restoreEvent.after, { archivedAt: null, stage: 'WELLNESS_RECOMMENDATION_TBD' });
+    const afterRestore = await getClinicDashboard(archive.staff, { archived: true, search: 'needle-500', ...period });
+    assert.equal(afterRestore.consultationCount, 0);
+    assert.equal(afterRestore.metrics.denominator, 250);
+  });
+
+  it('validates archive paging input and rejects cursors outside the current tenant, location or filter', async () => {
+    const archive = await fixture();
+    const foreign = await fixture();
+    const localVisit = await start(archive);
+    const foreignVisit = await start(foreign);
+    await mutate(archive, localVisit.id, 'consultation.archive', { reasonNote: 'Synthetic scoped archive' });
+    await mutate(foreign, foreignVisit.id, 'consultation.archive', { reasonNote: 'Synthetic foreign archive' });
+    const db = getDb();
+    const anotherLocation = await db.location.create({ data: { tenantId: archive.owner.tenantId, name: 'Second synthetic location' } });
+    const anotherConfig = await db.clinicConfigurationVersion.create({ data: {
+      tenantId: archive.owner.tenantId, locationId: anotherLocation.id, version: 1, status: 'ACTIVE',
+      payload: JSON.parse(JSON.stringify(syntheticConfiguration)), userId: archive.owner.userId, source: 'Scope fixture only' } });
+    const anotherVisit = await db.consultation.create({ data: {
+      tenantId: archive.owner.tenantId, locationId: anotherLocation.id, providerId: archive.owner.userId,
+      configurationVersionId: anotherConfig.id, reference: 'FOREIGN-LOCATION-ARCHIVE', idempotencyKey: randomUUID(),
+      summary: JSON.parse(JSON.stringify(emptyConsultationSummary())), archivedAt: new Date() } });
+    for (const cursor of [foreignVisit.id, anotherVisit.id, randomUUID()]) {
+      await assert.rejects(getClinicDashboard(archive.staff, { archived: true, cursor }),
+        (error: unknown) => error instanceof ApiError && error.code === 'INVALID_CURSOR');
+    }
+    await assert.rejects(getClinicDashboard(archive.staff, { archived: true, cursor: localVisit.id, search: 'no-matching-reference' }),
+      (error: unknown) => error instanceof ApiError && error.code === 'INVALID_CURSOR');
+    await assert.rejects(getClinicDashboard(archive.staff, { archived: true, locationId: foreign.locationId }),
+      (error: unknown) => error instanceof ApiError && error.status === 404);
+    const foreignSearch = await getClinicDashboard(archive.staff, { archived: true, search: foreignVisit.reference });
+    assert.equal(foreignSearch.consultations.length, 0);
+    assert.equal(foreignSearch.consultationCount, 0);
+    const explicitLocation = await getClinicDashboard(archive.staff, { archived: true, locationId: anotherLocation.id });
+    assert.deepEqual(explicitLocation.consultations.map(item => item.id), [anotherVisit.id]);
+    for (const options of [{ pageSize: 0 }, { pageSize: 101 }, { pageSize: 1.5 }, { search: 'x'.repeat(101) }, { cursor: 'invalid' }]) {
+      await assert.rejects(getClinicDashboard(archive.staff, { archived: true, ...options }));
+    }
+    await assert.rejects(getClinicDashboard(archive.staff, { archived: true,
+      from: new Date(Date.now() - 500 * 86400000).toISOString(), to: new Date().toISOString() }),
+      (error: unknown) => error instanceof ApiError && error.code === 'INVALID_DATE_RANGE');
+  });
+
   it('rejects guessed cross-tenant visit, configuration, location and notification IDs', async () => {
     const other = await fixture();
     const visit = await getDb().consultation.findFirstOrThrow({ where: { tenantId: f.owner.tenantId } });

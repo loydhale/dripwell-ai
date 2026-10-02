@@ -274,6 +274,7 @@ export type ClinicDashboard = {
   locations: { id: string; name: string; address: string | null; phone: string | null }[];
   configuration: { draft: ConfigurationView | null; active: ConfigurationView | null; versions: ConfigurationView[] };
   consultations: ConsultationView[]; consultationCount: number; notifications: unknown[];
+  consultationPagination: { nextCursor: string | null; pageSize: number };
   metrics: ClinicMetrics; improvements: unknown[]; adjustments: unknown[];
   staff: { id: string; name: string; email: string; role: string; isActive: boolean; canApproveClinical: boolean }[];
   trial: { status: string; activatedAt: string | null; endsAt: string | null; used: number; limit: number;
@@ -291,23 +292,51 @@ function dateRange(input: { from?: string | null; to?: string | null }) {
   return { from, to };
 }
 
-export async function getClinicDashboard(actor: ClinicActor, options: {
-  locationId?: string | null; archived?: boolean; from?: string | null; to?: string | null;
-} = {}): Promise<ClinicDashboard> {
+export const clinicDashboardQuerySchema = z.object({
+  locationId: uuid.nullish(), archived: z.boolean().default(false),
+  from: z.string().max(100).nullish(), to: z.string().max(100).nullish(),
+  search: z.string().trim().max(100).default(''), cursor: uuid.nullish(),
+  pageSize: z.number().int().min(1).max(100).default(50),
+});
+
+export async function getClinicDashboard(actor: ClinicActor, input: z.input<typeof clinicDashboardQuerySchema> = {}): Promise<ClinicDashboard> {
+  const options = clinicDashboardQuerySchema.parse(input);
   return transaction(actor, async (tx, currentActor) => {
     const locations = await tx.location.findMany({ where: { tenantId: currentActor.tenantId, isActive: true }, orderBy: { createdAt: 'asc' } });
     const locationId = options.locationId ?? currentActor.locationId ?? locations[0]?.id;
     if (!locationId || !locations.some(item => item.id === locationId)) throw new ApiError(404, 'Clinic location was not found.', 'LOCATION_NOT_FOUND');
     const period = dateRange(options);
     const periodWhere = { tenantId: currentActor.tenantId, locationId, isTest: false, createdAt: { gte: period.from, lt: period.to } };
-    const boardWhere = { tenantId: currentActor.tenantId, locationId, isTest: false,
-      archivedAt: options.archived ? { not: null } : null };
+    // Archive browsing covers all retained dates; reporting remains scoped to the selected period.
+    const searchText = options.search.replace(/[\\%_]/g, '\\$&');
+    const boardWhere: Prisma.ConsultationWhereInput = {
+      tenantId: currentActor.tenantId, locationId, isTest: false,
+      archivedAt: options.archived ? { not: null } : null,
+      ...(!options.archived ? { createdAt: { gte: period.from, lt: period.to } } : {}),
+      ...(searchText ? { OR: [
+        { reference: { contains: searchText, mode: 'insensitive' } },
+        { provider: { AND: searchText.split(/\s+/).map(word => ({ OR: [
+          { firstName: { contains: word, mode: 'insensitive' as const } },
+          { lastName: { contains: word, mode: 'insensitive' as const } },
+        ] })) } },
+      ] } : {}),
+    };
+    const anchor = options.cursor ? await tx.consultation.findFirst({
+      where: { AND: [boardWhere, { id: options.cursor }] }, select: { id: true, createdAt: true },
+    }) : null;
+    if (options.cursor && !anchor) throw new ApiError(400, 'This page is no longer available. Refresh your search.', 'INVALID_CURSOR');
+    // Immutable creation time plus the unique ID keeps equal timestamps on deterministic pages.
+    const pageWhere: Prisma.ConsultationWhereInput = anchor ? { AND: [boardWhere, { OR: [
+      { createdAt: { lt: anchor.createdAt } },
+      { createdAt: anchor.createdAt, id: { lt: anchor.id } },
+    ] }] } : boardWhere;
     const isOwner = currentActor.role === 'SUPER_USER';
     const [versions, visits, consultationCount, notifications, careGroups, decisionGroups, denominator, outcomes,
       adjustmentCount, overdue, subscription, staff, proposals, changes, tenant, referralCount, convertedCount, credits] = await Promise.all([
       tx.clinicConfigurationVersion.findMany({ where: { tenantId: currentActor.tenantId, locationId,
         ...(!isOwner ? { status: 'ACTIVE' as const } : {}) }, orderBy: { version: 'desc' }, take: 100 }),
-      tx.consultation.findMany({ where: boardWhere, include: consultationInclude, orderBy: { updatedAt: 'desc' }, take: 250 }),
+      tx.consultation.findMany({ where: pageWhere, include: consultationInclude,
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: options.pageSize + 1 }),
       tx.consultation.count({ where: boardWhere }),
       tx.notification.findMany({ where: { tenantId: currentActor.tenantId, dismissedAt: null,
         OR: [{ userId: currentActor.userId }, { userId: null }] }, orderBy: { createdAt: 'desc' }, take: 100 }),
@@ -355,7 +384,9 @@ export async function getClinicDashboard(actor: ClinicActor, options: {
       locations: locations.map(item => ({ id: item.id, name: item.name, address: item.address, phone: item.phone })),
       configuration: { draft: configurations.find(item => item.status === 'DRAFT' || item.status === 'TESTED') ?? null,
         active: configurations.find(item => item.status === 'ACTIVE') ?? null, versions: configurations },
-      consultations: visits.map(consultationView), consultationCount,
+      consultations: visits.slice(0, options.pageSize).map(consultationView), consultationCount,
+      consultationPagination: { pageSize: options.pageSize,
+        nextCursor: visits.length > options.pageSize ? visits[options.pageSize - 1]!.id : null },
       notifications: JSON.parse(JSON.stringify(notifications)),
       metrics: { from: period.from.toISOString(), to: period.to.toISOString(), denominator, consultations: denominator,
         careStarted: careCount('STARTED'), careNotStarted: careCount('NOT_STARTED'), carePending: careCount('PENDING'),

@@ -106,3 +106,10 @@ Where in codebase: apps/web/agent/agent.ts, apps/web/scripts/verify-eve-prisma-o
 The pattern: Use the installed framework's supported external-dependency tracing, generate the deployment runtime's native engine, and fail the build if package or engine resolution leaves a physical function bundle. Validate each packaged client with its own engine against isolated PostgreSQL, and prove the guard rejects an artifact with the engine removed.
 When to use: Agent or workflow service bundles use a native dependency independently of the Next.js service.
 Example: Both Node 24 eve server and workflow bundles passed real Prisma queries with their bundled RHEL engine; an external missing-engine copy failed validation.
+
+## P-013 — Separate retained archive paging from reporting dates
+Date: 2026-10-02
+Where in codebase: apps/web/lib/clinic.ts, apps/web/components/clinic-context.tsx, apps/web/components/dashboard.tsx
+The pattern: Validate bounded server-backed search and keyset pages under the current tenant/location/filter, ordered by immutable creation time plus unique ID. Archive browsing includes every retained age while historical metrics keep their own date predicates. New client filter requests invalidate stale responses; page failure preserves loaded records.
+When to use: Retained-record search and pagination that must coexist with period-based outcome dashboards.
+Example: TASK-020 actual PostgreSQL walks 251 tied-time records, finds/restores a 500-day-old visit and retains metric denominators; browser failure/retry and stale-response checks pass.

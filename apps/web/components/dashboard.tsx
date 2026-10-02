@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { consultationStages } from '@dripwell/shared/v2';
 import { useClinic, locationHref, stageLabels, stageTones } from './clinic-context';
 import { Badge, EmptyState, ErrorBanner, Icon, Modal, friendlyDate } from './ui';
 
 export function Dashboard() {
-  const { data, mutate, refresh, locationId } = useClinic();
+  const { data, mutate, refresh, loadMore, loading, pageError, locationId } = useClinic();
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [archiveView, setArchiveView] = useState(false);
@@ -21,26 +21,18 @@ export function Dashboard() {
   const [error, setError] = useState('');
   const [startKey, setStartKey] = useState('');
   useEffect(() => {
-    const end = new Date();
-    void refresh({
-      archived: archiveView,
-      from: new Date(end.getTime() - Number(dateRange) * 86400000).toISOString(),
-      to: end.toISOString(),
-    });
-  }, [archiveView, dateRange, refresh]);
-  const consultations = useMemo(() => {
-    if (!data) return [];
-    const cutoff = dateRange === 'all' ? 0 : Date.now() - Number(dateRange) * 86400000;
-    return data.consultations.filter(
-      (item) => !item.isTest && new Date(item.createdAt).getTime() >= cutoff,
-    );
-  }, [data, dateRange]);
+    const timer = setTimeout(() => {
+      const end = new Date();
+      void refresh({
+        archived: archiveView, search: search.trim(),
+        from: new Date(end.getTime() - Number(dateRange) * 86400000).toISOString(),
+        to: end.toISOString(),
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [archiveView, dateRange, search, refresh]);
   if (!data) return null;
-  const visible = consultations.filter(
-    (item) =>
-      Boolean(item.archivedAt) === archiveView &&
-      `${item.reference} ${item.providerName || ''}`.toLowerCase().includes(search.toLowerCase()),
-  );
+  const visible = data.consultations.filter(item => Boolean(item.archivedAt) === archiveView);
   const started = data.metrics.careStarted;
   const accepted = data.metrics.wellnessAccepted;
   const missing = data.metrics.overdue;
@@ -196,6 +188,7 @@ export function Dashboard() {
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search visit or staff"
               aria-label="Search visit or staff"
+              maxLength={100}
             />
           </label>
           <select
@@ -211,11 +204,16 @@ export function Dashboard() {
         </div>
       </div>
       <p className="board-help">
-        Board shows the latest 250 visits. Historical metrics include archived visits. Stages update
-        when recommendations are saved. Your team records the client&apos;s wellness decision. Care
-        starts and sales are tracked separately.
+        {archiveView
+          ? 'Archive includes all retained dates. The date range above only changes reporting totals.'
+          : 'Active visits use the selected date range.'}{' '}
+        Historical metrics include archived visits. Stages update when recommendations are saved.
+        Your team records the client&apos;s wellness decision. Care starts and sales are tracked separately.
       </p>
-      <div className="kanban" aria-label="Consultation stages">
+      <p className="muted" role="status" aria-live="polite">
+        {loading ? 'Loading visits…' : `Showing ${visible.length} of ${data.consultationCount} matching visits`}
+      </p>
+      <div className="kanban" aria-label="Consultation stages" aria-busy={loading}>
         {consultationStages.map((stage, index) => {
           const cards = visible.filter((item) => item.stage === stage);
           return (
@@ -302,7 +300,20 @@ export function Dashboard() {
           );
         })}
       </div>
-      {!consultations.length && data.configuration.active ? (
+      {pageError ? <ErrorBanner message={pageError} retry={() => void loadMore()} /> : null}
+      {data.consultationPagination.nextCursor ? (
+        <button className="button button-ghost" onClick={() => void loadMore()} disabled={loading}>
+          {loading ? 'Loading…' : 'Load more visits'}
+        </button>
+      ) : null}
+      {!loading && !visible.length && (archiveView || search.trim()) ? (
+        <EmptyState icon={archiveView ? 'archive' : 'search'} title="No matching visits.">
+          {search.trim()
+            ? 'Try a different visit reference or staff name.'
+            : 'Archived visits will appear here, including older retained visits.'}
+        </EmptyState>
+      ) : null}
+      {!loading && !archiveView && !search.trim() && !visible.length && data.configuration.active ? (
         <EmptyState
           icon="people"
           title="A great first visit starts with a conversation."

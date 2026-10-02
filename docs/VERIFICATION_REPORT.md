@@ -1,12 +1,22 @@
 # DripWell v2 verification evidence
 
-Date: 2026-10-01. Branch: `feat/dripwell-consultation-v2`.
+Updated: 2026-10-02. Branch: `feat/dripwell-consultation-v2`.
 
 Verification uses an isolated PostgreSQL 17 database and an explicitly fictional clinic. No patient data, real treatment, customer purchase, or live provider charge was used. Test environment bindings and authenticator material remain outside the repository.
 
+## Current evidence, 2026-10-02
+
+Reviewed deployed source `90b0565ebdcc7759dacbf84586c6c7b67a461f17` passed [fresh CI](https://github.com/loydhale/dripwell-ai/actions/runs/36950177151), including 79 checks, all 10 migrations, types and both builds. The protected Vercel preview is READY, with isolated Neon PostgreSQL and private Blob connected to preview/development. Actual hosted registration/session/database, role gates, private Blob, mobile layout and authenticated Eve/Workflow transport passed; exact evidence is in [AUDIT_DEPLOYMENT.md](AUDIT_DEPLOYMENT.md).
+
+Actual hosted model inference remains blocked by Gateway account entitlement: HTTP403 for the configured model, no provider attempt and no completed response. Stripe account terms, a verified Resend sender/domain, platform price/referral terms, supported production scheduling, selected platform administrator/MFA and the full live synthetic story remain open. The Owner prefers supported ChatGPT subscription use; [current SIWC eligibility and limitations](CHATGPT_PLAN_ASSESSMENT.md) are recorded. Protection and `ALLOW_REAL_CLIENT_DATA=false` remain enabled.
+
+The Owner enabled continuous work until verified completion. [TASK-019's independent matrix](CONTINUOUS_GAP_REVIEW.md) maps all approved features and pilot criteria; it reproduced inaccessible retained archive records and hidden successful deterministic job results. Their bounded repairs and further owner-lifecycle verification are tracked in [STATE](../memory/STATE.md). The enabled hourly continuation is saved in [the work contract](CONTINUOUS_WORK.md). Neither source implementation nor scheduling establishes full pilot completion.
+
+The sections below preserve the initial 2026-10-01 local evidence. Later account connection and deployment evidence above supersede the initial absence of live bindings.
+
 ## Automated verification
 
-The final canonical `pnpm test` command passed 75 checks with no skips: 23 shared-domain checks, 8 authentication/platform-bootstrap checks, 13 clinic transaction checks, 11 AI extraction/setup/upload-lifecycle checks, and 20 billing/sharing/credit checks. Database checks use real PostgreSQL; Stripe and email transports are fixtures. All 10 additive/baseline migrations applied successfully. Frozen-lock installation, Prisma validation and shared/web TypeScript checks passed.
+On 2026-10-01, the canonical `pnpm test` command passed 75 checks with no skips: 23 shared-domain checks, 8 authentication/platform-bootstrap checks, 13 clinic transaction checks, 11 AI extraction/setup/upload-lifecycle checks, and 20 billing/sharing/credit checks. Database checks use real PostgreSQL; Stripe and email transports are fixtures. All 10 additive/baseline migrations applied successfully. Frozen-lock installation, Prisma validation and shared/web TypeScript checks passed.
 
 The optimized Next.js 16.3.8 Turbopack build passed, including TypeScript and static page generation. `next start` became ready in 110 ms. Both takeaway and recipient-document function traces include Geist Regular and Bold font assets. The actual production-mode authenticated PDF response is HTTP 200, `application/pdf`, `%PDF-1.7`, 16,163 bytes, and private/no-store. The separate authored eve 0.69.0 compiler build also passed; live agent execution remains subject to the services below.
 
@@ -31,8 +41,8 @@ The real Next.js application was exercised with Chromium through `agent-browser`
 - Protected clinic responses are private/no-store. A clinic owner receives HTTP 403 from the platform API.
 - The optimized production application preserves the accepted board card after restart, renders its navigation and controls, and reports no browser errors or framework overlay. Secure sharing without connected email delivery gives a clear unavailable message rather than creating a working-looking link.
 
-## Live service boundary
+## Initial live service boundary, 2026-10-01
 
-Vercel's connector lists no accessible teams and its CLI reports logged out. No live database, Blob, Gateway, Stripe, Resend, or Sandbox bindings are available. Source integrations use real SDKs and return explicit unavailable responses; live transcription, conversational setup, email delivery, checkout and production Workflow execution remain unverified. The approved PDF and ordinary clinic flow require no fabricated provider response.
+At the initial local-verification point, Vercel's connector listed no accessible teams and its CLI was logged out; live service bindings were unavailable. Since then the Owner authenticated the CLI and the protected database/storage/agent preview passed the hosted checks listed above. Live transcription, a successful assistant response, recipient email delivery, checkout and the complete production workflow still require their actual service gates. The approved local PDF and ordinary clinic flow used no fabricated provider response.
 
 Follow [deployment guidance](DEPLOYMENT.md) to provision the intended Vercel environment and complete the remaining live checks. Independent audit evidence is recorded in [AUDIT_V2.md](AUDIT_V2.md).

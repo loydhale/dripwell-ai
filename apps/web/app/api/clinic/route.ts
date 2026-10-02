@@ -18,8 +18,14 @@ export const GET = apiRoute(async (request) => {
   }
   const locationId = params.get('locationId');
   if (locationId && !z.string().uuid().safeParse(locationId).success) throw new ApiError(400, 'Location ID is invalid.', 'INVALID_ID');
+  const archived = params.get('archived');
+  if (archived !== null && archived !== 'true' && archived !== 'false') {
+    throw new ApiError(400, 'Archive filter is invalid.', 'VALIDATION_ERROR');
+  }
   return json(await getClinicDashboard(actor, {
-    locationId, archived: params.get('archived') === 'true', from: params.get('from'), to: params.get('to'),
+    locationId, archived: archived === 'true', from: params.get('from'), to: params.get('to'),
+    search: params.get('search') ?? '', cursor: params.get('cursor'),
+    pageSize: params.has('pageSize') ? Number(params.get('pageSize')) : undefined,
   }));
 });
 

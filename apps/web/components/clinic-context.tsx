@@ -125,6 +125,8 @@ export interface ClinicPayload {
     versions: ConfigurationVersion[];
   };
   consultations: ConsultationView[];
+  consultationCount: number;
+  consultationPagination: { nextCursor: string | null; pageSize: number };
   notifications: NotificationView[];
   metrics: {
     from: string;
@@ -211,16 +213,22 @@ export function postJson<T>(path: string, body: unknown) {
   });
 }
 
+type ClinicFilters = {
+  archived?: boolean;
+  from?: string;
+  to?: string;
+  locationId?: string;
+  search?: string;
+  pageSize?: number;
+};
+
 interface ContextValue {
   data: ClinicPayload | null;
   loading: boolean;
   error: string;
-  refresh: (filters?: {
-    archived?: boolean;
-    from?: string;
-    to?: string;
-    locationId?: string;
-  }) => Promise<void>;
+  refresh: (filters?: ClinicFilters) => Promise<void>;
+  loadMore: () => Promise<void>;
+  pageError: string;
   locationId: string;
   selectLocation: (id: string) => Promise<void>;
   captureBusy: boolean;
@@ -236,12 +244,13 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<ClinicPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [pageError, setPageError] = useState('');
   const [locationId, setLocationId] = useState('');
   const [captureBusy, setCaptureBusy] = useState(false);
   const query = useRef('');
   const requestId = useRef(0);
   const refresh = useCallback(
-    async (filters?: { archived?: boolean; from?: string; to?: string; locationId?: string }) => {
+    async (filters?: ClinicFilters) => {
       if (filters) {
         const params = new URLSearchParams(query.current);
         for (const [key, value] of Object.entries(filters))
@@ -249,6 +258,8 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
         query.current = params.toString();
       }
       const thisRequest = ++requestId.current;
+      setLoading(true);
+      setPageError('');
       try {
         const result = await apiRequest<ClinicPayload>(
           `/api/clinic${query.current ? `?${query.current}` : ''}`,
@@ -268,11 +279,39 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
         if (thisRequest === requestId.current)
           setError(cause instanceof Error ? cause.message : 'Unable to load clinic.');
       } finally {
-        setLoading(false);
+        if (thisRequest === requestId.current) setLoading(false);
       }
     },
     [],
   );
+  const loadMore = useCallback(async () => {
+    const cursor = data?.consultationPagination.nextCursor;
+    if (!cursor || loading) return;
+    const params = new URLSearchParams(query.current);
+    params.set('cursor', cursor);
+    const thisRequest = ++requestId.current;
+    setLoading(true);
+    setPageError('');
+    try {
+      const result = await apiRequest<ClinicPayload>(`/api/clinic?${params}`);
+      if (thisRequest === requestId.current) {
+        setData(current => {
+          if (!current) return result;
+          const existingIds = new Set(current.consultations.map(item => item.id));
+          return { ...result, consultations: [
+            ...current.consultations,
+            ...result.consultations.filter(item => !existingIds.has(item.id)),
+          ] };
+        });
+      }
+    } catch (cause) {
+      if (thisRequest === requestId.current) {
+        setPageError(cause instanceof Error ? cause.message : 'Unable to load more visits.');
+      }
+    } finally {
+      if (thisRequest === requestId.current) setLoading(false);
+    }
+  }, [data, loading]);
   useEffect(() => {
     const selected = new URLSearchParams(window.location.search).get('locationId');
     if (selected) {
@@ -310,6 +349,8 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         refresh,
+        loadMore,
+        pageError,
         mutate,
         locationId,
         selectLocation,
