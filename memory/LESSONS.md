@@ -232,3 +232,11 @@ What went wrong: Retained archived consultations outside the latest 250 records 
 Root cause: The search filtered a capped browser snapshot and reused reporting dates for archive accessibility, with no scoped server search or pagination.
 Avoid by: Trace retained-record search from the interface to the actual bounded server query. Verify a record beyond the loaded page and older than report defaults, preserving metric denominators separately from archive access.
 Seen N times: 1
+
+## L-027 — Disposable database guards must include the documented CI target
+Date: 2026-10-02
+Task: TASK-024
+What went wrong: A new actual-PostgreSQL job-result suite passed locally but rejected the existing localhost:5432 CI verification database because its guard accepted only 127.0.0.1:55432.
+Root cause: The safety guard copied one workspace binding without tracing the repository's explicit CI database configuration; local source review did not catch that environment mismatch.
+Avoid by: Read the committed CI environment alongside local verification instructions when adding database-backed regressions. Require an explicit test binding and known disposable database, accept the documented loopback targets, verify rejection before database selection, and require a fresh successful published-head CI instead of generalizing local PASS.
+Seen N times: 1

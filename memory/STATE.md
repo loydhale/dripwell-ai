@@ -10,10 +10,10 @@ CONTINUOUS_MODE: ON
 Started: 2026-10-02T12:09:13Z
 Started by: "Please create a loop so that you don’t stop working on this until it’s down ."
 Execution status: ACTIVE
-Tasks completed this run: 3
+Tasks completed this run: 4
 Consecutive escalations this run: 0
 Consecutive tasks without learning or meaningful changes: 0
-Recurring continuation: ENABLED, `Finish DripWell`, hourly, automation `6abf9f5e25c08191b939bb96222f1f13`. Creation confirmed 2026-10-02T12:11:10Z; no future execution or coding result claimed. See [continuous-work contract](../docs/CONTINUOUS_WORK.md).
+Recurring continuation: ENABLED, `Finish DripWell`, hourly, automation `6abf9f5e25c08191b939bb96222f1f13`. Creation confirmed 2026-10-02T12:11:10Z. A continuation arrived during the active pass on 2026-10-02T13:09Z; actual workers/runtime were reconciled and the same pass continued without duplicate work. See [continuous-work contract](../docs/CONTINUOUS_WORK.md).
 
 The Owner's until-done instruction persists across resumptions of this project. Finishing source code alone does not finish the pilot. Use PRD section 8 and actual service verification as completion criteria. Account-dependent tasks are parked with specific unblock conditions; the loop advances independent work, then waits for a continuation if none remains. Never fabricate activity, retry a known account denial indefinitely or turn a blocked pilot into a completion claim. Owner stop cancels the loop. Repeated audit failures/no-op work pause the affected execution for recovery, with an explicit resume point.
 
@@ -45,13 +45,31 @@ Last update: 2026-10-02 — Independent Auditor PASS, attempt 1: six actual-PG r
 Next step: Publish this reviewed patch, verify fresh CI and deploy the two repairs to the protected synthetic preview. TASK-022 proceeds independently against isolated local records.
 
 ### TASK-022 — Verify the complete owner improvement lifecycle
-Status: IN_PROGRESS
+Status: DONE
 Assigned: AUDITOR
 Attempt: 1
 Brief: [TASK-022](../tasks/TASK-022.md)
 PRD refs: F-10; section 8 criterion 6
-Last update: 2026-10-02 — TASK-021 independently passed; integrated owner-lifecycle verification is next for Auditor, with source frozen during verification.
-Next step: Verify the real existing paths with isolated synthetic data, owner-only authority and unchanged historical snapshots; route any defect to Coder before continuing. Keep provider/hosted account work separate.
+Last update: 2026-10-02 — Independent actual-PG owner evidence/proposal/test/activation/rollback PASS at `0b97022`; both historical visits/revisions/jobs/approved price snapshots byte-equivalent, authority denials passed, three fictional regular starts/ten audit rows retained during verification. Zero fetch attempts; fixture tenants cleaned and process-local flag restored. Audit/CHANGELOG/SESSION_LOG recorded, no new learning.
+Next step: [Integrated evidence](../docs/AUDIT_CONTINUOUS_REPAIRS.md) completes this local-source acceptance proof. Hosted full-provider owner story and remaining account gates remain separate; complete TASK-024 CI repair and TASK-023 preview update next.
+
+### TASK-023 — Deploy and verify the reviewed continuous-loop repairs
+Status: IN_PROGRESS
+Assigned: CTO, then AUDITOR
+Attempt: 1
+Brief: [TASK-023](../tasks/TASK-023.md)
+PRD refs: F-08; F-12; synthetic preview verification
+Last update: 2026-10-02 — Preview update waits for the reviewed TASK-024 fixed-head CI. The prepared `0b97022` stage is not deployable because actual CI `37009796929` failed its new test's local-only guard. No deployment started; current preview remains `90b0565`.
+Next step: After fresh successful fixed-head CI, create and independently compare a new exact-source stage, deploy protected preview only, then verify actual READY/authenticated responses. Keep preview-only `crons=[]`, unchanged production cadence and synthetic-only protection; no migrations or paid inference.
+
+### TASK-024 — Honor the documented isolated CI database in job regressions
+Status: IN_REVIEW
+Assigned: AUDITOR
+Attempt: 1
+Brief: [TASK-024](../tasks/TASK-024.md)
+PRD refs: F-12; required source verification
+Last update: 2026-10-02 — Independent source/local PASS: exact authored guard accepts eight documented bindings and rejects seven malformed/unintended targets; six actual-PG cases under localhost spelling executed with zero skips. Coder normal unit 30/30/types also passed. L-027/audit/CHANGELOG/SESSION_LOG recorded. No application/hosted change or fresh CI success claimed.
+Next step: Publish the reviewed guard fix and require actual fresh CI before marking the whole task DONE or deploying the preview. Record the earlier failed CI and do not deploy its stage.
 
 ### Parked release work
 

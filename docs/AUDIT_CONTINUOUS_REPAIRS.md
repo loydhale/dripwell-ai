@@ -66,3 +66,62 @@ GOTCHA_HITS: G-005 explicit local tooling and isolated database selection.
 PRD_AUDIT: PASS, fulfills existing F-05/F-07 and F-12 addressable-result requirements; no PRD scope change.
 
 Learning: L-013 recurred for inconsistent terminal-status writers/readers; its counter is now 2. No additional pattern or gotcha. Publish only after CTO updates state; TASK-022 integrated owner improvement verification follows. Full hosted pilot completion and actual provider/account gates remain open.
+
+## TASK-022, complete owner improvement lifecycle
+
+AUDIT: TASK-022
+VERDICT: PASS
+ATTEMPT: 1
+SOURCE: `0b9702205cb7d163b769b1d4db8dd1bd076969da`
+
+The full existing manual owner path passed independent isolated PostgreSQL verification. No model output was substituted. The private audit fixture calls current source `mutateClinicAction`, `getConsultation`, `getClinicDashboard`, database-backed request identity and `approvedTakeaway`; every staff adjustment, proposal, test, publication and rollback uses the real business operation. This verifies F-10 and pilot criterion 6 locally, not the still-pending hosted provider journey.
+
+The fixture explicitly guards `127.0.0.1:55432/dripwell_verification` before loading the database, uses two disposable fictional tenants and genuine hashed opaque sessions, and starts no server. Owner sessions include a synthetic verified MFA state; this tests enforcement and does not claim a real MFA-enrollment exercise. As authorized by CTO, the child process temporarily enables regular-visit processing only against that guarded synthetic database, following the existing clinic-suite pattern. Improvement evidence intentionally excludes setup-test visits, so a genuine regular synthetic visit is necessary to exercise the actual evidence path. The previous flag is restored in `finally`; no hosted flag or service changes. Provider credentials are removed and every network fetch is denied; recorded fetch attempts were zero.
+
+Independent sequence and results:
+
+- The owner manually saved v1, ran a complete synthetic evaluation and explicitly activated it. Staff initiated a fictional visit and recorded reviewed manual intake with recording declined. Initial deterministic output chose synthetic option A at 12,900 cents; staff selected eligible option B at 8,900 cents with reason `BUDGET` and a concrete preference note. The actual adjustment preserves staff ID, original/final payloads, changed items, revision, reason and time. Authorized clinical approval, actual care, approved wellness and manual acceptance followed; the approved takeaway retained care at 8,900 and the optional membership at 5,900 cents. Acceptance did not create enrollment or payment.
+- The owner dashboard exposed the real adjustment; staff dashboards exposed neither adjustment evidence nor improvements. The owner classified the change as `APPROPRIATE_CORRECTION` and created a manual evidence-backed proposal. Its stored evidence preserves the actual staff adjustment and visit context; the adjustment records owner identity/classification/time. Notes explicitly treat the budget correction as appropriate rather than equating lower spending with under-recommendation.
+- The owner saved a separate v2 draft with a changed option priority and explicitly fictional price data. Clinical eligibility conditions remained unchanged. Staff and a foreign clinic owner were denied proposal creation, review, testing, publication and rollback. Proposal review preserves owner identity, decision, note and timestamp. Publishing before proposal tests failed with `IMPROVEMENT_TEST_REQUIRED`.
+- A missing-screening synthetic test remained blocked, and publication using only it failed with `SUCCESSFUL_TEST_REQUIRED`. A complete eligible test selected the corrected option B at 7,900 cents. Both evaluation results and the exact proposed payload remain on the proposal. Publication was denied after removing current session MFA verification and after removing current clinical authority, even with the original actor object; restoring those fixture permissions allowed explicit activation. The active configuration records the owner, clinical validator, selected approved test and activation time; the proposal becomes immutable `ACTIVATED` and points to v2.
+- Activation left the complete v1 visit, revisions, generation jobs and approved takeaway unchanged. A new v2 visit used option B at 7,900 and the revised optional membership at 6,900 cents, preserving its own approved snapshots. An attempted review mutation of the activated proposal failed with `IMMUTABLE_IMPROVEMENT`.
+- Actual rollback of v1 created a new active v3, with v1 and v2 retired and both original payloads unchanged. Both earlier complete visit/artifact snapshots remained equal after rollback, and reopening their approved takeaways returned the same saved records. The activated proposal, evidence, evaluations and review metadata also remained unchanged. A later visit pinned v3 and again selected option A at 12,900 cents.
+- Ten configuration audit rows preserve draft creation, synthetic tests, activation, proposal creation/review and rollback. All carry the authorized owner actor; proposal review references its proposal ID and rollback references the original v1 ID plus new v3 ID. Three real fictional starts consumed three trial units; configuration evaluations did not create visits or consume allowance.
+- `finally` deleted only the two captured fixture tenants and their dependent records. Remaining fixture-tenant count was zero, the process-local flag was restored, and zero network fetch attempts were recorded. No application/test source edit, provider request, email, migration, truncation or hosted mutation occurred.
+
+Private out-of-repository evidence records the exact assertions and snapshot hashes. Version 1 snapshot SHA-256: `d93f432677b6273d4badd7dc28bb06f669da97c562b02a90a796f3dfb4d3afb0`; version 2: `76b3d3929b431e2cbbfc03be1cb7e81176c616c09c883f5d6c5fa9cf2674e378`. These hashes cover the respective visit, revisions, persisted generation jobs and approved takeaways; adjustment owner-classification metadata changes separately as intended.
+
+Guidance: previously loaded Vercel Plugin verification, generation persistence and Workflow guidance; installed framework testing contracts. P-008 current database authority, P-009 shared eligibility gates and immutable version/snapshot contracts are honored. The ICM and authored Eve/Workflow folders remain unchanged.
+
+FINDINGS: none blocking in TASK-022.
+PATTERN_VIOLATIONS: none.
+GOTCHA_HITS: G-005 explicit local tooling and guarded verification database.
+PRD_AUDIT: PASS, existing F-10/section 8 criterion 6 locally verified; no scope change.
+Learning: no new lesson, pattern or gotcha beyond existing authority, safety and version-persistence guidance.
+
+Next resume point: CTO publishes these verification documents and routes the CI-only TASK-024 target-guard repair before claiming a passing full fresh CI or deploying the reviewed app repairs. Actual inference/transcription, email, billing, scheduling, retention and full hosted pilot gates remain open.
+
+## TASK-024, documented isolated CI test target
+
+AUDIT: TASK-024
+VERDICT: PASS for source and isolated regressions; fresh fixed-head CI pending publication
+ATTEMPT: 1
+BASE PARENT: `0b9702205cb7d163b769b1d4db8dd1bd076969da`
+
+Independent GitHub metadata confirms CI run `37009796929` failed at the exact parent above. The new job-result suite's guard rejected the already-documented CI target before collecting its cases. `.github/workflows/v2-checks.yml:28` and `:29` explicitly bind both database variables to `localhost:5432/dripwell_verification`; isolated workspace verification uses port 55432. This is a test-environment assumption, separate from application behavior or live provider access.
+
+Only the target condition in `apps/web/lib/job-results.integration.test.ts:21` changes. It requires PostgreSQL protocol, an explicit `TEST_DATABASE_URL`, loopback `127.0.0.1` or `localhost`, documented port 55432 or 5432, and exact database path `/dripwell_verification`. Rejection occurs before selecting `DATABASE_URL`. No ordinary database/preview fallback, fixture/assertion change, schema reset, migration or application edit is introduced.
+
+Independent evidence:
+
+- Executing the exact authored guard text in an isolated VM accepted all eight documented protocol/host/port combinations and rejected seven remote-host, ordinary-database, wrong-port, wrong-protocol, undocumented IPv6 and malformed targets. Every rejected target left the prior database sentinel unchanged. An absent test binding did not select a fallback database.
+- After explicitly loading the private guarded local environment, a child runner selected the same disposable database using `localhost:55432` and invoked the ordinary Vitest config. All six actual PostgreSQL job-route/polling cases executed and passed, zero skips, at 13:07 UTC. No actual local port-5432 execution is claimed.
+- The six behavioral cases remain unchanged. Coder reports the normal full unit suite 30/30 with zero skips and web types PASS. Independent `git diff --check` passed. Fixture cleanup completed; no server, hosted write or provider request occurred.
+
+FINDINGS: none blocking in the scoped guard repair.
+PATTERN_VIOLATIONS: none.
+GOTCHA_HITS: G-005 explicit tooling and disposable target selection.
+PRD_AUDIT: PASS, verification repair only; no product scope change.
+Learning: L-027 records that disposable-target guards must match both documented workspace and CI bindings.
+
+CTO must publish the reviewed fix and verify an actual fresh CI run at that fixed head before deployment or full-task completion. These source/local results do not turn the earlier failed run into a passing one, certify port-5432 integration execution, or establish hosted pilot completion.

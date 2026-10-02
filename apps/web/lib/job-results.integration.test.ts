@@ -18,7 +18,10 @@ import { jsonValue } from './recordings';
 const testUrl = process.env.TEST_DATABASE_URL;
 if (testUrl) {
   const url = new URL(testUrl);
-  if (url.hostname !== '127.0.0.1' || url.port !== '55432' || url.pathname !== '/dripwell_verification') {
+  if (!['postgres:', 'postgresql:'].includes(url.protocol)
+    || !['127.0.0.1', 'localhost'].includes(url.hostname)
+    || !['55432', '5432'].includes(url.port)
+    || url.pathname !== '/dripwell_verification') {
     throw new Error('Job result tests require the isolated verification database.');
   }
   process.env.DATABASE_URL = testUrl;
