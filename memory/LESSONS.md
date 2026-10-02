@@ -215,3 +215,11 @@ What went wrong: The configured Gateway model appeared in the live catalog, but 
 Root cause: Metadata availability and runtime account entitlement are different checks.
 Avoid by: Verify a bounded synthetic operation with the actual deployed identity and configured model. Record provider denial separately from transport or source failure, and leave spending or model changes to the authorized owner decision.
 Seen N times: 1
+
+## L-025 — Separate ordinary API billing from an explicitly supported plan-sharing program
+Date: 2026-10-02
+Task: V2-SERVICE-PREFERENCE-DOCS
+What went wrong: A blanket statement that ChatGPT subscriptions cannot power another app was too broad after official SIWC introduced eligible Plus/Pro plan usage in participating applications.
+Root cause: Ordinary API billing separation was generalized into a claim about every supported integration, without checking the current program's eligibility and terms.
+Avoid by: Read current official Help, developer documentation and applicable terms together. Distinguish participating commercial approval, user-controlled runtime, cross-user restrictions, free access to plan use, model/audio capability and healthcare coverage from account billing alone. Preserve actual deployed-provider evidence while correcting the overly broad claim.
+Seen N times: 1

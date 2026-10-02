@@ -17,3 +17,5 @@ Format: `<YYYY-MM-DD> <task_id> <files changed> — <one-line summary>`
 2026-10-02 V2-EVE-PRISMA-PACKAGING apps/web/{agent/agent.ts,package.json,scripts/verify-eve-prisma-output.mjs}, packages/shared/prisma/schema.prisma, docs/AUDIT_DEPLOYMENT.md, memory/{PATTERNS,SESSION_LOG,CHANGELOG}.md — Independent source/artifact PASS; both packaged native Prisma runtimes query isolated PostgreSQL and missing-engine guard fails closed. Hosted setup retest remains pending.
 
 2026-10-02 V2-HOSTED-PREVIEW docs/AUDIT_DEPLOYMENT.md, memory/{LESSONS,GOTCHAS,SESSION_LOG,CHANGELOG}.md — Completed infrastructure/authentication/packaging/workflow transport PASS; actual Gateway403 account gate blocks inference, with protected replay/stream controls and zero consultations independently verified.
+
+2026-10-02 V2-SERVICE-PREFERENCE-DOCS docs/{CHATGPT_PLAN_ASSESSMENT,DEPLOYMENT}.md, memory/{STATE,PROJECT_CONTEXT,LESSONS,SESSION_LOG,CHANGELOG}.md — Independent documentation PASS; current supported SIWC eligibility/terms, actual Stripe terms gate, Resend metadata and reminder meaning recorded without runtime or provider changes.

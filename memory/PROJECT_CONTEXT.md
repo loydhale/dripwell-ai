@@ -30,6 +30,10 @@ Vercel CLI authentication is verified as `loyd-1222`, team `loyd-1222s-projects`
 
 Next.js PWA on Vercel using a suitable SaaS starter, eve, AI SDK, Workflow, PostgreSQL and private artifacts. Target Node.js 24; pin compatible versions and retain one ORM/identity model during foundation work.
 
+## Latest service preference, 2026-10-02
+
+Owner prefers their ChatGPT subscription over purchasing Gateway credits, authorized Stripe and chose Resend. Current official SIWC now supports eligible subscription usage in participating apps; commercial hosted access is partner-gated, and published terms prohibit one subscriber funding another user. Its flow excludes transcription. See docs/CHATGPT_PLAN_ASSESSMENT.md. No provider switch or spending occurred. Stripe retry remains browser-terms blocked; Resend requires the Owner's sending domain. Reminders are the requested missing-outcome/TBD staff notifications; the current 15-minute schedule exceeds Hobby limits.
+
 ## Standing development preference
 
 Owner confirmed use of the open-source Vercel Plugin for coding. Verify available plugin skills/source, load relevant framework guidance for implementation and review, and use current installed documentation. Keep the existing coding assistant and team roles; hosted Vercel Agent is not required. Plugin guidance is development tooling; eve is the application runtime.
