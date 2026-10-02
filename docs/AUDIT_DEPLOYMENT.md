@@ -85,8 +85,30 @@ The actual VERCEL-mode output has two physical Node 24 runtimes, `__server.func`
 
 Independent Prisma schema validation, web TypeScript and all four actual-PostgreSQL advisory-lock regressions passed. Local artifact inspection used eve's documented skip-prewarm option because normal local Sandbox SDK transport failed; this option is absent from the authored deploy command. A normal hosted build, alias assignment and real authenticated owner setup request remain required. This scoped source/artifact PASS does not change the historical hosted attempt-2 FAIL or establish Gateway inference.
 
+## Hosted runtime review, attempt 3
+
+AUDIT: V2-HOSTED-PREVIEW
+VERDICT: PASS for completed infrastructure, authentication, packaging and workflow transport
+ATTEMPT: 3
+MODEL JOURNEY: BLOCKED by account access
+
+The reviewed packaging commit is `90b0565ebdcc7759dacbf84586c6c7b67a461f17`. All 297 tracked staging files were independently compared with direct Git blobs; the sole tracked difference remains preview-only `crons: []`, and the only extra file is the identical nonsecret project link. No private environment or credential file was staged. Deployment `dpl_5fcJdVWXje4EbbGScPnDRYoStbB6` reached actual READY as a protected preview and owns the trusted stable alias. Its normal remote Sandbox template initialization passed; the deployed build guard verified both physical Prisma runtime bundles. Fresh [GitHub CI 36950177151](https://github.com/loydhale/dripwell-ai/actions/runs/36950177151) completed successfully at this exact source, including all 79 checks, migrations, TypeScript, Next/eve builds and the native-engine guard.
+
+The retained fictional owner authenticated with HTTP 200. A fresh, explicitly nonclinical setup message created a durable conversation and bound an actual eve session, then entered the remote Workflow model step. This proves the repaired standalone Prisma authentication and internal propagation of the protection/session cookies. The setup POST returned HTTP 503 `AI_PROCESSING_FAILED` after nine seconds because the Gateway rejected the configured model before any provider attempt.
+
+Actual Workflow logs report HTTP 403, `RestrictedModelsError`, `no_providers_available`, original model `openai/gpt-6-luna`, and `providerAttemptCount: 0`: “Free tier users do not have access to this model. Upgrade to paid credits ... for unrestricted access.” The durable job is FAILED with null usage; one user message is saved and no assistant response or draft is established. This is an account-access gate, separate from the repaired native-engine and advisory-lock findings. No default-model change, fabricated response or credit purchase was made.
+
+Completed continuation/replay checks:
+
+- The bound authenticated NDJSON stream returns HTTP 200 and replays `session.started`, `turn.started`, `message.received`, `step.started`, `step.failed`, `turn.failed` and `session.waiting`.
+- The same stream without application authentication returns HTTP 401. An authenticated owner requesting an unbound session stream receives HTTP 403. GET of the session root itself is an unsupported route returning 404 and is excluded from these authorization conclusions.
+- The location-bound saved setup GET returns HTTP 200. Replaying the exact failed request returns HTTP 202 with its saved failure and retains exactly one generation job. Reusing that key with changed content returns HTTP 409 `IDEMPOTENCY_CONFLICT`, before another model call.
+- Remote read-only counts remain zero consultations, zero active configurations and zero trial-usage rows. The subscription retains a ten-consultation limit with zero used. Deployment protection and the false real-client-data gate remain unchanged.
+
+PRD_AUDIT: pass for scope. The completed infrastructure scope passes; successful F-01 provider inference and the remaining clinical/commercial hosted journeys require their documented external gates. This is not a completed production release.
+
 ## Remaining release gates
 
-This is a protected synthetic preview, not a production release or permission to process real client data. Production needs the supported reminder/recovery cadence, provider/data-path review and appropriate service agreements, live recording/transcription/model workflow checks, retention/deletion checks, a chosen platform administrator and representative-device verification. Stripe requires the account owner's integration terms/account connection, actual recurring price and signed webhook verification. Resend requires the actual verified sender/domain and recipient-code delivery verification. Referral-credit terms must be explicitly configured rather than invented. No actual purchases, recipient emails, clinical encounters or real-client data were used in this review.
+This is a protected synthetic preview, not a production release or permission to process real client data. The configured Gateway model requires account access through paid credits before real inference can be verified. Production needs the supported reminder/recovery cadence, provider/data-path review and appropriate service agreements, live recording/transcription/model workflow checks, retention/deletion checks, a chosen platform administrator and representative-device verification. Stripe requires the account owner's integration terms/account connection, actual recurring price and signed webhook verification. Resend requires the actual verified sender/domain and recipient-code delivery verification. Referral-credit terms must be explicitly configured rather than invented. No actual purchases, recipient emails, clinical encounters or real-client data were used in this review.
 
 Guidance reviewed: Vercel Plugin deployment, CLI, storage, eve and browser-verification skills, plus the installed eve 0.69.0 deployment/Next.js/authentication documentation and Blob 2.8.0 SDK types. Neon batching matches its official noninteractive transaction protocol.

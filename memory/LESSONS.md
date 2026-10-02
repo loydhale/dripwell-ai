@@ -207,3 +207,11 @@ What went wrong: Hosted owner setup failed before model execution because an adv
 Root cause: Existing integration checks covered setup scoping but did not execute the HTTP setup preflight's actual lock acquisition.
 Avoid by: Acquire transaction advisory locks through a supported non-result operation or a supported typed result, and test the actual business operation against PostgreSQL. A successful build or healthy eve transport does not exercise that preflight.
 Seen N times: 1
+
+## L-024 — Model catalogs do not establish account execution permission
+Date: 2026-10-02
+Task: V2-HOSTED-PREVIEW
+What went wrong: The configured Gateway model appeared in the live catalog, but the actual hosted workflow was denied before any provider attempt because the account's free tier could not use it.
+Root cause: Metadata availability and runtime account entitlement are different checks.
+Avoid by: Verify a bounded synthetic operation with the actual deployed identity and configured model. Record provider denial separately from transport or source failure, and leave spending or model changes to the authorized owner decision.
+Seen N times: 1

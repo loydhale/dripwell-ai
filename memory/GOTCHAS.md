@@ -97,3 +97,11 @@ The gotcha: Next.js Prisma authentication worked after deployment, while the ind
 Why it's like this: Next.js and eve compile and trace independent service artifacts. One framework's asset handling does not prove the other artifact includes the same native dependency.
 What to do: Inspect native assets in each actual service output, validate its packaged runtime, and verify an authenticated endpoint that exercises Prisma in each service after deployment.
 What NOT to do: Do not infer agent database readiness from the web dashboard or the public eve health route, or replace real authentication to hide a packaging error.
+
+## G-010 — Gateway free-tier access can reject a catalog-listed model
+Date discovered: 2026-10-02
+Where: Vercel AI Gateway, actual hosted owner setup workflow
+The gotcha: Project OIDC, a listed openai/gpt-6-luna model and successful eve session creation did not grant model access. Gateway returned HTTP 403 RestrictedModelsError/no_providers_available with zero provider attempts, requiring paid credits.
+Why it's like this: Model discovery and authenticated account/model entitlement are separate provider controls.
+What to do: Use actual workflow logs and durable job/usage evidence to identify the gate. Obtain owner-funded access, then repeat the explicitly synthetic model request without changing identity or protection controls.
+What NOT to do: Do not claim inference passed from catalog presence, fabricate a response, purchase credits without authorization or silently substitute a model.
