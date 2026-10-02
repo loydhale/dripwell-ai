@@ -223,3 +223,11 @@ What went wrong: A blanket statement that ChatGPT subscriptions cannot power ano
 Root cause: Ordinary API billing separation was generalized into a claim about every supported integration, without checking the current program's eligibility and terms.
 Avoid by: Read current official Help, developer documentation and applicable terms together. Distinguish participating commercial approval, user-controlled runtime, cross-user restrictions, free access to plan use, model/audio capability and healthcare coverage from account billing alone. Preserve actual deployed-provider evidence while correcting the overly broad claim.
 Seen N times: 1
+
+## L-026 — Client-only archive search cannot reach records omitted by the server
+Date: 2026-10-02
+Task: TASK-019
+What went wrong: Retained archived consultations outside the latest 250 records or older than the UI's selectable year were inaccessible through archive search and restore.
+Root cause: The search filtered a capped browser snapshot and reused reporting dates for archive accessibility, with no scoped server search or pagination.
+Avoid by: Trace retained-record search from the interface to the actual bounded server query. Verify a record beyond the loaded page and older than report defaults, preserving metric denominators separately from archive access.
+Seen N times: 1

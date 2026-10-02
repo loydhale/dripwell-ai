@@ -2,7 +2,59 @@
 
 ## Current status
 
-2026-10-02: Owner requested "get the software finished" and completed Vercel device authentication. V2 source and local runtime are implemented and independently reviewed in `/workspace/dripwell-build`, branch `feat/dripwell-consultation-v2`. CTO routes Coder implementation and independent Auditor review per AGENTS.md. Continuous mode remains OFF.
+2026-10-02: Owner requested "get the software finished" and completed Vercel device authentication, then explicitly requested "Please create a loop so that you don’t stop working on this until it’s down ." Continuous work is authorized until the approved pilot definition of done is verified or the Owner cancels it. V2 source and local runtime are implemented and independently reviewed in `/workspace/dripwell-build`, branch `feat/dripwell-consultation-v2`. CTO routes Coder implementation and independent Auditor review per AGENTS.md.
+
+## Continuous work loop
+
+CONTINUOUS_MODE: ON
+Started: 2026-10-02T12:09:13Z
+Started by: "Please create a loop so that you don’t stop working on this until it’s down ."
+Execution status: ACTIVE
+Tasks completed this run: 1
+Consecutive escalations this run: 0
+Consecutive tasks without learning or meaningful changes: 0
+Recurring continuation: ENABLED, `Finish DripWell`, hourly, automation `6abf9f5e25c08191b939bb96222f1f13`. Creation confirmed 2026-10-02T12:11:10Z; no future execution or coding result claimed. See [continuous-work contract](../docs/CONTINUOUS_WORK.md).
+
+The Owner's until-done instruction persists across resumptions of this project. Finishing source code alone does not finish the pilot. Use PRD section 8 and actual service verification as completion criteria. Account-dependent tasks are parked with specific unblock conditions; the loop advances independent work, then waits for a continuation if none remains. Never fabricate activity, retry a known account denial indefinitely or turn a blocked pilot into a completion claim. Owner stop cancels the loop. Repeated audit failures/no-op work pause the affected execution for recovery, with an explicit resume point.
+
+### TASK-019 — Continuous-loop completion gap review
+Status: DONE
+Assigned: AUDITOR
+Attempt: 1
+Brief: [TASK-019](../tasks/TASK-019.md)
+PRD refs: F-01 through F-12; section 8
+Last update: 2026-10-02T12:19:44Z — Independent Auditor PASS for the corrected work-loop contract, all F-01 through F-12 and section 8 evidence matrix; two guarded actual-PG source defects reproduced and routed. Learning L-026, CHANGELOG and SESSION_LOG recorded.
+Next step: [Gap review](../docs/CONTINUOUS_GAP_REVIEW.md) preserves the source-versus-live boundary. Complete TASK-020 then TASK-021 and integrated owner improvement lifecycle verification; no full-product PASS claimed.
+
+### TASK-020 — Reach and restore older archived consultations
+Status: IN_PROGRESS
+Assigned: CODER
+Attempt: 1
+Brief: [TASK-020](../tasks/TASK-020.md)
+PRD refs: F-08 archive search/restore; F-12 period reporting
+Last update: 2026-10-02T12:17:15Z — `/root/continuous_coder` is implementing bounded scoped pages/server search; Auditor reproduced 251 retained records with the 500-day-old target absent from the UI data and cleaned the isolated fixtures.
+Next step: Finish implementation and regression, then independent audit with more than 250 synthetic retained records and an older-than-one-year encounter. Source changes are not yet reviewed or published.
+
+### TASK-021 — Return saved results for completed generation jobs
+Status: QUEUED
+Assigned: CODER
+Attempt: 1
+Brief: [TASK-021](../tasks/TASK-021.md)
+PRD refs: F-05; F-07; F-12 addressable generations
+Last update: 2026-10-02T12:17:00Z — Auditor reproduced deterministic initial generation saving `COMPLETED` and a result while job GET hides it because it checks only `COMPLETE`.
+Next step: After TASK-020, make successful completion/result handling consistent while preserving previously saved status values, then independently verify scoped job reads and unsuccessful-job behavior.
+
+### Parked release work
+
+Unblocked verification after source repairs: complete owner evidence/proposal → synthetic test → activation → rollback with historical visits unchanged (F-10, section 8 criterion 6). The independent gap review found no recorded integrated proof of that full chain; create a bounded verification task after TASK-021.
+
+- AI inference/transcription: supported access honoring the Owner's ChatGPT subscription preference; commercial SIWC eligibility and audio remain unresolved. No paid credits/provider switch authorized.
+- Stripe: Owner accepts the existing Marketplace browser terms gate, then continue the already-authorized sandbox connection and real billing verification.
+- Resend: obtain the already-requested owned sending domain, verify the sender and complete synthetic recipient verification. Do not repeat the question while it remains pending.
+- Commercial policy: actual recurring platform price and explicit referral-credit terms; prepare reviewable configuration without inventing prices.
+- Scheduler: supported production cadence/plan; no Pro purchase authorized. Account for reminder, cleanup and recovery processing together.
+- Platform administrator: selected identity and MFA before bootstrap.
+- Full pilot verification: two-clinic recording/transcription, actual model response, exact approvals, secure sharing, billing/referral credit, reminders and retention under the selected live services; maintain synthetic-only protection until eligibility is verified.
 
 Deployed implementation source is `90b0565ebdcc7759dacbf84586c6c7b67a461f17` in [PR #2](https://github.com/loydhale/dripwell-ai/pull/2). Fresh [CI run 36950177151](https://github.com/loydhale/dripwell-ai/actions/runs/36950177151) passed all 79 checks with no skips, all 10 migrations, TypeScript and optimized Next/eve builds. Independent source/local audit PASS includes synthetic browser consultation, exact approvals/outcomes, archive, owner review and authenticated PDF. See `docs/AUDIT_V2.md` and `docs/VERIFICATION_REPORT.md`.
 
@@ -32,7 +84,7 @@ The source/runtime repairs, independent audit, exact publication, 79-check CI an
 
 Owner authorized Stripe and selected Resend. Retried named Stripe sandbox installation still returns the actual browser terms acceptance gate; follow its saved link before retrying. Live Resend metadata requires an owned domain; that single clarification is pending. Pro is not authorized by the Owner's “Reminder?” question. Remaining input also covers actual platform subscription/referral terms and selected platform administrator. After those arrive, provision the actual services and verify billing/email, hosted synthetic recording/transcription, retention and complete two-clinic workflow before production. Keep protection and `ALLOW_REAL_CLIENT_DATA=false`; do not purchase an upgrade/credits, invent commercial terms, bootstrap an unselected administrator or promote the preview without those gates.
 
-Native Git push failed in this environment; the private Git Data API publication helper publishes exact reviewed trees/commits non-force and verifies remote heads. Credentials, fixture sessions and provider helpers stay outside Git. Local PostgreSQL 17 fixtures are at port 55432; explicitly load `/workspace/dripwell-verification.env` before integration checks. `apps/web/.env.local` is the actual hosted preview database and must never be a disposable test target. Prior local port 3000 is synthetic verification only. Do not resume the superseded photo-assessment queue. Continuous mode is OFF; this is a clean external-dependency resume point.
+Native Git push failed in this environment; the private Git Data API publication helper publishes exact reviewed trees/commits non-force and verifies remote heads. Credentials, fixture sessions and provider helpers stay outside Git. Local PostgreSQL 17 fixtures are at port 55432; explicitly load `/workspace/dripwell-verification.env` before integration checks. `apps/web/.env.local` is the actual hosted preview database and must never be a disposable test target. Prior local port 3000 is synthetic verification only. Do not resume the superseded photo-assessment queue. Continuous mode is ON; resume the active queue above, then parked release work when its specific inputs arrive.
 
 ## Open decisions
 
