@@ -13,7 +13,7 @@
     "test:unit": "vitest run",
     "test:clinic": "NODE_OPTIONS=--conditions=react-server tsx --test lib/clinic.integration.node.test.ts",
     "test:ai": "tsx --test evals/*.test.ts",
-    "build:eve": "pnpm --filter @dripwell/shared db:generate && pnpm --filter @dripwell/shared build && eve build",
+    "build:eve": "pnpm --filter @dripwell/shared db:generate && pnpm --filter @dripwell/shared build && eve build && node scripts/verify-eve-prisma-output.mjs",
     "admin:bootstrap": "node scripts/bootstrap-platform-admin.mjs"
   },
   "dependencies": {

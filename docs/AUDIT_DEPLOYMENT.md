@@ -52,6 +52,39 @@ Four new behavioral regressions passed independently against the isolated actual
 
 This is a scoped source PASS for the two findings. A reviewed rebuilt preview and repeat real owner setup request are still required before the hosted-runtime verdict can change.
 
+## Hosted runtime review, attempt 2
+
+AUDIT: V2-HOSTED-PREVIEW
+VERDICT: FAIL
+ATTEMPT: 2
+
+The advisory-lock repair is deployed in preview `dpl_EdCKJWgdsdMBz5QxZ8n27PXmcRBr`, which reached actual READY and owns the stable alias. All 296 staged tracked files match source commit `4a40b41d78fe89f1b4cc650029d8d16c9e617961`, apart from the same reviewed cron-only preview adaptation. Fresh GitHub CI passed all 79 checks, migrations, TypeScript and Next/eve builds: <https://github.com/loydhale/dripwell-ai/actions/runs/36947768772>.
+
+Actual setup preflight now persists a durable owner conversation, its user message and a generation job. The real request then returns HTTP 503 `AI_PROCESSING_FAILED`; its job records failure and the conversation retains no eve session ID. A directly authenticated, location-bound `/eve/v1/session` request through Vercel's protection bypass also returns HTTP 500. No model operation or active configuration change is established.
+
+FINDINGS:
+
+- `apps/web/lib/db.ts`, loaded by `apps/web/agent/channels/eve.ts:18`: The deployed standalone eve artifact omits Prisma's native query engine. Runtime logs for both internal and direct session creation show `PrismaClientInitializationError` from `prisma.authSession.findUnique()`, with missing `libquery_engine-rhel-openssl-3.0.x.so.node`. The resulting failure occurs during actual user authentication in eve, while the separately built Next.js service can query the same database. Severity: blocking.
+
+REQUIRED_FIXES:
+
+- Package the generated Prisma native engine in the actual eve service artifact using the version-matched build layout. Inspect and validate the packaged runtime artifact, then repeat hosted authenticated session creation and real synthetic setup. Retain current session/tenant authorization and deployment protection.
+
+The protected dashboard, trial counts, owner/platform separation and Eve public-health/unauthenticated-info checks pass again on this deployment. Health does not exercise eve's authenticated Prisma query. No raw clinical data or patient consultation was created.
+
+PRD_AUDIT: pass for scope; actual F-01 setup remains blocked. This finding is separate from Gateway account/model access or protection bypass, which has not yet been independently proven through a successful chat.
+
+## Native-engine packaging patch review
+
+AUDIT: V2-EVE-PRISMA-PACKAGING
+VERDICT: PASS
+
+Independent review covers four source files: the Prisma generator requests native and `rhel-openssl-3.0.x` engines; the agent uses eve 0.69.0's documented `build.externalDependencies` for `@prisma/client`; the build runs a new artifact verifier after normal eve compilation. The verifier resolves both the package and generated client from each physical output bundle, rejects dependencies escaping that bundle, and requires a Linux x64 ELF native engine. It supports the deployed Vercel output directory and the local functions layout produced when eve loads linked environment files. No authentication, tenant scope, clinical gate or normal Sandbox prewarming behavior changed.
+
+The actual VERCEL-mode output has two physical Node 24 runtimes, `__server.func` and `.well-known/workflow/v1/flow.func`. Independent verification finds the generated bundle-local `libquery_engine-rhel-openssl-3.0.x.so.node` in both, 17,547,808 bytes each. Each artifact's packaged Prisma client, using that artifact's RHEL engine, executed `SELECT 1` and `authSession.findUnique()` against the isolated PostgreSQL verification database. Both passed. Removing the engine only from an external temporary artifact copy caused the guard to reject it; the copy was removed. The linked local functions-layout guard also passed.
+
+Independent Prisma schema validation, web TypeScript and all four actual-PostgreSQL advisory-lock regressions passed. Local artifact inspection used eve's documented skip-prewarm option because normal local Sandbox SDK transport failed; this option is absent from the authored deploy command. A normal hosted build, alias assignment and real authenticated owner setup request remain required. This scoped source/artifact PASS does not change the historical hosted attempt-2 FAIL or establish Gateway inference.
+
 ## Remaining release gates
 
 This is a protected synthetic preview, not a production release or permission to process real client data. Production needs the supported reminder/recovery cadence, provider/data-path review and appropriate service agreements, live recording/transcription/model workflow checks, retention/deletion checks, a chosen platform administrator and representative-device verification. Stripe requires the account owner's integration terms/account connection, actual recurring price and signed webhook verification. Resend requires the actual verified sender/domain and recipient-code delivery verification. Referral-credit terms must be explicitly configured rather than invented. No actual purchases, recipient emails, clinical encounters or real-client data were used in this review.

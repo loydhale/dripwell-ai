@@ -99,3 +99,10 @@ Where in codebase: docs/AUDIT_DEPLOYMENT.md, external isolated preview stage
 The pattern: Compare every staged tracked file directly against the selected Git commit, allow only the documented preview configuration difference, and exclude credentials from the upload. Apply exact migrations to an isolated database and separately compare schema plus migration checksums before hosted verification.
 When to use: A platform-plan limitation requires an isolated synthetic preview adaptation without changing approved production behavior.
 Example: The d4239d5 stage compared 293 tracked files, changed only apps/web/vercel.json crons, added only the nonsecret Vercel project link and contained zero environment files.
+
+## P-012 — Verify native dependencies from each deployed agent bundle
+Date: 2026-10-02
+Where in codebase: apps/web/agent/agent.ts, apps/web/scripts/verify-eve-prisma-output.mjs
+The pattern: Use the installed framework's supported external-dependency tracing, generate the deployment runtime's native engine, and fail the build if package or engine resolution leaves a physical function bundle. Validate each packaged client with its own engine against isolated PostgreSQL, and prove the guard rejects an artifact with the engine removed.
+When to use: Agent or workflow service bundles use a native dependency independently of the Next.js service.
+Example: Both Node 24 eve server and workflow bundles passed real Prisma queries with their bundled RHEL engine; an external missing-engine copy failed validation.

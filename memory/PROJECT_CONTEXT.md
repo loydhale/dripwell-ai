@@ -8,7 +8,7 @@ DripWell.ai, owned by Loyd Hale.
 
 Consultation-centered IV clinic PWA: consented recording, visible question guidance, location-catalog recommendations, tracked staff edits, provider approval, actual care outcomes, post-treatment wellness documents, the specified six-stage board, owner-controlled improvements, referrals, and 14-day trials including 10 initial consultations. See PRD.md.
 
-## Implementation migration in progress, 2026-10-01
+## Implemented v2 and hosted verification, 2026-10-02
 
 Owner authorized completing v2. The active build workspace is `/workspace/dripwell-build` on `feat/dripwell-consultation-v2`, based on the reviewed v2 documentation. Next.js replaces the deployed web entry point; same-origin route handlers use the existing Prisma identity/schema with additive v2 records. Opaque server-side cookie sessions replace the old browser JWT storage for the v2 app. The Vercel Next.js SaaS Starter at `6e33e58b1e553a41fe22e6b941a7229a002de361` is inspected as a dashboard/team/billing reference, keeping one ORM.
 
@@ -24,7 +24,7 @@ Vercel CLI authentication is verified as `loyd-1222`, team `loyd-1222s-projects`
 - Frontend: Vite PWA in apps/web/; Vite admin in apps/admin/.
 - Backend: Fastify in apps/api/.
 - Database: PostgreSQL/Prisma contracts under packages/shared/prisma/.
-- These legacy applications remain available as source references; they are not the v2 deployment entry point. V2 source implementation and verification are in progress, and live deployment has not been verified.
+- These legacy applications remain available as source references; they are not the v2 deployment entry point. V2 source/local verification has passed. An isolated hosted preview is READY; hosted AI/provider verification and production release gates are tracked in STATE and docs/AUDIT_DEPLOYMENT.md.
 
 ## Target architecture
 
@@ -47,7 +47,7 @@ Authored eve files target apps/web/agent/ with instructions/, channels/, skills/
 - Repository memory contains no client data. PHI requires appropriate service agreements, controls, retention/deletion, and restricted traces.
 - Prices are official owner data; existing schema lacks a price field and needs audited migration.
 - Test consultations never count toward trial or conversion reporting.
-- Documentation is published as a reviewable branch/PR; production/runtime remains unchanged.
+- Implementation is published in PR #2 on the reviewable v2 branch. The hosted synthetic preview is separate from production; main and the earlier production deployment are not switched.
 
 ## References
 

@@ -89,3 +89,11 @@ The gotcha: The environment provides HTTP/HTTPS proxy variables, but ordinary No
 Why it's like this: These clients use different proxy defaults. This is a coding-environment transport issue, separate from hosted provider readiness.
 What to do: Run local Node provider checks with Node 24 --use-env-proxy, retain the configured certificate trust, use bounded requests and compensate synthetic writes. Confirm exact authenticated bytes and anonymous denial.
 What NOT to do: Do not disable TLS verification or change deployed application code to accommodate a local proxy default.
+
+## G-009 — Next and eve require separate native-asset verification
+Date discovered: 2026-10-02
+Where: apps/web/lib/db.ts, standalone eve build/service artifact
+The gotcha: Next.js Prisma authentication worked after deployment, while the independently bundled eve service omitted the native Prisma query engine and failed its first authenticated session request. Eve public health still reported ready.
+Why it's like this: Next.js and eve compile and trace independent service artifacts. One framework's asset handling does not prove the other artifact includes the same native dependency.
+What to do: Inspect native assets in each actual service output, validate its packaged runtime, and verify an authenticated endpoint that exercises Prisma in each service after deployment.
+What NOT to do: Do not infer agent database readiness from the web dashboard or the public eve health route, or replace real authentication to hide a packaging error.

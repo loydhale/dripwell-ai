@@ -11,6 +11,7 @@ export default defineAgent({
     },
   }),
   defaultTools: false,
+  build: { externalDependencies: ['@prisma/client'] },
   limits: {
     maxInputTokensPerSession: 200000,
     maxOutputTokensPerSession: 20000,
