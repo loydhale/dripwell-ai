@@ -32,3 +32,5 @@ No application fixes within this Auditor task. If a source defect appears, stop 
 Auditor owns docs/AUDIT_DURABLE_REMINDERS.md and append-only learning/CHANGELOG/SESSION_LOG as warranted. CTO owns STATE/briefs. Start only after the recording repair/control review releases shared build and fixtures, and reconcile all active workers first.
 
 2026-10-02 plan co-sign: Auditor PASS for bounded scope, with actual local runtime feasibility still to be proved. No PRD change.
+
+2026-10-02 outcome: Auditor PASS attempt1 for bounded actual local execution; see docs/AUDIT_DURABLE_REMINDERS.md. Six registered runs, real future sleep/resume, three persisted reminders/two correct staff inboxes and current-state/deduplication behavior are proved. Explicit Local World.start recovered the original five retained waits; plain optimized Next startup did not do so automatically. All owned resources cleaned and unrelated digests preserved; G-011/CHANGELOG/SESSION_LOG recorded. Hosted scheduling, automatic Next recovery and the full pilot remain open. TASK-030 isolates the next justified global endpoint verification.

@@ -12,7 +12,7 @@ The application preserves the ICM project context/memory conventions and uses ev
 
 [View the desktop and mobile screens](docs/PREVIEW.md), captured from a fictional verification clinic in the running application.
 
-The [native recording follow-up](docs/AUDIT_RECORDING_CONTROLS.md) additionally found and repaired paused-duration and shell-navigation defects. Local synthetic capture/real 60-second rollover, desktop navigation/retry and targeted mobile warning/recording visibility passed independent review. Exact published-source CI passed all 93 checks without skips, and the reviewed 317-file preview stage passed protected deployment/runtime verification. Actual local durable-reminder verification is next. Live transcription/model/email/billing and physical-device evidence remain separate gates.
+The [native recording follow-up](docs/AUDIT_RECORDING_CONTROLS.md) additionally found and repaired paused-duration and shell-navigation defects. Local synthetic capture/real 60-second rollover, desktop navigation/retry and targeted mobile warning/recording visibility passed independent review. Exact published-source CI passed all 93 checks without skips, and the reviewed 317-file preview stage passed protected deployment/runtime verification. [Actual local reminder evidence](docs/AUDIT_DURABLE_REMINDERS.md) demonstrates Workflow sleep/resume, persisted staff notifications, deduplication and reassignment. Saved runs recovered after explicit supported Local World initialization; a plain optimized Next restart did not resume them automatically. Hosted scheduling, live transcription/model/email/billing and physical-device evidence remain separate gates.
 
 ## Current development
 

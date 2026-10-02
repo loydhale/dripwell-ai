@@ -105,3 +105,11 @@ The gotcha: Project OIDC, a listed openai/gpt-6-luna model and successful eve se
 Why it's like this: Model discovery and authenticated account/model entitlement are separate provider controls.
 What to do: Use actual workflow logs and durable job/usage evidence to identify the gate. Obtain owner-funded access, then repeat the explicitly synthetic model request without changing identity or protection controls.
 What NOT to do: Do not claim inference passed from catalog presence, fabricate a response, purchase credits without authorization or silently substitute a model.
+
+## G-011: Local World restart recovery needs lifecycle initialization
+Date discovered: 2026-10-02
+Where: installed Workflow5.0.1 Local World, optimized Next16.3.8 runtime, TASK-028
+The gotcha: Persisted runs and WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS=true did not resume outstanding sleeps when only the optimized Next process restarted. The original five waits remained pending after their measured due times.
+Why it's like this: Local World recovery is performed by its supported start() lifecycle; merely selecting getWorld() or retaining files does not initialize that lifecycle in the observed bare Next startup.
+What to do: Verify actual run identity, future wait, process restart and recovery. When initializing a retained local World, use the installed documented start()/close() lifecycle with the same owned directory and compiled callback runtime. TASK-028 did this and recovered the same original runs without replacement kickoff.
+What NOT to do: Do not label explicit lifecycle initialization as automatic Next restart, infer recovery from files or a configuration flag, substitute a direct helper, or transfer a local-world result to Vercel production scheduling semantics.
