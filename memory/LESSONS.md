@@ -272,3 +272,43 @@ What went wrong: The protected native browser navigation reached Vercel login be
 Root cause: Installed agent-browser0.38.1 parses global flags from outer process arguments and passes the same Flags into every batch row. Nested open --headers arguments never populate navigation headers.
 Avoid by: Read the installed parser/header path, pass authentication as an actual standalone outer open --headers option and keep values in memory. Verify the first real application boundary before attributing a login redirect to account policy; do not weaken protection or repeat an unchanged provider check to compensate for a harness error.
 Seen N times: 1
+
+## L-032: A scheduled payload expiry is not an already expired payload
+Date: 2026-10-03
+Task: TASK-037
+What went wrong: A private hosted-run helper rejected every truthy expiredAt value after a successful HTTP200, although the owned run's expiration was still future. Independent review missed the same distinction.
+Root cause: Timestamp presence was treated as elapsed expiration, and absent input was combined with that separate failure.
+Avoid by: Trace installed availability semantics and distinguish finite future, elapsed, invalid and absent timestamps from missing input. Preserve the first result and superseded review, repair the guard in separate bytes, verify real retained metadata offline, then make only the separately approved changed-guard read.
+Seen N times: 1
+
+## L-033: Preserve classified replies before parsing or closing a hosted inspector
+Date: 2026-10-03
+Task: TASK-037
+What went wrong: A private caller parsed the normal CLI Info line as JSON after the sole hosted restore. Its finally-close discarded a possible later observation, losing run ownership and the required live future-wait capture.
+Root cause: Human logs and structured replies shared stdout without a command protocol or response persistence. The first raw failed line was not retained, so the source-backed diagnosis must remain distinct from directly captured output.
+Avoid by: Test the actual pinned logger plus fragmented framed replies offline. Accept only classified safe noise and a correlated response, persist that response before EOF/exit/error handling, and reject unknown output without logging credentials. Journal the sole POST before sending; retain fixtures after lost ownership, recover only the original run under a separate reviewed boundary, and never reset its deadline or claim lost evidence was restored.
+Seen N times: 1
+
+## L-034: Preserve discovery metadata before interpreting an ownership guard
+Date: 2026-10-03
+Task: TASK-038
+What went wrong: The first analytics GET returned200 within POST+20seconds but the ownership filter found no matching candidate. The raw page was not retained, so that result could not distinguish an empty page, indexing delay or a metadata mismatch. The live future-wait capture remained absent despite successful later delivery.
+Root cause: The original observer reported the selection failure without a bounded metadata projection. A later method/time change cannot establish what the earlier page contained.
+Avoid by: Persist safe typed counts, coverage, timestamps and exact-match flags before selection; omit payloads, untrusted text and credentials. Bind only one owned input before further reads. Report a later supported storage recovery separately, preserving original deadlines and strict partial results rather than inferring an indexing cause or restoring missing proof.
+Seen N times: 1
+
+## L-035: Bind continuation assertions to the actual persisted schema
+Date: 2026-10-03
+Task: TASK-039
+What went wrong: The private post-terminal caller assumed Notification.readAt after a real hosted timer completed. The persisted row and Prisma model instead expose isRead and dismissedAt. Actual inbox/cleanup needed a separately reviewed continuation.
+Root cause: An unexecuted completion path was cloned without exercising its assertions against the actual retained row and authoritative schema. The original generic execution error did not capture exception text; offline source replay separately reproduced KeyError(readAt).
+Avoid by: Validate actual serialized fields and types before a live completion boundary. Require present booleanfalse isRead, present null dismissedAt and exact row/tenant/staff/visit/key/due ownership. Preserve the original failure and evidence, test missing/wrong/read/dismissed variants offline, then continue only the original case under reviewed source.
+Seen N times: 1
+
+## L-036: Historical observation flags do not timestamp each later reply
+Date: 2026-10-03
+Task: TASK-039
+What went wrong: The private finisher asserted every nonterminal reply with futureWaitObserved=true preceded browser closure. One genuine pre-closure capture existed, but eight later valid polls retained the historical flag and triggered a captured AssertionError before SQL.
+Root cause: Review checked initial/terminal frames without replaying the full eligibility prefix against the complete retained reply sequence. A sticky history marker was interpreted as current phase evidence.
+Avoid by: Select a genuine matching capture using its own original timestamp, saved file mtime, scope and actual closure receipt; require that it exists. Preserve ownership checks on later replies while allowing normal later polling. Replay the entire pure eligibility path on actual rows, all replies, terminal metadata and inbox/close receipts, with missing/only-later/wrong-time/wrong-scope negatives, before live compensation. Never replay the timer or reset its deadline to repair a verification assertion.
+Seen N times: 1

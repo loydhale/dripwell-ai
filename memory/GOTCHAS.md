@@ -121,3 +121,35 @@ The gotcha: A batch row containing open URL --headers JSON does not set headers.
 Why it's like this: Navigation headers are populated from Flags and then keyed by URL origin before native navigation. Cookie staging and daemon reuse are supported separately from flag parsing.
 What to do: Stage only the known application cookie, then use a standalone open with --headers as an actual CLI option in the same owned session. Use the proven normal CLI62.1 project token interface, keep tokens/header values in memory and close the owned session. Record the actual first protected boundary; saved Trusted Sources rules remain a separate fact.
 What NOT to do: Do not use global set headers, place auth options inside batch rows, forward the header to another origin, forge claims, infer a Hobby-plan denial from login, or modify protection to conceal the harness failure.
+
+## G-013: An explicit SDK dispatcher bypasses Node's global proxy setting
+Date discovered: 2026-10-03
+Where: installed Workflow5.0.1 World HTTP client, managed environment, TASK-037
+The gotcha: A normal owned-run inspection received Node24 --use-env-proxy but failed before HTTP because World supplied its own direct undici Agent. WORKFLOW_NODE_HTTP also selects explicit Agents without proxyEnv and was not tried.
+Why it's like this: Global native-fetch proxy configuration does not replace a client's explicit dispatcher. This workspace routes HTTP through its inherited sidecar proxy and certificate trust.
+What to do: Trace the exact installed transport. For separately reviewed private verification, use the supported per-World APIConfig.dispatcher with EnvHttpProxyAgent and the unchanged default RetryAgent policy, normal selected CLI identity, inherited proxy/CA and a bounded owned watchdog. Distinguish logical reads from observed attempts.
+What NOT to do: Do not infer an account denial from a non-HTTP transport failure, try an equivalent direct route, weaken TLS, patch global fetch/SDK source, substitute identity or alter the deployed application.
+
+## G-014: Browser command output and launch state need explicit contracts
+Date discovered: 2026-10-03
+Where: pinned agent-browser0.38.1, TASK-037 private orchestration
+The gotcha: Successful cookies set emitted plain "✓ Done"; a generic JSON parser failed before navigation. An immediate page read still showed the normal loading screen, and a later probe with incomplete launch settings restarted the owned browser to about:blank.
+Why it's like this: Commands have different output contracts, client rendering is asynchronous, and the daemon may recreate browser state when effective launch settings change.
+What to do: Parse each documented command response, preserve one complete session/prefix/environment across operations, and wait boundedly for actual normal UI readiness alongside authenticated API identity. Use a fresh owned context deliberately after a lost browser and disclose normal token mints without persisting them.
+What NOT to do: Do not treat plain success or a loading screen as an access denial, silently change launch settings during a read, reuse the original owner cookie for a new fictional staff member, or resend a journaled restore.
+
+## G-015: Public World storage listing has a different filter contract from analytics
+Date discovered: 2026-10-03
+Where: installed Workflow5.0.1 World storage runs.list and TASK-038 cleanup reader
+The gotcha: Storage runs.list supports workflowName, one status and pagination limit/cursor/sortOrder, with resolveData none mapping to lazy payload-free reads. It does not support analytics startTime/endTime server filters. Optional list expiry/lookback fields may be absent; the targeted run can expose a future expiration separately.
+Why it's like this: Storage and analytics are separate public read surfaces with different parameter/schema contracts. A successful later storage read does not prove why an earlier analytics selection returned no matching candidate.
+What to do: Read the installed implementation/types, use only supported parameters, bound metadata and apply exact original creation-window/deployment/workflow guards on the client. Persist safe selection diagnostics, handle absent optional lookback/dates, verify targeted input availability and keep actual provider expiry separate from project deletion-policy claims.
+What NOT to do: Do not silently pass unsupported time filters, follow unapproved cursors, decode unrelated runs, infer analytics freshness or entitlement from one guard result, or relax original proof deadlines after recovery.
+
+## G-016: Notification read state uses isRead and dismissedAt
+Date discovered: 2026-10-03
+Where: packages/shared/prisma/schema.prisma Notification model, private hosted reminder verification
+The gotcha: Notification has boolean isRead and nullable dismissedAt; it has no readAt field. A retained PostgreSQL JSON row therefore cannot satisfy an assertion that indexes readAt.
+Why it's like this: The Prisma persistence contract and ordinary inbox use explicit read/dismissal state rather than an optional read timestamp.
+What to do: Check authoritative schema and the actual row. Require isRead to be present native booleanfalse and dismissedAt present null for unread/undismissed proof, with exact tenant/staff/visit/idempotency-key ownership. Verify the visible normal inbox separately without clicking mark-read.
+What NOT to do: Do not treat a missing field as null, coerce 0 or stringfalse into booleanfalse, mutate a notification to satisfy a harness, or infer a product/provider failure from an absent verification-only field.
