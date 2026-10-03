@@ -25,15 +25,19 @@ vi.mock('eve/client', () => ({
 }));
 
 import { POST as setup } from '../app/api/setup/route';
-import { PATCH as publishPolicy } from '../app/api/platform/route';
+import { GET as overview, PATCH as publishPolicy } from '../app/api/platform/route';
 import { hashToken, SESSION_COOKIE } from './auth';
 import { getDb } from './db';
 import { setReferralPolicy } from './platform';
+import { attributeReferral } from './billing';
 
 const testUrl = process.env.TEST_DATABASE_URL;
 if (testUrl) {
-  if (!/\/dripwell_verification(?:\?|$)/.test(testUrl))
+  if (!/\/(?:dripwell_verification|dripwell_task040_verification)(?:\?|$)/.test(testUrl))
     throw new Error('Advisory lock tests require the isolated verification database.');
+  if (new URL(testUrl).pathname === '/dripwell_task040_verification' &&
+      (new URL(testUrl).hostname !== '127.0.0.1' || new URL(testUrl).port !== '55432'))
+    throw new Error('The owned TASK040 database must use the verified loopback binding.');
   process.env.DATABASE_URL = testUrl;
 }
 const suite = testUrl ? describe : describe.skip;
@@ -47,12 +51,19 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
   let policyVersion: number;
   const ownerToken = randomBytes(32).toString('base64url');
   const adminToken = randomBytes(32).toString('base64url');
+  const staffToken = randomBytes(32).toString('base64url');
+  const ownedAdditionalTenants: string[] = [];
   const origin = 'https://synthetic-advisory.example.test';
   const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 
   beforeAll(async () => {
     vi.stubEnv('APP_URL', origin);
     vi.stubEnv('AI_GATEWAY_API_KEY', 'synthetic-external-boundary-no-network');
+    vi.stubEnv('STRIPE_SECRET_KEY', '');
+    vi.stubEnv('STRIPE_WEBHOOK_SECRET', '');
+    vi.stubEnv('STRIPE_PRICE_ID', '');
+    vi.stubEnv('PLATFORM_SUBSCRIPTION_CENTS', '');
+    vi.stubEnv('PLATFORM_SUBSCRIPTION_CURRENCY', '');
     const db = getDb();
     const suffix = randomUUID();
     const tenant = await db.tenant.create({
@@ -81,9 +92,17 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
       },
     });
     adminId = admin.id;
+    const staff = await db.user.create({
+      data: {
+        tenantId, email: `advisory-staff-${suffix}@example.test`,
+        passwordHash: 'unusable-synthetic-password', firstName: 'Synthetic',
+        lastName: 'Staff', role: 'PROVIDER',
+      },
+    });
     await db.authSession.createMany({ data: [
       { userId: ownerId, tokenHash: hashToken(ownerToken), expiresAt: new Date(Date.now() + 600000) },
       { userId: adminId, tokenHash: hashToken(adminToken), expiresAt: new Date(Date.now() + 600000), mfaVerifiedAt: new Date() },
+      { userId: staff.id, tokenHash: hashToken(staffToken), expiresAt: new Date(Date.now() + 600000) },
     ] });
     previousPolicy = await db.platformPolicy.findUnique({ where: { id: 'global' } });
     const history = await db.auditLog.findMany({
@@ -132,7 +151,9 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
     await db.rateLimitBucket.deleteMany({
       where: { key: digest(`setup-chat:${tenantId}:${ownerId}`) },
     });
+    await db.referral.deleteMany({ where: { referrerTenantId: tenantId, referredTenantId: { in: ownedAdditionalTenants } } });
     await db.tenant.delete({ where: { id: tenantId } });
+    await db.tenant.deleteMany({ where: { id: { in: ownedAdditionalTenants } } });
     await db.user.delete({ where: { id: adminId } });
     boundary.cookieValues.clear();
     vi.unstubAllEnvs();
@@ -257,5 +278,82 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
       .toMatchObject({ referralPolicy: value, updatedById: adminId });
     expect(await db.auditLog.count({ where: { userId: adminId, entityType: 'REFERRAL_POLICY' } }))
       .toBe(before + 1);
+  });
+
+  test('commercial policy overview and publication require the current platform identity and MFA', async () => {
+    const db = getDb();
+    const before = await db.platformPolicy.findUnique({ where: { id: 'global' } });
+    const logs = await db.auditLog.count({ where: { entityType: 'REFERRAL_POLICY' } });
+    for (const token of [null, ownerToken, staffToken]) {
+      if (token) boundary.cookieValues.set(SESSION_COOKIE, token);
+      else boundary.cookieValues.delete(SESSION_COOKIE);
+      const status = token === null ? 401 : 403;
+      expect((await overview(new Request(`${origin}/api/platform`), undefined)).status).toBe(status);
+      expect((await publishPolicy(policyRequest(policy(policyVersion + 2)), undefined)).status).toBe(status);
+    }
+    boundary.cookieValues.set(SESSION_COOKIE, adminToken);
+    await db.user.update({ where: { id: adminId }, data: { mfaEnabled: false } });
+    try {
+      expect((await overview(new Request(`${origin}/api/platform`), undefined)).status).toBe(403);
+      expect((await publishPolicy(policyRequest(policy(policyVersion + 2)), undefined)).status).toBe(403);
+    } finally {
+      await db.user.update({ where: { id: adminId }, data: { mfaEnabled: true } });
+    }
+    await db.authSession.update({ where: { tokenHash: hashToken(adminToken) }, data: { mfaVerifiedAt: null } });
+    try {
+      expect((await overview(new Request(`${origin}/api/platform`), undefined)).status).toBe(401);
+      expect((await publishPolicy(policyRequest(policy(policyVersion + 2)), undefined)).status).toBe(401);
+    } finally {
+      await db.authSession.update({ where: { tokenHash: hashToken(adminToken) }, data: { mfaVerifiedAt: new Date() } });
+    }
+    expect(await db.platformPolicy.findUnique({ where: { id: 'global' } })).toEqual(before);
+    expect(await db.auditLog.count({ where: { entityType: 'REFERRAL_POLICY' } })).toBe(logs);
+  });
+
+  test('commercial starter prefill preserves active overrides and disabled history through reenabling', async () => {
+    boundary.cookieValues.set(SESSION_COOKIE, adminToken);
+    const db = getDb();
+    const before = await db.platformPolicy.findUniqueOrThrow({ where: { id: 'global' } });
+    const reply = await overview(new Request(`${origin}/api/platform`), undefined);
+    expect(reply.status).toBe(200);
+    const data = await reply.json();
+    expect(data.policy).toEqual(policy(policyVersion + 1));
+    expect(data.nextPolicyVersion).toBe(policyVersion + 2);
+    expect(data.starterPolicy).toEqual({ ...policy(policyVersion + 2), creditCents: 5000 });
+    expect(data.subscriptionOffer).toMatchObject({ checkoutReady: false, terms: { amountCents: 19900, currency: 'USD' } });
+    expect(await db.platformPolicy.findUniqueOrThrow({ where: { id: 'global' } })).toEqual(before);
+    expect((await publishPolicy(policyRequest(data.starterPolicy), undefined)).status).toBe(200);
+
+    const code = `synthetic-commercial-${randomUUID()}`;
+    await db.tenant.update({ where: { id: tenantId }, data: { referralCode: code } });
+    const referred = await db.tenant.create({
+      data: { name: 'Synthetic versioned referral', slug: code, state: 'TEST', medicalDirector: 'Synthetic fixture' },
+    });
+    ownedAdditionalTenants.push(referred.id);
+    const subscription = await db.subscription.create({
+      data: { tenantId: referred.id, status: 'TRIAL', trialLimit: 10, trialUsed: 3,
+        trialActivatedAt: new Date(), trialEndsAt: new Date(Date.now() + 14 * 86400000) },
+    });
+    await db.$transaction(tx => attributeReferral(tx, referred.id, code));
+    const snapshot = await db.referral.findUniqueOrThrow({ where: { referredTenantId: referred.id } });
+    expect(snapshot.policyVersion).toBe(data.nextPolicyVersion);
+    expect(snapshot.policySnapshot).toEqual(data.starterPolicy);
+
+    const custom = { ...policy(policyVersion + 3), creditCents: 7500, currency: 'CAD', attributionDays: 60, refundReversesCredit: false, expiryDays: 90 };
+    expect((await publishPolicy(policyRequest(custom), undefined)).status).toBe(200);
+    const customOverview = await (await overview(new Request(`${origin}/api/platform`), undefined)).json();
+    expect(customOverview.policy).toEqual(custom);
+    expect(customOverview.starterPolicy.creditCents).toBe(5000);
+    expect(customOverview.nextPolicyVersion).toBe(policyVersion + 4);
+    expect((await publishPolicy(policyRequest(null), undefined)).status).toBe(200);
+    const disabled = await (await overview(new Request(`${origin}/api/platform`), undefined)).json();
+    expect(disabled.policy).toBeNull();
+    expect(disabled.nextPolicyVersion).toBe(policyVersion + 4);
+    expect(disabled.starterPolicy).toEqual({ ...policy(policyVersion + 4), creditCents: 5000 });
+    expect((await publishPolicy(policyRequest(disabled.starterPolicy), undefined)).status).toBe(200);
+    expect((await publishPolicy(policyRequest(custom), undefined)).status).toBe(409);
+    expect(await db.referral.findUniqueOrThrow({ where: { id: snapshot.id } })).toEqual(snapshot);
+    expect(await db.subscription.findUniqueOrThrow({ where: { id: subscription.id } })).toEqual(subscription);
+    expect(await db.creditLedger.count({ where: { referralId: snapshot.id } })).toBe(0);
   });
 });

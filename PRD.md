@@ -3,13 +3,15 @@
 **Version:** 2.0, consultation workflow  
 **Status:** Owner-authorized v2 source implemented; release verification and live service status are recorded in [verification evidence](docs/VERIFICATION_REPORT.md)\
 **Owner:** Loyd Hale  
-**Updated:** 2026-10-01  
+**Updated:** 2026-10-03\
 **Plan:** [Implementation plan](docs/IMPLEMENTATION_PLAN.md)  
 **Previous scope:** [Archived v1 PRD](docs/archive/PRD-v1.md)
 
 ## 1. Product and purpose
 
 DripWell is a multi-tenant PWA for IV clinics. It records a consented new-client consultation, guides staff through necessary questions, prepares recommendations from that location's approved catalog, captures staff review and actual treatment, and produces an attractive wellness takeaway. Owners can standardize consultations, understand staff adjustments, track care starts and client decisions, and improve recommendation configuration through owner-controlled review.
+
+The Owner's stated business goals are better conversion and client satisfaction. Evaluate conversion through actual care starts, client decisions and documented reasons, with clear denominators and suitability context. A clear explanation of the client's goals, suitable options and official prices should help the client make an informed decision. Client satisfaction is an intended outcome; a post-visit rating is an idea for separate scope review, not an implemented measurement or an automatic policy-change signal.
 
 Use OpenScribe as the reference for recording, transcription, and reviewed documentation. Use Vercel, AI SDK, Workflow, and eve for application and agent infrastructure. Preserve existing project instructions/context/memory conventions and use eve's documented filesystem layout. The owner's separate ICM/eve example has not yet been identified; do not claim an exact template match until verified.
 
@@ -166,7 +168,7 @@ Labels may be polished; these meanings and triggers are required.
 - Award a referring clinic account credit on a qualifying paid platform subscription conversion, the working interpretation of “signs.”
 - Record attribution, dates/usage, conversion, earned/applied/reversed credits, amounts, and policy version.
 - Prevent self-referrals, duplicates, replayed billing events, and duplicate awards; handle refunds and admin corrections with ledger history.
-- Credit amount/qualification terms remain commercial decisions. Do not fabricate an amount or auto-enroll trials into paid billing.
+- On2026-10-03 the Owner delegated initial commercial pricing. Starter platform subscription is USD199 per clinic account per month, using the existing tenant subscription without location metering. Starter referral credit is USD50 once after the first qualifying paid platform subscription, with30-day attribution, reversal on refund and no expiry. Keep credit restricted to future platform invoices with no cash payout. Publish changes through versioned platform authority, preserve historical snapshots and allow later edits. The 14-day/10-consultation trial never auto-enrolls into paid billing.
 
 ### F-12. Clinic and platform dashboards
 
@@ -240,15 +242,16 @@ Pilot targets: immediate recording controls; question updates within 10 seconds 
 | Exact ICM example | Preserve observed root context/memory conventions and verified eve layout; compare the owner's separate example before scaffolding |
 | Trial activation/counting | Implemented default: owner registration activates the 14-day trial; reserve/count a successfully initiated unique initial consultation transactionally; failed initiation is not charged; tests/retries never count |
 | Trial exhaustion | Implemented default: whichever occurs first, 14 days or 10 initial consultations; finish already-started visits |
-| Referral credit | Proposed: first successfully paid qualifying platform subscription; value, attribution/qualification/refund window, and credit expiry still need definition |
+| Platform subscription | Owner-delegated starter: USD199 per clinic account/month, existing quantity1; canonical editable configuration and a matching real Stripe recurring price are required. No real customer charge is authorized by starter configuration |
+| Referral credit | Owner-delegated starter: USD50 once after first qualifying paid platform subscription,30-day attribution, refund reverses credit, no expiry, future platform invoice credit/no cash payout; explicit versioned activation preserves prior snapshots |
 | Catalog/clinical configuration | Owner supplies actual prices/terms/protocols; missing data stays incomplete; clinical rules need appropriate validation |
 | Services/framework versions | Pinned Next.js 16.3.8, eve 0.69.0, AI SDK 7.0.127, Workflow 5.0.1 and Prisma 6.19.3; database-backed opaque sessions/MFA, private Blob, Gateway transcription/inference, Stripe and Resend. Actual service provisioning remains required |
 | Reminders/retention/sharing | Owner configuration controls timing/retention; sharing uses intended-recipient email verification, bounded expiry and revocation. Confirm clinic settings and service eligibility before real-data sharing |
 
-These decisions do not block this PRD/plan. They are not authorization to invent commercial terms.
+The Owner's2026-10-03 delegation authorizes the starter commercial choices above. Clinic catalog prices and clinical protocols remain actual owner/provider data; this delegation does not authorize inventing those facts, buying services or changing clinical authority.
 
 ## 10. Scope governance
 
-The owner explicitly requested this consultation-centered rewrite, Vercel infrastructure, ICM/eve structure, exact Kanban triggers, and 14-day/10-consultation trial, then authorized finishing the software. Implementation follows that scope. The verification report distinguishes implemented source, synthetic checks and live deployment; open commercial terms remain separate decisions.
+The owner explicitly requested this consultation-centered rewrite, Vercel infrastructure, ICM/eve structure, exact Kanban triggers, and 14-day/10-consultation trial, then authorized finishing the software and delegated initial commercial pricing. Implementation follows that scope. The verification report distinguishes implemented source, synthetic checks and live deployment; publishing starter configuration does not establish actual billing, referral conversion or full-pilot evidence.
 
 Record minor clarifications with review. New scope and active clinic-rule changes require owner decisions/version history. Keep development memory separate from the product's owner-controlled improvement process.

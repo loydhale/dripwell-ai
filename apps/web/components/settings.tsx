@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import type { ReferralPolicy } from '@dripwell/shared/v2';
+import type { PlatformSubscriptionOffer } from '@/lib/commercial';
+import { SubscriptionTerms } from './subscription-terms';
 import { apiRequest, isOwner, postJson, useClinic, type StaffView } from './clinic-context';
 import { Badge, ErrorBanner, Icon, Modal, Money, friendlyDate } from './ui';
 
@@ -28,6 +30,7 @@ interface ReferralData {
   credits: { id: string; amountCents: number; currency: string; kind: string; createdAt: string }[];
   balances: { currency: string; availableCents: number }[];
   policy: ReferralPolicy | null;
+  subscriptionOffer: PlatformSubscriptionOffer;
 }
 
 function InstallApp() {
@@ -376,6 +379,7 @@ export function Settings() {
                   </div>
                   <Icon name="card" />
                 </div>
+                {referrals ? <SubscriptionTerms offer={referrals.subscriptionOffer} /> : null}
                 <div className="subscription-summary">
                   <div>
                     <strong>
@@ -408,7 +412,7 @@ export function Settings() {
                 <div className="decision-buttons">
                   <button
                     className="button button-primary"
-                    disabled={busy || !referrals}
+                    disabled={busy || !referrals?.subscriptionOffer.checkoutReady}
                     onClick={() => void billing('/api/billing/checkout')}
                   >
                     Choose subscription
@@ -424,8 +428,8 @@ export function Settings() {
                   ) : null}
                 </div>
                 <p className="field-help">
-                  Owner MFA is required to manage billing. Subscription prices and terms are shown
-                  in the secure checkout before purchase.
+                  Owner MFA is required to manage billing. Your trial never automatically converts
+                  to a paid subscription. Review the secure checkout before purchase.
                 </p>
               </section>
               <section className="panel">
@@ -476,7 +480,8 @@ export function Settings() {
                               : ''}
                             {referrals.policy.expiryDays
                               ? ` Credit expires after ${referrals.policy.expiryDays} days.`
-                              : ''}
+                              : ' Credit does not expire.'}
+                            {' Credit applies to future DripWell invoices and has no cash payout.'}
                           </p>
                         ) : null}
                       </div>

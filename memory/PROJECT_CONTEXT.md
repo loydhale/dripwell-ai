@@ -8,6 +8,8 @@ DripWell.ai, owned by Loyd Hale.
 
 Consultation-centered IV clinic PWA: consented recording, visible question guidance, location-catalog recommendations, tracked staff edits, provider approval, actual care outcomes, post-treatment wellness documents, the specified six-stage board, owner-controlled improvements, referrals, and 14-day trials including 10 initial consultations. See PRD.md.
 
+Owner steering2026-10-03 identifies conversion rate and client satisfaction as the business goals. Existing care-start/decision/reason reporting and explanation review support that direction; spending alone is not suitability or satisfaction. A short post-visit satisfaction rating is a proposed additional feature, not implemented scope. The Owner also delegates initial commercial pricing: starter USD199 per clinic account/month and USD50 one-time qualifying paid referral credit, editable/versioned with30-day attribution/refund reversal/no expiry. TASK040 implements the existing billing/settings path; the trial remains14days/10consultations without automatic paid conversion. This supersedes the earlier unselected amount blocker, not clinic medical-pricing authority or provider-spending restrictions.
+
 ## Implemented v2 and hosted verification, 2026-10-02
 
 Owner authorized completing v2. The active build workspace is `/workspace/dripwell-build` on `feat/dripwell-consultation-v2`, based on the reviewed v2 documentation. Next.js replaces the deployed web entry point; same-origin route handlers use the existing Prisma identity/schema with additive v2 records. Opaque server-side cookie sessions replace the old browser JWT storage for the v2 app. The Vercel Next.js SaaS Starter at `6e33e58b1e553a41fe22e6b941a7229a002de361` is inspected as a dashboard/team/billing reference, keeping one ORM.
@@ -36,9 +38,13 @@ TASK037 proved historical hosted Workflow wait/resume on one compiled restore, a
 
 Next.js PWA on Vercel using a suitable SaaS starter, eve, AI SDK, Workflow, PostgreSQL and private artifacts. Target Node.js 24; pin compatible versions and retain one ORM/identity model during foundation work.
 
-## Latest service preference, 2026-10-02
+## Latest service status and preference, 2026-10-03
 
-Owner prefers their ChatGPT subscription over purchasing Gateway credits, authorized Stripe and chose Resend. Current official SIWC now supports eligible subscription usage in participating apps; commercial hosted access is partner-gated, and published terms prohibit one subscriber funding another user. Its flow excludes transcription. See docs/CHATGPT_PLAN_ASSESSMENT.md. No provider switch or spending occurred. Stripe and Resend remain human Marketplace-terms blocked. Existing owned hudley.ai provides dedicated sender candidate dripwell.hudley.ai; actual authorized Cloudflare DNS records/access/sender verification and owned test recipient remain required. Reminders are the requested missing-outcome/TBD staff notifications; the current 15-minute schedule exceeds Hobby limits.
+Owner prefers ChatGPT subscription use, authorized Stripe sandbox and selected Resend. The normal installed Codex CLI is already signed in using ChatGPT. Current independently co-signed TASK041 research distinguishes supported coding and local summaries/formatting from app eligibility: app-server authentication expressly excludes commercial/hosted services; commercial SIWC remains selected-partner, per-user, and excludes audio/video/transcription. An app's own local registration/credentials and eligible Healthcare/Regulated workspace/BAA/controls cannot be inferred from the coding login. See docs/CHATGPT_CLI_ROUTE_REVIEW.md alongside the historical assessment. No new login, credential transfer, provider/model switch, partner application or AI purchase occurred.
+
+Actual Stripe sandbox resource ir_WKeIBgBxmVampeYA is ready and connected to the exact project for Preview and Development. The actual active test-mode recurring price price_1UMZHUECTnhgX9UT9BTCFALy matches the delegated USD199/account/month starter and is bound through normal CLI stdin for both environments. Independent selected-project/resource/protection and remote-only Preview readbacks passed; literalfalse and webhook absence are verified, all26 other environment metadata records including Development are unchanged, and no Production binding exists. Webhook/payment/referral verification is separate. The USD50 referral starter requires explicit versioned platform authority, not automatic activation. TASK040 source,40 focused checks, final types and5 owned actual-PG cases are frozen; actual compiled-browser draft/save/disable/reload/re-enable/max-version and owner terms have passed. Owned UI/database/profile cleanup independently passed with all50 shared full-row digests/container preserved; final combined audit/co-sign/publication is being closed. TASK042 is queued for the known historical-subscription recognition gap before future price rotation; no automatic repricing is claimed.
+
+The one supported native free Resend request returned HTTP400 disabled free plan; no paid fallback or email. Direct free-account API-key entry into selected Vercel Preview/Development settings was requested once. Existing owned hudley.ai supplies candidate dripwell.hudley.ai; actual DNS records, authorized Cloudflare access, sender verification and an explicitly selected owned test recipient remain required. Reminders are missing-outcome/TBD staff notifications; the authored global15-minute cadence exceeds the current Hobby plan. The actual per-visit hosted Workflow proof remains distinct.
 
 ## Standing development preference
 
@@ -57,7 +63,7 @@ Authored eve files target apps/web/agent/ with instructions/, channels/, skills/
 - Tenant/role derived from verified server identity; owner-only improvement publishing.
 - Database configuration/version history is authoritative; conversation memory cannot publish policies.
 - Repository memory contains no client data. PHI requires appropriate service agreements, controls, retention/deletion, and restricted traces.
-- Prices are official owner data; existing schema lacks a price field and needs audited migration.
+- Clinic catalog prices and protocols are actual owner/provider data. V2 stores reviewed prices in integer minor units and immutable visit snapshots; the legacy missing-price defect is historical. Owner-delegated platform starter pricing is separate from clinic clinical authority.
 - Test consultations never count toward trial or conversion reporting.
 - Implementation is published in PR #2 on the reviewable v2 branch. The hosted synthetic preview is separate from production; main and the earlier production deployment are not switched.
 

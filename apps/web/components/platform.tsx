@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import type { ReferralPolicy } from '@dripwell/shared/v2';
+import type { PlatformSubscriptionOffer } from '@/lib/commercial';
 import { apiRequest, postJson } from './clinic-context';
 import { decimalPrice, parsePrice } from './configuration-editor';
 import { Badge, ErrorBanner, Icon, Money, friendlyDate } from './ui';
+import { SubscriptionTerms } from './subscription-terms';
 
 interface PlatformData {
   clinics: {
@@ -54,6 +56,9 @@ interface PlatformData {
     createdAt: string;
   }[];
   policy: ReferralPolicy | null;
+  nextPolicyVersion: number | null;
+  starterPolicy: ReferralPolicy | null;
+  subscriptionOffer: PlatformSubscriptionOffer;
   readiness: { configured: boolean; services: { name: string; connected: boolean }[] };
 }
 
@@ -76,14 +81,17 @@ export function Platform() {
       const result = await apiRequest<PlatformData>('/api/platform');
       setData(result);
       setError('');
-      if (result.policy) {
-        setEnabled(true);
-        setAmount(decimalPrice(result.policy.creditCents, result.policy.currency));
-        setCurrency(result.policy.currency);
-        setVersion(result.policy.version + 1);
-        setAttribution(result.policy.attributionDays);
-        setRefundReverses(result.policy.refundReversesCredit);
-        setExpiry(result.policy.expiryDays == null ? '' : String(result.policy.expiryDays));
+      setEnabled(Boolean(result.policy));
+      setVersion(result.nextPolicyVersion ?? result.policy?.version ?? 1);
+      const fields = result.policy ?? result.starterPolicy;
+      if (fields) {
+        setAmount(decimalPrice(fields.creditCents, fields.currency));
+        setCurrency(fields.currency);
+        setAttribution(fields.attributionDays);
+        setRefundReverses(fields.refundReversesCredit);
+        setExpiry(fields.expiryDays == null ? '' : String(fields.expiryDays));
+      } else {
+        setAmount('');
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Platform overview could not be loaded.');
@@ -94,6 +102,18 @@ export function Platform() {
   useEffect(() => {
     void load();
   }, [load]);
+  function loadStarterTerms() {
+    if (!data?.starterPolicy) return;
+    const policy = data.starterPolicy;
+    setEnabled(true);
+    setVersion(policy.version);
+    setAmount(decimalPrice(policy.creditCents, policy.currency));
+    setCurrency(policy.currency);
+    setAttribution(policy.attributionDays);
+    setRefundReverses(policy.refundReversesCredit);
+    setExpiry(policy.expiryDays == null ? '' : String(policy.expiryDays));
+    setNotice('Starter terms loaded for review. Publish to activate this new policy version.');
+  }
   async function publish(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -355,6 +375,8 @@ export function Platform() {
                         </Badge>
                       ))}
                     </div>
+                    <h3 className="form-heading">Platform subscription</h3>
+                    <SubscriptionTerms offer={data.subscriptionOffer} />
                     <h3 className="form-heading">Generation performance and cost</h3>
                     <div className="metric-breakdown">
                       <span>
@@ -490,6 +512,22 @@ export function Platform() {
                   ) : (
                     <Badge tone="teal">Current policy v{data.policy.version}</Badge>
                   )}
+                  <button
+                    className="button"
+                    type="button"
+                    disabled={busy || !data.starterPolicy}
+                    onClick={loadStarterTerms}
+                  >
+                    Load starter referral terms
+                  </button>
+                  <p className="field-help">
+                    Starter terms are editable and remain inactive until published. Credit applies
+                    to future DripWell invoices and has no cash payout. Existing referrals keep
+                    their recorded policy versions.
+                  </p>
+                  {data.nextPolicyVersion === null ? (
+                    <div className="notice notice-warm">The policy version limit has been reached. Contact platform support before publishing new rewards.</div>
+                  ) : null}
                   <label className="inline-check">
                     <input
                       type="checkbox"
@@ -569,7 +607,7 @@ export function Platform() {
                       </p>
                     </>
                   ) : null}
-                  <button className="button button-primary" disabled={busy}>
+                  <button className="button button-primary" disabled={busy || (enabled && data.nextPolicyVersion === null)}>
                     {busy
                       ? 'Publishing…'
                       : enabled

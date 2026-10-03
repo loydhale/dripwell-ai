@@ -47,3 +47,11 @@ Summary: Recorded the authorized implementation, pinned runtime, registration-ba
 Task trigger: Owner instruction to finish the software; V2-COMBINED.
 CTO: Implementation details within the existing v2 scope; no new feature.
 Auditor co-sign: implementation_audit, PASS, 2026-10-01. Minor implementation details remain within owner-authorized v2 scope; source/local runtime verification is distinct from live deployment and commercial decisions.
+
+## 2026-10-03 — v2.0 — MINOR, OWNER-DELEGATED COMMERCIAL CHOICES
+
+Section changed: Product purpose, F-11, explicit defaults and scope governance.
+Summary: Owner explicitly authorizes choosing editable starter pricing and clarifies conversion/client-satisfaction goals. CTO chooses USD199 per clinic account/month and USD50 one-time qualifying paid-referral credit with30-day attribution/refund reversal/no expiry/no cash payout. Existing trial, clinical suitability, authority and historical version controls remain. Post-visit satisfaction collection is a proposal only; no feature was silently added.
+Task trigger: TASK040 and direct Owner clarification2026-10-03.
+Owner authorization: "You can decide on that pricing... we can change it later." No paid service purchase, real charge, clinical-rule change or full-pilot claim is inferred.
+Auditor co-sign: commercial_auditor, PASS,2026-10-03. Minor Owner-delegated commercial choices and product-goal clarification are within existing scope; source/runtime verification remains a separate task boundary.

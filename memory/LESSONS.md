@@ -151,7 +151,8 @@ Task: TASK-015
 What went wrong: The pattern edit form hardcoded `escapeHtml('')` for the `clinicalRationale` textarea, meaning every edit would silently blank out the existing clinical rationale. The edit button fetched the record but the form did not use it.
 Root cause: The Coder wrote a conditional render expression but passed an empty string literal instead of the pattern property.
 Avoid by: When wiring an edit form, copy every field from the fetched record into its corresponding form control. Do a visual spot check: open edit, verify every field shows current data, save without changing anything, verify nothing changed.
-Seen N times: 1
+Recurrence: TASK040,2026-10-03. A disabled referral policy retains immutable publication history while its current active JSON becomes null. The form must reset enabled state and every editable value on reload; the next version must use current and historical publications rather than recreate a disabled version. Focused actual-PG checks and the actual compiled custom-load/starter-draft/publication/disable/full-reload/re-enable/max-version checks pass. Earlier failed private fixture and browser phases are retained and excluded from successful proof; final cleanup/audit is separately recorded.
+Seen N times: 2
 
 ## L-017 — Prisma relation `take` limit breaks `.length` count semantics
 Date: 2026-04-23
@@ -223,7 +224,8 @@ Task: V2-SERVICE-PREFERENCE-DOCS
 What went wrong: A blanket statement that ChatGPT subscriptions cannot power another app was too broad after official SIWC introduced eligible Plus/Pro plan usage in participating applications.
 Root cause: Ordinary API billing separation was generalized into a claim about every supported integration, without checking the current program's eligibility and terms.
 Avoid by: Read current official Help, developer documentation and applicable terms together. Distinguish participating commercial approval, user-controlled runtime, cross-user restrictions, free access to plan use, model/audio capability and healthcare coverage from account billing alone. Preserve actual deployed-provider evidence while correcting the overly broad claim.
-Seen N times: 1
+Recurrence: TASK041,2026-10-03. Normal current CLI status already reports ChatGPT login, and documented noninteractive/local execution includes summaries and data formatting. Technical SDK/app-server embedding is separate from authentication permission: current first-party guidance expressly excludes commercial/hosted services from app-server authentication. Eligible local/open-source SIWC needs its own registered identity; eligible local Healthcare/Regulated Codex needs actual workspace/BAA/controls. Read those exact boundaries before requesting another login or making a blanket claim about subscription use. Eighteen current first-party responses and20 quoted guards were independently co-signed; no provider or login operation was needed.
+Seen N times: 2
 
 ## L-026 — Client-only archive search cannot reach records omitted by the server
 Date: 2026-10-02
@@ -303,7 +305,8 @@ Task: TASK-039
 What went wrong: The private post-terminal caller assumed Notification.readAt after a real hosted timer completed. The persisted row and Prisma model instead expose isRead and dismissedAt. Actual inbox/cleanup needed a separately reviewed continuation.
 Root cause: An unexecuted completion path was cloned without exercising its assertions against the actual retained row and authoritative schema. The original generic execution error did not capture exception text; offline source replay separately reproduced KeyError(readAt).
 Avoid by: Validate actual serialized fields and types before a live completion boundary. Require present booleanfalse isRead, present null dismissedAt and exact row/tenant/staff/visit/key/due ownership. Preserve the original failure and evidence, test missing/wrong/read/dismissed variants offline, then continue only the original case under reviewed source.
-Seen N times: 1
+Recurrence: TASK040,2026-10-03. The private UI fixture assumed AuditAction UPDATE and UUID AuditLog.entityId='global'; the authoritative product uses SETTINGS_CHANGED with a null entityId for platform settings. The first enum mismatch failed and rolled back the create transaction; all50 owned tables were actually empty and all50 shared digests unchanged. Independent recovery review caught the remaining create/snapshot/cleanup identity mismatch before another attempt. An idle owned Next server had been dispatched before the failed prerequisite result was checked; that sequencing mistake and exact process are retained, with no proxy/browser or second build. Validate the whole create/snapshot/cleanup path against schema and the actual writer, and await each prerequisite result before dependent work. Preserve original helpers/co-sign/failure; recover only in separate reviewed bytes against the original owned target/build.
+Seen N times: 2
 
 ## L-036: Historical observation flags do not timestamp each later reply
 Date: 2026-10-03
@@ -311,4 +314,12 @@ Task: TASK-039
 What went wrong: The private finisher asserted every nonterminal reply with futureWaitObserved=true preceded browser closure. One genuine pre-closure capture existed, but eight later valid polls retained the historical flag and triggered a captured AssertionError before SQL.
 Root cause: Review checked initial/terminal frames without replaying the full eligibility prefix against the complete retained reply sequence. A sticky history marker was interpreted as current phase evidence.
 Avoid by: Select a genuine matching capture using its own original timestamp, saved file mtime, scope and actual closure receipt; require that it exists. Preserve ownership checks on later replies while allowing normal later polling. Replay the entire pure eligibility path on actual rows, all replies, terminal metadata and inbox/close receipts, with missing/only-later/wrong-time/wrong-scope negatives, before live compensation. Never replay the timer or reset its deadline to repair a verification assertion.
+Seen N times: 1
+
+## L-037: Narrow test filters match the complete suite and test title
+Date: 2026-10-03
+Task: TASK040
+What went wrong: The proposed broad policy-name filter also matched the enclosing setup/policy suite, selecting unrelated existing AI setup cases instead of the intended five database checks. Independent plan review caught this before execution.
+Root cause: Vitest's name filter matches the complete hierarchical title, including suite names; reviewing only the individual test labels missed the broader selection.
+Avoid by: Inspect full selected titles and expected executed/skipped counts before running a narrowed database continuation. Pin exact distinct name substrings, preserve owned-target/provider guards, and record deliberate exclusions separately from a complete suite PASS. The corrected TASK040 command ran exactly5 focused cases and deliberately left10 unchanged cases unselected.
 Seen N times: 1

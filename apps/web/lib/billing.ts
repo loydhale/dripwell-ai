@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { referralPolicySchema } from '@dripwell/shared/v2';
 import { getDb } from './db';
 import { ApiError } from './errors';
+import { assertPlatformPrice, platformSubscriptionTerms, type PlatformSubscriptionOffer } from './commercial';
 
 export function applicationUrl(): string {
   const value = process.env.APP_URL;
@@ -38,6 +39,49 @@ export function stripeClient(): Stripe {
   if (!process.env.STRIPE_SECRET_KEY)
     throw new ApiError(503, 'Subscription billing is not connected yet.', 'BILLING_UNAVAILABLE');
   return new Stripe(process.env.STRIPE_SECRET_KEY, { maxNetworkRetries: 1, timeout: 8000 });
+}
+
+export async function configuredPlatformPrice(): Promise<Stripe.Price> {
+  const priceId = process.env.STRIPE_PRICE_ID;
+  if (!priceId)
+    throw new ApiError(503, 'The subscription price has not been configured.', 'BILLING_PRICE_MISSING');
+  let terms;
+  try {
+    terms = platformSubscriptionTerms(process.env);
+  } catch {
+    throw new ApiError(503, 'The platform subscription terms need configuration.', 'BILLING_TERMS_INVALID');
+  }
+  let price;
+  try {
+    price = await stripeClient().prices.retrieve(priceId, { expand: ['product'] });
+  } catch (cause) {
+    if (cause instanceof ApiError) throw cause;
+    throw new ApiError(503, 'Subscription billing could not be verified. Try again later.', 'BILLING_UNAVAILABLE');
+  }
+  try {
+    assertPlatformPrice(price, priceId, terms);
+  } catch {
+    throw new ApiError(503, 'The billing price does not match the configured subscription terms.', 'BILLING_PRICE_MISMATCH');
+  }
+  return price;
+}
+
+/** Billing outages do not hide the clinic's trial, referrals or existing records. */
+export async function platformSubscriptionOffer(): Promise<PlatformSubscriptionOffer> {
+  let terms;
+  try {
+    terms = platformSubscriptionTerms(process.env);
+  } catch {
+    return { terms: null, checkoutReady: false, notice: 'Subscription terms need configuration. Your trial and existing visits remain available.' };
+  }
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET || !process.env.STRIPE_PRICE_ID)
+    return { terms, checkoutReady: false, notice: 'Subscription checkout is not connected yet. No automatic paid enrollment.' };
+  try {
+    await configuredPlatformPrice();
+    return { terms, checkoutReady: true, notice: 'Choose a subscription only when you are ready. Review any applicable taxes in secure checkout before purchase.' };
+  } catch {
+    return { terms, checkoutReady: false, notice: 'Subscription checkout could not be verified. Your trial and existing visits remain available.' };
+  }
 }
 
 export async function attributeReferral(
@@ -101,14 +145,10 @@ async function ensureCustomer(tenantId: string, email: string): Promise<string> 
 }
 
 export async function checkout(tenantId: string, email: string): Promise<{ url: string }> {
+  if (!process.env.STRIPE_WEBHOOK_SECRET)
+    throw new ApiError(503, 'Subscription billing is not connected yet.', 'BILLING_UNAVAILABLE');
+  const price = (await configuredPlatformPrice()).id;
   const db = getDb();
-  const price = process.env.STRIPE_PRICE_ID;
-  if (!price)
-    throw new ApiError(
-      503,
-      'The subscription price has not been configured.',
-      'BILLING_PRICE_MISSING',
-    );
   const customer = await ensureCustomer(tenantId, email);
   await applyCredits(tenantId);
   const origin = applicationUrl();

@@ -292,6 +292,16 @@ suite('subscription and referral persistence against isolated PostgreSQL', () =>
   test('reuses one checkout session across concurrent subscription starts', async () => {
     process.env.APP_URL = 'https://dripwell.example.test';
     process.env.STRIPE_PRICE_ID = `price_${prefix}`;
+    vi.spyOn(Stripe.resources.Prices.prototype, 'retrieve').mockResolvedValue({
+      id: `price_${prefix}`, object: 'price', active: true, currency: 'usd', unit_amount: 19900,
+      unit_amount_decimal: Stripe.Decimal.from('19900'), type: 'recurring', billing_scheme: 'per_unit',
+      recurring: { interval: 'month', interval_count: 1, usage_type: 'licensed' },
+      custom_unit_amount: null, transform_quantity: null,
+      product: { id: `prod_${prefix}`, object: 'product', active: true },
+    } as Stripe.Response<Stripe.Price>);
+    vi.spyOn(Stripe.resources.Customers.prototype, 'create').mockResolvedValue({
+      id: `cus_checkout_${prefix}`,
+    } as Stripe.Response<Stripe.Customer>);
     const sessions: Stripe.Checkout.Session[] = [];
     const sessionPrototype = Object.getPrototypeOf(
       stripe.checkout.sessions,

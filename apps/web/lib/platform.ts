@@ -3,8 +3,9 @@ import { Prisma } from '@prisma/client';
 import { referralPolicySchema, type ReferralPolicy } from '@dripwell/shared/v2';
 import { getDb } from './db';
 import { ApiError } from './errors';
-import { applicationUrl, ensureReferralCode } from './billing';
+import { applicationUrl, ensureReferralCode, platformSubscriptionOffer } from './billing';
 import { ledgerBalances } from './credits';
+import { starterReferralPolicy } from './commercial';
 
 export function serviceReadiness() {
   const items = [
@@ -45,7 +46,7 @@ export function serviceReadiness() {
 
 export async function clinicReferrals(tenantId: string) {
   const db = getDb();
-  const [code, subscription, referrals, credits, policy] = await Promise.all([
+  const [code, subscription, referrals, credits, policy, subscriptionOffer] = await Promise.all([
     ensureReferralCode(tenantId),
     db.subscription.findUnique({ where: { tenantId } }),
     db.referral.findMany({
@@ -76,6 +77,7 @@ export async function clinicReferrals(tenantId: string) {
       orderBy: { createdAt: 'desc' },
     }),
     db.platformPolicy.findUnique({ where: { id: 'global' } }),
+    platformSubscriptionOffer(),
   ]);
   const parsed = referralPolicySchema.safeParse(policy?.referralPolicy);
   return {
@@ -104,6 +106,7 @@ export async function clinicReferrals(tenantId: string) {
     credits,
     balances: ledgerBalances(credits),
     policy: parsed.success ? parsed.data : null,
+    subscriptionOffer,
     notice: parsed.success
       ? 'Credits are awarded after a referred clinic makes its first qualifying subscription payment.'
       : 'Referral tracking is active. The account-credit amount and terms have not yet been configured; no monetary credit is promised until a policy is published.',
@@ -123,6 +126,8 @@ export async function platformOverview() {
     billingFailures,
     policy,
     support,
+    policyHistory,
+    subscriptionOffer,
   ] = await Promise.all([
     db.tenant.findMany({
       select: {
@@ -195,8 +200,11 @@ export async function platformOverview() {
     }),
     db.platformPolicy.findUnique({ where: { id: 'global' } }),
     db.feedback.groupBy({ by: ['status'], _count: { _all: true } }),
+    referralPolicyHistoryVersion(db),
+    platformSubscriptionOffer(),
   ]);
   const parsed = referralPolicySchema.safeParse(policy?.referralPolicy);
+  const nextPolicyVersion = nextReferralPolicyVersion(parsed.success ? parsed.data.version : 0, policyHistory);
   const latencies = jobs
     .filter((job) => job.startedAt && job.completedAt)
     .map((job) => job.completedAt!.getTime() - job.startedAt!.getTime());
@@ -288,8 +296,24 @@ export async function platformOverview() {
     credits,
     billingFailures,
     policy: parsed.success ? parsed.data : null,
+    nextPolicyVersion,
+    starterPolicy: nextPolicyVersion === null ? null : starterReferralPolicy(nextPolicyVersion),
+    subscriptionOffer,
     readiness: serviceReadiness(),
   };
+}
+
+async function referralPolicyHistoryVersion(tx: Prisma.TransactionClient): Promise<number> {
+  const history = await tx.$queryRaw<Array<{ version: number }>>`
+    SELECT COALESCE(MAX(("details" #>> '{after,version}')::int), 0) AS "version"
+    FROM "AuditLog" WHERE "entityType" = 'REFERRAL_POLICY' AND jsonb_typeof("details" #> '{after,version}') = 'number'
+  `;
+  return history[0]?.version ?? 0;
+}
+
+function nextReferralPolicyVersion(current: number, historical: number): number | null {
+  const latest = Math.max(current, historical);
+  return latest >= 2147483647 ? null : latest + 1;
 }
 
 export async function setReferralPolicy(userId: string, policy: ReferralPolicy | null) {
@@ -297,13 +321,10 @@ export async function setReferralPolicy(userId: string, policy: ReferralPolicy |
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(735918223)`;
     const existing = await tx.platformPolicy.findUnique({ where: { id: 'global' } });
     const previous = referralPolicySchema.safeParse(existing?.referralPolicy);
-    const history = await tx.$queryRaw<Array<{ version: number }>>`
-      SELECT COALESCE(MAX(("details" #>> '{after,version}')::int), 0) AS "version"
-      FROM "AuditLog" WHERE "entityType" = 'REFERRAL_POLICY' AND jsonb_typeof("details" #> '{after,version}') = 'number'
-    `;
+    const historical = await referralPolicyHistoryVersion(tx);
     const latestVersion = Math.max(
       previous.success ? previous.data.version : 0,
-      history[0]?.version ?? 0,
+      historical,
     );
     if (policy && (policy.version > 2147483647 || policy.creditCents > 2147483647))
       throw new ApiError(400, 'Policy amounts and version are too large.');
