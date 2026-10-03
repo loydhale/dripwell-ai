@@ -113,3 +113,11 @@ The gotcha: Persisted runs and WORKFLOW_LOCAL_RECOVER_ACTIVE_RUNS=true did not r
 Why it's like this: Local World recovery is performed by its supported start() lifecycle; merely selecting getWorld() or retaining files does not initialize that lifecycle in the observed bare Next startup.
 What to do: Verify actual run identity, future wait, process restart and recovery. When initializing a retained local World, use the installed documented start()/close() lifecycle with the same owned directory and compiled callback runtime. TASK-028 did this and recovered the same original runs without replacement kickoff.
 What NOT to do: Do not label explicit lifecycle initialization as automatic Next restart, infer recovery from files or a configuration flag, substitute a direct helper, or transfer a local-world result to Vercel production scheduling semantics.
+
+## G-012: agent-browser0.38.1 batch rows inherit outer flags
+Date discovered: 2026-10-02
+Where: pinned agent-browser0.38.1 run_batch/parse_command/navigation handlers, protected-preview verification
+The gotcha: A batch row containing open URL --headers JSON does not set headers. run_batch passes the outer Flags directly to parse_command; it does not parse flags in each stdin row. A successful batch therefore does not prove that its intended authentication was sent.
+Why it's like this: Navigation headers are populated from Flags and then keyed by URL origin before native navigation. Cookie staging and daemon reuse are supported separately from flag parsing.
+What to do: Stage only the known application cookie, then use a standalone open with --headers as an actual CLI option in the same owned session. Use the proven normal CLI62.1 project token interface, keep tokens/header values in memory and close the owned session. Record the actual first protected boundary; saved Trusted Sources rules remain a separate fact.
+What NOT to do: Do not use global set headers, place auth options inside batch rows, forward the header to another origin, forge claims, infer a Hobby-plan denial from login, or modify protection to conceal the harness failure.

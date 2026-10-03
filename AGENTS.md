@@ -40,6 +40,10 @@ Owner instruction: use the open-source [Vercel Plugin](https://github.com/vercel
 - This workflow uses the downloadable plugin with the existing coding assistant. It does not require the hosted Vercel Agent service. Model access, hosting, databases, and Sandbox usage retain their normal separate costs.
 - If required plugin guidance is unavailable, record the setup gap before framework coding; do not claim the plugin was installed or used without checking.
 
+## Video workflow references
+
+Owner instruction: when learning a workflow from videos, the AI must inspect the actual visual content alongside audio. Review the relevant screens, actions, sequence and on-screen text with timestamps. Preserve uncertainty and identify portions that were not inspected; a transcript alone does not establish that a video was watched. Keep reference material separate from approved clinic configuration and clinical authority. The Owner's clarification about clinic setup uploads, development references or both is recorded in STATE; this guidance does not claim a video-upload feature or completed visual-provider verification.
+
 ## Routing rules (CTO uses these)
 
 - Request modifies code AND is in-scope per PRD → CTO plans, Coder executes, Auditor reviews

@@ -264,3 +264,11 @@ What went wrong: The repaired navigation guard rendered a main role=alert, but t
 Root cause: Alert semantics and DOM presence were checked separately from the overlay that initiated the action. Presentation state retained the covering panel.
 Avoid by: Verify feedback in the actual initiating overlay/viewport and inspect its screenshot or hit-test visibility. Close presentation overlays or otherwise expose the existing explanation when blocking an exit, preserving captured data and idle navigation rather than adding a second capture authority.
 Seen N times: 1
+
+## L-031: Nested browser batch flags can omit navigation authentication
+Date: 2026-10-02
+Task: TASK-035, diagnosing TASK-033 verification
+What went wrong: The protected native browser navigation reached Vercel login because its trusted header was placed only inside a stdin batch row, although the evidence field described intended origin-scoped authentication. This could have been mistaken for account or protection-rule denial.
+Root cause: Installed agent-browser0.38.1 parses global flags from outer process arguments and passes the same Flags into every batch row. Nested open --headers arguments never populate navigation headers.
+Avoid by: Read the installed parser/header path, pass authentication as an actual standalone outer open --headers option and keep values in memory. Verify the first real application boundary before attributing a login redirect to account policy; do not weaken protection or repeat an unchanged provider check to compensate for a harness error.
+Seen N times: 1
