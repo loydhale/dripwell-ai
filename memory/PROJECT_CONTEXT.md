@@ -1,51 +1,74 @@
 # PROJECT_CONTEXT.md
 
-Facts about the project this team is working on. The CTO fills this out on first run by inspecting the codebase and asking Owner any missing fundamentals. After that, it only changes when the project fundamentally changes.
+## Project
 
-## Project name
-(auto-detect on first run or ask Owner)
+DripWell.ai, owned by Loyd Hale.
 
-## Purpose
-(one to three sentences on what this project does)
+## Authorized product direction
 
-## Stack
-- Language(s):
-- Framework(s):
-- Runtime:
-- Package manager:
-- Test framework:
-- Deployment target:
+Consultation-centered IV clinic PWA: consented recording, visible question guidance, location-catalog recommendations, tracked staff edits, provider approval, actual care outcomes, post-treatment wellness documents, the specified six-stage board, owner-controlled improvements, referrals, and 14-day trials including 10 initial consultations. See PRD.md.
 
-## Repo conventions
-- Folder structure:
-- Naming conventions:
-- Commit message style:
-- Branching model:
+Owner steering2026-10-03 identifies conversion rate and client satisfaction as the business goals. Existing care-start/decision/reason reporting and explanation review support that direction; spending alone is not suitability or satisfaction. A short post-visit satisfaction rating is a proposed additional feature, not implemented scope. The Owner also delegates initial commercial pricing: starter USD199 per clinic account/month and USD50 one-time qualifying paid referral credit, editable/versioned with30-day attribution/refund reversal/no expiry. TASK040 implements the existing billing/settings path; the trial remains14days/10consultations without automatic paid conversion. This supersedes the earlier unselected amount blocker, not clinic medical-pricing authority or provider-spending restrictions.
 
-## External services
-- Databases:
-- APIs:
-- Auth providers:
-- Hosting:
+## Implemented v2 and hosted verification, 2026-10-02
 
-## Known constraints
-- Performance targets:
-- Compliance / regulatory:
-- Budget limits:
+Owner authorized completing v2. The active build workspace is `/workspace/dripwell-build` on `feat/dripwell-consultation-v2`, based on the reviewed v2 documentation. Next.js replaces the deployed web entry point; same-origin route handlers use the existing Prisma identity/schema with additive v2 records. Opaque server-side cookie sessions replace the old browser JWT storage for the v2 app. The Vercel Next.js SaaS Starter at `6e33e58b1e553a41fe22e6b941a7229a002de361` is inspected as a dashboard/team/billing reference, keeping one ORM.
 
-## Non-goals
-(things this project will NOT do, so we don't drift into them)
+Installed framework versions reported by foundation: Next.js 16.3.8, React 19.3.0, AI SDK 7.0.127, eve 0.69.0, Workflow 5.0.1, Prisma CLI 6.19.3. The committed pnpm lock is authoritative; versions and compatibility require final build checks. Use `npx --yes pnpm@10.32.1` in this execution environment because the bare pnpm shim may attempt an unintended auto-install.
 
----
+Vercel CLI authentication is verified as `loyd-1222`, team `loyd-1222s-projects`, on 2026-10-02. Dedicated `dripwell-ai` project uses `apps/web` and Node24. Separate Neon PostgreSQL18.6 preview and private Blob resources connect to preview/development only; all ten reviewed migrations and exact schema/ledger were independently verified over supported HTTPS and were not reapplied. A separate local PostgreSQL17 database remains synthetic verification only. Reviewed recording source b61f6aa passed93checks/types/both builds and exact317-file stage review; protected preview dpl_232QhM74EuWYYnq1vSfAEaqNDo57 independently passed READY/source/tree/alias/build and six targeted hosted reads with unchanged false gate/zero clinical counts. CI's native guard covers one bundle, normal remote build covers two. Earlier registration/sessions/database/private Blob/Eve and19-case archive/job checks remain scoped historical proof. TASK-028 demonstrates actual local Workflow sleep/resume, persisted staff inbox delivery, deduplication and current-state handling. Five retained runs recovered after explicit supported Local World initialization; a plain optimized Next restart did not automatically initialize recovery. Local World is development-only, so this does not establish hosted scheduling. Gateway language-model inference returned HTTP403 account restriction with no actual language response; the Owner's supported ChatGPT-subscription preference remains unresolved. TASK033 separately completed real protected owner API transcription with selected free-tier-listed gpt-4o-transcribe using existing allowance, without purchase. Its saved recognizable transcript needs review and keeps UNKNOWN speaker/null cost-duration telemetry; exact owned Blob/recording compensation preserved the addressable job and captured controls. TASK035 proved the original browser batch ignored its nested auth header; TASK036 then passed corrected protected native capture, real callback and actual unsent composer editing. One native60560-byte WebM completed the selected-model job/run; its partial/inaccurate transcript keeps UNKNOWN/needsReview and null provider metrics. Exact owned Blob/recording compensation preserved three prior whole jobs, prior expired recording,12 controls/all unrelated rate rows and clinical/trial0. Two completed jobs/two expired synthetic recordings remain addressable; browser/microphone closed. This is separate from full consultation/pilot completion. Production15-minute reminder/recovery scheduling requires a supported plan; Stripe terms and verified Resend sender are pending. Production secrets must come from the linked service environment. No fallback test credentials or fabricated AI outputs may be used for the deployed product.
 
-## How to populate this file
+TASK-030 independently passed actual compiled cron authentication/database recovery on a fresh schema-only owned target:401/401 preserve all50 tables, one valid200 changes exactly6 expected tables and preserves44 controls. All50 shared digests/container remain intact after target/server/profile cleanup. P-015 records safe global-maintenance isolation. Storage was deliberately unavailable in030. TASK-031 independently verifies actual compiled deletion of one expired tiny nonclinical object in the already-selected private Blob store, with unchanged unexpired bytes/metadata and all other49 table digests. Only owned control/server/fresh target/profile were cleaned and all50 shared digests/container preserved. No hosted scheduling, successful capture/transcription or full transcript/document/backup/service-policy completion is inferred; those retain explicit external gates.
 
-On first run, CTO should:
-1. List files at repo root
-2. Read package.json / pubspec.yaml / requirements.txt / Cargo.toml / go.mod (whichever exists)
-3. Read README if present
-4. Read top-level folders to infer structure
-5. Fill in everything that's obvious from the code
-6. For anything not inferable, ask Owner ONE batched question covering all gaps
+## Hosted per-visit reminders, 2026-10-03
 
-After first run, update this file only when the stack genuinely changes (framework migration, new service added, etc.)
+TASK037 proved historical hosted Workflow wait/resume on one compiled restore, a correct staff notification and the actual private/no-store inbox. Exact terminal-only nine-row compensation preserved four jobs, two recordings,12 controls/all unrelated rates/original cookie and restored clinical/ACTIVE/trial0. Its original pre-closure live capture was discarded by the private caller, so strict verification remains PARTIAL. Independent recovery/inbox/cleanup/learning and171-entry freeze passed; original evidence is retained. TASK038's separately reviewed minimal caller fixed actual safe reply persistence: its sole first discovery dispatched within20seconds/returned200, but the unchanged observer found no matching candidate and retained a safe BLOCKED frame. Raw page was not saved, so the cause cannot be inferred as indexing delay or a filter mismatch. One correct reminder/historical inbox passed. Separate supported storage recovery bound the sole original run and proved terminal wait/events/allsteps; exact nine-row cleanup and four jobs/two recordings/12 controls/all rates/original cookie preservation passed. Safe metadata was saved before selection; original raw analytics cause remains unknown. Final038 is strict PARTIAL with independent audit/L034/P020/G015/193-entry freeze. TASK039 independently completes its own actual hosted timer boundary: supported metadata-only storage discovery atPOST+12.574seconds saved a complete three-row safe page before sole owned input/key binding; real future reply05:09:25.133 preceded actual close05:09:25.307, unchanged due05:12:06.998 naturally completed05:12:08.203 and run05:12:08.881 with terminal capture05:12:21.069 inside original05:17:07.155 cutoff. All43 observed World GET attempts returned200/no observed retry, optional stepattemptsnull. Actual later ordinary same-staff private/no-store inbox/message/link passed under normal tokenordinal2; visit body stayed loading, so inbox only. Two private helper mistakes, invalid readAt source access and sticky future-reply selection, were preserved/corrected through separate exact reviews; neither is a product/provider defect. Sole conditional nine-row compensation/all34ownedabsence/globalvisitsACTIVEtrial0/allowance10used0/rawtoken removal passed; four jobs/two recordings/12controls/all unrelated rates/original667-byte cookie are exact, browsers/inspector closed. See docs/AUDIT_HOSTED_REMINDER_TIMER.md. No second restore or original-clock reset. This per-visit boundary is independent of the unsupported global15-minute recovery/retention Cron; it does not complete the full pilot or change source/protection/ALLOW_REAL_CLIENT_DATA=false.
+
+## Legacy implementation retained during migration
+
+- Language: TypeScript.
+- Runtime: Node.js >=22 in existing package.json.
+- Package manager: pnpm workspaces.
+- Frontend: Vite PWA in apps/web/; Vite admin in apps/admin/.
+- Backend: Fastify in apps/api/.
+- Database: PostgreSQL/Prisma contracts under packages/shared/prisma/.
+- These legacy applications remain available as source references; they are not the v2 deployment entry point. V2 source/local verification has passed. An isolated hosted preview is READY; hosted AI/provider verification and production release gates are tracked in STATE and docs/AUDIT_DEPLOYMENT.md.
+
+## Target architecture
+
+Next.js PWA on Vercel using a suitable SaaS starter, eve, AI SDK, Workflow, PostgreSQL and private artifacts. Target Node.js 24; pin compatible versions and retain one ORM/identity model during foundation work.
+
+## Latest service status and preference, 2026-10-03
+
+Owner prefers ChatGPT subscription use, authorized Stripe sandbox and selected Resend. The normal installed Codex CLI is already signed in using ChatGPT. Current independently co-signed TASK041 research distinguishes supported coding and local summaries/formatting from app eligibility: app-server authentication expressly excludes commercial/hosted services; commercial SIWC remains selected-partner, per-user, and excludes audio/video/transcription. An app's own local registration/credentials and eligible Healthcare/Regulated workspace/BAA/controls cannot be inferred from the coding login. See docs/CHATGPT_CLI_ROUTE_REVIEW.md alongside the historical assessment. No new login, credential transfer, provider/model switch, partner application or AI purchase occurred.
+
+Actual Stripe sandbox resource ir_WKeIBgBxmVampeYA is ready and connected to the exact project for Preview and Development. The actual active test-mode recurring price price_1UMZHUECTnhgX9UT9BTCFALy matches the delegated USD199/account/month starter and is bound through normal CLI stdin for both environments. Independent selected-project/resource/protection and remote-only Preview readbacks passed; literalfalse and webhook absence are verified, all26 other environment metadata records including Development are unchanged, and no Production binding exists. Webhook/payment/referral verification is separate. The USD50 referral starter requires explicit versioned platform authority, not automatic activation. TASK040 source,40 focused checks, final types and5 owned actual-PG cases are frozen; actual compiled-browser draft/save/disable/reload/re-enable/max-version and owner terms have passed. Owned UI/database/profile cleanup independently passed with all50 shared full-row digests/container preserved. Exact combined audit/co-sign/30-path publication at7dd003df and independent actual135-test/zero-skip CI37157302593 are complete. Protected deployed source is stillb61f6aa. TASK042 separately reproduced older-price settlement/status failures on fresh-owned actual PostgreSQL after correcting an initially all-skipped selection. Its minimal strict retained-history/current-only checkout repair now independently passes40 new unit+6 actual-PG cases/zero skips/types; sole owned target/profile cleanup and all50 shared digests/container preservation pass. Original matcher/provenance failures and post-PG raw-count limit remain retained. Independent cleanup reviewc7d1719e, frozen public report2d24a627 and147-entry evidence19f04618 complete the scoped repair evidence. Root closing-byte/PR-body co-sign and reviewed publication/new CI precede one latest-source protected preview043. No current price rotation, processed-event reset, automatic repricing or retroactive credit is claimed.
+
+The one supported native free Resend request returned HTTP400 disabled free plan; no paid fallback or email. Direct free-account API-key entry into selected Vercel Preview/Development settings was requested once. Existing owned hudley.ai supplies candidate dripwell.hudley.ai; actual DNS records, authorized Cloudflare access, sender verification and an explicitly selected owned test recipient remain required. Reminders are missing-outcome/TBD staff notifications; the authored global15-minute cadence exceeds the current Hobby plan. The actual per-visit hosted Workflow proof remains distinct.
+
+## Standing development preference
+
+Owner confirmed use of the open-source Vercel Plugin for coding. Verify available plugin skills/source, load relevant framework guidance for implementation and review, and use current installed documentation. Keep the existing coding assistant and team roles; hosted Vercel Agent is not required. Plugin guidance is development tooling; eve is the application runtime.
+
+Later Owner steering: when learning a workflow from a video, the AI must inspect visual actions, screens, sequence and on-screen text alongside audio. Transcription alone does not establish that the video was watched. Whether this applies to clinic owners' setup uploads, development references or both is under one pending clarification; no video analysis or new product implementation is claimed yet. Preserve human review and approved clinical-policy authority.
+
+## ICM/eve structure
+
+Keep AGENTS.md, personas/, memory/, tasks/, templates/, and root development workflows/. The separate owner-provided ICM example is unconfirmed; exact mapping must be checked before scaffolding.
+
+Authored eve files target apps/web/agent/ with instructions/, channels/, skills/, tools/, and read-only approved-context memory/. Evals target apps/web/evals/. Application Workflow code targets apps/web/workflows/, separate from root development workflows/. See docs/IMPLEMENTATION_PLAN.md.
+
+## Conventions and constraints
+
+- Tenant/role derived from verified server identity; owner-only improvement publishing.
+- Database configuration/version history is authoritative; conversation memory cannot publish policies.
+- Repository memory contains no client data. PHI requires appropriate service agreements, controls, retention/deletion, and restricted traces.
+- Clinic catalog prices and protocols are actual owner/provider data. V2 stores reviewed prices in integer minor units and immutable visit snapshots; the legacy missing-price defect is historical. Owner-delegated platform starter pricing is separate from clinic clinical authority.
+- Test consultations never count toward trial or conversion reporting.
+- Implementation is published in PR #2 on the reviewable v2 branch. The hosted synthetic preview is separate from production; main and the earlier production deployment are not switched.
+
+## References
+
+- OpenScribe: loydhale/openscribe-scribe-template- at dddf1c30fcf8313e4452915ddd9189baa5a3762b.
+- eve project structure: official source at ac77188ad0bd16edd20a590ec93e2d26306b9bd0.
+- Candidate SaaS shell: nextjs/saas-starter; tenant-routing reference: vercel/platforms.

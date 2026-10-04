@@ -34,7 +34,8 @@ Task: TASK-010
 What went wrong: Adding `MODIFIED` to RecommendationStatus broke approve, override, and get-pending queries because they all filtered for `status: 'PENDING'` only. After a provider modified a recommendation, they could no longer approve it.
 Root cause: The Coder added a new status without tracing every query that filters by status to see if the new state should be included.
 Avoid by: When adding a new enum value to a status or state field, always grep the codebase for every query that filters by that field. Update them to include the new state if it is part of the normal workflow.
-Seen N times: 1
+Recurrence: TASK-021, 2026-10-02. Deterministic generation wrote `COMPLETED`, while the result route and polling client recognized `COMPLETE`/`complete`. Trace string status writers/readers as well as enums, use a canonical new-write value, and normalize historical success aliases without rewriting persisted results or treating unfinished jobs as complete.
+Seen N times: 2
 
 ## L-014 — AI-generated flag not propagated through bulk import paths
 Date: 2026-04-23
@@ -150,7 +151,8 @@ Task: TASK-015
 What went wrong: The pattern edit form hardcoded `escapeHtml('')` for the `clinicalRationale` textarea, meaning every edit would silently blank out the existing clinical rationale. The edit button fetched the record but the form did not use it.
 Root cause: The Coder wrote a conditional render expression but passed an empty string literal instead of the pattern property.
 Avoid by: When wiring an edit form, copy every field from the fetched record into its corresponding form control. Do a visual spot check: open edit, verify every field shows current data, save without changing anything, verify nothing changed.
-Seen N times: 1
+Recurrence: TASK040,2026-10-03. A disabled referral policy retains immutable publication history while its current active JSON becomes null. The form must reset enabled state and every editable value on reload; the next version must use current and historical publications rather than recreate a disabled version. Focused actual-PG checks and the actual compiled custom-load/starter-draft/publication/disable/full-reload/re-enable/max-version checks pass. Earlier failed private fixture and browser phases are retained and excluded from successful proof; final cleanup/audit is separately recorded.
+Seen N times: 2
 
 ## L-017 — Prisma relation `take` limit breaks `.length` count semantics
 Date: 2026-04-23
@@ -159,3 +161,166 @@ What went wrong: The clinic overview query set `take: 1` on `assessmentSessions`
 Root cause: The Coder conflated a relation array used for display with a relation array used for counting. `take` limits the fetched array, not the underlying count.
 Avoid by: When you need both the latest item and the total count from the same relation, use `_count` with a `where` clause for the count and a separate `take: 1` relation for the latest item. Never use `.length` of a `take`-limited array as a count.
 Seen N times: 1
+
+## L-018 — Invalid activation predicates can hide required safety questions
+Date: 2026-10-01
+Task: V2-FOUNDATION
+What went wrong: Conditional question activation evaluated a confirmed value without checking its configured question type. A wrong-type negative on an optional parent hid a required safety follow-up and allowed an initial recommendation.
+Root cause: Product eligibility validated answer types, while question activation used the lower-level condition evaluator directly and configuration validation checked references but not operator/value semantics.
+Avoid by: Validate rule types when activating configuration and validate referenced answers before every condition evaluation. Invalid or unconfirmed activation inputs remain unknown, preserving required follow-ups.
+Seen N times: 1
+
+## L-019 — Clinical wellness suggestions must share the safety gate
+Date: 2026-10-01
+Task: V2-FOUNDATION
+What went wrong: A clinical wellness service could be suggested and selection-validated despite an unanswered required safety question.
+Root cause: Initial treatment checked required questions, while wellness matching checked only individual product predicates.
+Avoid by: Apply required clinical screening to every clinical recommendation path, including generated and manually selected future services. Keep nonclinical commercial matching separate.
+Seen N times: 1
+
+## L-020 — Pending evidence must invalidate downstream release authority
+Date: 2026-10-01
+Task: V2-COMBINED
+What went wrong: Recording intake queued new evidence while old approvals and shared documents remained valid until transcript processing completed.
+Root cause: Only explicit approval actions checked pending jobs; care-start and already-approved exports relied on unchanged old revisions.
+Avoid by: Invalidate affected approvals/snapshots atomically when accepting new clinical evidence, or enforce a shared pending-evidence gate at every downstream clinical/export boundary. Preserve idempotent recording retries.
+Seen N times: 1
+
+## L-021 — Zero cash collected is not an unpaid subscription
+Date: 2026-10-01
+Task: V2-COMBINED
+What went wrong: A positive invoice-payment requirement intended for referral qualification also controlled subscriber entitlement, excluding invoices settled by account credit.
+Root cause: Access eligibility and reward qualification shared one payment-amount gate.
+Avoid by: Verify active subscription settlement independently from monetary referral qualification. Cover credit-funded invoices as well as actual free-trial invoices.
+Seen N times: 1
+
+## L-022 — A database discard cannot cancel an in-flight object upload
+Date: 2026-10-01
+Task: V2-COMBINED
+What went wrong: Discard could delete a predicted private Blob pathname and clear its cleanup pointer before a concurrent upload completed. Upload completion then rejected the changed recording status without deleting its newly created object.
+Root cause: Database state transitions and external storage operations were treated as one atomic cancellation, although object creation can finish after the discard transaction and deletion.
+Avoid by: Prevent discard until upload completion or compensate rejected upload completion with deletion of the returned pathname, preserving a durable cleanup pointer when external deletion fails. Exercise the deferred upload/discard ordering in a regression test.
+Seen N times: 1
+
+## L-023 — PostgreSQL void results cannot be decoded by Prisma queryRaw
+Date: 2026-10-02
+Task: V2-HOSTED-PREVIEW
+What went wrong: Hosted owner setup failed before model execution because an advisory-lock SELECT returned PostgreSQL void through Prisma queryRaw. Referral-policy publication contained the same query shape.
+Root cause: Existing integration checks covered setup scoping but did not execute the HTTP setup preflight's actual lock acquisition.
+Avoid by: Acquire transaction advisory locks through a supported non-result operation or a supported typed result, and test the actual business operation against PostgreSQL. A successful build or healthy eve transport does not exercise that preflight.
+Seen N times: 1
+
+## L-024 — Model catalogs do not establish account execution permission
+Date: 2026-10-02
+Task: V2-HOSTED-PREVIEW
+What went wrong: The configured Gateway model appeared in the live catalog, but the actual hosted workflow was denied before any provider attempt because the account's free tier could not use it.
+Root cause: Metadata availability and runtime account entitlement are different checks.
+Avoid by: Verify a bounded synthetic operation with the actual deployed identity and configured model. Record provider denial separately from transport or source failure, and leave spending or model changes to the authorized owner decision.
+Seen N times: 1
+
+## L-025 — Separate ordinary API billing from an explicitly supported plan-sharing program
+Date: 2026-10-02
+Task: V2-SERVICE-PREFERENCE-DOCS
+What went wrong: A blanket statement that ChatGPT subscriptions cannot power another app was too broad after official SIWC introduced eligible Plus/Pro plan usage in participating applications.
+Root cause: Ordinary API billing separation was generalized into a claim about every supported integration, without checking the current program's eligibility and terms.
+Avoid by: Read current official Help, developer documentation and applicable terms together. Distinguish participating commercial approval, user-controlled runtime, cross-user restrictions, free access to plan use, model/audio capability and healthcare coverage from account billing alone. Preserve actual deployed-provider evidence while correcting the overly broad claim.
+Recurrence: TASK041,2026-10-03. Normal current CLI status already reports ChatGPT login, and documented noninteractive/local execution includes summaries and data formatting. Technical SDK/app-server embedding is separate from authentication permission: current first-party guidance expressly excludes commercial/hosted services from app-server authentication. Eligible local/open-source SIWC needs its own registered identity; eligible local Healthcare/Regulated Codex needs actual workspace/BAA/controls. Read those exact boundaries before requesting another login or making a blanket claim about subscription use. Eighteen current first-party responses and20 quoted guards were independently co-signed; no provider or login operation was needed.
+Seen N times: 2
+
+## L-026 — Client-only archive search cannot reach records omitted by the server
+Date: 2026-10-02
+Task: TASK-019
+What went wrong: Retained archived consultations outside the latest 250 records or older than the UI's selectable year were inaccessible through archive search and restore.
+Root cause: The search filtered a capped browser snapshot and reused reporting dates for archive accessibility, with no scoped server search or pagination.
+Avoid by: Trace retained-record search from the interface to the actual bounded server query. Verify a record beyond the loaded page and older than report defaults, preserving metric denominators separately from archive access.
+Seen N times: 1
+
+## L-027 — Disposable database guards must include the documented CI target
+Date: 2026-10-02
+Task: TASK-024
+What went wrong: A new actual-PostgreSQL job-result suite passed locally but rejected the existing localhost:5432 CI verification database because its guard accepted only 127.0.0.1:55432.
+Root cause: The safety guard copied one workspace binding without tracing the repository's explicit CI database configuration; local source review did not catch that environment mismatch.
+Avoid by: Read the committed CI environment alongside local verification instructions when adding database-backed regressions. Require an explicit test binding and known disposable database, accept the documented loopback targets, verify rejection before database selection, and require a fresh successful published-head CI instead of generalizing local PASS.
+Seen N times: 1
+
+## L-028 — Paused wall time is not captured audio duration
+Date: 2026-10-02
+Task: TASK-025
+What went wrong: Native browser capture correctly paused its visible timer, but the segment payload included the full paused wall interval. A three-second capture reported 24,089 milliseconds; resume also reset the full one-minute segment timer.
+Root cause: Segment metadata used elapsed wall time while the UI and MediaRecorder used active capture state. Timer restarts did not retain the segment's consumed active-time budget.
+Avoid by: Track monotonic active capture duration per segment, exclude every paused interval and schedule only its remaining capture budget on resume. Preserve those immutable values through retry, and verify real browser metadata alongside visible controls rather than assuming server recording tests exercise the microphone.
+Seen N times: 1
+
+## L-029 — Every visit-exiting link must honor capture state
+Date: 2026-10-02
+Task: TASK-025
+What went wrong: The main sidebar links and logout blocked navigation during recording, but the app-shell wordmark bypassed that protection. Actual SPA navigation stopped/unmounted capture and left a failed final segment without retry or deliberate-discard controls.
+Root cause: The guard was attached to selected navigation controls instead of every app-shell route exit; beforeunload does not run for this Next SPA link. Notification visit links were also unguarded.
+Avoid by: Apply the same busy-capture guard to every app-shell visit-exiting link and verify each destination with active capture, pending upload and failed local segments. Preserve idle navigation and microphone cleanup, and distinguish intentional unmount verification from protected in-app exits.
+Seen N times: 1
+
+## L-030 — DOM presence is not visible error feedback
+Date: 2026-10-02
+Task: TASK-029
+What went wrong: The repaired navigation guard rendered a main role=alert, but the still-open mobile notification panel fully covered it after the blocked click. Desktop functional checks passed while the user received no visible explanation at 390-pixel width.
+Root cause: Alert semantics and DOM presence were checked separately from the overlay that initiated the action. Presentation state retained the covering panel.
+Avoid by: Verify feedback in the actual initiating overlay/viewport and inspect its screenshot or hit-test visibility. Close presentation overlays or otherwise expose the existing explanation when blocking an exit, preserving captured data and idle navigation rather than adding a second capture authority.
+Seen N times: 1
+
+## L-031: Nested browser batch flags can omit navigation authentication
+Date: 2026-10-02
+Task: TASK-035, diagnosing TASK-033 verification
+What went wrong: The protected native browser navigation reached Vercel login because its trusted header was placed only inside a stdin batch row, although the evidence field described intended origin-scoped authentication. This could have been mistaken for account or protection-rule denial.
+Root cause: Installed agent-browser0.38.1 parses global flags from outer process arguments and passes the same Flags into every batch row. Nested open --headers arguments never populate navigation headers.
+Avoid by: Read the installed parser/header path, pass authentication as an actual standalone outer open --headers option and keep values in memory. Verify the first real application boundary before attributing a login redirect to account policy; do not weaken protection or repeat an unchanged provider check to compensate for a harness error.
+Seen N times: 1
+
+## L-032: A scheduled payload expiry is not an already expired payload
+Date: 2026-10-03
+Task: TASK-037
+What went wrong: A private hosted-run helper rejected every truthy expiredAt value after a successful HTTP200, although the owned run's expiration was still future. Independent review missed the same distinction.
+Root cause: Timestamp presence was treated as elapsed expiration, and absent input was combined with that separate failure.
+Avoid by: Trace installed availability semantics and distinguish finite future, elapsed, invalid and absent timestamps from missing input. Preserve the first result and superseded review, repair the guard in separate bytes, verify real retained metadata offline, then make only the separately approved changed-guard read.
+Seen N times: 1
+
+## L-033: Preserve classified replies before parsing or closing a hosted inspector
+Date: 2026-10-03
+Task: TASK-037
+What went wrong: A private caller parsed the normal CLI Info line as JSON after the sole hosted restore. Its finally-close discarded a possible later observation, losing run ownership and the required live future-wait capture.
+Root cause: Human logs and structured replies shared stdout without a command protocol or response persistence. The first raw failed line was not retained, so the source-backed diagnosis must remain distinct from directly captured output.
+Avoid by: Test the actual pinned logger plus fragmented framed replies offline. Accept only classified safe noise and a correlated response, persist that response before EOF/exit/error handling, and reject unknown output without logging credentials. Journal the sole POST before sending; retain fixtures after lost ownership, recover only the original run under a separate reviewed boundary, and never reset its deadline or claim lost evidence was restored.
+Seen N times: 1
+
+## L-034: Preserve discovery metadata before interpreting an ownership guard
+Date: 2026-10-03
+Task: TASK-038
+What went wrong: The first analytics GET returned200 within POST+20seconds but the ownership filter found no matching candidate. The raw page was not retained, so that result could not distinguish an empty page, indexing delay or a metadata mismatch. The live future-wait capture remained absent despite successful later delivery.
+Root cause: The original observer reported the selection failure without a bounded metadata projection. A later method/time change cannot establish what the earlier page contained.
+Avoid by: Persist safe typed counts, coverage, timestamps and exact-match flags before selection; omit payloads, untrusted text and credentials. Bind only one owned input before further reads. Report a later supported storage recovery separately, preserving original deadlines and strict partial results rather than inferring an indexing cause or restoring missing proof.
+Seen N times: 1
+
+## L-035: Bind continuation assertions to the actual persisted schema
+Date: 2026-10-03
+Task: TASK-039
+What went wrong: The private post-terminal caller assumed Notification.readAt after a real hosted timer completed. The persisted row and Prisma model instead expose isRead and dismissedAt. Actual inbox/cleanup needed a separately reviewed continuation.
+Root cause: An unexecuted completion path was cloned without exercising its assertions against the actual retained row and authoritative schema. The original generic execution error did not capture exception text; offline source replay separately reproduced KeyError(readAt).
+Avoid by: Validate actual serialized fields and types before a live completion boundary. Require present booleanfalse isRead, present null dismissedAt and exact row/tenant/staff/visit/key/due ownership. Preserve the original failure and evidence, test missing/wrong/read/dismissed variants offline, then continue only the original case under reviewed source.
+Recurrence: TASK040,2026-10-03. The private UI fixture assumed AuditAction UPDATE and UUID AuditLog.entityId='global'; the authoritative product uses SETTINGS_CHANGED with a null entityId for platform settings. The first enum mismatch failed and rolled back the create transaction; all50 owned tables were actually empty and all50 shared digests unchanged. Independent recovery review caught the remaining create/snapshot/cleanup identity mismatch before another attempt. An idle owned Next server had been dispatched before the failed prerequisite result was checked; that sequencing mistake and exact process are retained, with no proxy/browser or second build. Validate the whole create/snapshot/cleanup path against schema and the actual writer, and await each prerequisite result before dependent work. Preserve original helpers/co-sign/failure; recover only in separate reviewed bytes against the original owned target/build.
+Seen N times: 2
+
+## L-036: Historical observation flags do not timestamp each later reply
+Date: 2026-10-03
+Task: TASK-039
+What went wrong: The private finisher asserted every nonterminal reply with futureWaitObserved=true preceded browser closure. One genuine pre-closure capture existed, but eight later valid polls retained the historical flag and triggered a captured AssertionError before SQL.
+Root cause: Review checked initial/terminal frames without replaying the full eligibility prefix against the complete retained reply sequence. A sticky history marker was interpreted as current phase evidence.
+Avoid by: Select a genuine matching capture using its own original timestamp, saved file mtime, scope and actual closure receipt; require that it exists. Preserve ownership checks on later replies while allowing normal later polling. Replay the entire pure eligibility path on actual rows, all replies, terminal metadata and inbox/close receipts, with missing/only-later/wrong-time/wrong-scope negatives, before live compensation. Never replay the timer or reset its deadline to repair a verification assertion.
+Seen N times: 1
+
+## L-037: Narrow test filters match the complete suite and test title
+Date: 2026-10-03
+Task: TASK040
+What went wrong: The proposed broad policy-name filter also matched the enclosing setup/policy suite, selecting unrelated existing AI setup cases instead of the intended five database checks. Independent plan review caught this before execution.
+Root cause: Vitest's name filter matches the complete hierarchical title, including suite names; reviewing only the individual test labels missed the broader selection.
+Avoid by: Inspect full selected titles and expected executed/skipped counts before running a narrowed database continuation. Pin exact distinct name substrings, preserve owned-target/provider guards, and record deliberate exclusions separately from a complete suite PASS. The corrected TASK040 command ran exactly5 focused cases and deliberately left10 unchanged cases unselected.
+Recurrence: TASK042,2026-10-03. Installed Vitest5.0.3 matches fullTestName joined with ` > `, while its JSON fullName joins names with spaces and reports filtered cases as skipped rather than pending. The initial Coder/Auditor plan missed both contracts: its exact matcher selected0/all6skipped/exit0, and its collector incorrectly treated non-pending entries as executed. That original attempt and review remain preserved, excluded from product evidence. A separately reviewed selection/collector-only recovery on the same owned database captured exactly2 intended business assertion failures and4 deliberate exclusions with actual shared/owned before/after preservation. Verify the installed matcher and reporter separately, count explicit passed/failed/skipped states, and require the precise expected failures or successes. Exit0 or reporter success with skipped cases does not prove execution. Later cancellation/referral/renewal assertions were not reached in red. The separately reviewed final green execution reached them: all40 new unit and6 actual-PostgreSQL cases passed with zero skips; do not extend the two red failures to assertions that were never reached.
+Seen N times: 2

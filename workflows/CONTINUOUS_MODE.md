@@ -2,7 +2,7 @@
 
 Continuous mode is an explicit operating mode the Owner turns on with a command like "run all night," "keep going," "continuous mode on," or similar. When active, the team generates its own next task when the queue empties instead of going IDLE.
 
-Continuous mode is OFF by default. The Owner must turn it on explicitly, each session.
+Continuous mode is OFF by default. The Owner must turn it on explicitly. On 2026-10-02 the Owner requested a loop until DripWell is done; that standing authorization covers resumptions of this project until completion or cancellation. The enabled recurring continuation and exact resume contract are recorded in `memory/STATE.md` and [docs/CONTINUOUS_WORK.md](../docs/CONTINUOUS_WORK.md).
 
 ## State flag
 
@@ -14,7 +14,7 @@ Started: <ISO timestamp, only when ON>
 Started by: <Owner command that turned it on>
 Stop conditions active:
   - Owner stop command
-  - PRD fully built
+  - PRD fully verified
   - Consecutive escalations >= 3
   - Consecutive "no new learning" tasks >= 10 (possible loop)
 Tasks completed this run: <counter>
@@ -35,17 +35,17 @@ CTO confirms with a one-line response listing the stop conditions, then sets `CO
 
 Continuous mode stops when ANY of these trigger:
 
-1. **Owner command.** Any message containing "stop," "pause," "halt," "continuous mode off," or similar. CTO writes a session summary and sets `CONTINUOUS_MODE: OFF`.
+1. **Owner command.** An affirmative instruction to stop or pause this project, such as "stop," "pause," "halt," or "continuous mode off." Negated requests such as "don’t stop," quoted examples, and incidental mentions are not cancellation. CTO writes a session summary, sets `CONTINUOUS_MODE: OFF` and disables the continuation for an actual cancellation.
 
-2. **PRD fully built.** All PRD features marked complete AND no quality-tier work identified. CTO writes a completion summary flagging this to the Owner.
+2. **PRD fully verified.** All PRD features and section 8 acceptance criteria are verified AND no justified quality-tier work remains. Source implementation and passing fixture tests alone do not establish live-provider or pilot completion. CTO writes an evidence-backed completion summary and disables the recurring continuation.
 
-3. **Consecutive escalations.** 3 tasks in a row escalate. Something's structurally wrong, stop and wait for the Owner.
+3. **Consecutive escalations.** 3 tasks in a row escalate. Pause execution, record the structural blocker and recovery point, and wait for changed evidence. The until-done authorization remains in force; do not retry unchanged failures indefinitely.
 
-4. **Loop suspicion.** 10 consecutive tasks produce "no new learning" AND no meaningful file changes. The team might be spinning. Stop and flag.
+4. **Loop suspicion.** 10 consecutive tasks produce "no new learning" AND no meaningful file changes. Pause execution and flag the no-op loop instead of inventing work.
 
-5. **PRD approval blocking.** All remaining work depends on a `PENDING_OWNER_APPROVAL` decision. Nothing left the team can do without the Owner.
+5. **External dependency blocking.** All remaining work needs a real account, credential, approval or Owner decision. Record `Execution status: WAITING_ON_DEPENDENCIES`, leave explicit unblock conditions and resume independent work when new evidence arrives. Do not equate waiting with completion or repeatedly ask an already-pending question.
 
-When any stop condition fires, CTO writes a `CONTINUOUS_MODE_REPORT` block to STATE summarizing the run (see format below) and sets mode OFF.
+Owner cancellation or verified completion turns mode OFF and disables the continuation. Conditions 3 through 5 pause active execution with a report/resume point while the Owner's until-done authorization and recurring continuation remain enabled. A scheduled continuation is an hourly wake-up, not proof of an uninterrupted coding worker; each run must confirm the capabilities it actually has.
 
 ## The self-prompting loop (when CONTINUOUS_MODE is ON)
 
@@ -81,7 +81,7 @@ If Tier 2 is empty, pick from:
 Rule: Tier 3 work must be safe. No architectural refactors, no breaking changes, no "while we're here" feature additions. If a Tier 3 candidate would touch more than 3 files, split it or skip it.
 
 ### Tier 4 — Stop
-If all three tiers are empty, PRD is effectively done. Fire stop condition #2 (PRD fully built).
+If all three tiers are empty, inspect outstanding live verification and release gates. Fire completion condition #2 only when the approved acceptance criteria have evidence. Otherwise record the exact external dependencies and wait for changed evidence; do not manufacture low-value tasks.
 
 ## What the CTO does NOT do in continuous mode
 

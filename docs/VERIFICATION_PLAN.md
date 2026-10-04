@@ -1,0 +1,16 @@
+# DripWell v2 verification stories
+
+Only synthetic clinics and consultations may be used in the isolated verification database. Passing these checks does not establish production service configuration or provider agreements.
+
+1. A new clinic owner registers and receives exactly 14 days and 10 initial consultation starts. Concurrent starts cannot exceed the allowance; retrying the same start, reopening, transcription retries, tests and regeneration do not consume another consultation. Exhaustion permits completion of existing visits.
+2. The owner enters or imports a location catalog, confirms prices and questions, tests a synthetic consultation, and activates an immutable configuration. A later chat proposal edits only a draft. Rollback requires an owner and records an audit event.
+3. Staff start a consented consultation. Missing and uncertain required answers remain visible and block approval. A validated location catalog determines available IVs and add-ons. No missing allergy or history fact becomes an inferred negative.
+4. Staff edit recommendations with a reason; the original and modified values remain available to the owner. An authorized provider approves the exact current version. A later relevant edit invalidates approval and previously issued document access.
+5. Actual care started, not started or pending is recorded separately from wellness acceptance and confirmed enrollment or collected payment. Wellness generation and manual accept, reject and TBD produce the six specified stages. Regeneration preserves a manual decision. Archive and restore preserve all history and suppress reminders while archived.
+6. An approved branded takeaway downloads with exact historical prices. An expiring recipient link reveals no consultation data before email verification. Wrong, reused, expired or revoked credentials are rejected; a valid recipient sees only the approved snapshot. Clinic APIs and downloads reject another tenant's IDs.
+7. Owner analytics show care and wellness outcomes with denominators and explain staff adjustments in context. Staff and platform administrators cannot publish clinic rules through hidden API requests. Platform dashboards omit routine patient content.
+8. A referred clinic registers with attribution, uses its trial, then becomes a paying subscriber. A verified Stripe event issues the configured credit once; duplicate events do not repeat it. Invalid signatures fail. Refunds follow the configured reversal policy. Missing policy does not fabricate a credit amount.
+9. Recording, transcription, setup chat, file parsing, durable reminders, email delivery and billing are checked against real provisioned integrations when access is present. Missing configuration produces a clear unavailable response, never a fabricated successful result.
+10. Browser verification covers an owner and staff journey on desktop and a mobile viewport, including loading, validation, stale-version recovery, errors, keyboard access and reduced motion. Service workers cache public shell assets only; authenticated pages, APIs, recordings and recipient documents use private/no-store responses.
+
+The verification report must distinguish source checks, real database checks, browser evidence and live external integration checks. Independent Auditor PASS is required before a task is marked complete.

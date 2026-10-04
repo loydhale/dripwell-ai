@@ -1,20 +1,51 @@
 {
   "name": "@dripwell/web",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "next dev",
+    "build": "pnpm --filter @dripwell/shared db:generate && pnpm --filter @dripwell/shared build && next build",
+    "start": "next start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "test": "pnpm test:auth && pnpm test:clinic && pnpm test:ai && pnpm test:unit",
+    "check:services": "node scripts/check-prerequisites.mjs",
+    "test:auth": "tsx --test tests/*.node.test.ts",
+    "test:unit": "vitest run",
+    "test:clinic": "NODE_OPTIONS=--conditions=react-server tsx --test lib/clinic.integration.node.test.ts",
+    "test:ai": "tsx --test evals/*.test.ts",
+    "build:eve": "pnpm --filter @dripwell/shared db:generate && pnpm --filter @dripwell/shared build && eve build && node scripts/verify-eve-prisma-output.mjs",
+    "admin:bootstrap": "node scripts/bootstrap-platform-admin.mjs"
   },
   "dependencies": {
-    "@dripwell/shared": "workspace:*"
+    "@ai-sdk/gateway": "4.0.103",
+    "@ai-sdk/openai": "4.0.83",
+    "@dripwell/shared": "workspace:*",
+    "@next/env": "16.3.8",
+    "@pdf-lib/fontkit": "1.1.1",
+    "@prisma/client": "6.19.3",
+    "@vercel/blob": "2.8.0",
+    "ai": "7.0.127",
+    "bcryptjs": "3.0.3",
+    "eve": "0.69.0",
+    "geist": "1.7.2",
+    "lucide-react": "1.49.0",
+    "next": "16.3.8",
+    "otplib": "13.5.0",
+    "pdf-lib": "1.17.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "resend": "6.32.0",
+    "server-only": "0.0.1",
+    "stripe": "23.0.0",
+    "workflow": "5.0.1",
+    "zod": "4.6.5"
   },
   "devDependencies": {
+    "@types/node": "^22.19.17",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.15",
     "typescript": "^5.8.3",
-    "vite": "^6.3.2",
-    "vite-plugin-pwa": "^1.0.0"
+    "vitest": "5.0.3"
   }
 }
