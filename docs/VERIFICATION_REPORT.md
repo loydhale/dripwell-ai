@@ -6,6 +6,10 @@ Local verification uses isolated PostgreSQL17 and fictional clinics; bounded hos
 
 ## Current evidence, October 2 through 4, 2026
 
+### Ordinary owner MFA and recovery, TASK046
+
+[The scoped audit](AUDIT_NORMAL_OWNER_MFA.md) records real normal protected enrollment, current-session verification/earlier-session revocation, one-use recovery and401/410 challenge denials, ordinary clinical=false/platform403, secret-free enabled account screen and exact nine-row/five-rate/four-input cleanup. Independent actual API5c54bc87/UI34e7d82b/terminalfb4ad9ce PASS preserve all50 original maps/32rows/seven rates and existing artifacts. New22 pure checks are separate from actual database proof; reporting errors/raw/context/device/operator limits remain explicit. This documentation closure does not change deployed807 source/protection/false gate or satisfy the full pilot. Next work splits bounded DB source, actual compiled recurrence and Blob-intent compatibility.
+
 ### Current commercial implementation and service setup
 
 The Owner supplied actual terms-completion screenshots and delegated initial commercial pricing on October3. [TASK040](../tasks/TASK-040.md) implements canonical USD199 per clinic account/month and an explicit editable USD50 referral starter draft. Checkout validates the actual fixed monthly licensed provider price before customer/credit side effects. Versioned policy loading preserves disabled state and publication history. The [independent commercial audit](AUDIT_COMMERCIAL_CONFIGURATION.md) records exact source/UI/cleanup/setup scope and limitations. No real administrator, paid customer or clinical configuration was activated.

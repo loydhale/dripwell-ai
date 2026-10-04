@@ -30,6 +30,10 @@ TASK044 used a new ordinary fictional signup, three normal private/no-store API 
 
 TASK045 actual API/UI checks independently passed; its scoped brief verifies two NEW ordinary owners' inactive existing synthetic catalog drafts, saved eligible/missing-answer tests, exact audit rows, normal Questions/Tests UI and two cross-clinic404 cases, with exact conditional cleanup. This is scoped deployed setup/isolation evidence; it does not establish different actual clinic prices, clinical activation or complete pilot evidence. Exact final one-time compensation independently passed7c4fdccc, restoring the original50-table/32-row/seven-rate baseline and removing both owners/four temporary inputs. Initial/wellness matching is deterministic; selected Luna403 affects setup assistant/catalog extraction and structured consultation summaries. Reassess genuinely feasible approved critical paths after045 before all-work waiting.
 
+## Normal owner MFA and bounded maintenance split, October4,2026
+
+TASK046 independently verifies normal protected fictional-owner enrollment/recovery/challenge replay denials/session revocation and a secret-free enabled account screen, followed by exact terminal compensationfb4ad9ce. Original50-table/32-row/seven-rate maps, four jobs/two recordings/ten ledger/original jar are preserved and four owned inputs are physically absent. Scope and raw/context/device/operator limits are recorded in docs/AUDIT_NORMAL_OWNER_MFA.md; fresh authenticator sign-in and the full pilot remain separate. No app source/deployment/clinical/provider change occurred. The accepted design0e88b1cd splits next work: TASK047 bounded default-disabled DB coordinator/effect transactions, TASK048 actual compiled native recurrence, then separately briefed Blob intent/adoption/provider bookkeeping. No hosted global migration/launch, plan upgrade or all-family retention claim follows from source/local checks.
+
 ## Legacy implementation retained during migration
 
 - Language: TypeScript.

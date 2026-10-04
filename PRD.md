@@ -237,6 +237,8 @@ Pilot targets: immediate recording controls; question updates within 10 seconds 
 
 Verification checkpoint, October4,2026: [the two-clinic setup audit](docs/AUDIT_TWO_CLINIC_SETUP.md) independently verifies ordinary fictional-owner inactive drafts, saved eligible/missing-answer tests, visible questions, two explicit tenant denials and exact cleanup. Its identical USD100 synthetic fixtures and inactive versions do not satisfy criterion1's different catalogs/prices and activation or the remaining full-story criteria above.
 
+The [normal-owner MFA audit](docs/AUDIT_NORMAL_OWNER_MFA.md) additionally verifies protected fictional enrollment, one-use recovery/challenge denials, session revocation, unchanged ordinary authority and secret-free enabled UI with exact cleanup. This is a scoped security portion of criterion9, not complete roles/services/retention or pilot verification. The next maintenance work is split into bounded default-disabled DB source, actual compiled recurrence and separately reviewed Blob-intent compatibility. Every acceptance criterion and real-data gate remains unchanged.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |

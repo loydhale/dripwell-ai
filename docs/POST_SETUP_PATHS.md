@@ -26,3 +26,9 @@ For a later Stripe-only setup brief, bind the already-selected sandbox account/r
 All nine PRDsection8 pilot criteria and production eligibility remain open wherever not actually verified. Continuous mode remainsON. At least the ordinary owner-security verification and the documented existing-infrastructure maintenance implementation candidate are independent; WAITING_ON_DEPENDENCIES for all work would be premature.
 
 Independent scope checkpoint, October4,2026: Auditor201f05f7 PASS binds this Coder matrix30971f40, handoff258cb7e6 and corrected TASK-046 scope9f4a5519. Root selected private tooling preparation only. This review did not execute new tests, authentication, SQL, HTTP, browser, provider or cleanup operations and does not prove live MFA readiness or grant clinical authority.
+
+## Actual next-source checkpoint after TASK046
+
+The source assessment above is the historical post045 planning baseline. TASK046 now independently passes scoped ordinary-owner enrollment, one-use recovery/challenge denials and enabled account UI, plus exact cleanupfb4ad9ce. Normal begin demonstrated usable encryption, without reading/rotating the key. This fills one security boundary, not clinical activation, authenticator challenge-login, full-story starts or the pilot. See [actual audit](AUDIT_NORMAL_OWNER_MFA.md).
+
+Accepted maintenance design0e88b1cd PASS_WITH_SOURCE_SPLIT advances [TASK047](../tasks/TASK-047.md) for bounded default-disabled DB maintenance and same-deployment coordinator ownership, with every effect/cursor/continuation transaction fenced. Compiled natural recurrence is separate048; Blob detachment/adoption/post-provider compatibility remains separately parked. Do not use an unfenced global manual bypass or infer hosted scheduling/provider completion from source checks. No hosted migration/sweep/start or plan upgrade is selected. STATE and actual Git/PR determine the current resume point.

@@ -197,3 +197,12 @@ Concrete evidence: Recovery signup201/five canonical owned rows/secure245-byte c
 Limits: Source-enforced assertions with no retained raw payload must be described as such. Unexpected state or uncertain writes stop execution for reconciliation. This pattern does not authorize clinical approval, trial use, billing or pilot completion.
 
 Final scoped evidence: API review914faa96 and browser reviewb5f18f02 verify two inactive drafts, four saved deterministic tests, two cross-clinic404 denials and four cold desktop images. Exact final binding review04f430aa preceded the sole conditional compensation; actual closure7c4fdccc PASS verifies removal of18 owned rows, restoration of all50 original table maps/32 rows/seven raw rate rows, and four exact owned input unlinks. Identical USD100 fixtures, inactive versions, source-enforced subset proof, combined-stream and device limits remain explicit.
+
+
+## P-025: Isolate MFA session and recovery effects with checkpoints
+Date: 2026-10-04
+Task: TASK-046
+Where in codebase: apps/web/lib/auth.ts:115-118, apps/web/lib/mfa.ts, private TASK046 protocol verification
+The pattern: Pre-enrollment password login omits the registration app cookie, because supplying it can revoke that first session during login. Observe both owned sessions unrevoked immediately before confirmation, then compare the exact enrollment effects. Enabled password logins and challenge/recovery requests also omit prior app cookies. Verify successful recovery removes one hash and consumes its challenge; rejected reused recovery must leave the challenge and canonical auth state unchanged, while documenting its rate-limit effect separately. Ordinary SUPER_USER/clinical=false and platform403 must remain unchanged.
+Concrete evidence: Actual API review5c54bc87 verifies genuine installed TOTP enrollment, session1 revoked/session2 verified, one recovery consumed/hash removed, reused recovery401, consumed challenge410 and platform403. Browser34e7d82b verifies the cold enabled account with empty secret/recovery fields. Closurefb4ad9ce verifies exact nine-row cleanup, all50 original table maps/32 rows/seven raw rates and four owned input unlinks.
+Limits: Normal enrollment success proves encryption usability for this fictional Preview flow without reading the key. It does not prove fresh authenticator challenge-login/TOTP replay, physical devices, clinical authority or the full pilot.

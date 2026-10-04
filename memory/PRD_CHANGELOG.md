@@ -63,3 +63,11 @@ Summary: Records independently verified inactive two-clinic setup/tests/question
 Task trigger: TASK-045, existing F-01/F-02 and tenant-boundary verification.
 CTO: No scope, authority, clinical-rule, architecture or completion-definition change.
 Auditor co-sign: commercial_auditor, PASS, 2026-10-04. Minor factual evidence checkpoint only; all nine pilot criteria remain byte-identical, and identical-price/inactive-version limits remain explicit. Exact whole-document publication review is separate.
+
+## 2026-10-04 — v2.0 — MINOR, OWNER SECURITY CHECKPOINT
+
+Section changed: Section8 factual verification checkpoint only.
+Summary: Records scoped normal-owner MFA/recovery/session/account/cleanup evidence and the accepted existing-maintenance source/compiled/Blob verification split; all nine pilot criteria remain unchanged.
+Task trigger: TASK046, existing role/security and F09 service/retry scope.
+CTO: No scope, clinical authority, architecture or completion-definition change.
+Auditor co-sign: commercial_auditor, exact final package review required before publication; genuine review receipt accompanies this closure.
