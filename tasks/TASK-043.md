@@ -1,7 +1,7 @@
 # TASK-043: Deploy the reviewed commercial and billing repair to protected preview
 
 TASK_ID: TASK-043
-STATUS: QUEUED, after TASK042 source, owned cleanup, independent audit and publication/CI
+STATUS: PARTIAL, actual deployment/alias/data closure and factual report co-sign PASS; original owner UI unverified
 ASSIGNED: CTO operations, independent AUDITOR review
 PARENT_REQUEST: Owner-authorized completion of DripWell, existing protected synthetic preview.
 PRD refs: F-11/F-12; section8 verified source/runtime distinction.
@@ -31,3 +31,11 @@ If a native request or page fails, retain the first failure and diagnose the cha
 ## Closure
 
 Auditor publishes a scoped factual audit with exact source/tree/stage/CI/deployment/read/unchanged-state evidence and limitations. CTO updates STATE, deployment/verification docs, CHANGELOG/session and learning (or no new learning), obtains independent final byte co-sign and publishes only reviewed documentation to the same PR2 branch. Do not redeploy documentation-only closure. Keep until-done modeON; if only external dependencies remain, retain a clean WAITING_ON_DEPENDENCIES point with specific unblock conditions.
+
+## Actual closure, 2026-10-04
+
+Reviewed807/treef61 was published after TASK042 and independently passed181-test CI/zero skips. One353-file reviewed stage with only Preview crons=[] plus identical project link deployed READY as dpl_AsLremfTJcQ5ew7Cukxn3Ed7n9dJ. Both actual native-runtime bundles passed. One separately reviewed same-project Preview alias assignment and actual readback selected the new deployment; main/production/protection/migrations and the false real-data gate are unchanged.
+
+The original helper failed before anonymous/application HTTP or native-token issuance because it assumed a one-cookie saved jar. That FAILED evidence is preserved. A separately peer-reviewed continuation exercised only unattempted boundaries: anonymous302, one normal project-token issuance, app401 UNAUTHENTICATED/private-no-store. The normal client omitted the expired app cookie and excluded the valid stored Vercel cookie; this is not transmitted-expired-token rejection or an owner screen. Final50-table counts/full-row digests matched the retained earlier checkpoint across the pause, four jobs/two expired recordings/original cookie were preserved and owned inputs/processes/source closure passed.
+
+The public audit and183-entry compatible evidence manifest are independently factual co-signed PASS, with overall taskPARTIAL. Learning L038/L039/P011/G017 records the private tooling findings and supported alias/auth distinctions. TASK-044 separately verifies one normally registered, owned fictional clinic's pricing/trial screen; it does not repair or replace this original-owner proof. No TASK043 operation, deployment, test, provider call or migration is replayed for closure.

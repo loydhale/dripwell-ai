@@ -55,3 +55,11 @@ Summary: Owner explicitly authorizes choosing editable starter pricing and clari
 Task trigger: TASK040 and direct Owner clarification2026-10-03.
 Owner authorization: "You can decide on that pricing... we can change it later." No paid service purchase, real charge, clinical-rule change or full-pilot claim is inferred.
 Auditor co-sign: commercial_auditor, PASS,2026-10-03. Minor Owner-delegated commercial choices and product-goal clarification are within existing scope; source/runtime verification remains a separate task boundary.
+
+## 2026-10-04 — v2.0 — MINOR, SCOPED SETUP VERIFICATION
+
+Section changed: Section8 factual verification checkpoint and Updated date.
+Summary: Records independently verified inactive two-clinic setup/tests/questions/tenant-denial/cleanup evidence. Preserves identical synthetic-fixture limits and every pilot completion criterion unchanged.
+Task trigger: TASK-045, existing F-01/F-02 and tenant-boundary verification.
+CTO: No scope, authority, clinical-rule, architecture or completion-definition change.
+Auditor co-sign: commercial_auditor, PASS, 2026-10-04. Minor factual evidence checkpoint only; all nine pilot criteria remain byte-identical, and identical-price/inactive-version limits remain explicit. Exact whole-document publication review is separate.

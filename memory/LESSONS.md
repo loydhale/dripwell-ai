@@ -324,3 +324,39 @@ Root cause: Vitest's name filter matches the complete hierarchical title, includ
 Avoid by: Inspect full selected titles and expected executed/skipped counts before running a narrowed database continuation. Pin exact distinct name substrings, preserve owned-target/provider guards, and record deliberate exclusions separately from a complete suite PASS. The corrected TASK040 command ran exactly5 focused cases and deliberately left10 unchanged cases unselected.
 Recurrence: TASK042,2026-10-03. Installed Vitest5.0.3 matches fullTestName joined with ` > `, while its JSON fullName joins names with spaces and reports filtered cases as skipped rather than pending. The initial Coder/Auditor plan missed both contracts: its exact matcher selected0/all6skipped/exit0, and its collector incorrectly treated non-pending entries as executed. That original attempt and review remain preserved, excluded from product evidence. A separately reviewed selection/collector-only recovery on the same owned database captured exactly2 intended business assertion failures and4 deliberate exclusions with actual shared/owned before/after preservation. Verify the installed matcher and reporter separately, count explicit passed/failed/skipped states, and require the precise expected failures or successes. Exit0 or reporter success with skipped cases does not prove execution. Later cancellation/referral/renewal assertions were not reached in red. The separately reviewed final green execution reached them: all40 new unit and6 actual-PostgreSQL cases passed with zero skips; do not extend the two red failures to assertions that were never reached.
 Seen N times: 2
+
+
+## L-038 — Select the application cookie from a mixed saved jar
+Date: 2026-10-04
+Task: TASK-043
+What went wrong: The protected read helper assumed the known saved jar contained one cookie. It actually contained an expired dripwell_session and a valid _vercel_jwt, so the first attempt failed before any anonymous/application HTTP or native-token request. Initial independent review missed that fixture-shape assumption.
+Root cause: Whole-jar cardinality was treated as application-session identity without checking safe metadata for the fixed authorized selector.
+Avoid by: Validate the named app cookie and its exact origin/security/expiry metadata. Explicitly exclude stored provider cookies when using normal freshly issued OIDC. Preserve the failed attempt and passing controls, then separately review only the unattempted boundaries. A normal client omits an expired cookie; its actual401 is not evidence of transmitted expired-token rejection.
+Seen N times: 1
+
+## L-039 — Assert final source identity before selecting a closure verdict
+Date: 2026-10-04
+Task: TASK-043
+What went wrong: The continuation initially recorded sourceClean and HEAD during input cleanup without requiring their values before reporting PARTIAL. Independent Coder review caught this before continuation execution.
+Root cause: A recorded cleanup field was treated as an enforced release condition.
+Avoid by: Make exact final HEAD/tree, clean-source state and owned-input/original-cookie preservation explicit assertions before choosing the result. Preserve the original draft/finding, correct only the continuation gate and bind the later actual verdict to its real closure receipt. TASK043's corrected continuation enforced clean807/f61 and safely closed the auth boundary; root documentation edits followed afterward.
+Seen N times: 1
+
+## L-040: Check native client fields and extensible response data
+Date: 2026-10-04
+Task: TASK-044
+What went wrong: Initial browser-plan review accepted an unsupported Config.defaultTimeout field. Installed0.38.1 silently ignores that field; the documented AGENT_BROWSER_DEFAULT_TIMEOUT input was needed. After that preparation correction, the sole actual browser attempt successfully opened/waited at the protected login and imported the normal app cookie, but its collector rejected result.set:true because the native response also contained lifecycle metadata. The first equality assertion failed; a second identical assertion was never reached. Both initial independent reviews and actual FAILED evidence remain preserved.
+Root cause: The verification tool assumed a configuration key and exact whole-result shape instead of checking the installed schema and successful response decoration path.
+Avoid by: Trace version-matched accepted inputs and the complete response path before using them. Require the expected row count, success:true, error:null and result object set isTrue, while allowing the source-traced lifecycle metadata. Keep credential redaction before persistence. Do not treat a collector assertion as a failed app/cookie command. Reconcile the actual closed browser and whole-data controls; any unattempted UI continuation must be separately reviewed in a fresh namespace/context, with required new-context authentication bootstrap recorded distinctly from a prior-command retry. Include both context closures and exact owned inputs in later compensation.
+Seen N times: 1
+
+The separately frozen pure collector checker later exercised the saved valid native reply and14fictional cases:15expected outcomes passed,3accepted/12rejected; independent reviewbab685ac resolves the readiness hold. The distinct new-context owner settings continuation returned actualPASS without replaying the original entry. Exact originalFAILED evidence remains retained. Independent actual UI/data/both-context reviewef5b5138 passes screenshot/DOM and all50preservation. Separately reviewed compensation22cd under GO06cbc34d later executed exactly one conditional statement; independent actual review6219ca19 confirms CAS1/1/1, original50-table32-row/rate baseline restored, both exact contexts released and only three owned inputs removed. A read-only Auditor collector first expected a uniform mutation key on inherited SELECT-only intent metadata; that KeyError is retained, then corrected by reading each typed schema on retained copies with no SQL or cleanup replay. Check the recorded kind and corresponding fields when combining metadata sources.
+
+
+## L-041: Normalize trusted SQL dates at their boundary
+Date: 2026-10-04
+Task: TASK-045
+What went wrong: Normal signup returned201, but the original verifier rejected PostgreSQL TIMESTAMP(3) text without an offset before preserving the valid new session. Source inspection also found the same representation mismatch at two selected-SQL configuration/audit createdAt validation calls before those paths ran.
+Root cause: A strict API/request timestamp contract was applied directly to the different trusted SQL representation.
+Avoid by: Interpret only the selected SQL rate timestamp and shallow createdAt validation projections as UTC. Keep strict API/request/nested test timestamps unchanged, and preserve raw rows, timestamp text, canonical hashes and compare-and-swap values. The27 affected cases passed8 accepted/19 rejected with independent review85f23046; the source-predicted createdAt issue was not an observed application failure. Preserve a server-validated normal session before later unrelated evidence checks so a tool failure does not require signup replay or credential reconstruction.
+Seen N times: 1

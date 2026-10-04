@@ -3,7 +3,7 @@
 **Version:** 2.0, consultation workflow  
 **Status:** Owner-authorized v2 source implemented; release verification and live service status are recorded in [verification evidence](docs/VERIFICATION_REPORT.md)\
 **Owner:** Loyd Hale  
-**Updated:** 2026-10-03\
+**Updated:** 2026-10-04\
 **Plan:** [Implementation plan](docs/IMPLEMENTATION_PLAN.md)  
 **Previous scope:** [Archived v1 PRD](docs/archive/PRD-v1.md)
 
@@ -234,6 +234,8 @@ Verify the full story with synthetic data before real-client rollout:
 9. Roles, services, retention/deletion, retries, and tenant boundaries pass end-to-end verification.
 
 Pilot targets: immediate recording controls; question updates within 10 seconds of receiving a segment; initial recommendations within 15 seconds of reviewed-summary submission; wellness document within 30 seconds. Measure representative devices/providers before public promises.
+
+Verification checkpoint, October4,2026: [the two-clinic setup audit](docs/AUDIT_TWO_CLINIC_SETUP.md) independently verifies ordinary fictional-owner inactive drafts, saved eligible/missing-answer tests, visible questions, two explicit tenant denials and exact cleanup. Its identical USD100 synthetic fixtures and inactive versions do not satisfy criterion1's different catalogs/prices and activation or the remaining full-story criteria above.
 
 ## 9. Explicit defaults and open decisions
 

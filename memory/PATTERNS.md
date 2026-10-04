@@ -96,9 +96,9 @@ Example: The actual PostgreSQL setup-scope suite uses a selected second location
 ## P-011 — Reviewed preview adaptation has an exact source manifest
 Date: 2026-10-02
 Where in codebase: docs/AUDIT_DEPLOYMENT.md, external isolated preview stage
-The pattern: Compare every staged tracked file directly against the selected Git commit, allow only the documented preview configuration difference, and exclude credentials from the upload. Apply exact migrations to an isolated database and separately compare schema plus migration checksums before hosted verification.
+The pattern: Compare every staged tracked file directly against the selected Git commit, allow only the documented preview configuration difference, and exclude credentials from the upload. During initial approved provisioning, apply exact migrations once to an isolated database and compare schema/ledger/checksums. Later source deployments reuse that verified history without migration replay. Read the actual stable Preview alias after deployment; if a manual alias remains on the prior source, preserve that result, separately review a same-project Preview alias assignment and read back its actual new deployment ID.
 When to use: A platform-plan limitation requires an isolated synthetic preview adaptation without changing approved production behavior.
-Example: The d4239d5 stage compared 293 tracked files, changed only apps/web/vercel.json crons, added only the nonsecret Vercel project link and contained zero environment files.
+Example: The d4239d5 stage compared 293 tracked files, changed only apps/web/vercel.json crons, added only the nonsecret Vercel project link and contained zero environment files. TASK043 independently compared353 tracked807 blobs/354 actual leaves, deployed READY with two native-runtime bundles and observed the manual alias still on oldb61. One separately reviewed Preview alias set/readback selected the new READY deployment; no second build, production promotion, protection change or hosted migration replay occurred.
 
 ## P-012 — Verify native dependencies from each deployed agent bundle
 Date: 2026-10-02
@@ -177,3 +177,23 @@ Where in codebase: apps/web/lib/commercial.ts, apps/web/lib/billing.ts
 The pattern: Authorize older subscription events through bounded explicit server-side price/product/amount/currency/cadence contracts. Match complete provider items and lossless decimal text, retain customer/tenant/subscription/invoice guards, and require exactly one recognized item. Checkout selects only the current active offer. Invalid history fails before side effects and leaves relevant events retryable. Future rotation/rollback uses coherent current-offer/history tuples, preserving old subscribers and immutable trial/referral/credit snapshots.
 When to use: An approved platform price changes for new subscriptions while existing subscriptions keep their original terms. Recognition does not authorize provider repricing, processed-event backfill or retroactive awards.
 Example: TASK-042 reproduced missed old-price settlement/status events, then passed40 unit and6 actual-PostgreSQL cases with strict quantity/decimal/ambiguity guards and one original-policy award under concurrent qualification/replay. Stripe transport remained an explicit fixture.
+
+
+## P-023: Normal nonce-owned hosted fixtures and exact rate compensation
+Date: 2026-10-04
+Task: TASK-044; reusable for approved TASK-045
+Use when: A missing deployed boundary can be reached with an ordinary fictional owner and requires exact fixture release without changing another clinic or rate window.
+Pattern: Register through the normal owner API using an exclusive visibly fictional nonce/email. Reconcile actual server IDs and canonical hashes; capture complete preexisting50-table/rate state. Use origin-scoped memory authentication for the real UI. Before compensation require every owned browser context released, exact nonce/UUID/FK/canonical-row ownership and the fresh observed rate version. Execute one conditional transaction restoring only that exact shared bucket state and removing only the proved fixture rows. Verify original full-table/rate equality, then remove only hash-owned temporary inputs. Preserve partial failures and stop on uncertain commit rather than replaying mutation.
+Concrete evidence: TASK044 normal201/three200/settingsUI,32→37→32rows, one exact rateCAS, both closed contexts and three owned input removals. Independent actual reviews ef5b5138/6219ca19 PASS. Normal owner clinical/MFAfalse and protected false gate remained intact.
+Limits: This is scoped verification and preservation, not clinical authority, billing/paid-referral or full-pilot completion. Do not seed privileged users, spoof limiter identity, sweep old records or overwrite concurrent traffic.
+
+
+## P-024: Bind an accepted continuation to its immutable failed ancestor
+Date: 2026-10-04
+Task: TASK-045
+Use when: An application action succeeds, its legitimate credential is preserved, and a verification collector fails before dependent actions.
+Pattern: Independently reconcile the actual success, owned records, credential descriptor and preservation proof. Retain the original FAILED result and exact executed evidence. Prepare a distinct continuation containing only unattempted boundaries, with required fresh RAM-only transport authentication identified separately. Later phases accept only the exact independently reviewed continuation plus its failed ancestor; never overwrite the failure, reconstruct a session or repeat the successful mutation.
+Concrete evidence: Recovery signup201/five canonical owned rows/secure245-byte cookie/direct rate proof passed; duplicate evidence filename stopped a second SELECT before dispatch and both ownGETs were unattempted. Factual review6334905a verifies this boundary. The distinct continuation later completed two ownGET200 and six originally unattempted SELECT200 with exit0 and independent review8aeaecb5 PASS. Root acceptance82c3e281 binds its exact result/state/closure/review and the immutable FAILED ancestor. No original signup or server/rate proof was replayed.
+Limits: Source-enforced assertions with no retained raw payload must be described as such. Unexpected state or uncertain writes stop execution for reconciliation. This pattern does not authorize clinical approval, trial use, billing or pilot completion.
+
+Final scoped evidence: API review914faa96 and browser reviewb5f18f02 verify two inactive drafts, four saved deterministic tests, two cross-clinic404 denials and four cold desktop images. Exact final binding review04f430aa preceded the sole conditional compensation; actual closure7c4fdccc PASS verifies removal of18 owned rows, restoration of all50 original table maps/32 rows/seven raw rate rows, and four exact owned input unlinks. Identical USD100 fixtures, inactive versions, source-enforced subset proof, combined-stream and device limits remain explicit.
