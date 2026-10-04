@@ -87,37 +87,3 @@ export async function startConsultationReminder(consultationId: string) {
   const run = await start(consultationReminderWorkflow, [consultationId]);
   return { runId: run.runId };
 }
-
-export async function reconcileAllReminders() {
-  const db = getDb();
-  let cursor: string | undefined;
-  let count = 0;
-  do {
-    const consultations = await db.consultation.findMany({
-      where: {
-        isTest: false,
-        OR: [
-          { careOutcome: 'PENDING' },
-          { wellnessDecision: null },
-          { wellnessDecision: 'TBD' },
-          { wellnessDecisionDueAt: { not: null } },
-          { notifications: { some: { dismissedAt: null } } },
-        ],
-      },
-      select: { id: true },
-      orderBy: { id: 'asc' },
-      take: 100,
-      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-    });
-    for (let offset = 0; offset < consultations.length; offset += 10) {
-      await Promise.all(
-        consultations
-          .slice(offset, offset + 10)
-          .map((consultation) => reconcileConsultationReminders(consultation.id)),
-      );
-    }
-    count += consultations.length;
-    cursor = consultations.length === 100 ? consultations.at(-1)?.id : undefined;
-  } while (cursor);
-  return { checked: count, moreRemaining: Boolean(cursor) };
-}

@@ -71,3 +71,11 @@ Summary: Records scoped normal-owner MFA/recovery/session/account/cleanup eviden
 Task trigger: TASK046, existing role/security and F09 service/retry scope.
 CTO: No scope, clinical authority, architecture or completion-definition change.
 Auditor co-sign: commercial_auditor, exact final package review required before publication; genuine review receipt accompanies this closure.
+
+## 2026-10-04, v2.0, MINOR, MEMBERSHIP GOAL AND MAINTENANCE CHECKPOINT
+
+Sections changed: Existing product-purpose/F12 clarification and factual section8 checkpoint.
+Summary: Owner October4 reaffirms suitable clinic membership/program conversion and client satisfaction. Visible confirmed enrollment, unknown outcomes and explicit consultation-visit denominators clarify existing F06/F12. Records scoped maintenance source/build/cleanup evidence and leaves native recurrence/hosted/Blob work separate. All nine section8 criteria remain byte-identical, SHA25686ecf970a1adca878346cab6836643488d58d539c0cb84691a132cf935ce71ad.
+Task trigger: TASK047 closure and Owner product steering; researchscopee8a97e7c/goal-offerscope88098012 independently PASS.
+CTO: No new survey, campaign, clinical policy, integration, payment, authority or completion-definition change. Research is vendor product/terms evidence, not measured lift.
+Auditor co-sign: Exact frozen whole-package review required before publication; independently approved goal/offer drafts and actual3dd24059/ffd7d22f/learning7877bcc2 are bound as prerequisites.

@@ -11,7 +11,7 @@
 
 DripWell is a multi-tenant PWA for IV clinics. It records a consented new-client consultation, guides staff through necessary questions, prepares recommendations from that location's approved catalog, captures staff review and actual treatment, and produces an attractive wellness takeaway. Owners can standardize consultations, understand staff adjustments, track care starts and client decisions, and improve recommendation configuration through owner-controlled review.
 
-The Owner's stated business goals are better conversion and client satisfaction. Evaluate conversion through actual care starts, client decisions and documented reasons, with clear denominators and suitability context. A clear explanation of the client's goals, suitable options and official prices should help the client make an informed decision. Client satisfaction is an intended outcome; a post-visit rating is an idea for separate scope review, not an implemented measurement or an automatic policy-change signal.
+The primary commercial goal is to help an IV spa present and sell a suitable clinic membership or program during its new-client workflow, while improving client satisfaction. Connect reviewed goals/preferences to approved benefits, official prices and terms so staff can explain the offer clearly. Track care starts, client decisions and confirmed enrollment/purchase separately, with consultation-visit denominators, missing outcomes and suitability context. Accepting a wellness plan does not establish enrollment or collected payment; ordinary visit documentation requires no membership result. Client satisfaction remains an intended outcome; a post-visit rating stays a separate scope proposal. [Reviewed membership-conversion research](docs/MEMBERSHIP_CONVERSION_RESEARCH.md) supports the queued reporting and offer-presentation improvements without claiming measured sales lift.
 
 Use OpenScribe as the reference for recording, transcription, and reviewed documentation. Use Vercel, AI SDK, Workflow, and eve for application and agent infrastructure. Preserve existing project instructions/context/memory conventions and use eve's documented filesystem layout. The owner's separate ICM/eve example has not yet been identified; do not claim an exact template match until verified.
 
@@ -173,6 +173,7 @@ Labels may be polished; these meanings and triggers are required.
 ### F-12. Clinic and platform dashboards
 
 - Clinic reporting covers new consultations, care started/not-started/pending, wellness accepted/rejected/TBD, unresolved outcomes, optional memberships/services, adjustments, and completion time.
+- Make confirmed client membership enrollment visible, with enrolled/did-not-enroll/not-recorded distinct. Show the selected-period consultation-visit denominator and missing-data count; visits are not deduplicated first-time clients, and a service purchase is not automatically a program sale.
 - Make denominators/date filters explicit; exclude test sessions. Archived visits remain in historical metrics unless explicitly filtered.
 - Platform reporting covers clinics, subscriptions, trial utilization, referral funnel, credit liability/application, consultations, failures, latency, model/transcription costs, and support activity.
 - Every generation has an addressable ID, tenant/encounter/run, versions, status, and cost. Restrict health-bearing traces separately from operational metrics.
@@ -238,6 +239,8 @@ Pilot targets: immediate recording controls; question updates within 10 seconds 
 Verification checkpoint, October4,2026: [the two-clinic setup audit](docs/AUDIT_TWO_CLINIC_SETUP.md) independently verifies ordinary fictional-owner inactive drafts, saved eligible/missing-answer tests, visible questions, two explicit tenant denials and exact cleanup. Its identical USD100 synthetic fixtures and inactive versions do not satisfy criterion1's different catalogs/prices and activation or the remaining full-story criteria above.
 
 The [normal-owner MFA audit](docs/AUDIT_NORMAL_OWNER_MFA.md) additionally verifies protected fictional enrollment, one-use recovery/challenge denials, session revocation, unchanged ordinary authority and secret-free enabled UI with exact cleanup. This is a scoped security portion of criterion9, not complete roles/services/retention or pilot verification. The next maintenance work is split into bounded default-disabled DB source, actual compiled recurrence and separately reviewed Blob-intent compatibility. Every acceptance criterion and real-data gate remains unchanged.
+
+The [bounded maintenance audit](docs/AUDIT_BOUNDED_MAINTENANCE.md) records independently reviewed default-disabled coordinator/effect fencing,17 unit checks,14 distinct composite PostgreSQL behaviors, typecheck, explicit isolated Webpack build and original-owned-target cleanup. Native starts are mocked in source tests; actual compiled recurrence TASK048, hosted enablement and deferred Blob families remain separate. This scoped checkpoint does not satisfy the full service/retention criterion or change any pilot criterion above.
 
 ## 9. Explicit defaults and open decisions
 

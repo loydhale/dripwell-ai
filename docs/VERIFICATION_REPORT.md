@@ -6,6 +6,12 @@ Local verification uses isolated PostgreSQL17 and fictional clinics; bounded hos
 
 ## Current evidence, October 2 through 4, 2026
 
+### Bounded maintenance source and conversion research, TASK047
+
+[The scoped maintenance audit](AUDIT_BOUNDED_MAINTENANCE.md) records17 unit checks,14 distinct composite PG behaviors, first types/directNext16.3.8 Webpack build and original-owned-target closure, independently3dd24059/ffd7d22f PASS. Retained12 plus focused2/12deliberate exclusions is not a new full14 run. Original init/transform/fixture/defaultTurbopack failures remain. Source tests mock native starts; actual recurrence048, hosted migration/enablement and deferred Blob families are separate. Local shared50/101 was preserved; hosted807 was not mutated. Required new-source publication/CI follows exact final package co-sign; historical181 is not a check of this candidate.
+
+[Reviewed membership research](MEMBERSHIP_CONVERSION_RESEARCH.md) and Owner steering clarify suitable clinic membership/program conversion as the primary commercial goal. Enrollment reporting049 and approved offer presentation050 follow048; they are queued, not implemented by047. Vendor descriptions are design evidence, not measured lift. Client satisfaction remains intended, with ratings a separate scope proposal. All PRDsection8 criteria remain unchanged.
+
 ### Ordinary owner MFA and recovery, TASK046
 
 [The scoped audit](AUDIT_NORMAL_OWNER_MFA.md) records real normal protected enrollment, current-session verification/earlier-session revocation, one-use recovery and401/410 challenge denials, ordinary clinical=false/platform403, secret-free enabled account screen and exact nine-row/five-rate/four-input cleanup. Independent actual API5c54bc87/UI34e7d82b/terminalfb4ad9ce PASS preserve all50 original maps/32rows/seven rates and existing artifacts. New22 pure checks are separate from actual database proof; reporting errors/raw/context/device/operator limits remain explicit. This documentation closure does not change deployed807 source/protection/false gate or satisfy the full pilot. Next work splits bounded DB source, actual compiled recurrence and Blob-intent compatibility.

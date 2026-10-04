@@ -1186,6 +1186,38 @@ model RateLimitBucket {
   count       Int      @default(0)
 }
 
+// No automatic insertion, backfill or start. One trusted environment scope owns
+// manual and scheduled database maintenance, independently of client tenants.
+model MaintenanceCoordinator {
+  key                 String   @id
+  projectId           String
+  environment         String
+  branch              String
+  deploymentId        String?
+  enabled             Boolean  @default(false)
+  mode                String   @default("DISABLED")
+  phase               String   @default("IDLE")
+  generation          BigInt   @default(0)
+  ordinal             BigInt   @default(0)
+  claimToken          String?  @db.Uuid
+  ownerRunId          String?
+  dispatchedRunId     String?
+  dispatchAttemptedAt DateTime?
+  claimedAt           DateTime?
+  leaseUntil          DateTime?
+  anchorAt            DateTime?
+  nextDueAt           DateTime?
+  cadenceMs           Int      @default(900000)
+  cursors             Json     @default("{}")
+  progress            Json     @default("{}")
+  continuation        Json?
+  lastCompletedAt     DateTime?
+  lastErrorCode       String?
+  skippedSlots        BigInt   @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
 model SetupConversation {
   id           String             @id @default(uuid()) @db.Uuid
   tenantId     String             @db.Uuid

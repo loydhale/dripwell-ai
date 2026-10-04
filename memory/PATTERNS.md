@@ -128,6 +128,10 @@ The pattern: Global recovery/pruning endpoints use a fresh exclusively owned loo
 When to use: Actual compiled maintenance/cron verification that can alter unrelated consultation, job, authentication or rate-limit rows. Keep providers blank unless a separately approved bounded provider test selects only owned artifacts.
 Example: TASK-030 copied50 empty schema tables, proved401/no mutation twice and one authenticated HTTP reminder/recovery/prune pass, then removed only its OID/nonce-guarded database while all50 shared-table digests and the existing container remained unchanged.
 
+TASK047 application,2026-10-04: Reuse the existing list query and validate exact owned51/shared50 table-name sets/lengths before any per-table content SELECT. Unexpected names must fail before content access or exceeding the106-query read-only ceiling. Preserve failed initialization and bind same-target readiness/independent review/Root acceptance. Schema-only old50 plus one new additive SQL is distinct from migration-ledger replay. Fresh per-phase before/after guards are required; earlier checkpoints or hooks do not prove missing post-state. Identity, individual table, connection and shared observations are sequential, not one cross-target atomic snapshot.
+
+Evidence: finding462aab2e; resolved plan a307c23b; actual readiness ea21d1f3. Extend the existing pattern.
+
 
 ## P-016: Verify physical provider retention before compensation
 Date: 2026-10-02

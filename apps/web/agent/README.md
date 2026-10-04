@@ -34,9 +34,17 @@ behind the application's same-origin routing.
   consultation recording uses independently playable short segments.
 - Provision Eve/Workflow durable execution and its default sandbox template.
   Disabling ambient tools does not remove the framework's sandbox artifact.
-- Set `CRON_SECRET` and enable `/api/jobs/reconcile` every 15 minutes. It recovers
-  durable outcome reminders, reconciles abandoned upload starts, deletes expired
-  audio, and bounds expired authentication and rate-limit records.
+- Set `CRON_SECRET` for the machine-only `/api/jobs/reconcile` control interface.
+  Authenticated GET reports state without starting work; the existing Cron entry
+  therefore cannot bootstrap maintenance. Explicit POST controls reserve a
+  manual run or opt into the default-disabled durable database coordinator.
+  Its six finite pages reconcile outcome reminders, mark interrupted database
+  upload/job starts, and expire old authentication/rate records. Native Workflow
+  sleep and an immutable-deployment continuation define the requested 15-minute
+  cadence. Source/build tests do not prove actual recurring execution. See
+  [database maintenance](../workflows/MAINTENANCE.md) for bounds and recovery.
+  Blob upload compensation and audio retention remain deferred to their separate
+  fenced provider work; this coordinator does not delete remote audio.
 - Enable real client data only after the deployment's approved clinical
   protocols, required processing agreements, service configuration, and
   readiness checks are complete. Environment configuration alone is not proof
@@ -53,7 +61,8 @@ Each private upload attempt uses an immutable unique path and an independent
 durable cleanup pointer. Adoption and cleanup lock the recording and then its
 upload job; an adopted object cannot be deleted by stale compensation. A late
 discarded upload is deleted after its response, deletion failures retain the
-pointer, and unknown remote outcomes remain scheduled for cron cleanup. The
+pointer. Dedicated compensation paths are preserved; automatic global Blob
+cleanup is deferred until its provider fencing is reviewed. The
 Blob 2.8.0 installed API documents private access, overwrite prevention, and
 abort signals; requests have a 45-second upload limit under the 60-second route.
 Workflow payloads and results contain IDs only; provider errors are sanitized
