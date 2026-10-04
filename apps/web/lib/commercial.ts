@@ -38,6 +38,60 @@ export interface CommercialEnvironment {
   readonly [name: string]: string | undefined;
   PLATFORM_SUBSCRIPTION_CENTS?: string;
   PLATFORM_SUBSCRIPTION_CURRENCY?: string;
+  STRIPE_PRICE_ID?: string;
+  STRIPE_PRICE_HISTORY?: string;
+}
+
+export interface RetainedPlatformPrice {
+  priceId: string;
+  productId: string;
+  amountCents: number;
+  currency: string;
+  interval: 'month';
+  intervalCount: 1;
+}
+
+/** Explicit server authorization for old subscriptions, never a checkout menu. */
+export function platformPriceHistory(env: CommercialEnvironment): RetainedPlatformPrice[] {
+  const raw = env.STRIPE_PRICE_HISTORY?.trim();
+  if (!raw) return [];
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed)) throw new Error('Price history must be an array.');
+  const fields = ['priceId', 'productId', 'amountCents', 'currency', 'interval', 'intervalCount'];
+  const seen = new Set<string>();
+  return parsed.map(value => {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new Error('A retained price contract is required.');
+    const data = value as Record<string, unknown>;
+    const keys = Object.keys(data);
+    const { priceId, productId, amountCents, currency, interval, intervalCount } = data;
+    if (keys.length !== fields.length || keys.some(key => !fields.includes(key)) ||
+        typeof priceId !== 'string' || !/^price_[A-Za-z0-9]+$/.test(priceId) ||
+        typeof productId !== 'string' || !/^prod_[A-Za-z0-9]+$/.test(productId) ||
+        typeof amountCents !== 'number' || !Number.isSafeInteger(amountCents) || amountCents <= 0 || amountCents > 2147483647 ||
+        typeof currency !== 'string' || !isSupportedCurrency(currency) || interval !== 'month' || intervalCount !== 1 ||
+        priceId === env.STRIPE_PRICE_ID?.trim() || seen.has(priceId)) {
+      throw new Error('The retained price contracts are invalid or ambiguous.');
+    }
+    seen.add(priceId);
+    return { priceId, productId, amountCents, currency, interval, intervalCount };
+  });
+}
+
+/** Archived availability does not change a specifically retained billing contract. */
+export function matchesRetainedPlatformPrice(price: Stripe.Price, contract: RetainedPlatformPrice): boolean {
+  const product = price.product;
+  const productId = typeof product === 'string' ? product : product?.id;
+  const decimal = price.unit_amount_decimal;
+  return price.id === contract.priceId && price.object === 'price' && price.deleted === undefined &&
+    typeof price.active === 'boolean' && productId === contract.productId &&
+    !(typeof product === 'object' && product !== null && 'deleted' in product && product.deleted) &&
+    price.type === 'recurring' && price.billing_scheme === 'per_unit' &&
+    price.recurring?.interval === contract.interval && price.recurring.interval_count === contract.intervalCount &&
+    price.recurring.usage_type === 'licensed' && price.currency === contract.currency.toLowerCase() &&
+    price.unit_amount === contract.amountCents &&
+    (decimal == null || new RegExp(`^${contract.amountCents}(?:\\.0{1,12})?$`).test(decimal.toString())) &&
+    price.custom_unit_amount === null && price.transform_quantity === null;
 }
 
 /** Server configuration is explicit; blank overrides retain the starter values. */

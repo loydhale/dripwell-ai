@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { referralPolicySchema } from '@dripwell/shared/v2';
 import { getDb } from './db';
 import { ApiError } from './errors';
-import { assertPlatformPrice, platformSubscriptionTerms, type PlatformSubscriptionOffer } from './commercial';
+import { assertPlatformPrice, matchesRetainedPlatformPrice, platformPriceHistory, platformSubscriptionTerms, type PlatformSubscriptionOffer } from './commercial';
 
 export function applicationUrl(): string {
   const value = process.env.APP_URL;
@@ -45,6 +45,7 @@ export async function configuredPlatformPrice(): Promise<Stripe.Price> {
   const priceId = process.env.STRIPE_PRICE_ID;
   if (!priceId)
     throw new ApiError(503, 'The subscription price has not been configured.', 'BILLING_PRICE_MISSING');
+  configuredPriceHistory();
   let terms;
   try {
     terms = platformSubscriptionTerms(process.env);
@@ -356,16 +357,31 @@ async function reverseCredit(referralId: string): Promise<void> {
   );
 }
 
+function configuredPriceHistory() {
+  try {
+    return platformPriceHistory(process.env);
+  } catch {
+    throw new ApiError(503, 'The retained subscription prices need configuration.', 'BILLING_PRICE_HISTORY_INVALID');
+  }
+}
+
 function platformItem(subscription: Stripe.Subscription, tenantId: string): Stripe.SubscriptionItem | null {
   const configuredPrice = process.env.STRIPE_PRICE_ID;
   if (!configuredPrice) throw new ApiError(503, 'The subscription price has not been configured.', 'BILLING_PRICE_MISSING');
-  if (subscription.metadata?.tenantId !== tenantId) return null;
-  return subscription.items.data.find(item => {
-    const price = item.price;
-    return price.id === configuredPrice && price.type === 'recurring' && price.recurring !== null &&
+  const history = configuredPriceHistory();
+  if (subscription.metadata?.tenantId !== tenantId || subscription.items.has_more) return null;
+  const recognized = subscription.items.data.filter(item =>
+    item.price.id === configuredPrice || history.some(contract => contract.priceId === item.price.id));
+  if (recognized.length !== 1) return null;
+  const item = recognized[0];
+  const price = item.price;
+  if (price.id === configuredPrice) {
+    return price.type === 'recurring' && price.recurring !== null &&
       ((price.unit_amount ?? 0) > 0 || Number(price.unit_amount_decimal?.toString() ?? '0') > 0) &&
-      (item.quantity ?? 1) > 0;
-  }) ?? null;
+      (item.quantity ?? 1) > 0 ? item : null;
+  }
+  const contract = history.find(value => value.priceId === price.id)!;
+  return item.quantity === 1 && item.subscription === subscription.id && matchesRetainedPlatformPrice(price, contract) ? item : null;
 }
 
 async function settledPlatformPeriod(invoice: Stripe.Invoice, subscription: Stripe.Subscription, item: Stripe.SubscriptionItem): Promise<Date | null> {

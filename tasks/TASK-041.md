@@ -1,7 +1,7 @@
 # TASK-041: Verify the requested ChatGPT CLI subscription route
 
 TASK_ID: TASK-041
-STATUS: DONE, current research and independent co-sign PASS; recurrentL025 learning and CTO closure recorded, exact reviewed publication pending. Hosted inference remains a separate open dependency.
+STATUS: DONE, current research and independent co-sign PASS; recurrentL025 learning and CTO closure recorded and published at reviewed7dd003df. Hosted inference remains a separate open dependency.
 ASSIGNED: AUDITOR
 PARENT_REQUEST: Owner, 2026-10-03: "when you have the app, you'll just send me the link and I'll login to ChatGPT CLI so my subscription can work."
 

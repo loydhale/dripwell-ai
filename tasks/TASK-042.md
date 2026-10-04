@@ -1,7 +1,7 @@
 # TASK-042: Preserve billing events across reviewed platform price changes
 
 TASK_ID: TASK-042
-STATUS: QUEUED, after TASK040 independent source/UI/cleanup closure
+STATUS: DONE, scoped repair, actual 40 unit + 6 PostgreSQL cases/types and independent owned-cleanup review PASS; exact closing co-sign/publication/new CI next
 ASSIGNED: CODER, independent AUDITOR review required
 PARENT_REQUEST: Owner delegated initial pricing with later edits; continuous mode requires addressing justified in-scope gaps.
 PRD refs: F-11/F-12, versioned commercial terms and preserved subscription/credit history.
@@ -31,3 +31,7 @@ Database checks need an explicitly approved owned target and full shared-record 
 - Report exact paths, focused checks, owned cleanup/shared preservation and learning; independent Auditor reviews source and meaningful results. Update reviewed CTO closure docs and publish only reviewed changes to the same PR2 branch.
 
 If no minimal safe repair fits existing authority/schema, document the reproduced boundary and narrow prerequisite instead of expanding architecture. This task cannot declare PRDsection8 or production complete.
+
+## Scoped completion evidence
+
+On published parent7dd003df, the corrected retained-history implementation passed40 unit and6 owned actual-PostgreSQL cases with zero skips, plus installed TypeScript5.9.3 noEmit validation. Source/result/cleanup reviewsd22f0a0e/df3429ac/c7d1719e PASS. The sole owned database/profile cleanup and independent current readback preserve all50 shared full-row digests/101rows, original container and six source hashes. Original skipped baseline and provenance-label corrections remain retained. See [the exact scoped audit](../docs/AUDIT_BILLING_PRICE_HISTORY.md). Publication/new-source CI precedes TASK-043 deployment; intercepted Stripe transport is not actual paid billing or full-pilot evidence.

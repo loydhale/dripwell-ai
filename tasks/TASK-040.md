@@ -1,7 +1,7 @@
 # TASK-040: Owner-delegated starter platform pricing and referral policy
 
 TASK_ID: TASK-040
-STATUS: DONE, scoped independent source/compiled-UI/owned-cleanup PASS. Learning and minor PRD co-sign are recorded; final exact closing publication remains pending. Failed private fixture/browser/collector phases and the overwritten-receipt limitation are retained and excluded from successful proof. Actual hosted activation/billing/full-pilot gates remain open.
+STATUS: DONE, scoped independent source/compiled-UI/owned-cleanup PASS. Learning and minor PRD co-sign are recorded; exact reviewed publication at7dd003df and independent remote/new135-test CI PASS are complete. Failed private fixture/browser/collector phases and the overwritten-receipt limitation are retained and excluded from successful proof. Actual hosted activation/billing/full-pilot gates remain open.
 ASSIGNED: CODER, independent AUDITOR review required
 PARENT_REQUEST: Owner, 2026-10-03: "You can decide on that pricing... we can change it later."
 PRD refs: F-11/F-12, section8 trial and qualifying paid referral.
