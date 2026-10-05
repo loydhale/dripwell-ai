@@ -329,6 +329,8 @@ Same-task TASK052 third-recovery structural checkpoint, 2026-10-05: corrected c7
 
 Same-task TASK052 deliberate diagnostic continuation, 2026-10-05: CI37353034613 passed205 and failed1 of206. The failed-summary helper accepts any processing rejection before looking up its child, so subsequent P2025 does not identify the primary cause or loop mode. Prove actual intended summary-fault entry and retain original transaction/processing errors before consuming failed-child provenance; emit only bounded fixed classifications on unexpected setup failure. New isolated/seven-summary controls do not reconstruct the historical masked failure. This is a diagnostic refinement, not a causal production fix or automatic fourth recovery; Seen remains5.
 
+Same-task TASK052 transaction-boundary continuation, 2026-10-05: d186’s bounded record identifies current pre-summary Prisma-known P2034 before provider entry. The workflow supplies existingTx and bypasses append’s standalone retry. Assess recovery at the encompassing DB-only publication boundary: await rollback, reacquire all current guards each attempt, retry only the known P2034 class within the existing twelve-attempt cap, and keep provider I/O outside. Remove the nested caller loop to avoid cap multiplication. Preserve prior static approvals and this failed CI; earlier causes and concurrent participants remain UNKNOWN. These are prospective checks, not corrected results. Seen remains5.
+
 Seen N times: 5
 
 ## L-036: Historical observation flags do not timestamp each later reply

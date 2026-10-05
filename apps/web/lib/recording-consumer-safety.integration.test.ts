@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { Prisma, type RecordingSegment } from '@prisma/client';
+import { Prisma, type GenerationJob, type RecordingSegment } from '@prisma/client';
 import { ZodError } from 'zod';
 import { clinicConfigurationSchema, emptyConsultationSummary } from '@dripwell/shared/v2';
 import { getDb } from './db';
@@ -879,5 +879,291 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       blobObject: accepted.object, mimeType: 'audio/webm' }));
     expect(await cleanupRecordingUploadAttempt(accepted.object.uploadAttemptId!, del)).toMatchObject({ pending: false, preserved: true });
     expect(del).not.toHaveBeenCalled();
+  });
+
+  type OwnedRecording = Awaited<ReturnType<typeof fixture>>;
+  type ConflictOptions = {
+    boundary: 'INITIAL' | 'FINAL'; count: number;
+    beforeRollback?: (tx: Prisma.TransactionClient) => Promise<void>;
+    afterRollback?: () => Promise<void>;
+  };
+  async function publicationState(tx: Prisma.TransactionClient, owned: OwnedRecording) {
+    const [parent, recording, summaryJob, revisions, events] = await Promise.all([
+      tx.generationJob.findFirstOrThrow({ where: { id: owned.jobId, tenantId }, select: { status: true, runId: true, usage: true } }),
+      tx.recordingSegment.findFirstOrThrow({ where: { id: owned.id, tenantId }, select: { status: true, transcript: true } }),
+      tx.generationJob.findUnique({ where: { tenantId_idempotencyKey: { tenantId, idempotencyKey: `summary:${owned.jobId}` } },
+        select: { status: true, runId: true } }),
+      owned.visit ? tx.consultationRevision.findMany({ where: { consultationId: owned.visit, tenantId }, select: { kind: true } }) : [],
+      owned.visit ? tx.consultationEvent.findMany({ where: { consultationId: owned.visit, tenantId }, select: { action: true } }) : [],
+    ]);
+    // Only fixed states/counts are retained by the control, never query payloads.
+    return { parentStatus: parent.status, parentRunId: parent.runId, parentHasUsage: parent.usage !== null,
+      recordingStatus: recording.status, recordingHasTranscript: recording.transcript !== null,
+      childStatus: summaryJob?.status ?? null, childRunId: summaryJob?.runId ?? null,
+      revisions: revisions.length, events: events.length,
+      transcriptRevisions: revisions.filter(row => row.kind === 'TRANSCRIPT').length,
+      summaryRevisions: revisions.filter(row => row.kind === 'SUMMARY').length,
+      transcriptEvents: events.filter(row => row.action === 'TRANSCRIPT_RECEIVED').length,
+      summaryEvents: events.filter(row => row.action === 'SUMMARY_PROPOSED').length };
+  }
+  async function withPublicationConflict(owned: OwnedRecording, options: ConflictOptions, work: () => Promise<unknown>) {
+    requireUnblocked();
+    expect(recordingIds.has(owned.id) && jobIds.has(owned.jobId)).toBe(true);
+    const db = getDb(); const spy = vi.mocked(db.$transaction);
+    const delegate = spy.getMockImplementation();
+    if (!delegate) throw new Error('Real transaction delegation is required');
+    const context = new AsyncLocalStorage<boolean>();
+    const faults = { errors: [] as Prisma.PrismaClientKnownRequestError[], rollbacks: 0, commits: 0,
+      completedPublicationBodies: 0, remaining: options.count };
+    const injected: typeof db.$transaction = ((...args: unknown[]) => {
+      const callback = args[0];
+      // Batch calls, unrelated work and rollback-side mutations keep the exact
+      // real overload/receiver/options. No native/provider effect is replaced.
+      if (!context.getStore() || typeof callback !== 'function') return Reflect.apply(delegate, db, args);
+      let wroteUsage = false; let wroteFinalSummary = false; let selected = false;
+      let ownError: Prisma.PrismaClientKnownRequestError | undefined;
+      const body = async (tx: Prisma.TransactionClient) => {
+        const jobs = tx.generationJob;
+        const observedJobs = new Proxy(jobs, { get(target, key) {
+          const method = Reflect.get(target, key, target);
+          if (key !== 'update' || typeof method !== 'function') return typeof method === 'function' ? method.bind(target) : method;
+          return async (...input: unknown[]) => {
+            // Consume this real lazy PrismaPromise exactly once and return its
+            // completion, preserving the delegate receiver and arguments.
+            const result = await Reflect.apply(method, target, input);
+            const change = input[0] as Prisma.GenerationJobUpdateArgs;
+            if (change.where.id === owned.jobId && result.id === owned.jobId && result.tenantId === tenantId) {
+              wroteUsage ||= change.data.usage !== undefined;
+              const value = change.data.result;
+              wroteFinalSummary ||= change.data.status === 'COMPLETE' && value !== null && typeof value === 'object'
+                && !Array.isArray(value) && 'summaryJobId' in value;
+            }
+            return result;
+          };
+        } });
+        const observed = new Proxy(tx, { get(target, key) {
+          if (key === 'generationJob') return observedJobs;
+          const value = Reflect.get(target, key, target);
+          return typeof value === 'function' ? value.bind(target) : value;
+        } });
+        const result = await Reflect.apply(callback, undefined, [observed]);
+        // Identify the selected boundary from completed real owned writes, not
+        // a retry-sensitive transaction ordinal or a mirrored guard predicate.
+        selected = options.boundary === 'FINAL' ? wroteFinalSummary : wroteUsage && !wroteFinalSummary;
+        if (selected) {
+          faults.completedPublicationBodies++;
+          if (faults.remaining > 0) {
+            await options.beforeRollback?.(tx);
+            faults.remaining--;
+            ownError = new Prisma.PrismaClientKnownRequestError('Synthetic owned publication conflict', {
+              code: 'P2034', clientVersion: Prisma.prismaVersion.client,
+            });
+            faults.errors.push(ownError);
+            throw ownError; // The real transaction rolls all its writes back.
+          }
+        }
+        return result;
+      };
+      return Promise.resolve(Reflect.apply(delegate, db, [body, ...args.slice(1)])).then(result => {
+        if (selected) faults.commits++;
+        return result;
+      }, async error => {
+        if (ownError && error === ownError) {
+          faults.rollbacks++;
+          // Await rejection/rollback first. The mutation/read is outside both
+          // transaction observers before the error can reach the retry loop.
+          const afterRollback = options.afterRollback;
+          if (afterRollback) await context.exit(() => diagnosticContext.exit(afterRollback));
+        }
+        throw error;
+      });
+    }) as typeof db.$transaction;
+    spy.mockImplementation(injected);
+    let outcome: ProcessingOutcome;
+    try { await context.run(true, work); outcome = { ok: true }; }
+    catch (error) { outcome = { error }; }
+    try { await drainProcessing(); }
+    catch (error) { if (!('error' in outcome)) outcome = { error }; }
+    // A persistent quiescence/metadata block prevents reset and subsequent SQL.
+    if (!blocked) spy.mockImplementation(delegate);
+    return { outcome, faults };
+  }
+
+  test('retries rolled back publication without repeating providers or duplicating effects', async () => {
+    for (const kind of ['TRANSCRIPTION', 'SETUP_TRANSCRIPTION', 'CATALOG_EXTRACTION'] as const) {
+      const owned = await fixture(kind);
+      const baseline = await publicationState(getDb(), owned);
+      const calls = [provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length);
+      const result = await withPublicationConflict(owned, { boundary: 'INITIAL', count: 1,
+        beforeRollback: async tx => {
+          expect(await publicationState(tx, owned)).toMatchObject({ parentHasUsage: true,
+            parentStatus: kind === 'TRANSCRIPTION' ? 'RUNNING' : 'COMPLETE',
+            transcriptRevisions: kind === 'TRANSCRIPTION' ? 1 : 0,
+            transcriptEvents: kind === 'TRANSCRIPTION' ? 1 : 0 });
+        },
+        afterRollback: async () => { expect(await publicationState(getDb(), owned)).toEqual(baseline); },
+      }, () => runProcessing(owned.jobId, owned.runId));
+      expect(result.outcome).toEqual({ ok: true });
+      expect(result.faults).toMatchObject({ rollbacks: 1, commits: 1, completedPublicationBodies: 2, remaining: 0 });
+      expect(result.faults.errors).toHaveLength(1);
+      expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start]
+        .map((effect, index) => effect.mock.calls.length - calls[index])).toEqual([
+          1, kind === 'CATALOG_EXTRACTION' ? 0 : 1, kind === 'TRANSCRIPTION' ? 1 : 0,
+          kind === 'CATALOG_EXTRACTION' ? 1 : 0, 0,
+        ]);
+      const parent = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
+      expect(parent).toMatchObject({ status: 'COMPLETE', runId: owned.runId, errorCode: null });
+      expect(parent.usage).toEqual(kind === 'CATALOG_EXTRACTION' ? { estimatedCostCents: null, costUsd: null }
+        : { transcription: { durationSeconds: 1, providerUsage: null }, estimatedCostCents: null, costUsd: null });
+      if (kind === 'TRANSCRIPTION') {
+        expect(await publicationState(getDb(), owned)).toMatchObject({ parentStatus: 'COMPLETE', childStatus: 'COMPLETE',
+          transcriptRevisions: 1, summaryRevisions: 1, transcriptEvents: 1, summaryEvents: 1, revisions: 2, events: 2 });
+        expect(await getDb().consultation.findUniqueOrThrow({ where: { id: owned.visit! } })).toMatchObject({
+          clinicalApprovedVersion: null, wellnessApprovedVersion: null, summary: { staffReviewed: false } });
+      } else if (kind === 'SETUP_TRANSCRIPTION') {
+        expect(parent.result).toMatchObject({ transcript: transcription.text, needsReview: true });
+        expect(await getDb().generationJob.count({ where: { tenantId, idempotencyKey: `summary:${owned.jobId}` } })).toBe(0);
+      } else {
+        expect(parent.result).toMatchObject({ draft: catalog.output, activeConfigurationChanged: false });
+        expect(await getDb().setupConversation.findUniqueOrThrow({ where: { id: conversationId } })).toMatchObject({ draft: catalog.output });
+      }
+      expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control);
+    }
+  });
+
+  test('reuses a captured summary after a final publication rollback', async () => {
+    const owned = await fixture();
+    const calls = [provider.get, provider.transcribe, provider.summary].map(effect => effect.mock.calls.length);
+    const result = await withPublicationConflict(owned, { boundary: 'FINAL', count: 1,
+      beforeRollback: async tx => {
+        expect(await publicationState(tx, owned)).toMatchObject({ parentStatus: 'COMPLETE', childStatus: 'COMPLETE',
+          revisions: 2, events: 2, transcriptRevisions: 1, summaryRevisions: 1, transcriptEvents: 1, summaryEvents: 1 });
+      },
+      afterRollback: async () => {
+        expect(await publicationState(getDb(), owned)).toMatchObject({ parentStatus: 'RUNNING', childStatus: 'RUNNING',
+          parentHasUsage: true, recordingStatus: 'TRANSCRIBED', recordingHasTranscript: true,
+          revisions: 1, events: 1, transcriptRevisions: 1, summaryRevisions: 0, transcriptEvents: 1, summaryEvents: 0 });
+      },
+    }, () => runProcessing(owned.jobId, owned.runId));
+    expect(result.outcome).toEqual({ ok: true });
+    expect(result.faults).toMatchObject({ rollbacks: 1, commits: 1, completedPublicationBodies: 2, remaining: 0 });
+    expect([provider.get, provider.transcribe, provider.summary].map((effect, index) => effect.mock.calls.length - calls[index])).toEqual([1, 1, 1]);
+    expect(await publicationState(getDb(), owned)).toMatchObject({ parentStatus: 'COMPLETE', childStatus: 'COMPLETE',
+      revisions: 2, events: 2, transcriptRevisions: 1, summaryRevisions: 1, transcriptEvents: 1, summaryEvents: 1 });
+    const summaryJob = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: {
+      tenantId, idempotencyKey: `summary:${owned.jobId}` } } });
+    expect(summaryJob.result).toMatchObject({ summary: summary.summary, applied: true });
+    expect(summaryJob.usage).toEqual({ estimatedCostCents: null, costUsd: null });
+    expect(await getDb().consultation.findUniqueOrThrow({ where: { id: owned.visit! } })).toMatchObject({
+      clinicalApprovedVersion: null, wellnessApprovedVersion: null, summary: { staffReviewed: false } });
+    expect(provider.start).not.toHaveBeenCalled();
+    expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control);
+  });
+
+  test('rechecks authority inputs expiry and terminal runs after a conflict', async () => {
+    for (const mode of ['ACTOR_INACTIVE', 'PARENT_NEW_RUN', 'CHILD_NEW_RUN', 'PARENT_COMPLETE', 'PARENT_CANCELLED',
+      'CHILD_COMPLETE', 'CHILD_CANCELLED', 'INPUT_CHANGED', 'RECORDING_EXPIRED'] as const) {
+      const owned = await fixture(); const summaryJob = await child(owned);
+      const prepared = await prepareRecordingProcessing(owned.jobId, owned.runId); expect(prepared).not.toBeNull();
+      const snapshot = { ...prepared!.snapshot, childJobId: summaryJob.id };
+      const baseline = await publicationState(getDb(), owned);
+      const body = vi.fn(async (tx: Prisma.TransactionClient) => {
+        await tx.generationJob.update({ where: { id: owned.jobId }, data: { usage: { syntheticRetryControl: true } } });
+        await tx.consultationEvent.create({ data: { tenantId, consultationId: owned.visit!, userId: staffId,
+          action: 'SYNTHETIC_RETRY_CONTROL', idempotencyKey: `synthetic-retry:${owned.jobId}` } });
+      });
+      let parentAfter: GenerationJob | undefined;
+      let childAfter: typeof parentAfter;
+      try {
+        const result = await withPublicationConflict(owned, { boundary: 'INITIAL', count: 1,
+          afterRollback: async () => {
+            expect(await publicationState(getDb(), owned)).toEqual(baseline);
+            if (mode === 'ACTOR_INACTIVE') await getDb().user.update({ where: { id: staffId }, data: { isActive: false } });
+            if (mode === 'PARENT_NEW_RUN') await getDb().generationJob.update({ where: { id: owned.jobId }, data: { runId: `newer-${nonce}` } });
+            if (mode === 'CHILD_NEW_RUN') await getDb().generationJob.update({ where: { id: summaryJob.id }, data: { runId: `newer-${nonce}` } });
+            if (mode === 'PARENT_COMPLETE' || mode === 'PARENT_CANCELLED') await getDb().generationJob.update({ where: { id: owned.jobId },
+              data: { status: mode === 'PARENT_COMPLETE' ? 'COMPLETE' : 'CANCELLED' } });
+            if (mode === 'CHILD_COMPLETE' || mode === 'CHILD_CANCELLED') await getDb().generationJob.update({ where: { id: summaryJob.id },
+              data: { status: mode === 'CHILD_COMPLETE' ? 'COMPLETE' : 'CANCELLED' } });
+            if (mode === 'INPUT_CHANGED') await getDb().recordingSegment.update({ where: { id: owned.id }, data: { staffTranscript: 'Synthetic later correction' } });
+            if (mode === 'RECORDING_EXPIRED') await expireRecording(owned.id);
+            parentAfter = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
+            childAfter = await getDb().generationJob.findUniqueOrThrow({ where: { id: summaryJob.id } });
+          },
+        }, () => publishRecordingProcessing(snapshot, body));
+        expect(result.outcome).toMatchObject({ error: { code: mode === 'ACTOR_INACTIVE' ? 'PROCESSING_ACCESS_CHANGED'
+          : mode === 'INPUT_CHANGED' ? 'RECORDING_INPUTS_CHANGED'
+            : mode === 'RECORDING_EXPIRED' ? 'RECORDING_OBJECT_UNAVAILABLE' : 'PROCESSING_JOB_REQUIRED' } });
+        expect(result.faults).toMatchObject({ rollbacks: 1, commits: 0, completedPublicationBodies: 1, remaining: 0 });
+        expect(body).toHaveBeenCalledTimes(1);
+        await failRecordingProcessing(owned.jobId, `stale-${nonce}`, 'OLD_FAILURE');
+        expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } })).toEqual(parentAfter);
+        expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: summaryJob.id } })).toEqual(childAfter);
+        expect(await getDb().consultationEvent.count({ where: { tenantId, consultationId: owned.visit! } })).toBe(0);
+        expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length)).toEqual([0, 0, 0, 0, 0]);
+      } finally {
+        requireUnblocked();
+        if (mode === 'ACTOR_INACTIVE') await getDb().user.update({ where: { id: staffId }, data: { isActive: true } });
+      }
+    }
+    expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control);
+  });
+
+  test('exhausts bounded publication conflicts without committing partial effects', async () => {
+    const owned = await fixture(); const summaryJob = await child(owned);
+    const prepared = await prepareRecordingProcessing(owned.jobId, owned.runId); expect(prepared).not.toBeNull();
+    const snapshot = { ...prepared!.snapshot, childJobId: summaryJob.id };
+    const baseline = await publicationState(getDb(), owned);
+    const body = vi.fn(async (tx: Prisma.TransactionClient) => {
+      await tx.recordingSegment.update({ where: { id: owned.id }, data: { transcript: 'Synthetic rolled back text', status: 'TRANSCRIBED' } });
+      await tx.consultationRevision.create({ data: { tenantId, consultationId: owned.visit!, kind: 'TRANSCRIPT', revision: 1,
+        payload: { syntheticRollbackControl: true }, original: true, userId: staffId } });
+      await tx.consultationEvent.create({ data: { tenantId, consultationId: owned.visit!, userId: staffId,
+        action: 'SYNTHETIC_RETRY_CONTROL', idempotencyKey: `synthetic-exhaust:${owned.jobId}` } });
+      await tx.generationJob.update({ where: { id: summaryJob.id }, data: { status: 'COMPLETE', completedAt: new Date() } });
+      await tx.generationJob.update({ where: { id: owned.jobId }, data: { status: 'COMPLETE', usage: { syntheticRetryControl: true }, completedAt: new Date() } });
+    });
+    const result = await withPublicationConflict(owned, { boundary: 'INITIAL', count: 12,
+      beforeRollback: async tx => {
+        expect(await publicationState(tx, owned)).toMatchObject({ parentStatus: 'COMPLETE', childStatus: 'COMPLETE',
+          parentHasUsage: true, recordingHasTranscript: true, revisions: 1, events: 1 });
+      },
+      afterRollback: async () => { expect(await publicationState(getDb(), owned)).toEqual(baseline); },
+    }, () => publishRecordingProcessing(snapshot, tx => body(tx)));
+    expect(result.faults.errors).toHaveLength(12);
+    expect(result.faults).toMatchObject({ rollbacks: 12, commits: 0, completedPublicationBodies: 12, remaining: 0 });
+    if (!('error' in result.outcome)) throw new Error('Exhausted publication must reject');
+    expect(result.outcome.error).toBe(result.faults.errors[11]);
+    expect(body).toHaveBeenCalledTimes(12);
+    expect(await publicationState(getDb(), owned)).toEqual(baseline);
+    await failRecordingProcessing(owned.jobId, owned.runId, 'AI_PROCESSING_FAILED');
+    expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } })).toMatchObject({ status: 'FAILED', runId: owned.runId, errorCode: 'AI_PROCESSING_FAILED' });
+    expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: summaryJob.id } })).toMatchObject({ status: 'FAILED', runId: owned.runId, errorCode: 'AI_PROCESSING_FAILED' });
+
+    // A separate owned invocation proves the unchanged safe mapper, without a
+    // native Workflow step or inventing a child whose creation was rolled back.
+    const processing = await fixture(); const processingBaseline = await publicationState(getDb(), processing);
+    const mapped = await withPublicationConflict(processing, { boundary: 'INITIAL', count: 12,
+      afterRollback: async () => { expect(await publicationState(getDb(), processing)).toEqual(processingBaseline); },
+    }, () => runProcessing(processing.jobId, processing.runId));
+    expect(mapped.faults).toMatchObject({ rollbacks: 12, commits: 0, completedPublicationBodies: 12, remaining: 0 });
+    expect(mapped.outcome).toMatchObject({ error: { message: 'AI_PROCESSING_FAILED' } });
+    expect(await publicationState(getDb(), processing)).toEqual(processingBaseline);
+    await failRecordingProcessing(processing.jobId, processing.runId, 'AI_PROCESSING_FAILED');
+    expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: processing.jobId } })).toMatchObject({ status: 'FAILED', errorCode: 'AI_PROCESSING_FAILED' });
+    expect(await getDb().generationJob.count({ where: { tenantId, idempotencyKey: `summary:${processing.jobId}` } })).toBe(0);
+    expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length)).toEqual([1, 1, 0, 0, 0]);
+
+    for (const status of ['COMPLETE', 'CANCELLED', 'NEWER'] as const) {
+      const terminal = await fixture(); const terminalChild = await child(terminal);
+      await getDb().generationJob.update({ where: { id: terminal.jobId }, data: status === 'NEWER'
+        ? { runId: `newer-${nonce}` } : { status } });
+      await getDb().generationJob.update({ where: { id: terminalChild.id }, data: status === 'NEWER'
+        ? { runId: `newer-${nonce}` } : { status } });
+      const before = await publicationState(getDb(), terminal);
+      await failRecordingProcessing(terminal.jobId, terminal.runId, 'OLD_FAILURE');
+      expect(await publicationState(getDb(), terminal)).toEqual(before);
+    }
+    expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control);
   });
 });

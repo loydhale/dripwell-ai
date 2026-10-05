@@ -1059,15 +1059,7 @@ export async function appendReceivedTranscript(input: {
       idempotencyKey: `transcript-recording:${segment.id}` } });
     return { summaryRevision, recordVersion: record.version + 1, alreadyApplied: false };
   };
-  if (existingTx) return body(existingTx);
-  for (let attempt = 0; attempt < 12; attempt++) {
-    try { return await publishRecordingProcessing(input.processing, tx => body(tx)); }
-    catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034' && attempt < 11) continue;
-      throw error;
-    }
-  }
-  throw new ApiError(409, 'Recording processing was interrupted by another change.', 'VERSION_CONFLICT');
+  return existingTx ? body(existingTx) : publishRecordingProcessing(input.processing, tx => body(tx));
 }
 
 export async function beginRecordingIntake(input: {

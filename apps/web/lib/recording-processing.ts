@@ -149,7 +149,8 @@ export async function assertRecordingProcessing(tx: Tx, snapshot: RecordingProce
 /** The guard and every resulting write share one real transaction. */
 export async function publishRecordingProcessing<T>(snapshot: RecordingProcessingSnapshot,
   body: (tx: Tx, current: Awaited<ReturnType<typeof assertRecordingProcessing>>) => Promise<T>) {
-  return recordingProcessingTransaction(async tx => {
+  // The callback is database-only; provider I/O must remain outside this retry.
+  const publication = async (tx: Tx) => {
     const current = await assertRecordingProcessing(tx, snapshot);
     const result = await body(tx, current);
     // Do not let a long body cross expiry using a frozen transaction-start time.
@@ -172,7 +173,15 @@ export async function publishRecordingProcessing<T>(snapshot: RecordingProcessin
     for (const row of rows) if (row.id !== snapshot.object.recordingId && (row.transcript !== null || row.staffTranscript !== null) && row.status !== 'DISCARDED')
       await assertRecordingObjectAvailable(tx, parseRecordingObjectIdentity(row.blobObject), now);
     return result;
-  });
+  };
+  for (let attempt = 0; attempt < 12; attempt++) {
+    try { return await recordingProcessingTransaction(publication); }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034' && attempt < 11) continue;
+      throw error;
+    }
+  }
+  throw new ApiError(409, 'Recording processing was interrupted by another change.', 'VERSION_CONFLICT');
 }
 
 /** Refresh only after authorized writes in this same locked transaction. */

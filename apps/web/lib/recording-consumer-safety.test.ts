@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { RecordingSegment } from '@prisma/client';
+import { Prisma, type RecordingSegment } from '@prisma/client';
 import { emptyConsultationSummary } from '@dripwell/shared/v2';
 import { ApiError } from './errors';
 import { captureRecordingObject, recordingObjectPath } from './recording-deletion-intents';
-import { recordingInputFingerprint, publicRecordingJobResult, type RecordingProcessingSnapshot } from './recording-processing';
+import { recordingInputFingerprint, publicRecordingJobResult, publishRecordingProcessing, type RecordingProcessingSnapshot } from './recording-processing';
 import { readPrivateRecording } from './recordings';
 import { cleanupRecordingUploadAttempt, cleanupDiscardedRecordingUploads } from './recording-uploads';
 import { performSetupRecordingUpload } from './setup-recording-uploads';
@@ -168,5 +168,53 @@ describe('recording consumer safety contracts', () => {
     // prevents publication. No test claims forced remote I/O cancellation.
     expect(effects.guard).toHaveBeenCalledTimes(2);
     expect(effects.db).toEqual({}); // no journal/intents exposed through an AI job write
+  });
+
+  test('retries only known P2034 publication failures within the shared database boundary', async () => {
+    const { snapshot } = fixture();
+    const conflict = new Prisma.PrismaClientKnownRequestError('Synthetic publication conflict', {
+      code: 'P2034', clientVersion: Prisma.prismaVersion.client,
+    });
+    const value = { committed: 'synthetic-transaction-result' };
+    // Reject before callback entry, then return a controlled transaction result.
+    // This isolates orchestration; the PG cases exercise real guards and writes.
+    const transaction = vi.fn().mockRejectedValueOnce(conflict).mockResolvedValueOnce(value);
+    effects.db = { $transaction: transaction };
+    const body = vi.fn();
+    expect(await publishRecordingProcessing(snapshot, body)).toBe(value);
+    expect(transaction).toHaveBeenCalledTimes(2);
+    expect(transaction.mock.calls[0][0]).toBe(transaction.mock.calls[1][0]);
+    for (const call of transaction.mock.calls) expect(call).toEqual([expect.any(Function), {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 2000, timeout: 10_000,
+    }]);
+    expect(body).not.toHaveBeenCalled();
+  });
+
+  test('caps publication conflicts and propagates all other errors unchanged', async () => {
+    const { snapshot } = fixture();
+    const conflicts = Array.from({ length: 12 }, () => new Prisma.PrismaClientKnownRequestError('Synthetic conflict', {
+      code: 'P2034', clientVersion: Prisma.prismaVersion.client,
+    }));
+    const transaction = vi.fn();
+    for (const error of conflicts) transaction.mockRejectedValueOnce(error);
+    effects.db = { $transaction: transaction };
+    const body = vi.fn();
+    await expect(publishRecordingProcessing(snapshot, body)).rejects.toBe(conflicts[11]);
+    expect(transaction).toHaveBeenCalledTimes(12);
+    expect(body).not.toHaveBeenCalled();
+    for (const error of [
+      new Prisma.PrismaClientKnownRequestError('Synthetic ambiguous transaction', {
+        code: 'P2028', clientVersion: Prisma.prismaVersion.client,
+      }),
+      new ApiError(409, 'Synthetic authority changed', 'PROCESSING_JOB_REQUIRED'),
+      { code: 'P2034' },
+      new Error('Synthetic non-Prisma failure'),
+    ]) {
+      const rejected = vi.fn().mockRejectedValue(error);
+      effects.db = { $transaction: rejected };
+      await expect(publishRecordingProcessing(snapshot, body)).rejects.toBe(error);
+      expect(rejected).toHaveBeenCalledTimes(1);
+    }
+    expect(body).not.toHaveBeenCalled();
   });
 });
