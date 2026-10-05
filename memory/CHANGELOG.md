@@ -124,3 +124,9 @@ Format: `<YYYY-MM-DD> <task_id> <files changed> — <one-line summary>`
 2026-10-05 TASK050 CI recovery: kind-specific INITIAL2.1/WELLNESS2.2 expectation source PASS10d6c44a and automatic-CI plan PASSf75b9347; original CI37269377547 remains FAILED, unfinished local tools parked/unexecuted, corrected-source publication/CI pending and task count27. Historical18/PDF3/types/build evidence and pilot limits preserved.
 
 2026-10-05 TASK050 corrected6710 source/publication/normal CI37275893506 independently PASSbcf6fc6c, accepted92f56851; all22listedsteps, counts/skips unknown, originalFAILED retained, scopedDONE/count28. Closing evidence/resume/PR body and TASK051 read-only recording-retention brief prepared, no app/deployment/full-pilot change or passing replay.
+
+2026-10-05: TASK050 closing docs normally published e1e7/92d0 and independently closed36d5d291. Root adopts reviewed051 dormant foundation/052 bounded integration split, updates briefs/queue and grants source-authoring only; checks/operations/DONE remain pending.
+
+2026-10-05 TASK051 source authored9paths/17new cases and four affected producer fixtures; genuine frozen review7f35a0c8 found a pre-execution CI-target scope mismatch. Root accepted attempt1 and issued bounded source-only correction3efde2be; original source/receipt retained, no checks/operations/DONE/learning increment.
+
+2026-10-05 TASK051 bounded CI-only guard/reachability correction independentlyPASS2b6d9b76, originalCHANGES_REQUIRED retained. Root accepts exact nine-member receipt; final package/publication/actualCI pending, no new checks/DONE/learning increment.

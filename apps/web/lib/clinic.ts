@@ -1081,8 +1081,10 @@ export async function beginRecordingIntake(input: {
       return { recording: previous, expectedSummaryRevision: capturedRevision, accepted: false };
     }
     const recordingId = previous?.id ?? input.recordingId;
+    const { assertRecordingPathNotDetached } = await import('./recording-deletion-intents');
+    await assertRecordingPathNotDetached(tx, actor.tenantId, input.blobPath);
     const saved = previous
-      ? await tx.recordingSegment.update({ where: { id: previous.id }, data: { status: 'UPLOADING', blobPath: input.blobPath,
+      ? await tx.recordingSegment.update({ where: { id: previous.id }, data: { status: 'UPLOADING', blobPath: input.blobPath, blobObject: Prisma.DbNull,
         bytes: input.bytes, mimeType: input.mimeType, durationSeconds: input.durationSeconds, expiresAt: input.expiresAt } })
       : await tx.recordingSegment.create({ data: { id: recordingId, tenantId: actor.tenantId, consultationId: record.id,
         userId: actor.userId, segmentKey: input.segmentKey, sequence: input.sequence, blobPath: input.blobPath,

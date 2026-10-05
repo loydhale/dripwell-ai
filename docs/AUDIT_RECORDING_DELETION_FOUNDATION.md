@@ -1,0 +1,23 @@
+# Recording deletion-intent foundation, TASK051
+
+Status: Corrected source and automatic-CI plan independentlyPASS2b6d9b76, accepted by Root. Original source review7f35a0c8CHANGES_REQUIRED and freeze remain retained. Final exact package/publication and actual new-source CI are pending. No passing test result, database operation, physical deletion, new deployment or pilot completion is claimed here.
+
+## Scope and review
+
+Root explicitly adopted the Coder's concrete planb56f593a and independent planningPASScba25a5e. TASK051 is the dormant foundation; [TASK052](../tasks/TASK-052.md) owns complete consumers, dedicated cleanup and two fixed-five provider families. [TASK051 brief](../tasks/TASK-051.md) records authoring-only GO4f4d9359. Current documentation basee1e7/92d0 and application6710/9ebe follow independently closed TASK050; source changes remain unpublished.
+
+The authored design keeps returned private-object URL/path/ETag/store identity separate from later recording pointers. A dedicated non-AI intent preserves immutable ownership/object/creator fields, a permanent tenant+path tombstone and mutable current execution ownership/token. Creation and matching pointer detachment use one fenced transaction; actor adoption checks the same tombstone. An old attempt cannot authorize deletion of a later object's pointer. Scalar ownership and SQL immutability preserve the original intent if source owners disappear. commitRecordingDeletion, claimRecordingDeletion, finishRecordingDeletion and assertRecordingObjectAvailable are production-unwired. Producer identity capture and assertRecordingPathNotDetached are deliberately called by intake/upload/adoption/setup publication. Dormancy refers to intent creation/claim/completion and provider deletion; the entire module is not unreachable.
+
+One additive migration and nullable identity introduce no guessed backfill. Legacy/missing identity and unsettled puts remain deferred. Existing six DB families, disabled controls, manual/scheduled exclusion and both Blob deferrals stay unchanged. Existing dedicated cleanup, setup rollback and post-I/O processing are not certified by the foundation. TASK052 integration must precede any provider-family enablement.
+
+## Validation contract
+
+The same Coder reports5 identity and12 PostgreSQL contract cases authored across ordinary test files. No case has run; these are17 planned checks. These cover strict identity/isolation, transaction rollback, preserved newer pointer, adoption ordering, current-generation/token races, raw SQL immutability/uniqueness and no-cascade survival. They retain real server maintenance context and withMaintenanceClaim. Exact nonce-owned fixture IDs/key and a strict disposable CI URL guard precede database use; cleanup preserves unrelated controls.
+
+The original authored guard accepted127.0.0.1/55432 as well as the plannedlocalhost:5432; independent review found this scope mismatch before execution. The original immutable source/review are retained. Correction GO3efde2be permitted only the new guard and precise private function-level wording; no inherited guard or case assertion was redesigned. Distinct derivative67dbbed0/05d75610 passed affected source review2b6d9b76. Eight other source files, all case bodies/titles, ten support pins and test selection remain byte-identical to the original freeze. The unchanged automatic PR workflow supplies fresh PostgreSQL17, applies reviewed source migrations, builds both services, checks types and runs normal unfiltered unit/integration scripts. No private local harness/target/profile, old check/helper/migration replay or manual CI is dispatched. Planned test cases and source review are distinct from actual execution; CI outcomes, available counts/skips and learning require later genuine evidence.
+
+## Limits and next evidence
+
+Downloaded Vercel Plugin0.53.0/3b472643 and installed Blob2.8.0/Workflow5.0.1/Next16.3.8/Prisma6.19.3 guidance governs the source contract. Its supported single-object conditional-delete API is not actual provider proof. Physical deletion/uncached absence, compiled provider work, hosted migration/enablement/cadence, services/clinical eligibility and the complete section8 two-clinic story remain separately required.
+
+Protected previews and literal ALLOW_REAL_CLIENT_DATA=false remain required. No provider purchase/switch, shared personal subscription, privileged bootstrap, emails/messages or real-client data is authorized by this source slice. Scoped task count remains28 until actual independent source/CI closure. The last verified protected deployed source807 is separate from this source work.

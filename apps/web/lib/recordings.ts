@@ -8,6 +8,7 @@ import { getDb } from './db';
 import { ApiError } from './errors';
 import { TRANSCRIPTION_MODEL, SUMMARY_PROMPT_VERSION } from './ai';
 import { performRecordingUpload, adoptRecordingUpload } from './recording-uploads';
+import { assertRecordingPathNotDetached, captureRecordingObject, recordingObjectPath } from './recording-deletion-intents';
 
 export const MAX_UPLOAD_BYTES = 3_500_000;
 export function parseRecordingInput<T extends z.ZodType>(schema: T, input: unknown): z.output<T> {
@@ -205,7 +206,7 @@ export async function receiveConsultationRecording(actor: ClinicActor, data: For
             );
           const saved = await tx.recordingSegment.update({
             where: { id: recordingId },
-            data: { status: 'UPLOADED', blobPath: pathname },
+            data: { status: 'UPLOADED', blobPath: pathname, blobObject: upload.blobObject },
           });
           const job = await tx.generationJob.upsert({
             where: {
@@ -282,13 +283,19 @@ export async function uploadSetupFile(
   });
   if (!conversation) throw new ApiError(404, 'Setup conversation not found.', 'NOT_FOUND');
   const recordingId = randomUUID();
-  const blob = await put(`private/${actor.tenantId}/setup/${recordingId}`, file, {
+  const target = { tenantId: actor.tenantId, recordingId, consultationId: null,
+    setupConversationId: conversationId, uploadAttemptId: null };
+  const blobPath = recordingObjectPath(target);
+  const blob = await put(blobPath, file, {
     access: 'private',
     addRandomSuffix: false,
+    allowOverwrite: false,
     contentType: mimeType,
   });
   try {
+    const blobObject = captureRecordingObject(target, blob);
     return await getDb().$transaction(async (tx) => {
+      await assertRecordingPathNotDetached(tx, actor.tenantId, blobPath);
       await tx.recordingSegment.create({
         data: {
           id: recordingId,
@@ -298,6 +305,7 @@ export async function uploadSetupFile(
           segmentKey: recordingId,
           sequence: 0,
           blobPath: blob.pathname,
+          blobObject,
           mimeType,
           bytes: file.size,
           consentAt: new Date(),

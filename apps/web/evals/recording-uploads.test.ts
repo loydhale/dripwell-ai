@@ -1,6 +1,7 @@
 import { after, before, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { Prisma } from '@prisma/client';
 import { getDb } from '../lib/db';
 import { ApiError } from '../lib/errors';
 import {
@@ -22,6 +23,10 @@ function deferred<T>() {
   });
   return { promise, resolve, reject };
 }
+function returnedBlob(pathname: string) {
+  return { pathname, url: `https://syntheticstore.private.blob.vercel-storage.com/${pathname}`,
+    etag: '"synthetic-returned-etag"' };
+}
 
 suite(
   'private recording upload lifecycle against isolated PostgreSQL',
@@ -29,7 +34,8 @@ suite(
   () => {
     let tenantId: string;
     let userId: string;
-    let conversationId: string;
+    let consultationId: string;
+    let sequence = 0;
     const objects = new Set<string>();
     const file = new File(['synthetic test bytes'], 'synthetic.webm', { type: 'audio/webm' });
     before(async () => {
@@ -57,15 +63,22 @@ suite(
       const location = await getDb().location.create({
         data: { tenantId, name: 'Synthetic upload location' },
       });
-      const conversation = await getDb().setupConversation.create({
-        data: { tenantId, userId, locationId: location.id },
+      const configuration = await getDb().clinicConfigurationVersion.create({
+        data: { tenantId, userId, locationId: location.id, version: 1, status: 'DRAFT',
+          payload: {}, source: 'Unused synthetic recording-parent fixture' },
       });
-      conversationId = conversation.id;
+      const consultation = await getDb().consultation.create({
+        data: { tenantId, providerId: userId, locationId: location.id,
+          configurationVersionId: configuration.id, reference: `SYNTHETIC-${suffix}`,
+          idempotencyKey: suffix, isTest: true },
+      });
+      consultationId = consultation.id;
     });
     after(async () => {
       await getDb().generationJob.deleteMany({ where: { tenantId } });
       await getDb().recordingSegment.deleteMany({ where: { tenantId } });
-      await getDb().setupConversation.deleteMany({ where: { tenantId } });
+      await getDb().consultation.deleteMany({ where: { tenantId } });
+      await getDb().clinicConfigurationVersion.deleteMany({ where: { tenantId } });
       await getDb().user.deleteMany({ where: { tenantId } });
       await getDb().location.deleteMany({ where: { tenantId } });
       await getDb().tenant.delete({ where: { id: tenantId } });
@@ -74,15 +87,15 @@ suite(
     async function fixture(): Promise<RecordingUploadContext> {
       const recordingId = randomUUID();
       const attemptId = randomUUID();
-      const blobPath = `private/${tenantId}/recordings/${randomUUID()}/${recordingId}/${attemptId}`;
+      const blobPath = `private/${tenantId}/recordings/${consultationId}/${recordingId}/${attemptId}`;
       await getDb().recordingSegment.create({
         data: {
           id: recordingId,
           tenantId,
           userId,
-          setupConversationId: conversationId,
+          consultationId,
           segmentKey: randomUUID(),
-          sequence: 0,
+          sequence: sequence++,
           blobPath,
           mimeType: file.type,
           bytes: file.size,
@@ -91,7 +104,7 @@ suite(
           status: 'UPLOADING',
         },
       });
-      return { recordingId, attemptId, tenantId, userId, blobPath, mimeType: file.type };
+      return { recordingId, attemptId, tenantId, userId, consultationId, blobPath, mimeType: file.type };
     }
     const deleteFile = async (path: string) => {
       objects.delete(path);
@@ -110,7 +123,7 @@ suite(
     it('retains a late discarded upload pointer through deletion failure and recovery', async () => {
       const context = await fixture();
       const entered = deferred<void>();
-      const remote = deferred<{ pathname: string }>();
+      const remote = deferred<ReturnType<typeof returnedBlob>>();
       const upload = performRecordingUpload(
         context,
         file,
@@ -141,7 +154,7 @@ suite(
         true,
       );
       objects.add(context.blobPath);
-      remote.resolve({ pathname: context.blobPath });
+      remote.resolve(returnedBlob(context.blobPath));
       await assert.rejects(upload, { code: 'RECORDING_UPLOAD_INTERRUPTED' });
       const pending = await getDb().generationJob.findUniqueOrThrow({
         where: { id: context.attemptId },
@@ -164,7 +177,7 @@ suite(
     it('keeps unknown expired remote outcomes addressable and deletes an object arriving after early cleanup', async () => {
       const context = await fixture();
       const entered = deferred<void>();
-      const remote = deferred<{ pathname: string }>();
+      const remote = deferred<ReturnType<typeof returnedBlob>>();
       const upload = performRecordingUpload(
         context,
         file,
@@ -205,7 +218,7 @@ suite(
       });
       assert.equal(retained.status, 'CLEANUP_PENDING');
       assert.equal((retained.result as { blobPath: string }).blobPath, context.blobPath);
-      remote.resolve({ pathname: context.blobPath });
+      remote.resolve(returnedBlob(context.blobPath));
       await assert.rejects(upload, { code: 'RECORDING_UPLOAD_INTERRUPTED' });
     });
 
@@ -231,7 +244,7 @@ suite(
         {
           putFile: async (path) => {
             objects.add(path);
-            return { pathname: path };
+            return returnedBlob(path);
           },
           deleteFile,
         },
@@ -267,7 +280,7 @@ suite(
     it('prevents adoption after cleanup wins its claim and preserves a newer accepted path', async () => {
       const context = await fixture();
       const entered = deferred<void>();
-      const remote = deferred<{ pathname: string }>();
+      const remote = deferred<ReturnType<typeof returnedBlob>>();
       const upload = performRecordingUpload(context, file, adopt, {
         putFile: async () => {
           entered.resolve();
@@ -282,14 +295,14 @@ suite(
         new Date(Date.now() + 5 * 60000),
       );
       objects.add(context.blobPath);
-      remote.resolve({ pathname: context.blobPath });
+      remote.resolve(returnedBlob(context.blobPath));
       await assert.rejects(upload, { code: 'RECORDING_UPLOAD_INTERRUPTED' });
       const newerAttempt = randomUUID();
       const newerPath = context.blobPath.slice(0, -context.attemptId.length) + newerAttempt;
       objects.add(newerPath);
       await getDb().recordingSegment.update({
         where: { id: context.recordingId },
-        data: { status: 'UPLOADED', blobPath: newerPath },
+        data: { status: 'UPLOADED', blobPath: newerPath, blobObject: Prisma.DbNull },
       });
       objects.add(context.blobPath);
       await getDb().generationJob.update({

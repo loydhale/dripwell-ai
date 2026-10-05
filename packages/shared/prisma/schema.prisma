@@ -1275,6 +1275,7 @@ model RecordingSegment {
   segmentKey          String
   sequence            Int
   blobPath            String
+  blobObject          Json?
   mimeType            String
   bytes               Int
   durationSeconds     Float?
@@ -1289,6 +1290,41 @@ model RecordingSegment {
   @@unique([tenantId, segmentKey])
   @@unique([consultationId, sequence])
   @@index([tenantId, expiresAt])
+}
+
+// Durable non-AI tombstones survive deletion of their original source rows.
+model RecordingDeletionIntent {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tenantId            String   @db.Uuid
+  recordingId         String   @db.Uuid
+  consultationId      String?  @db.Uuid
+  setupConversationId String?  @db.Uuid
+  uploadAttemptId     String?  @db.Uuid
+  reason              String
+  blobPath            String
+  objectUrl           String
+  storeId             String
+  etag                String
+  creatorScope        String
+  creatorGeneration   BigInt
+  creatorOrdinal      BigInt
+  creatorRunId        String
+  status              String   @default("PENDING")
+  executionScope      String?
+  executionGeneration BigInt?
+  executionOrdinal    BigInt?
+  executionRunId      String?
+  executionToken      String?  @db.Uuid
+  leaseUntil          DateTime?
+  attempts            Int      @default(0)
+  lastError           String?
+  lastDurationMs      Int?
+  deletedAt           DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([tenantId, blobPath])
+  @@index([status, createdAt, id])
 }
 
 model ImprovementProposal {

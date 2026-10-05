@@ -1,0 +1,226 @@
+import { randomUUID } from 'node:crypto';
+import { Prisma, type RecordingDeletionIntent } from '@prisma/client';
+import { z } from 'zod';
+import { ApiError } from './errors';
+import { MAINTENANCE_LEASE_MS } from './maintenance-context';
+import { withMaintenanceClaim, type MaintenanceClaim } from './maintenance-coordinator';
+
+const uuid = z.string().uuid().regex(/^[0-9a-f-]+$/);
+const targetFields = z.object({
+  tenantId: uuid,
+  recordingId: uuid,
+  consultationId: uuid.nullable(),
+  setupConversationId: uuid.nullable(),
+  uploadAttemptId: uuid.nullable(),
+}).strict();
+const targetSchema = targetFields.refine((value) => value.consultationId !== null
+  ? value.setupConversationId === null && value.uploadAttemptId !== null
+  : value.setupConversationId !== null && value.uploadAttemptId === null);
+export type RecordingObjectTarget = z.infer<typeof targetSchema>;
+
+export function recordingObjectPath(target: RecordingObjectTarget): string {
+  const value = targetSchema.parse(target);
+  return value.consultationId
+    ? `private/${value.tenantId}/recordings/${value.consultationId}/${value.recordingId}/${value.uploadAttemptId}`
+    : `private/${value.tenantId}/setup/${value.recordingId}`;
+}
+
+export const recordingObjectIdentitySchema = targetFields.extend({
+  version: z.literal(1),
+  blobPath: z.string(),
+  objectUrl: z.string(),
+  storeId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,127}$/),
+  etag: z.string().min(1).max(1024).refine((value) => !/[\r\n]/.test(value)),
+  nonOverwrite: z.literal(true),
+}).strict().refine((value) => {
+  const target = {
+    tenantId: value.tenantId, recordingId: value.recordingId,
+    consultationId: value.consultationId, setupConversationId: value.setupConversationId,
+    uploadAttemptId: value.uploadAttemptId,
+  };
+  return targetSchema.safeParse(target).success && value.blobPath === recordingObjectPath(target)
+    && value.objectUrl === `https://${value.storeId}.private.blob.vercel-storage.com/${value.blobPath}`;
+});
+export type RecordingObjectIdentity = z.infer<typeof recordingObjectIdentitySchema>;
+
+function unavailable(): never {
+  throw new ApiError(409, 'This recording object cannot be used.', 'RECORDING_OBJECT_UNAVAILABLE');
+}
+function invalid(): never {
+  throw new ApiError(409, 'Recording object identity is invalid.', 'RECORDING_OBJECT_IDENTITY_INVALID');
+}
+export function parseRecordingObjectIdentity(value: unknown): RecordingObjectIdentity {
+  const parsed = recordingObjectIdentitySchema.safeParse(value);
+  if (!parsed.success) invalid();
+  return parsed.data;
+}
+
+/** Identity comes from this successful non-overwriting put, never a later head. */
+export function captureRecordingObject(target: RecordingObjectTarget, blob: {
+  pathname: string; url: string; etag: string;
+}): RecordingObjectIdentity {
+  const checked = targetSchema.parse(target);
+  let url: URL;
+  try { url = new URL(blob.url); } catch { invalid(); }
+  const suffix = '.private.blob.vercel-storage.com';
+  if (!url.hostname.endsWith(suffix)) invalid();
+  return parseRecordingObjectIdentity({ ...checked, version: 1, nonOverwrite: true,
+    blobPath: blob.pathname, objectUrl: blob.url,
+    storeId: url.hostname.slice(0, -suffix.length), etag: blob.etag });
+}
+
+function identityFromIntent(row: RecordingDeletionIntent): RecordingObjectIdentity {
+  return parseRecordingObjectIdentity({ version: 1, nonOverwrite: true,
+    tenantId: row.tenantId, recordingId: row.recordingId, consultationId: row.consultationId,
+    setupConversationId: row.setupConversationId, uploadAttemptId: row.uploadAttemptId,
+    blobPath: row.blobPath, objectUrl: row.objectUrl, storeId: row.storeId, etag: row.etag });
+}
+function sameObject(value: unknown, expected: RecordingObjectIdentity): boolean {
+  const parsed = recordingObjectIdentitySchema.safeParse(value);
+  return parsed.success && (Object.keys(expected) as (keyof RecordingObjectIdentity)[])
+    .every((key) => parsed.data[key] === expected[key]);
+}
+
+type Tx = Prisma.TransactionClient;
+async function lockObjectRows(tx: Tx, object: RecordingObjectIdentity) {
+  if (object.consultationId) {
+    await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${object.consultationId}::uuid AND "tenantId" = ${object.tenantId}::uuid FOR UPDATE`;
+  }
+  await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${object.recordingId}::uuid AND "tenantId" = ${object.tenantId}::uuid FOR UPDATE`;
+  if (object.uploadAttemptId) {
+    await tx.$queryRaw`SELECT "id" FROM "GenerationJob" WHERE "id" = ${object.uploadAttemptId}::uuid AND "tenantId" = ${object.tenantId}::uuid FOR UPDATE`;
+  }
+}
+
+/** Caller owns the recording/consultation lock; actor paths never lock coordinator. */
+export async function assertRecordingPathNotDetached(tx: Tx, tenantId: string, blobPath: string) {
+  if (await tx.recordingDeletionIntent.findUnique({ where: { tenantId_blobPath: { tenantId, blobPath } }, select: { id: true } })) unavailable();
+}
+
+/** Shared consumer contract. Complete pre/post-provider wiring is TASK052. */
+export async function assertRecordingObjectAvailable(tx: Tx, expected: RecordingObjectIdentity, now = new Date()) {
+  const object = parseRecordingObjectIdentity(expected);
+  await lockObjectRows(tx, object);
+  const recording = await tx.recordingSegment.findFirst({ where: { id: object.recordingId, tenantId: object.tenantId } });
+  if (!recording || recording.consultationId !== object.consultationId
+    || recording.setupConversationId !== object.setupConversationId
+    || recording.blobPath !== object.blobPath || !sameObject(recording.blobObject, object)
+    || !['UPLOADED', 'TRANSCRIBED'].includes(recording.status) || recording.expiresAt <= now) unavailable();
+  await assertRecordingPathNotDetached(tx, object.tenantId, object.blobPath);
+}
+
+const pointerSchema = z.object({
+  recordingId: uuid, blobPath: z.string(),
+  state: z.enum(['IN_FLIGHT', 'ADOPTED', 'CLEANUP_PENDING', 'CLEANED']),
+  uploadSettled: z.boolean(), blobObject: recordingObjectIdentitySchema.optional(),
+});
+type CommitResult = { status: 'COMMITTED'; intentId: string }
+  | { status: 'PRESERVED' | 'DEFERRED'; intentId: null };
+
+/** Dormant foundation: no route/workflow calls this and no provider I/O is imported. */
+export async function commitRecordingDeletion(claim: MaintenanceClaim, candidate: {
+  identity: RecordingObjectIdentity; reason: 'UPLOAD_CLEANUP' | 'RETENTION';
+}, now = new Date()): Promise<CommitResult> {
+  const object = parseRecordingObjectIdentity(candidate.identity);
+  if (!['UPLOAD_CLEANUP', 'RETENTION'].includes(candidate.reason)) invalid();
+  return withMaintenanceClaim(claim, async (tx): Promise<CommitResult> => {
+    await lockObjectRows(tx, object);
+    const existing = await tx.recordingDeletionIntent.findUnique({ where: {
+      tenantId_blobPath: { tenantId: object.tenantId, blobPath: object.blobPath },
+    } });
+    if (existing) {
+      if (!sameObject(identityFromIntent(existing), object) || existing.creatorScope !== claim.context.key) invalid();
+      return { status: 'COMMITTED', intentId: existing.id };
+    }
+    const recording = await tx.recordingSegment.findFirst({ where: { id: object.recordingId, tenantId: object.tenantId } });
+    if (!recording || recording.consultationId !== object.consultationId
+      || recording.setupConversationId !== object.setupConversationId) invalid();
+    const currentPath = recording.blobPath === object.blobPath;
+    if (currentPath && !sameObject(recording.blobObject, object)) return { status: 'DEFERRED', intentId: null };
+    let pointer: z.infer<typeof pointerSchema> | undefined;
+    if (object.uploadAttemptId) {
+      const attempt = await tx.generationJob.findFirst({ where: {
+        id: object.uploadAttemptId, tenantId: object.tenantId, consultationId: object.consultationId,
+        kind: 'RECORDING_UPLOAD',
+      } });
+      const parsed = pointerSchema.safeParse(attempt?.result);
+      if (!parsed.success || parsed.data.recordingId !== object.recordingId
+        || parsed.data.blobPath !== object.blobPath || !sameObject(parsed.data.blobObject, object)
+        || !parsed.data.uploadSettled || ['IN_FLIGHT', 'CLEANED'].includes(parsed.data.state)) {
+        return { status: 'DEFERRED', intentId: null };
+      }
+      pointer = parsed.data;
+    }
+    if (candidate.reason === 'RETENTION') {
+      if (!currentPath || recording.expiresAt > now || recording.status === 'UPLOADING')
+        return { status: 'PRESERVED', intentId: null };
+    } else if (!object.uploadAttemptId || (currentPath
+      && !['DISCARDED', 'UPLOAD_FAILED', 'EXPIRED'].includes(recording.status))
+      || (!currentPath && pointer?.state === 'ADOPTED')) {
+      return { status: 'PRESERVED', intentId: null };
+    }
+    const intent = await tx.recordingDeletionIntent.create({ data: {
+      tenantId: object.tenantId, recordingId: object.recordingId,
+      consultationId: object.consultationId, setupConversationId: object.setupConversationId,
+      uploadAttemptId: object.uploadAttemptId, reason: candidate.reason,
+      blobPath: object.blobPath, objectUrl: object.objectUrl, storeId: object.storeId, etag: object.etag,
+      creatorScope: claim.context.key, creatorGeneration: BigInt(claim.generation),
+      creatorOrdinal: BigInt(claim.ordinal), creatorRunId: claim.runId,
+    } });
+    if (currentPath) await tx.recordingSegment.update({ where: { id: recording.id }, data: {
+      blobPath: '', blobObject: Prisma.DbNull,
+      ...(candidate.reason === 'RETENTION' ? { status: 'EXPIRED' } : {}),
+    } });
+    if (pointer && object.uploadAttemptId) await tx.generationJob.update({ where: { id: object.uploadAttemptId }, data: {
+      status: 'CLEANUP_PENDING', completedAt: null, result: { ...pointer, state: 'CLEANUP_PENDING' },
+    } });
+    return { status: 'COMMITTED', intentId: intent.id };
+  });
+}
+
+async function lockIntent(tx: Tx, claim: MaintenanceClaim, intentId: string) {
+  const initial = await tx.recordingDeletionIntent.findFirst({ where: { id: uuid.parse(intentId), creatorScope: claim.context.key } });
+  if (!initial) unavailable();
+  await lockObjectRows(tx, identityFromIntent(initial));
+  await tx.$queryRaw`SELECT "id" FROM "RecordingDeletionIntent" WHERE "id" = ${initial.id}::uuid FOR UPDATE`;
+  return tx.recordingDeletionIntent.findUniqueOrThrow({ where: { id: initial.id } });
+}
+function ownsExecution(row: RecordingDeletionIntent, claim: MaintenanceClaim, token: string) {
+  return row.status === 'IN_FLIGHT' && row.executionToken === token
+    && row.executionScope === claim.context.key && row.executionRunId === claim.runId
+    && row.executionGeneration === BigInt(claim.generation) && row.executionOrdinal === BigInt(claim.ordinal);
+}
+
+export async function claimRecordingDeletion(claim: MaintenanceClaim, intentId: string, now = new Date()) {
+  return withMaintenanceClaim(claim, async (tx) => {
+    const row = await lockIntent(tx, claim, intentId);
+    if (row.status === 'DELETED') return null;
+    if (row.status === 'IN_FLIGHT' && row.executionScope === claim.context.key
+      && row.executionGeneration === BigInt(claim.generation) && row.leaseUntil! > now) return null;
+    return tx.recordingDeletionIntent.update({ where: { id: row.id }, data: {
+      status: 'IN_FLIGHT', executionScope: claim.context.key, executionGeneration: BigInt(claim.generation),
+      executionOrdinal: BigInt(claim.ordinal), executionRunId: claim.runId, executionToken: randomUUID(),
+      leaseUntil: new Date(now.getTime() + MAINTENANCE_LEASE_MS), attempts: { increment: 1 },
+    } });
+  });
+}
+
+const outcomeSchema = z.discriminatedUnion('deleted', [
+  z.object({ deleted: z.literal(true), durationMs: z.number().int().min(0).max(60_000) }).strict(),
+  z.object({ deleted: z.literal(false), durationMs: z.number().int().min(0).max(60_000),
+    error: z.enum(['DELETE_FAILED', 'DELETE_TIMEOUT', 'OBJECT_CHANGED', 'UPLOAD_UNSETTLED']) }).strict(),
+]);
+export async function finishRecordingDeletion(claim: MaintenanceClaim, intentId: string, executionToken: string,
+  outcome: z.infer<typeof outcomeSchema>, now = new Date()) {
+  const result = outcomeSchema.parse(outcome);
+  return withMaintenanceClaim(claim, async (tx) => {
+    const row = await lockIntent(tx, claim, intentId);
+    if (!ownsExecution(row, claim, uuid.parse(executionToken))) unavailable();
+    return tx.recordingDeletionIntent.update({ where: { id: row.id }, data: {
+      status: result.deleted ? 'DELETED' : 'PENDING', deletedAt: result.deleted ? now : null,
+      lastDurationMs: result.durationMs, lastError: result.deleted ? null : result.error,
+      executionScope: null, executionGeneration: null, executionOrdinal: null,
+      executionRunId: null, executionToken: null, leaseUntil: null,
+    } });
+  });
+}

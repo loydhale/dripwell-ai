@@ -1,14 +1,17 @@
 import { put, del } from '@vercel/blob';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { getDb } from './db';
 import { ApiError } from './errors';
+import { assertRecordingPathNotDetached, captureRecordingObject, parseRecordingObjectIdentity,
+  recordingObjectIdentitySchema, recordingObjectPath, type RecordingObjectIdentity } from './recording-deletion-intents';
 
 const uploadPointerSchema = z.object({
   recordingId: z.string().uuid(),
   blobPath: z.string(),
   state: z.enum(['IN_FLIGHT', 'ADOPTED', 'CLEANUP_PENDING', 'CLEANED']),
   uploadSettled: z.boolean(),
+  blobObject: recordingObjectIdentitySchema.optional(),
 });
 
 export type RecordingUploadContext = {
@@ -19,9 +22,10 @@ export type RecordingUploadContext = {
   consultationId?: string;
   blobPath: string;
   mimeType: string;
+  blobObject?: RecordingObjectIdentity;
 };
 type PrivateUploadIO = {
-  putFile: (path: string, file: File, mimeType: string) => Promise<{ pathname: string }>;
+  putFile: (path: string, file: File, mimeType: string) => Promise<{ pathname: string; url: string; etag: string }>;
   deleteFile: (path: string) => Promise<unknown>;
 };
 const privateUploadIO: PrivateUploadIO = {
@@ -43,6 +47,12 @@ export async function adoptRecordingUpload(
   context: RecordingUploadContext,
 ) {
   await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${context.recordingId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
+  const object = parseRecordingObjectIdentity(context.blobObject);
+  if (object.tenantId !== context.tenantId || object.recordingId !== context.recordingId
+    || object.consultationId !== context.consultationId || object.uploadAttemptId !== context.attemptId
+    || object.blobPath !== context.blobPath)
+    throw new ApiError(409, 'This upload cannot be adopted.', 'RECORDING_UPLOAD_INTERRUPTED');
+  await assertRecordingPathNotDetached(tx, context.tenantId, context.blobPath);
   const recording = await tx.recordingSegment.findFirst({
     where: {
       id: context.recordingId,
@@ -50,14 +60,16 @@ export async function adoptRecordingUpload(
       blobPath: context.blobPath,
       status: { in: ['UPLOADED', 'TRANSCRIBED'] },
     },
-    select: { id: true },
+    select: { id: true, consultationId: true, setupConversationId: true },
   });
-  if (!recording)
+  if (!recording || recording.consultationId !== object.consultationId
+    || recording.setupConversationId !== object.setupConversationId)
     throw new ApiError(409, 'This upload cannot be adopted.', 'RECORDING_UPLOAD_INTERRUPTED');
   const adopted = await tx.generationJob.updateMany({
     where: {
       id: context.attemptId,
       tenantId: context.tenantId,
+      consultationId: object.consultationId,
       kind: 'RECORDING_UPLOAD',
       status: 'RUNNING',
     },
@@ -69,6 +81,7 @@ export async function adoptRecordingUpload(
         blobPath: context.blobPath,
         state: 'ADOPTED',
         uploadSettled: true,
+        blobObject: object,
       },
     },
   });
@@ -78,6 +91,7 @@ export async function adoptRecordingUpload(
       'This upload was interrupted. Refresh before retrying.',
       'RECORDING_UPLOAD_INTERRUPTED',
     );
+  await tx.recordingSegment.update({ where: { id: context.recordingId }, data: { blobObject: object } });
 }
 
 export async function cleanupRecordingUploadAttempt(
@@ -157,7 +171,7 @@ export async function cleanupRecordingUploadAttempt(
       blobPath: pointer.blobPath,
       status: { in: ['DISCARDED', 'UPLOAD_FAILED', 'EXPIRED'] },
     },
-    data: { blobPath: '' },
+    data: { blobPath: '', blobObject: Prisma.DbNull },
   });
   return { pending: false, deleted: true, preserved: false };
 }
@@ -169,6 +183,21 @@ export async function performRecordingUpload<T>(
   io: PrivateUploadIO = privateUploadIO,
 ) {
   const db = getDb();
+  const target = { tenantId: context.tenantId, recordingId: context.recordingId,
+    consultationId: context.consultationId ?? null, setupConversationId: null,
+    uploadAttemptId: context.attemptId };
+  if (recordingObjectPath(target) !== context.blobPath)
+    throw new ApiError(409, 'Upload scope is invalid.', 'PRIVATE_UPLOAD_PATH_INVALID');
+  await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${context.recordingId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
+    const recording = await tx.recordingSegment.findFirst({ where: { id: context.recordingId, tenantId: context.tenantId },
+      select: { consultationId: true, setupConversationId: true, blobPath: true, status: true } });
+    if (!recording || recording.consultationId !== target.consultationId
+      || recording.setupConversationId !== target.setupConversationId
+      || recording.blobPath !== context.blobPath || recording.status !== 'UPLOADING')
+      throw new ApiError(409, 'This upload cannot be started.', 'RECORDING_UPLOAD_INTERRUPTED');
+    await assertRecordingPathNotDetached(tx, context.tenantId, context.blobPath);
+  });
   await db.generationJob.create({
     data: {
       id: context.attemptId,
@@ -190,6 +219,7 @@ export async function performRecordingUpload<T>(
     },
   });
   let uploadSettled = false;
+  let blobObject: RecordingObjectIdentity | undefined;
   try {
     const blob = await io.putFile(context.blobPath, file, context.mimeType);
     uploadSettled = true;
@@ -199,7 +229,12 @@ export async function performRecordingUpload<T>(
         'Private upload returned an unexpected path.',
         'PRIVATE_UPLOAD_PATH_INVALID',
       );
-    return await adopt(blob.pathname, context);
+    blobObject = captureRecordingObject(target, blob);
+    await db.generationJob.updateMany({ where: { id: context.attemptId, status: { not: 'COMPLETE' } }, data: {
+      result: { recordingId: context.recordingId, blobPath: context.blobPath,
+        state: 'IN_FLIGHT', uploadSettled: true, blobObject },
+    } });
+    return await adopt(blob.pathname, { ...context, blobObject });
   } catch (error) {
     // Persist compensation before attempting deletion. If DB or storage is
     // unavailable, the original IN_FLIGHT pointer remains durable for cron.
@@ -214,6 +249,7 @@ export async function performRecordingUpload<T>(
             blobPath: context.blobPath,
             state: 'CLEANUP_PENDING',
             uploadSettled,
+            ...(blobObject ? { blobObject } : {}),
           },
         },
       });
@@ -275,7 +311,7 @@ export async function cleanupDiscardedRecordingUploads(
     await privateUploadIO.deleteFile(legacyPath);
     await getDb().recordingSegment.updateMany({
       where: { id: recordingId, tenantId, status: 'DISCARDED', blobPath: legacyPath },
-      data: { blobPath: '' },
+      data: { blobPath: '', blobObject: Prisma.DbNull },
     });
     return false;
   } catch {
