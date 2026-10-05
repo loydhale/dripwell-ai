@@ -1,7 +1,7 @@
 # TASK-053: Fixed recording cleanup pages and conditional deletion
 
 TASK_ID: TASK-053
-STATUS: QUEUED_AFTER_ACCEPTED_TASK052. Root explicitly adopts this second complete slice of frozen plan224051af/handoff43bea2b7, preserving the original TASK052 approved scope. No source or execution GO. Same sole Coder/same independent Auditor after [TASK052](TASK-052.md) actual reviewed source, normal automatic CI and scoped closure.
+STATUS: PLAN_REFRESH_ELIGIBLE_AFTER_ACCEPTED_TASK052. Scoped052 source1d32/CI37376530466 independentlyPASS751fc776/Roota43780b3, count30 once; due drift and closing docs await minor co-sign/publication. Same sole Coder refreshes the second complete slice of frozen plan224051af/handoff43bea2b7 against accepted source. Independent refreshed-plan review and distinct Root sourceGO are required; no source/execution GO yet.
 PARENT_REQUEST: Saved recording deletion/adoption/post-provider queue, PRD section6 and section8 criterion9.
 
 ## Scope

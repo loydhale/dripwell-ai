@@ -248,6 +248,8 @@ The [client membership reporting audit](docs/AUDIT_MEMBERSHIP_REPORTING.md) reco
 
 The [approved wellness offers audit](docs/AUDIT_APPROVED_WELLNESS_OFFERS.md) records approved immutable benefits/matched reviewed goals in wellness v2.2/public takeaway2, truthful generation provenance, unchanged initial/care v2.1 and historical v1 raw hashes, tracked edits/reapproval and matching staff/share/PDF facts. Eighteen distinct affected identities use retained15 plus separately passed legacy and valid-eligibility cases and one shared-domain case; original failures and deliberate focused exclusions remain preserved. Three saved synthetic PDF text checks, types and explicit-production Webpack packaging passed. Mocked transport/static/text evidence does not establish live approval/delivery/browser/device/paid behavior or complete the pilot. All nine acceptance criteria above remain unchanged.
 
+The [recording consumer audit](docs/AUDIT_RECORDING_CONSUMER_SAFETY.md) records scoped immutable private-read/post-provider publication guards, dedicated non-AI setup settlement and queue-only cleanup, with DB-only known-P2034 bounded publication retries. Actual reviewed source1d32 and ordinary fresh-PG17 CI37376530466 passed both builds/types and all25 consumer cases within212 tests. Passing source-bound owned hooks and injected provider controls do not prove live inference, physical conditional deletion, hosted retention or full-pilot readiness. Both complete Blob families remain the approved TASK053 work; the [count30 scope check](docs/PRD_DRIFT_CHECK_030.md) preserves all nine criteria above.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |
