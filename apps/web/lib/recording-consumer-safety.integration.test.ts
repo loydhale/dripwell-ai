@@ -13,6 +13,7 @@ import { adoptRecordingUpload, cleanupDiscardedRecordingUploads, cleanupRecordin
 import { adoptSetupRecording, performSetupRecordingUpload, reserveSetupRecording, settleSetupRecording } from './setup-recording-uploads';
 import { processRecordingJob } from '../workflows/recordings';
 
+vi.mock('server-only', () => ({}));
 const provider = vi.hoisted(() => ({ get: vi.fn(), transcribe: vi.fn(), summary: vi.fn(), catalog: vi.fn(), start: vi.fn() }));
 vi.mock('@vercel/blob', () => ({ get: provider.get, put: vi.fn(() => { throw new Error('Unexpected Blob put'); }) }));
 vi.mock('workflow/api', () => ({ start: provider.start }));
