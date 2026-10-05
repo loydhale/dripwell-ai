@@ -1,14 +1,15 @@
 # TASK-051: Dormant recording deletion-intent foundation
 
 TASK_ID: TASK-051
-STATUS: SOURCE_REVIEW_PASS_PENDING_FINAL_PACKAGE_PUBLICATION_AND_ACTUAL_CI. Nine source paths/17 new cases (5identity/12PG), four affected producer fixtures; no new checks have run. Original review7f35a0c8CHANGES_REQUIRED and source freeze remain preserved. Bounded derivative67dbbed0/05d75610 received genuine source/CI-planPASS2b6d9b76, accepted by Root; final exact package/publication/actual CI required.
+STATUS: APPLIED_CALLER_REPAIR_SOURCE_PASS_PENDING_FINAL_PACKAGE_PUBLICATION_AND_CI. Original source2d4ed783/tree8c690afb is published and independently verified; normalCI37290153415 remains FAILED at the annotated strict-target test caller. Separate sourceGO4e3a6186 applied only five target fields. Independent applied-source PASSe2823802 is read/accepted/all11 required members verified. Full reversal restores original a852; every assertion/title/other body/production byte and CI pin is preserved. Exact seven-path final package, ordinary publication and actual automatic corrected-head CI/independent learning closure remain required. Count28/TASK052 queued/fullpilot incomplete.
 PARENT_REQUEST: Owner-authorized completion, saved recording Blob-intent/adoption queue, PRD section6 and section8 criterion9.
+RECOVERY_ATTEMPT: 2. Original pre-execution target-guard review required one correction; actual original source CI now requires the narrow fixture caller correction. Retain the project three-attempt escalation rule, with no endless failing-check replay.
 
 ## Accepted bounded scope
 
 Root explicitly adopts the independently reviewed two-task split. TASK051 implements durable identity, transaction and adoption contracts without enabling deletion. [TASK052](TASK-052.md) integrates complete consumers, dedicated cleanup and two bounded provider families. Both tasks and actual provider proof are necessary before claiming complete recording retention.
 
-Concrete Coder planb56f593a/HANDOFFa6423f8a/INPUTSa2779d8a received genuine independent planPASScba25a5e. Root read the actual receipt and verified its three required artifacts, references and current source/guidance pins. Current documentation HEADe1e7d05e/tree92d0a29b has single application-parent6710ed7e; documentation publication closure independentlyPASS36d5d291. Application observations remain6710/tree9ebe55f2. The separate Root source GO authorizes authoring, not local checks, SQL, migration application, provider or native operations.
+Concrete Coder planb56f593a/HANDOFFa6423f8a/INPUTSa2779d8a received genuine independent planPASScba25a5e. Root read the actual receipt and verified its three required artifacts, references and current source/guidance pins. Original planning base was documentatione1e7d05e/tree92d0a29b with single application-parent6710ed7e and independentlyPASS36d5d291. Current original-source HEAD is2d4ed783/tree8c690afb; caller repair is the sole subsequent application delta pending publication. The separate Root source GO authorizes authoring, not local checks, SQL, migration application, provider or native operations.
 
 ## Implement the accepted plan
 
@@ -35,3 +36,7 @@ Freeze authored source/migration/test selection for same independent Auditor bef
 Same Coder is sole app writer, same Auditor reviews implementation and actual evidence/learning, Root owns STATE/CHANGELOG/task briefs and exact reviewed publication. Counter stays28 until genuine completion. No full-retention/deployment/pilot claim follows from source review.
 
 Keep protected previews/literalALLOW_REAL_CLIENT_DATA=false. No provider purchase/switch, personal-plan pooling, upgrade, partner application, unselected administrator/clinical-authority bootstrap, messages/emails, real data or new feature/pricing/video/rating scope. Park individual external gates while continuing independent work.
+
+Actual original CI generation/validation/migration/both builds/types/auth/lifecycle/transcript stages succeeded; billing/sharing step17 failed. Aggregate counts/skips/other case outcomes remain unobserved. Recovery targets only the affected test call, retains production strictness and every assertion; no local check/private runner/manual CI is authorized.
+
+2026-10-05 TASK051 applied caller-only repair independently PASSe2823802, accepted by Root after all eleven required byte/hash/mode inputs match. Exact1019-byte diffdf0fde2e projects five target fields; full reversal restores original24625/a852 and preserves production strictness, full wrong-owner identity, every assertion/title/other body, eight unchanged sources and three CI pins. Original CI37290153415/static-review miss remain retained, counts/skips unknown. Final seven-path package/body review and normal corrected-head publication/actual CI remain pending. No local check/SQL/provider/native/manualCI operation, task completion, learning Seen change or counter increment; count28/TASK052 queued/fullpilot incomplete.

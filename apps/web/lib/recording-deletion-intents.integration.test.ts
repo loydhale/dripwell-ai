@@ -316,7 +316,11 @@ suite('recording deletion foundation against isolated PostgreSQL', () => {
     const { object } = await fixture(false, false);
     await getDb().$transaction((tx) => assertRecordingObjectAvailable(tx, object));
     const wrong = { ...object, tenantId: controlTenant };
-    const foreignPath = recordingObjectPath(wrong);
+    const foreignPath = recordingObjectPath({
+      tenantId: wrong.tenantId, recordingId: wrong.recordingId,
+      consultationId: wrong.consultationId, setupConversationId: wrong.setupConversationId,
+      uploadAttemptId: wrong.uploadAttemptId,
+    });
     await expect(commit({ ...wrong, blobPath: foreignPath, objectUrl: `https://syntheticstore.private.blob.vercel-storage.com/${foreignPath}` }))
       .rejects.toMatchObject({ code: 'RECORDING_OBJECT_IDENTITY_INVALID' });
     await getDb().recordingSegment.update({ where: { id: object.recordingId }, data: { expiresAt: new Date(Date.now() - 1) } });
