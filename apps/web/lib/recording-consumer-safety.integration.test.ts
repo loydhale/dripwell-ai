@@ -932,7 +932,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
             // completion, preserving the delegate receiver and arguments.
             const result = await Reflect.apply(method, target, input);
             const change = input[0] as Prisma.GenerationJobUpdateArgs;
-            if (change.where.id === owned.jobId && result.id === owned.jobId && result.tenantId === tenantId) {
+            if (change.where.id === owned.jobId && result !== null && typeof result === 'object' && 'id' in result && 'tenantId' in result && result.id === owned.jobId && result.tenantId === tenantId) {
               wroteUsage ||= change.data.usage !== undefined;
               const value = change.data.result;
               wroteFinalSummary ||= change.data.status === 'COMPLETE' && value !== null && typeof value === 'object'

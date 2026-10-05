@@ -331,6 +331,8 @@ Same-task TASK052 deliberate diagnostic continuation, 2026-10-05: CI37353034613 
 
 Same-task TASK052 transaction-boundary continuation, 2026-10-05: d186’s bounded record identifies current pre-summary Prisma-known P2034 before provider entry. The workflow supplies existingTx and bypasses append’s standalone retry. Assess recovery at the encompassing DB-only publication boundary: await rollback, reacquire all current guards each attempt, retry only the known P2034 class within the existing twelve-attempt cap, and keep provider I/O outside. Remove the nested caller loop to avoid cap multiplication. Preserve prior static approvals and this failed CI; earlier causes and concurrent participants remain UNKNOWN. These are prospective checks, not corrected results. Seen remains5.
 
+Same-task TASK052 type-boundary continuation, 2026-10-05: manual infrastructure attempt2 acquired a runner, then Next failed TS18046 on result.id/tenantId in the real-update observer. Static a8c9ed67 missed that reflected completion is unknown. Narrow a nonnull object and both keys before exact owner comparisons, without a cast; keep the sole real delegate consumption and returned value unchanged. Bundle compilation did not complete the build, and all25 consumer cases remained unexecuted. Preserve the original failures and Seen5.
+
 Seen N times: 5
 
 ## L-036: Historical observation flags do not timestamp each later reply
