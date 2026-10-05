@@ -58,7 +58,13 @@ const configuration = clinicConfigurationSchema.parse({ schemaVersion: 2,
 // exception is serialized; the real transaction and production error mapper run.
 type DiagnosticScope = 'ISOLATED_AGGREGATE' | 'JOIN_ON_CHANGE_FAILURE' | 'SUMMARY_CORRECTION'
   | 'SUMMARY_STAFF_ONLY' | 'SUMMARY_ADD' | 'SUMMARY_REMOVE' | 'SUMMARY_EXPIRY'
-  | 'SUMMARY_CHILD_RUN' | 'SUMMARY_CHILD_EXPIRY';
+  | 'SUMMARY_CHILD_RUN' | 'SUMMARY_CHILD_EXPIRY' | 'FAILED_SUMMARY_PRECONDITION';
+const failedSummaryModes = { COMPLETE: 'COMPLETE', CANCELLED: 'CANCELLED', 'foreign-user': 'FOREIGN_USER',
+  'foreign-consultation': 'FOREIGN_CONSULTATION', active: 'ACTIVE', 'newer-run': 'NEWER_RUN',
+  unproven: 'UNPROVEN', input: 'INPUT', expiry: 'EXPIRY', detached: 'DETACHED', actor: 'ACTOR' } as const;
+type FailedSummaryMode = typeof failedSummaryModes[keyof typeof failedSummaryModes] | 'OTHER_HELPER';
+type FailedSummaryBoundary = 'FIXTURE' | 'PARENT_RESET' | 'START_CLAIM' | 'START_ACK' | 'PROCESSING'
+  | 'SUMMARY_PRECONDITION' | 'CHILD_LOOKUP' | 'PROVENANCE';
 type Phase = 'PREPARE' | 'PRIVATE_PREGET' | 'PRIVATE_POSTGET' | 'PRE_SUMMARY_PUBLICATION' | 'SUMMARY_PUBLICATION' | 'OTHER_TX';
 type Operation = 'RAW_LOCK_OR_CLOCK' | 'RECORDING_READ' | 'RECORDING_WRITE' | 'JOB_READ' | 'JOB_WRITE'
   | 'CONSULTATION_READ' | 'CONSULTATION_WRITE' | 'REVISION_WRITE' | 'EVENT_READ' | 'EVENT_WRITE' | 'OTHER_TX_OPERATION';
@@ -173,6 +179,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
   const pending = new Set<Promise<ProcessingOutcome>>();
   let blocked: 'DIAGNOSTIC_NOT_QUIESCENT' | 'DIAGNOSTIC_METADATA_LIMIT' | undefined;
   let recordCount = 0; let overflowCount = 0; let limitEmitted = false; let quiescenceEmitted = false;
+  let helperRecordEmitted = false;
 
   function requireUnblocked() { if (blocked) throw new Error(blocked); }
   function emitDiagnostic(record: object): boolean {
@@ -187,17 +194,18 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     }
     recordCount++; console.info(encoded); return true;
   }
-  function startProcessing(jobId: string, runId: string, scope?: DiagnosticScope): Promise<ProcessingOutcome> {
+  function startProcessing(jobId: string, runId: string, scope?: DiagnosticScope,
+    retainedDiagnostic?: Diagnostic): Promise<ProcessingOutcome> {
     requireUnblocked();
-    const diagnostic: Diagnostic | undefined = scope ? { scope, ordinal: 0, phase: 'OTHER_TX', callbackEntered: false,
-      bodyReturned: false, committed: false, attempted: 'OTHER_TX_OPERATION', completed: 'NONE', providerEntered: false, stages: [] } : undefined;
+    const diagnostic: Diagnostic | undefined = retainedDiagnostic ?? (scope ? { scope, ordinal: 0, phase: 'OTHER_TX', callbackEntered: false,
+      bodyReturned: false, committed: false, attempted: 'OTHER_TX_OPERATION', completed: 'NONE', providerEntered: false, stages: [] } : undefined);
     // All starts use this registry, including starts outside diagnostic scopes.
     const started = diagnostic ? diagnosticContext.run(diagnostic, () => processRecordingJob(jobId, runId))
       : processRecordingJob(jobId, runId);
     const finished = started.then<ProcessingOutcome, ProcessingOutcome>(() => ({ ok: true }), (error: unknown) => ({ error }));
     const tracked = finished.then(outcome => {
       pending.delete(tracked); // Only actual settlement removes ownership.
-      if (diagnostic) {
+      if (diagnostic && diagnostic.scope !== 'FAILED_SUMMARY_PRECONDITION') {
         const safe = emitDiagnostic({ scope: diagnostic.scope, phase: diagnostic.phase, ordinal: diagnostic.ordinal,
           callbackEntered: diagnostic.callbackEntered, bodyReturned: diagnostic.bodyReturned, committed: diagnostic.committed,
           attempted: diagnostic.attempted, completed: diagnostic.completed, stages: diagnostic.stages,
@@ -438,25 +446,74 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     return await finished;
   }
 
-  async function failedSummaryAttempt() {
-    const owned = await fixture();
-    await getDb().generationJob.update({ where: { id: owned.jobId }, data: { status: 'PENDING', runId: null } });
-    const first = await claimRecordingStart(owned.jobId); expect(first).not.toBeNull();
-    expect(await acknowledgeRecordingStart(owned.jobId, first!.token, owned.runId)).toBe(true);
-    provider.summary.mockRejectedValueOnce(new Error('Synthetic summary failure'));
-    await expect(runProcessing(owned.jobId, owned.runId)).rejects.toThrow();
-    const summaryJob = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: {
-      tenantId, idempotencyKey: `summary:${owned.jobId}` } } });
-    jobIds.add(summaryJob.id);
-    const prepared = await prepareRecordingProcessing(owned.jobId, owned.runId); expect(prepared).not.toBeNull();
-    await failRecordingProcessing(owned.jobId, owned.runId, 'AI_PROCESSING_FAILED');
-    const parent = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
-    const failedChild = await getDb().generationJob.findUniqueOrThrow({ where: { id: summaryJob.id } });
-    expect(parent).toMatchObject({ status: 'FAILED', runId: owned.runId, result: { processingSummaryAttempt: {
-      childJobId: summaryJob.id, runId: owned.runId, failure: { errorCode: 'AI_PROCESSING_FAILED' } } } });
-    expect(failedChild).toMatchObject({ status: 'FAILED', runId: owned.runId, errorCode: 'AI_PROCESSING_FAILED', completedAt: parent.completedAt });
-    return { ...owned, childId: summaryJob.id, firstToken: first!.token,
-      oldSnapshot: { ...prepared!.snapshot, childJobId: summaryJob.id } };
+  async function failedSummaryAttempt(mode: FailedSummaryMode = 'OTHER_HELPER') {
+    const diagnostic: Diagnostic = { scope: 'FAILED_SUMMARY_PRECONDITION', ordinal: 0, phase: 'OTHER_TX',
+      callbackEntered: false, bodyReturned: false, committed: false, attempted: 'OTHER_TX_OPERATION',
+      completed: 'NONE', providerEntered: false, stages: [] };
+    let boundary: FailedSummaryBoundary = 'FIXTURE';
+    const processingState: { outcome?: ProcessingOutcome } = {};
+    let faultEntered = false;
+    let summaryCallsBefore: number | undefined;
+    let childLookup: 'NOT_ATTEMPTED' | 'PRESENT' | 'FAILED' = 'NOT_ATTEMPTED';
+    try {
+      const owned = await fixture();
+      boundary = 'PARENT_RESET';
+      await getDb().generationJob.update({ where: { id: owned.jobId }, data: { status: 'PENDING', runId: null } });
+      boundary = 'START_CLAIM';
+      const first = await claimRecordingStart(owned.jobId); expect(first).not.toBeNull();
+      boundary = 'START_ACK';
+      expect(await acknowledgeRecordingStart(owned.jobId, first!.token, owned.runId)).toBe(true);
+      const summaryFault = new Error('Synthetic summary failure');
+      summaryCallsBefore = provider.summary.mock.calls.length;
+      provider.summary.mockImplementationOnce(async () => {
+        summaryProviderEntered(); faultEntered = true; throw summaryFault;
+      });
+      boundary = 'PROCESSING';
+      // This completion belongs to the existing registry. The observer runs
+      // only around actual processing, never competing fixture mutations.
+      const processing = startProcessing(owned.jobId, owned.runId, undefined, diagnostic).then(outcome => {
+        processingState.outcome = outcome;
+        if ('error' in outcome) throw outcome.error;
+      });
+      await expect(processing).rejects.toThrow();
+      boundary = 'SUMMARY_PRECONDITION';
+      expect(provider.summary.mock.calls.length).toBe(summaryCallsBefore + 1);
+      expect(faultEntered).toBe(true);
+      boundary = 'CHILD_LOOKUP';
+      const summaryJob = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: {
+        tenantId, idempotencyKey: `summary:${owned.jobId}` } } }).catch(error => { childLookup = 'FAILED'; throw error; });
+      childLookup = 'PRESENT';
+      jobIds.add(summaryJob.id);
+      boundary = 'PROVENANCE';
+      const prepared = await prepareRecordingProcessing(owned.jobId, owned.runId); expect(prepared).not.toBeNull();
+      await failRecordingProcessing(owned.jobId, owned.runId, 'AI_PROCESSING_FAILED');
+      const parent = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
+      const failedChild = await getDb().generationJob.findUniqueOrThrow({ where: { id: summaryJob.id } });
+      expect(parent).toMatchObject({ status: 'FAILED', runId: owned.runId, result: { processingSummaryAttempt: {
+        childJobId: summaryJob.id, runId: owned.runId, failure: { errorCode: 'AI_PROCESSING_FAILED' } } } });
+      expect(failedChild).toMatchObject({ status: 'FAILED', runId: owned.runId, errorCode: 'AI_PROCESSING_FAILED', completedAt: parent.completedAt });
+      return { ...owned, childId: summaryJob.id, firstToken: first!.token,
+        oldSnapshot: { ...prepared!.snapshot, childJobId: summaryJob.id } };
+    } catch (error) {
+      if (!helperRecordEmitted) {
+        helperRecordEmitted = true;
+        const calls = summaryCallsBefore === undefined ? undefined : provider.summary.mock.calls.length - summaryCallsBefore;
+        const helperError = safeDiagnosticError(error);
+        // Expected injected summary failures produce no record. Only the first
+        // unexpected helper boundary uses the existing bounded record budget.
+        // Omit redundant stages; retain the first real transaction error.
+        emitDiagnostic({ scope: diagnostic.scope, mode, boundary, phase: diagnostic.phase, ordinal: diagnostic.ordinal,
+          callbackEntered: diagnostic.callbackEntered, bodyReturned: diagnostic.bodyReturned, committed: diagnostic.committed,
+          attempted: diagnostic.attempted, completed: diagnostic.completed, providerBoundaryEntered: diagnostic.providerEntered,
+          intendedSummaryFaultEntered: faultEntered,
+          summaryInvocations: calls === undefined ? 'NOT_ATTEMPTED' : calls === 0 ? 'NONE' : calls === 1 ? 'ONE' : 'OTHER_COUNT',
+          childLookup, childPresent: childLookup === 'PRESENT', pendingCount: pending.size,
+          firstTransactionError: diagnostic.firstError ?? null,
+          processingError: processingState.outcome && 'error' in processingState.outcome ? safeDiagnosticError(processingState.outcome.error) : null,
+          helperError: { class: helperError.class, code: helperError.code } });
+      }
+      throw error;
+    }
   }
   async function resetFailedParent(jobId: string) {
     // The unchanged retry route performs exactly this parent-only transition.
@@ -541,7 +598,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
   test('denies retry claims for terminal foreign active unproven or changed failed children', async () => {
     for (const mode of ['COMPLETE', 'CANCELLED', 'foreign-user', 'foreign-consultation', 'active', 'newer-run',
       'unproven', 'input', 'expiry', 'detached', 'actor'] as const) {
-      const owned = await failedSummaryAttempt(); await resetFailedParent(owned.jobId);
+      const owned = await failedSummaryAttempt(failedSummaryModes[mode]); await resetFailedParent(owned.jobId);
       if (mode === 'COMPLETE' || mode === 'CANCELLED') await getDb().generationJob.update({ where: { id: owned.childId }, data: { status: mode } });
       if (mode === 'foreign-user') await getDb().generationJob.update({ where: { id: owned.childId }, data: { userId: controlOwnerId } });
       if (mode === 'foreign-consultation') {
