@@ -36,6 +36,7 @@ import type { ClinicActor } from './auth';
 import { ApiError } from './errors';
 import { ledgerBalances, type CreditBalance } from './credits';
 import { membershipMetrics, type MembershipMetrics } from './membership-metrics';
+import { assertRecordingProcessing, publishRecordingProcessing, type RecordingProcessingSnapshot } from './recording-processing';
 
 const uuid = z.string().uuid();
 const expectedVersion = z.number().int().positive();
@@ -966,9 +967,13 @@ export async function mutateClinicAction(actor: ClinicActor, rawInput: unknown) 
 }
 
 export async function applyGeneratedSummary(input: {
-  tenantId: string; consultationId: string; summary: ConsultationSummary; jobId: string; expectedSummaryRevision: number;
-}) {
-  return getDb().$transaction(async (tx) => {
+  tenantId: string; consultationId: string; summary: ConsultationSummary; jobId: string; expectedSummaryRevision: number; processing: RecordingProcessingSnapshot;
+}, existingTx?: Tx) {
+  const body = async (tx: Tx) => {
+    if (input.processing.childJobId !== input.jobId || input.processing.object.consultationId !== input.consultationId
+      || input.processing.object.tenantId !== input.tenantId || input.processing.expectedSummaryRevision !== input.expectedSummaryRevision)
+      throw new ApiError(403, 'The processing proof does not authorize this summary.', 'PROCESSING_JOB_REQUIRED');
+    await assertRecordingProcessing(tx, input.processing);
     const job = await tx.generationJob.findFirst({ where: { id: input.jobId, tenantId: input.tenantId, consultationId: input.consultationId } });
     if (!job || job.status === 'CANCELLED' || !['TRANSCRIPTION', 'SUMMARY', 'CONSULTATION_SUMMARY'].includes(job.kind)) throw new ApiError(403, 'The processing job does not authorize this consultation.', 'PROCESSING_JOB_REQUIRED');
     const provider = await tx.user.findFirst({ where: { id: job.userId, tenantId: input.tenantId, isActive: true }, include: { tenant: true } });
@@ -1002,56 +1007,62 @@ export async function applyGeneratedSummary(input: {
       idempotencyKey: `summary-job:${job.id}` } });
     await revokeTakeaways(tx, { tenantId: input.tenantId }, record.id);
     return { applied: true };
-  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  };
+  return existingTx ? body(existingTx) : publishRecordingProcessing(input.processing, tx => body(tx));
 }
 
 export async function appendReceivedTranscript(input: {
-  tenantId: string; consultationId: string; recordingId: string; jobId: string;
-}) {
+  tenantId: string; consultationId: string; recordingId: string; jobId: string; processing: RecordingProcessingSnapshot;
+}, existingTx?: Tx) {
+  const body = async (tx: Tx) => {
+    if (input.processing.jobId !== input.jobId || input.processing.object.recordingId !== input.recordingId
+      || input.processing.object.consultationId !== input.consultationId || input.processing.object.tenantId !== input.tenantId)
+      throw new ApiError(403, 'The processing proof does not authorize this transcript.', 'PROCESSING_JOB_REQUIRED');
+    await assertRecordingProcessing(tx, input.processing);
+    await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "Consultation" WHERE "id" = ${input.consultationId}::uuid AND "tenantId" = ${input.tenantId}::uuid FOR UPDATE`);
+    const record = await tx.consultation.findFirst({ where: { id: input.consultationId, tenantId: input.tenantId }, include: { configurationVersion: true } });
+    if (!record) throw new ApiError(404, 'Consultation was not found.', 'CONSULTATION_NOT_FOUND');
+    assertClientDataAllowed(record);
+    if (!record.consentAt || record.consentDeclined) throw new ApiError(403, 'Recording consent is required before processing audio.', 'CONSENT_REQUIRED');
+    const job = await tx.generationJob.findFirst({ where: { id: input.jobId, tenantId: input.tenantId, consultationId: record.id, kind: 'TRANSCRIPTION' } });
+    const segment = await tx.recordingSegment.findFirst({ where: { id: input.recordingId, tenantId: input.tenantId, consultationId: record.id } });
+    if (!job || job.status === 'CANCELLED' || !segment || segment.status === 'DISCARDED' || segment.transcript === null || segment.userId !== job.userId) throw new ApiError(403, 'The transcription job does not authorize this recording.', 'PROCESSING_JOB_REQUIRED');
+    const user = await tx.user.findFirst({ where: { id: job.userId, tenantId: input.tenantId, isActive: true }, include: { tenant: true } });
+    if (!user?.tenant?.isActive || record.archivedAt) throw new ApiError(403, 'The consultation is no longer available for processing.', 'PROCESSING_ACCESS_CHANGED');
+    const existing = await tx.consultationEvent.findUnique({ where: { idempotencyKey: `transcript-recording:${segment.id}` } });
+    if (segment.status !== 'TRANSCRIBED') await tx.recordingSegment.update({ where: { id: segment.id }, data: { status: 'TRANSCRIBED' } });
+    if (existing) return { summaryRevision: record.summaryRevision, recordVersion: record.version, alreadyApplied: true };
+    const segments = await tx.recordingSegment.findMany({ where: { tenantId: input.tenantId, consultationId: record.id, OR: [{ transcript: { not: null } }, { staffTranscript: { not: null } }], status: { not: 'DISCARDED' } }, orderBy: { sequence: 'asc' } });
+    const transcript = segments.map(item => ({ id: item.id, sequence: item.sequence,
+      text: item.staffTranscript ?? item.transcript ?? '', source: item.staffTranscript !== null ? 'STAFF' : 'TRANSCRIPTION',
+      receivedAt: item.createdAt.toISOString() }));
+    const summary = consultationSummarySchema.parse(record.summary);
+    const nextSummary = { ...summary, staffReviewed: false };
+    const summaryRevision = record.summaryRevision + (summary.staffReviewed ? 1 : 0);
+    await tx.consultationRevision.create({ data: { tenantId: input.tenantId, consultationId: record.id,
+      kind: 'TRANSCRIPT', revision: record.version + 1, payload: jsonValue(transcript), original: true,
+      userId: job.userId, model: job.model, promptVersion: job.promptVersion } });
+    if (summary.staffReviewed) await tx.consultationRevision.create({ data: { tenantId: input.tenantId, consultationId: record.id,
+      kind: 'SUMMARY', revision: summaryRevision, payload: jsonValue(nextSummary), original: false, userId: job.userId,
+      reason: 'NEW_TRANSCRIPT_REQUIRES_REVIEW' } });
+    const config = clinicConfigurationSchema.parse(record.configurationVersion.payload);
+    await tx.consultation.update({ where: { id: record.id }, data: {
+      transcript: jsonValue(transcript), summary: jsonValue(nextSummary), summaryRevision,
+      version: { increment: 1 }, ...invalidateClinical, completedAt: null,
+      ...(record.wellnessPlan ? { wellnessDecisionDueAt: new Date(Date.now() + config.reminders.wellnessDecisionHours * 3600000) } : {}),
+    } });
+    await revokeTakeaways(tx, { tenantId: input.tenantId }, record.id);
+    await tx.consultationEvent.create({ data: { tenantId: input.tenantId, consultationId: record.id,
+      userId: job.userId, action: 'TRANSCRIPT_RECEIVED', artifactRevision: record.version + 1,
+      before: { summaryRevision: record.summaryRevision, staffReviewed: summary.staffReviewed },
+      after: { summaryRevision, staffReviewed: false, recordingId: segment.id },
+      idempotencyKey: `transcript-recording:${segment.id}` } });
+    return { summaryRevision, recordVersion: record.version + 1, alreadyApplied: false };
+  };
+  if (existingTx) return body(existingTx);
   for (let attempt = 0; attempt < 12; attempt++) {
-    try {
-      return await getDb().$transaction(async (tx) => {
-        await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "Consultation" WHERE "id" = ${input.consultationId}::uuid AND "tenantId" = ${input.tenantId}::uuid FOR UPDATE`);
-        const record = await tx.consultation.findFirst({ where: { id: input.consultationId, tenantId: input.tenantId }, include: { configurationVersion: true } });
-        if (!record) throw new ApiError(404, 'Consultation was not found.', 'CONSULTATION_NOT_FOUND');
-        assertClientDataAllowed(record);
-        if (!record.consentAt || record.consentDeclined) throw new ApiError(403, 'Recording consent is required before processing audio.', 'CONSENT_REQUIRED');
-        const job = await tx.generationJob.findFirst({ where: { id: input.jobId, tenantId: input.tenantId, consultationId: record.id, kind: 'TRANSCRIPTION' } });
-        const segment = await tx.recordingSegment.findFirst({ where: { id: input.recordingId, tenantId: input.tenantId, consultationId: record.id } });
-        if (!job || job.status === 'CANCELLED' || !segment || segment.status === 'DISCARDED' || segment.transcript === null || segment.userId !== job.userId) throw new ApiError(403, 'The transcription job does not authorize this recording.', 'PROCESSING_JOB_REQUIRED');
-        const user = await tx.user.findFirst({ where: { id: job.userId, tenantId: input.tenantId, isActive: true }, include: { tenant: true } });
-        if (!user?.tenant?.isActive || record.archivedAt) throw new ApiError(403, 'The consultation is no longer available for processing.', 'PROCESSING_ACCESS_CHANGED');
-        const existing = await tx.consultationEvent.findUnique({ where: { idempotencyKey: `transcript-recording:${segment.id}` } });
-        await tx.recordingSegment.update({ where: { id: segment.id }, data: { status: 'TRANSCRIBED' } });
-        if (existing) return { summaryRevision: record.summaryRevision, recordVersion: record.version, alreadyApplied: true };
-        const segments = await tx.recordingSegment.findMany({ where: { tenantId: input.tenantId, consultationId: record.id, transcript: { not: null }, status: { not: 'DISCARDED' } }, orderBy: { sequence: 'asc' } });
-        const transcript = segments.map(item => ({ id: item.id, sequence: item.sequence,
-          text: item.staffTranscript ?? item.transcript ?? '', source: item.staffTranscript !== null ? 'STAFF' : 'TRANSCRIPTION',
-          receivedAt: item.createdAt.toISOString() }));
-        const summary = consultationSummarySchema.parse(record.summary);
-        const nextSummary = { ...summary, staffReviewed: false };
-        const summaryRevision = record.summaryRevision + (summary.staffReviewed ? 1 : 0);
-        await tx.consultationRevision.create({ data: { tenantId: input.tenantId, consultationId: record.id,
-          kind: 'TRANSCRIPT', revision: record.version + 1, payload: jsonValue(transcript), original: true,
-          userId: job.userId, model: job.model, promptVersion: job.promptVersion } });
-        if (summary.staffReviewed) await tx.consultationRevision.create({ data: { tenantId: input.tenantId, consultationId: record.id,
-          kind: 'SUMMARY', revision: summaryRevision, payload: jsonValue(nextSummary), original: false, userId: job.userId,
-          reason: 'NEW_TRANSCRIPT_REQUIRES_REVIEW' } });
-        const config = clinicConfigurationSchema.parse(record.configurationVersion.payload);
-        await tx.consultation.update({ where: { id: record.id }, data: {
-          transcript: jsonValue(transcript), summary: jsonValue(nextSummary), summaryRevision,
-          version: { increment: 1 }, ...invalidateClinical, completedAt: null,
-          ...(record.wellnessPlan ? { wellnessDecisionDueAt: new Date(Date.now() + config.reminders.wellnessDecisionHours * 3600000) } : {}),
-        } });
-        await revokeTakeaways(tx, { tenantId: input.tenantId }, record.id);
-        await tx.consultationEvent.create({ data: { tenantId: input.tenantId, consultationId: record.id,
-          userId: job.userId, action: 'TRANSCRIPT_RECEIVED', artifactRevision: record.version + 1,
-          before: { summaryRevision: record.summaryRevision, staffReviewed: summary.staffReviewed },
-          after: { summaryRevision, staffReviewed: false, recordingId: segment.id },
-          idempotencyKey: `transcript-recording:${segment.id}` } });
-        return { summaryRevision, recordVersion: record.version + 1, alreadyApplied: false };
-      }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
-    } catch (error) {
+    try { return await publishRecordingProcessing(input.processing, tx => body(tx)); }
+    catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034' && attempt < 11) continue;
       throw error;
     }
@@ -1156,6 +1167,8 @@ export async function applyTranscriptCorrection(input: {
   return transaction(input.actor, async (tx, actor) => {
     const recording = await tx.recordingSegment.findFirst({ where: { id: input.recordingId, tenantId: actor.tenantId } });
     if (!recording?.consultationId) throw new ApiError(404, 'Consultation recording was not found.', 'RECORDING_NOT_FOUND');
+    await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${recording.consultationId}::uuid AND "tenantId" = ${actor.tenantId}::uuid FOR UPDATE`;
+    await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "consultationId" = ${recording.consultationId}::uuid AND "tenantId" = ${actor.tenantId}::uuid ORDER BY "id" FOR UPDATE`;
     const record = await consultation(tx, actor, recording.consultationId, input.expectedVersion);
     assertClientDataAllowed(record);
     if (record.archivedAt) throw new ApiError(409, 'Restore the consultation before correcting the transcript.', 'CONSULTATION_ARCHIVED');

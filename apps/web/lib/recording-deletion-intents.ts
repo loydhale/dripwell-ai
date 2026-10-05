@@ -75,7 +75,7 @@ function identityFromIntent(row: RecordingDeletionIntent): RecordingObjectIdenti
     setupConversationId: row.setupConversationId, uploadAttemptId: row.uploadAttemptId,
     blobPath: row.blobPath, objectUrl: row.objectUrl, storeId: row.storeId, etag: row.etag });
 }
-function sameObject(value: unknown, expected: RecordingObjectIdentity): boolean {
+export function sameRecordingObject(value: unknown, expected: RecordingObjectIdentity): boolean {
   const parsed = recordingObjectIdentitySchema.safeParse(value);
   return parsed.success && (Object.keys(expected) as (keyof RecordingObjectIdentity)[])
     .every((key) => parsed.data[key] === expected[key]);
@@ -85,6 +85,9 @@ type Tx = Prisma.TransactionClient;
 async function lockObjectRows(tx: Tx, object: RecordingObjectIdentity) {
   if (object.consultationId) {
     await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${object.consultationId}::uuid AND "tenantId" = ${object.tenantId}::uuid FOR UPDATE`;
+  }
+  if (object.setupConversationId) {
+    await tx.$queryRaw`SELECT "id" FROM "SetupConversation" WHERE "id" = ${object.setupConversationId}::uuid AND "tenantId" = ${object.tenantId}::uuid FOR UPDATE`;
   }
   await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${object.recordingId}::uuid AND "tenantId" = ${object.tenantId}::uuid FOR UPDATE`;
   if (object.uploadAttemptId) {
@@ -97,14 +100,22 @@ export async function assertRecordingPathNotDetached(tx: Tx, tenantId: string, b
   if (await tx.recordingDeletionIntent.findUnique({ where: { tenantId_blobPath: { tenantId, blobPath } }, select: { id: true } })) unavailable();
 }
 
-/** Shared consumer contract. Complete pre/post-provider wiring is TASK052. */
-export async function assertRecordingObjectAvailable(tx: Tx, expected: RecordingObjectIdentity, now = new Date()) {
+export async function recordingDatabaseTime(tx: Tx): Promise<Date> {
+  const rows = await tx.$queryRaw<Array<{ now: Date }>>`SELECT clock_timestamp() AS "now"`;
+  const now = rows[0]?.now;
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) unavailable();
+  return now;
+}
+
+/** Call on the publication transaction, using its current database clock. */
+export async function assertRecordingObjectAvailable(tx: Tx, expected: RecordingObjectIdentity, at?: Date) {
   const object = parseRecordingObjectIdentity(expected);
   await lockObjectRows(tx, object);
+  const now = at ?? await recordingDatabaseTime(tx);
   const recording = await tx.recordingSegment.findFirst({ where: { id: object.recordingId, tenantId: object.tenantId } });
   if (!recording || recording.consultationId !== object.consultationId
     || recording.setupConversationId !== object.setupConversationId
-    || recording.blobPath !== object.blobPath || !sameObject(recording.blobObject, object)
+    || recording.blobPath !== object.blobPath || !sameRecordingObject(recording.blobObject, object)
     || !['UPLOADED', 'TRANSCRIBED'].includes(recording.status) || recording.expiresAt <= now) unavailable();
   await assertRecordingPathNotDetached(tx, object.tenantId, object.blobPath);
 }
@@ -129,14 +140,14 @@ export async function commitRecordingDeletion(claim: MaintenanceClaim, candidate
       tenantId_blobPath: { tenantId: object.tenantId, blobPath: object.blobPath },
     } });
     if (existing) {
-      if (!sameObject(identityFromIntent(existing), object) || existing.creatorScope !== claim.context.key) invalid();
+      if (!sameRecordingObject(identityFromIntent(existing), object) || existing.creatorScope !== claim.context.key) invalid();
       return { status: 'COMMITTED', intentId: existing.id };
     }
     const recording = await tx.recordingSegment.findFirst({ where: { id: object.recordingId, tenantId: object.tenantId } });
     if (!recording || recording.consultationId !== object.consultationId
       || recording.setupConversationId !== object.setupConversationId) invalid();
     const currentPath = recording.blobPath === object.blobPath;
-    if (currentPath && !sameObject(recording.blobObject, object)) return { status: 'DEFERRED', intentId: null };
+    if (currentPath && !sameRecordingObject(recording.blobObject, object)) return { status: 'DEFERRED', intentId: null };
     let pointer: z.infer<typeof pointerSchema> | undefined;
     if (object.uploadAttemptId) {
       const attempt = await tx.generationJob.findFirst({ where: {
@@ -145,7 +156,7 @@ export async function commitRecordingDeletion(claim: MaintenanceClaim, candidate
       } });
       const parsed = pointerSchema.safeParse(attempt?.result);
       if (!parsed.success || parsed.data.recordingId !== object.recordingId
-        || parsed.data.blobPath !== object.blobPath || !sameObject(parsed.data.blobObject, object)
+        || parsed.data.blobPath !== object.blobPath || !sameRecordingObject(parsed.data.blobObject, object)
         || !parsed.data.uploadSettled || ['IN_FLIGHT', 'CLEANED'].includes(parsed.data.state)) {
         return { status: 'DEFERRED', intentId: null };
       }

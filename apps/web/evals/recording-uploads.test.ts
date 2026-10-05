@@ -106,11 +106,13 @@ suite(
       });
       return { recordingId, attemptId, tenantId, userId, consultationId, blobPath, mimeType: file.type };
     }
+    let deletionCalls = 0;
     const deleteFile = async (path: string) => {
-      objects.delete(path);
+      deletionCalls++; objects.delete(path);
     };
     async function adopt(path: string, context: RecordingUploadContext) {
       return getDb().$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${context.consultationId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
         await tx.recordingSegment.update({
           where: { id: context.recordingId },
           data: { status: 'UPLOADED', blobPath: path },
@@ -120,7 +122,7 @@ suite(
       });
     }
 
-    it('retains a late discarded upload pointer through deletion failure and recovery', async () => {
+    it('retains a late discarded settled upload pointer while provider deletion stays deferred', async () => {
       const context = await fixture();
       const entered = deferred<void>();
       const remote = deferred<ReturnType<typeof returnedBlob>>();
@@ -164,17 +166,16 @@ suite(
       assert.ok(objects.has(context.blobPath));
       assert.equal(
         (await cleanupRecordingUploadAttempt(context.attemptId, deleteFile)).pending,
-        false,
+        true,
       );
-      assert.equal(objects.has(context.blobPath), false);
-      assert.equal(
-        (await getDb().generationJob.findUniqueOrThrow({ where: { id: context.attemptId } }))
-          .status,
-        'COMPLETE',
-      );
+      assert.equal(objects.has(context.blobPath), true);
+      const retained = await getDb().generationJob.findUniqueOrThrow({ where: { id: context.attemptId } });
+      assert.equal(retained.status, 'CLEANUP_PENDING');
+      assert.equal((retained.result as { uploadSettled: boolean }).uploadSettled, true);
+      assert.equal(deletionCalls, 0);
     });
 
-    it('keeps unknown expired remote outcomes addressable and deletes an object arriving after early cleanup', async () => {
+    it('keeps unknown expired remote outcomes and late objects addressable without inferring settlement', async () => {
       const context = await fixture();
       const entered = deferred<void>();
       const remote = deferred<ReturnType<typeof returnedBlob>>();
@@ -212,7 +213,7 @@ suite(
       );
       objects.add(context.blobPath);
       await cleanupRecordingUploadAttempt(context.attemptId, deleteFile);
-      assert.equal(objects.has(context.blobPath), false);
+      assert.equal(objects.has(context.blobPath), true);
       const retained = await getDb().generationJob.findUniqueOrThrow({
         where: { id: context.attemptId },
       });
@@ -232,6 +233,7 @@ suite(
         file,
         async (path, uploadContext) =>
           getDb().$transaction(async (tx) => {
+            await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${context.consultationId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
             await tx.recordingSegment.update({
               where: { id: context.recordingId },
               data: { status: 'UPLOADED', blobPath: path },
@@ -263,11 +265,11 @@ suite(
         for (let index = 0; index < 100 && !waiting; index++) {
           const rows = await getDb().$queryRaw<
             Array<{ count: bigint }>
-          >`SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%RecordingSegment%'`;
+          >`SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%Consultation%'`;
           waiting = Number(rows[0]?.count ?? 0) > 0;
           if (!waiting) await new Promise((resolve) => setTimeout(resolve, 10));
         }
-        assert.ok(waiting, 'cleanup must actually wait on the adoption row lock');
+        assert.ok(waiting, 'cleanup must actually wait on the owner-first adoption lock');
       } finally {
         release.resolve();
       }
@@ -289,6 +291,7 @@ suite(
         deleteFile,
       });
       await entered.promise;
+      await getDb().recordingSegment.update({ where: { id: context.recordingId }, data: { status: 'UPLOAD_FAILED' } });
       await cleanupRecordingUploadAttempt(
         context.attemptId,
         deleteFile,
@@ -317,8 +320,9 @@ suite(
           },
         },
       });
-      await cleanupRecordingUploadAttempt(context.attemptId, deleteFile);
-      assert.equal(objects.has(context.blobPath), false);
+      assert.equal((await cleanupRecordingUploadAttempt(context.attemptId, deleteFile)).pending, true);
+      assert.equal(deletionCalls, 0);
+      assert.equal(objects.has(context.blobPath), true);
       assert.ok(objects.has(newerPath));
       assert.equal(
         (await getDb().recordingSegment.findUniqueOrThrow({ where: { id: context.recordingId } }))

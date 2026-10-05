@@ -204,6 +204,8 @@ TASK050 CI recovery, 2026-10-05: normal check annotations5901391e provide the ac
 
 TASK051 application, 2026-10-05: use actual typed handoff names such as caseSelection/validationAndLimits, and validate a superseded original-current descriptor against its retained snapshot rather than the changed repository path. A receipt-only name projector and a Vitest-spelling assumption for Node producer titles stopped before writes; correct only saved-data projection and preserve the stop. Historical no-case-yet paragraphs are dated checkpoints, not current outcomes. Normal annotations identify the original strict-target caller failure; corrected run/job/check/suite metadata proves all22 listed steps succeeded, not a fresh17/21-case total or zero skips. Keep originalCI37290153415 FAILED and the static review miss, reuse accepted unchanged source/publication evidence, and avoid recursive inventories, raw-log retries or passing-check replay. No new gotcha/corpus or other Seen change.
 
+TASK052 pre-execution review: the source handoff declares sourceManifest/sourceDiff and other descriptors at top level, not members. Auditor collector15dc0d stopped at KeyError before source projection or any operation; corrected only the typed saved-data read. The factual documentation co-sign explicitly preserves the independent source blocker and grants no source or publication PASS.
+
 ## G-020: Private predecessor approval remains a Root operator boundary
 Date discovered: 2026-10-04
 Where: Private TASK046 TRANSPORT.py:272 predecessor and Root acceptance/once-GO handoffs

@@ -187,6 +187,8 @@ Root cause: Only explicit approval actions checked pending jobs; care-start and 
 Avoid by: Invalidate affected approvals/snapshots atomically when accepting new clinical evidence, or enforce a shared pending-evidence gate at every downstream clinical/export boundary. Preserve idempotent recording retries.
 Seen N times: 1
 
+TASK052 pre-execution review: stricter current-run publication guards exposed a legitimate recovery gap. Failure marks both recording parent and summary child FAILED, while retry resets only the parent; the old child then fails the new-run predicate. Review the complete parent/child retry transition as well as stale-write denial, and verify valid retry completion with old-run writes rejected. This was found before cases or provider work, so no runtime failure or passing recovery is claimed.
+
 ## L-021 — Zero cash collected is not an unpaid subscription
 Date: 2026-10-01
 Task: V2-COMBINED

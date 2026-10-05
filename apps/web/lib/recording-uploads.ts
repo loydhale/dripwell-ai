@@ -1,4 +1,4 @@
-import { put, del } from '@vercel/blob';
+import { put } from '@vercel/blob';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { getDb } from './db';
@@ -26,7 +26,8 @@ export type RecordingUploadContext = {
 };
 type PrivateUploadIO = {
   putFile: (path: string, file: File, mimeType: string) => Promise<{ pathname: string; url: string; etag: string }>;
-  deleteFile: (path: string) => Promise<unknown>;
+  /** Legacy injected adapter retained for callers; dedicated cleanup never invokes it. */
+  deleteFile?: (path: string) => Promise<unknown>;
 };
 const privateUploadIO: PrivateUploadIO = {
   putFile: (path, file, contentType) =>
@@ -37,7 +38,6 @@ const privateUploadIO: PrivateUploadIO = {
       contentType,
       abortSignal: AbortSignal.timeout(45_000),
     }),
-  deleteFile: del,
 };
 
 // Call inside the same transaction that adopts the recording. If that
@@ -46,6 +46,7 @@ export async function adoptRecordingUpload(
   tx: Prisma.TransactionClient,
   context: RecordingUploadContext,
 ) {
+  if (context.consultationId) await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${context.consultationId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
   await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${context.recordingId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
   const object = parseRecordingObjectIdentity(context.blobObject);
   if (object.tenantId !== context.tenantId || object.recordingId !== context.recordingId
@@ -96,84 +97,52 @@ export async function adoptRecordingUpload(
 
 export async function cleanupRecordingUploadAttempt(
   attemptId: string,
-  deleteFile: PrivateUploadIO['deleteFile'] = privateUploadIO.deleteFile,
-  now = new Date(),
+  _deleteFile?: PrivateUploadIO['deleteFile'],
+  _now?: Date,
 ) {
   const db = getDb();
-  const job = await db.generationJob.findUnique({ where: { id: attemptId } });
-  if (!job || job.kind !== 'RECORDING_UPLOAD')
+  const initial = await db.generationJob.findUnique({ where: { id: attemptId } });
+  if (!initial || initial.kind !== 'RECORDING_UPLOAD')
     return { pending: false, deleted: false, preserved: false };
-  const pointer = uploadPointerSchema.parse(job.result);
-  if (
-    !pointer.blobPath.startsWith(`private/${job.tenantId}/recordings/`) ||
-    !pointer.blobPath.endsWith(`/${pointer.recordingId}/${job.id}`)
-  )
+  const parsed = uploadPointerSchema.safeParse(initial.result);
+  if (!parsed.success) return { pending: true, deleted: false, preserved: false, reason: 'LEGACY_OBJECT_IDENTITY' };
+  const pointer = parsed.data;
+  if (!pointer.blobPath.startsWith(`private/${initial.tenantId}/recordings/`)
+    || !pointer.blobPath.endsWith(`/${pointer.recordingId}/${initial.id}`))
     throw new ApiError(409, 'Upload cleanup scope is invalid.', 'UPLOAD_CLEANUP_SCOPE_INVALID');
-  const claim = await db.$transaction(async (tx) => {
-    // Adoption locks the recording before updating its upload job. Match that
-    // order and re-read after the lock, rather than deleting from a stale read.
-    await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${pointer.recordingId}::uuid AND "tenantId" = ${job.tenantId}::uuid FOR UPDATE`;
-    await tx.$queryRaw`SELECT "id" FROM "GenerationJob" WHERE "id" = ${job.id}::uuid AND "tenantId" = ${job.tenantId}::uuid FOR UPDATE`;
-    const fresh = await tx.generationJob.findUniqueOrThrow({ where: { id: job.id } });
-    const current = uploadPointerSchema.parse(fresh.result);
-    const recording = await tx.recordingSegment.findFirst({
-      where: { id: current.recordingId, tenantId: job.tenantId },
-      select: { status: true, blobPath: true },
-    });
-    if (
-      recording?.blobPath === current.blobPath &&
-      ['UPLOADED', 'TRANSCRIBED'].includes(recording.status)
-    )
-      return { pointer: current, action: 'PRESERVE' as const };
-    if (current.state === 'ADOPTED' && recording?.status !== 'DISCARDED')
-      return { pointer: current, action: 'PRESERVE' as const };
-    if (current.state === 'CLEANED') return { pointer: current, action: 'DONE' as const };
-    if (current.state === 'IN_FLIGHT' && now.getTime() - fresh.createdAt.getTime() < 90_000)
-      return { pointer: current, action: 'WAIT' as const };
-    const pendingPointer = { ...current, state: 'CLEANUP_PENDING' as const };
-    await tx.generationJob.update({
-      where: { id: job.id },
-      data: {
-        status: 'CLEANUP_PENDING',
-        result: pendingPointer,
-        completedAt: null,
-      },
-    });
-    return { pointer: pendingPointer, action: 'DELETE' as const };
+  return db.$transaction(async tx => {
+    if (initial.consultationId) await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${initial.consultationId}::uuid AND "tenantId" = ${initial.tenantId}::uuid FOR UPDATE`;
+    await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${pointer.recordingId}::uuid AND "tenantId" = ${initial.tenantId}::uuid FOR UPDATE`;
+    await tx.$queryRaw`SELECT "id" FROM "GenerationJob" WHERE "id" = ${initial.id}::uuid AND "tenantId" = ${initial.tenantId}::uuid FOR UPDATE`;
+    const fresh = await tx.generationJob.findUniqueOrThrow({ where: { id: initial.id } });
+    const current = uploadPointerSchema.safeParse(fresh.result);
+    if (!current.success || fresh.kind !== 'RECORDING_UPLOAD' || fresh.tenantId !== initial.tenantId
+      || fresh.consultationId !== initial.consultationId)
+      return { pending: true, deleted: false, preserved: false, reason: 'LEGACY_OBJECT_IDENTITY' };
+    const value = current.data;
+    if (value.recordingId !== pointer.recordingId || value.blobPath !== pointer.blobPath
+      || (value.blobObject && (value.blobObject.tenantId !== fresh.tenantId
+        || value.blobObject.consultationId !== fresh.consultationId || value.blobObject.setupConversationId !== null
+        || value.blobObject.recordingId !== value.recordingId || value.blobObject.uploadAttemptId !== fresh.id
+        || value.blobObject.blobPath !== value.blobPath)))
+      throw new ApiError(409, 'Upload cleanup scope changed.', 'UPLOAD_CLEANUP_SCOPE_INVALID');
+    const recording = await tx.recordingSegment.findFirst({ where: { id: value.recordingId, tenantId: initial.tenantId } });
+    if (recording?.blobPath === value.blobPath && ['UPLOADED', 'TRANSCRIBED'].includes(recording.status))
+      return { pending: false, deleted: false, preserved: true };
+    if (value.state === 'ADOPTED' && recording?.status !== 'DISCARDED')
+      return { pending: true, deleted: false, preserved: false, reason: 'LEGACY_OBJECT_IDENTITY' };
+    if (value.state === 'CLEANED') return { pending: false, deleted: false, preserved: false };
+    // Time/age is never evidence that a put settled or that an object is absent.
+    if (!value.uploadSettled && value.state === 'IN_FLIGHT' && recording?.status === 'UPLOADING')
+      return { pending: true, deleted: false, preserved: false, reason: 'UPLOAD_UNSETTLED' };
+    const reason = !value.uploadSettled ? 'UPLOAD_UNSETTLED'
+      : !value.blobObject ? 'LEGACY_OBJECT_IDENTITY' : 'RECORDING_DELETE_DEFERRED';
+    await tx.generationJob.update({ where: { id: initial.id }, data: {
+      status: 'CLEANUP_PENDING', completedAt: null, errorCode: reason,
+      result: { ...value, state: 'CLEANUP_PENDING' },
+    } });
+    return { pending: true, deleted: false, preserved: false, reason };
   });
-  if (claim.action === 'PRESERVE') return { pending: false, deleted: false, preserved: true };
-  if (claim.action === 'DONE') return { pending: false, deleted: false, preserved: false };
-  if (claim.action === 'WAIT') return { pending: true, deleted: false, preserved: false };
-  const pendingPointer = claim.pointer;
-  try {
-    await deleteFile(pendingPointer.blobPath);
-  } catch {
-    await db.generationJob.updateMany({
-      where: { id: job.id, status: 'CLEANUP_PENDING' },
-      data: { errorCode: 'PRIVATE_FILE_DELETE_FAILED' },
-    });
-    return { pending: true, deleted: false, preserved: false };
-  }
-  if (!pendingPointer.uploadSettled) return { pending: true, deleted: true, preserved: false };
-  await db.generationJob.updateMany({
-    where: { id: job.id, status: 'CLEANUP_PENDING' },
-    data: {
-      status: 'COMPLETE',
-      errorCode: null,
-      completedAt: now,
-      result: { ...pendingPointer, state: 'CLEANED' },
-    },
-  });
-  await db.recordingSegment.updateMany({
-    where: {
-      id: pointer.recordingId,
-      tenantId: job.tenantId,
-      blobPath: pointer.blobPath,
-      status: { in: ['DISCARDED', 'UPLOAD_FAILED', 'EXPIRED'] },
-    },
-    data: { blobPath: '', blobObject: Prisma.DbNull },
-  });
-  return { pending: false, deleted: true, preserved: false };
 }
 
 export async function performRecordingUpload<T>(
@@ -189,6 +158,7 @@ export async function performRecordingUpload<T>(
   if (recordingObjectPath(target) !== context.blobPath)
     throw new ApiError(409, 'Upload scope is invalid.', 'PRIVATE_UPLOAD_PATH_INVALID');
   await db.$transaction(async (tx) => {
+    if (context.consultationId) await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${context.consultationId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
     await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${context.recordingId}::uuid AND "tenantId" = ${context.tenantId}::uuid FOR UPDATE`;
     const recording = await tx.recordingSegment.findFirst({ where: { id: context.recordingId, tenantId: context.tenantId },
       select: { consultationId: true, setupConversationId: true, blobPath: true, status: true } });
@@ -236,8 +206,8 @@ export async function performRecordingUpload<T>(
     } });
     return await adopt(blob.pathname, { ...context, blobObject });
   } catch (error) {
-    // Persist compensation before attempting deletion. If DB or storage is
-    // unavailable, the original IN_FLIGHT pointer remains durable for cron.
+    // Queue compensation only. Unknown physical outcomes retain their pointer;
+    // provider deletion requires the separately reviewed machine intent family.
     try {
       await db.generationJob.updateMany({
         where: { id: context.attemptId, status: { not: 'COMPLETE' } },
@@ -253,16 +223,16 @@ export async function performRecordingUpload<T>(
           },
         },
       });
-      await cleanupRecordingUploadAttempt(context.attemptId, io.deleteFile);
+      await cleanupRecordingUploadAttempt(context.attemptId);
     } catch {
-      /* Keep the original pointer; cron recovers this operation. */
+      /* Keep the original pointer. Unknown settlement remains explicitly deferred. */
     }
     throw error;
   }
 }
 
 export async function reconcileRecordingUploads(
-  deleteFile = privateUploadIO.deleteFile,
+  _deleteFile?: PrivateUploadIO['deleteFile'],
   now = new Date(),
 ) {
   const attempts = await getDb().generationJob.findMany({
@@ -277,7 +247,7 @@ export async function reconcileRecordingUploads(
   let pending = 0;
   let deleted = 0;
   for (const attempt of attempts) {
-    const result = await cleanupRecordingUploadAttempt(attempt.id, deleteFile, now);
+    const result = await cleanupRecordingUploadAttempt(attempt.id, undefined, now);
     if (result.pending) pending++;
     if (result.deleted) deleted++;
   }
@@ -289,32 +259,17 @@ export async function cleanupDiscardedRecordingUploads(
   tenantId: string,
   legacyPath: string,
 ) {
-  const attempts = await getDb().generationJob.findMany({
-    where: {
-      tenantId,
-      kind: 'RECORDING_UPLOAD',
-      result: { path: ['recordingId'], equals: recordingId },
-    },
-    select: { id: true },
+  return getDb().$transaction(async tx => {
+    const initial = await tx.recordingSegment.findFirst({ where: { id: recordingId, tenantId } });
+    if (!initial) return Boolean(legacyPath); // unresolved legacy ownership; never delete
+    if (initial.consultationId) await tx.$queryRaw`SELECT "id" FROM "Consultation" WHERE "id" = ${initial.consultationId}::uuid AND "tenantId" = ${tenantId}::uuid FOR UPDATE`;
+    await tx.$queryRaw`SELECT "id" FROM "RecordingSegment" WHERE "id" = ${recordingId}::uuid AND "tenantId" = ${tenantId}::uuid FOR UPDATE`;
+    const row = await tx.recordingSegment.findFirst({ where: { id: recordingId, tenantId } });
+    if (!row || row.status !== 'DISCARDED') return Boolean(legacyPath);
+    const queued = await tx.generationJob.updateMany({ where: { tenantId, consultationId: row.consultationId, kind: 'RECORDING_UPLOAD',
+      result: { path: ['recordingId'], equals: recordingId }, NOT: { result: { path: ['state'], equals: 'CLEANED' } } },
+      data: { status: 'CLEANUP_PENDING', completedAt: null, errorCode: 'RECORDING_DELETE_DEFERRED' } });
+    // The full pointer/settlement is kept. Legacy bytes stay pending, not guessed absent.
+    return queued.count > 0 || Boolean(row.blobPath) || Boolean(legacyPath);
   });
-  if (attempts.length) {
-    let pending = false;
-    for (const attempt of attempts) {
-      const result = await cleanupRecordingUploadAttempt(attempt.id);
-      pending ||= result.pending;
-    }
-    return pending;
-  }
-  if (!legacyPath) return false;
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return true;
-  try {
-    await privateUploadIO.deleteFile(legacyPath);
-    await getDb().recordingSegment.updateMany({
-      where: { id: recordingId, tenantId, status: 'DISCARDED', blobPath: legacyPath },
-      data: { blobPath: '', blobObject: Prisma.DbNull },
-    });
-    return false;
-  } catch {
-    return true;
-  }
 }

@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto';
 import type { ClinicActor } from './auth';
 import { getDb } from './db';
 import { ApiError } from './errors';
+import { captureRecordingObject, recordingObjectPath } from './recording-deletion-intents';
+import { prepareRecordingProcessing } from './recording-processing';
 import { appendReceivedTranscript, applyGeneratedSummary, beginRecordingIntake, discardRecordingEvidence,
   getClinicDashboard, getConsultation, mutateClinicAction } from './clinic';
 import { reconcileConsultationReminders } from '../workflows/reminders';
@@ -338,24 +340,33 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
     await reviewedInitial(other, visit.id);
     await mutate(other, visit.id, 'consultation.consent', { consent: true });
     const current = (await getConsultation(other.owner, visit.id)).consultation;
-    const segment = await getDb().recordingSegment.create({ data: { tenantId: other.owner.tenantId, consultationId: visit.id,
-      userId: other.staff.userId, segmentKey: randomUUID(), sequence: 0, blobPath: 'private/test-fixture-not-used', mimeType: 'audio/webm',
+    const recordingId = randomUUID(); const uploadAttemptId = randomUUID(); const runId = `synthetic-${randomUUID()}`;
+    const target = { tenantId: other.owner.tenantId, recordingId, consultationId: visit.id, setupConversationId: null, uploadAttemptId };
+    const path = recordingObjectPath(target);
+    const object = captureRecordingObject(target, { pathname: path, url: `https://syntheticstore.private.blob.vercel-storage.com/${path}`, etag: '"synthetic-clinic-evidence"' });
+    const segment = await getDb().recordingSegment.create({ data: { id: recordingId, tenantId: other.owner.tenantId, consultationId: visit.id,
+      userId: other.staff.userId, segmentKey: randomUUID(), sequence: 0, blobPath: path, blobObject: object, mimeType: 'audio/webm',
       bytes: 1, consentAt: new Date(), expiresAt: new Date(Date.now() + 3600000), transcript: 'Synthetic additional statement.', status: 'TRANSCRIBED' } });
+    await getDb().generationJob.create({ data: { id: uploadAttemptId, tenantId: other.owner.tenantId, consultationId: visit.id,
+      userId: other.staff.userId, kind: 'RECORDING_UPLOAD', status: 'COMPLETE', idempotencyKey: `upload:${uploadAttemptId}`, model: 'synthetic', promptVersion: 'test-only',
+      result: { recordingId, blobPath: path, blobObject: object, state: 'ADOPTED', uploadSettled: true } } });
     const job = await getDb().generationJob.create({ data: { tenantId: other.owner.tenantId, consultationId: visit.id,
-      userId: other.staff.userId, kind: 'TRANSCRIPTION', status: 'RUNNING', idempotencyKey: randomUUID(), model: 'test-transcription-provider', promptVersion: 'test-only' } });
-    const appended = await appendReceivedTranscript({ tenantId: other.owner.tenantId, consultationId: visit.id, recordingId: segment.id, jobId: job.id });
+      userId: other.staff.userId, kind: 'TRANSCRIPTION', status: 'RUNNING', runId, idempotencyKey: randomUUID(), model: 'test-transcription-provider', promptVersion: 'test-only',
+      result: { recordingId, recordingObject: object, expectedSummaryRevision: current.summaryRevision } } });
+    const prepared = await prepareRecordingProcessing(job.id, runId); assert.ok(prepared);
+    const appended = await appendReceivedTranscript({ tenantId: other.owner.tenantId, consultationId: visit.id, recordingId: segment.id, jobId: job.id, processing: prepared.snapshot });
     assert.equal(appended.summaryRevision, current.summaryRevision + 1);
     const updated = (await getConsultation(other.owner, visit.id)).consultation;
     assert.equal(updated.summary.staffReviewed, false);
     assert.equal(updated.clinicalApprovedVersion, null);
-    const repeated = await appendReceivedTranscript({ tenantId: other.owner.tenantId, consultationId: visit.id, recordingId: segment.id, jobId: job.id });
+    const repeated = await appendReceivedTranscript({ tenantId: other.owner.tenantId, consultationId: visit.id, recordingId: segment.id, jobId: job.id, processing: prepared.snapshot });
     assert.equal(repeated.recordVersion, updated.version);
     await mutate(other, visit.id, 'consultation.summary.update', { summary: { ...reviewedSummary, symptoms: ['Staff corrected fixture'] }, reason: 'STAFF_JUDGMENT' });
     const child = await getDb().generationJob.create({ data: { tenantId: other.owner.tenantId, consultationId: visit.id,
-      userId: other.staff.userId, kind: 'SUMMARY', status: 'COMPLETE', idempotencyKey: randomUUID(), model: 'test-summary-provider', promptVersion: 'test-only',
+      userId: other.staff.userId, kind: 'SUMMARY', status: 'RUNNING', runId, idempotencyKey: `summary:${job.id}`, model: 'test-summary-provider', promptVersion: 'test-only',
       result: { evidence: ['Preserved original generated evidence'], originalProviderOutput: 'Original fixture' } } });
     const proposed = await applyGeneratedSummary({ tenantId: other.owner.tenantId, consultationId: visit.id, jobId: child.id,
-      expectedSummaryRevision: current.summaryRevision, summary: { ...reviewedSummary, symptoms: ['Stale AI fixture'], answers: {
+      processing: { ...prepared.snapshot, childJobId: child.id }, expectedSummaryRevision: current.summaryRevision, summary: { ...reviewedSummary, symptoms: ['Stale AI fixture'], answers: {
         'fixture-permitted': { value: true, status: 'UNCERTAIN', source: 'TRANSCRIPT', evidence: 'Conflicting synthetic extraction.' } } } });
     assert.equal(proposed.applied, false);
     const corrected = (await getConsultation(other.owner, visit.id)).consultation;
@@ -380,9 +391,12 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
     const share = await getDb().shareLink.create({ data: { tenantId: other.owner.tenantId, takeawayId: takeaway.id,
       tokenHash: randomUUID(), recipientEmail: 'synthetic@example.test', createdById: other.owner.userId, expiresAt: new Date(Date.now() + 3600000) } });
     const shareSession = await getDb().shareSession.create({ data: { shareLinkId: share.id, tokenHash: randomUUID(), expiresAt: new Date(Date.now() + 3600000) } });
-    const recordingId = randomUUID();
+    const recordingId = randomUUID(); const uploadAttemptId = randomUUID(); const runId = `synthetic-${randomUUID()}`;
+    const target = { tenantId: other.owner.tenantId, recordingId, consultationId: visit.id, setupConversationId: null, uploadAttemptId };
+    const path = recordingObjectPath(target);
+    const object = captureRecordingObject(target, { pathname: path, url: `https://syntheticstore.private.blob.vercel-storage.com/${path}`, etag: '"synthetic-clinic-cancel"' });
     const input = { actor: other.staff, consultationId: visit.id, recordingId, segmentKey: randomUUID(), sequence: 0,
-      blobPath: `private/${other.owner.tenantId}/recordings/${visit.id}/${recordingId}`, mimeType: 'audio/webm', bytes: 1,
+      blobPath: path, mimeType: 'audio/webm', bytes: 1,
       expiresAt: new Date(Date.now() + 3600000) };
     const accepted = await beginRecordingIntake(input);
     const pending = (await getConsultation(other.owner, visit.id)).consultation;
@@ -403,13 +417,17 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
     assert.equal(retried.accepted, false);
     assert.equal(retried.expectedSummaryRevision, accepted.expectedSummaryRevision);
     assert.equal((await getConsultation(other.owner, visit.id)).consultation.version, pending.version);
-    await getDb().recordingSegment.update({ where: { id: recordingId }, data: { status: 'UPLOADED' } });
+    await getDb().recordingSegment.update({ where: { id: recordingId }, data: { status: 'UPLOADED', blobObject: object } });
+    await getDb().generationJob.create({ data: { id: uploadAttemptId, tenantId: other.owner.tenantId, consultationId: visit.id,
+      userId: other.staff.userId, kind: 'RECORDING_UPLOAD', status: 'COMPLETE', idempotencyKey: `upload:${uploadAttemptId}`, model: 'synthetic', promptVersion: 'test-only',
+      result: { recordingId, blobPath: path, blobObject: object, state: 'ADOPTED', uploadSettled: true } } });
     const parent = await getDb().generationJob.create({ data: { tenantId: other.owner.tenantId, consultationId: visit.id,
-      userId: other.staff.userId, kind: 'TRANSCRIPTION', status: 'PENDING', idempotencyKey: `recording:${recordingId}`,
-      model: 'test-provider', promptVersion: 'test-only', result: { recordingId, expectedSummaryRevision: accepted.expectedSummaryRevision } } });
+      userId: other.staff.userId, kind: 'TRANSCRIPTION', status: 'PENDING', runId, idempotencyKey: `recording:${recordingId}`,
+      model: 'test-provider', promptVersion: 'test-only', result: { recordingId, recordingObject: object, expectedSummaryRevision: accepted.expectedSummaryRevision } } });
     const child = await getDb().generationJob.create({ data: { tenantId: other.owner.tenantId, consultationId: visit.id,
-      userId: other.staff.userId, kind: 'SUMMARY', status: 'RUNNING', idempotencyKey: `summary:${parent.id}`,
+      userId: other.staff.userId, kind: 'SUMMARY', status: 'RUNNING', runId, idempotencyKey: `summary:${parent.id}`,
       model: 'test-provider', promptVersion: 'test-only', result: { recordingId } } });
+    const prepared = await prepareRecordingProcessing(parent.id, runId); assert.ok(prepared);
     const duplicate = await beginRecordingIntake(input);
     assert.equal(duplicate.accepted, false);
     assert.equal((await getConsultation(other.owner, visit.id)).consultation.version, pending.version);
@@ -422,7 +440,8 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
     assert.equal(discarded.clinicalApprovedVersion, null);
     assert.equal(discarded.summary.staffReviewed, false);
     await assert.rejects(applyGeneratedSummary({ tenantId: other.owner.tenantId, consultationId: visit.id, jobId: child.id,
-      summary: reviewedSummary, expectedSummaryRevision: accepted.expectedSummaryRevision }), (error: unknown) => error instanceof ApiError && error.code === 'PROCESSING_JOB_REQUIRED');
+      summary: reviewedSummary, expectedSummaryRevision: accepted.expectedSummaryRevision,
+      processing: { ...prepared.snapshot, childJobId: child.id } }), (error: unknown) => error instanceof ApiError && error.code === 'PROCESSING_JOB_REQUIRED');
     await mutate(other, visit.id, 'consultation.summary.update', { summary: reviewedSummary, reason: 'STAFF_JUDGMENT' });
     await mutate(other, visit.id, 'consultation.initial.generate');
     await mutate(other, visit.id, 'consultation.initial.approve');

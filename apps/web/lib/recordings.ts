@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { get, put, del } from '@vercel/blob';
+import { get, put } from '@vercel/blob';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { clinicConfigurationSchema } from '@dripwell/shared/v2';
@@ -8,7 +8,9 @@ import { getDb } from './db';
 import { ApiError } from './errors';
 import { TRANSCRIPTION_MODEL, SUMMARY_PROMPT_VERSION } from './ai';
 import { performRecordingUpload, adoptRecordingUpload } from './recording-uploads';
-import { assertRecordingPathNotDetached, captureRecordingObject, recordingObjectPath } from './recording-deletion-intents';
+import { assertRecordingPathNotDetached, recordingDatabaseTime } from './recording-deletion-intents';
+import { assertRecordingProcessing, recordingProcessingTransaction, type RecordingProcessingSnapshot } from './recording-processing';
+import { performSetupRecordingUpload } from './setup-recording-uploads';
 
 export const MAX_UPLOAD_BYTES = 3_500_000;
 export function parseRecordingInput<T extends z.ZodType>(schema: T, input: unknown): z.output<T> {
@@ -75,16 +77,49 @@ export function validateUpload(file: File, purpose: 'audio' | 'catalog') {
   return mimeType;
 }
 
-export async function readPrivateRecording(path: string, expectedBytes: number) {
+type PrivateGetIO = (url: string, options: { access: 'private'; useCache: false; token: string; abortSignal: AbortSignal }) => Promise<{
+  statusCode: number; blob: { url: string; pathname: string; etag: string; size: number | null }; stream: ReadableStream<Uint8Array> | null;
+} | null>;
+
+export async function readPrivateRecording(snapshot: RecordingProcessingSnapshot, getPrivate: PrivateGetIO = get) {
   requirePrivateStorage();
-  const result = await get(path, { access: 'private', useCache: false });
-  if (!result || result.statusCode !== 200)
+  const token = process.env.BLOB_READ_WRITE_TOKEN!;
+  // Full URL/pathname in SDK metadata echo our request; the trusted store and
+  // exact returned ETag/size/body checks carry object validation, not that echo.
+  if (!token.startsWith('vercel_blob_rw_') || token.split('_')[3] !== snapshot.object.storeId)
+    throw new ApiError(409, 'The selected private store does not match this recording.', 'RECORDING_OBJECT_IDENTITY_INVALID');
+  const expectedBytes = await recordingProcessingTransaction(async tx => {
+    const current = await assertRecordingProcessing(tx, snapshot);
+    const row = current.rows.find(r => r.id === snapshot.object.recordingId)!;
+    if (!Number.isSafeInteger(row.bytes) || row.bytes <= 0 || row.bytes > MAX_UPLOAD_BYTES)
+      throw new ApiError(413, 'Stored file failed size validation.', 'STORED_FILE_INVALID');
+    return row.bytes;
+  });
+  const result = await getPrivate(snapshot.object.objectUrl, { access: 'private', useCache: false, token,
+    abortSignal: AbortSignal.timeout(45_000) });
+  if (!result || result.statusCode !== 200 || !result.stream)
     throw new ApiError(410, 'This recording is no longer available.', 'RECORDING_UNAVAILABLE');
-  if (result.blob.size > MAX_UPLOAD_BYTES || result.blob.size !== expectedBytes)
-    throw new ApiError(413, 'Stored file failed size validation.', 'STORED_FILE_INVALID');
-  const bytes = new Uint8Array(await new Response(result.stream).arrayBuffer());
-  if (bytes.byteLength !== expectedBytes)
-    throw new ApiError(400, 'Stored file is incomplete.', 'STORED_FILE_INVALID');
+  if (result.blob.url !== snapshot.object.objectUrl || result.blob.pathname !== snapshot.object.blobPath
+    || result.blob.etag !== snapshot.object.etag || result.blob.size !== expectedBytes) {
+    void result.stream.cancel().catch(() => {});
+    throw new ApiError(409, 'Stored file identity or size changed.', 'STORED_FILE_INVALID');
+  }
+  const reader = result.stream.getReader();
+  const bytes = new Uint8Array(expectedBytes);
+  let received = 0;
+  try {
+    for (;;) {
+      const part = await reader.read();
+      if (part.done) break;
+      if (received + part.value.byteLength > expectedBytes) {
+        await reader.cancel();
+        throw new ApiError(413, 'Stored file exceeds its recorded size.', 'STORED_FILE_INVALID');
+      }
+      bytes.set(part.value, received); received += part.value.byteLength;
+    }
+  } finally { reader.releaseLock(); }
+  if (received !== expectedBytes) throw new ApiError(400, 'Stored file is incomplete.', 'STORED_FILE_INVALID');
+  await recordingProcessingTransaction(tx => assertRecordingProcessing(tx, snapshot));
   return bytes;
 }
 
@@ -204,35 +239,31 @@ export async function receiveConsultationRecording(actor: ClinicActor, data: For
               'This recording was discarded or its upload was interrupted. Refresh before retrying.',
               'RECORDING_UPLOAD_INTERRUPTED',
             );
+          const now = await recordingDatabaseTime(tx);
+          const user = await tx.user.findFirst({ where: { id: actor.userId, tenantId: actor.tenantId, isActive: true }, include: { tenant: true } });
+          const sourceUser = await tx.user.findFirst({ where: { id: recording.userId, tenantId: actor.tenantId, isActive: true } });
+          const session = await tx.authSession.findFirst({ where: { id: actor.sessionId, userId: actor.userId, revokedAt: null, expiresAt: { gt: now } } });
+          const visit = await tx.consultation.findFirst({ where: { id: consultationId, tenantId: actor.tenantId }, include: { location: true } });
+          if (!user?.tenant.isActive || !sourceUser || !session || !visit || !visit.location.isActive || visit.archivedAt
+            || !visit.consentAt || visit.consentDeclined || current.expiresAt <= now
+            || !['SUPER_USER', 'STAFF'].includes(user.role) || (user.role === 'STAFF' && visit.providerId !== user.id))
+            throw new ApiError(409, 'Recording access changed while uploading.', 'RECORDING_UPLOAD_INTERRUPTED');
+          const { assertClientDataAllowed } = await import('./clinic');
+          assertClientDataAllowed(visit);
           const saved = await tx.recordingSegment.update({
             where: { id: recordingId },
             data: { status: 'UPLOADED', blobPath: pathname, blobObject: upload.blobObject },
           });
-          const job = await tx.generationJob.upsert({
-            where: {
-              tenantId_idempotencyKey: {
-                tenantId: actor.tenantId,
-                idempotencyKey: `recording:${recordingId}`,
-              },
-            },
-            create: {
-              tenantId: actor.tenantId,
-              consultationId,
-              userId: recording.userId,
-              kind: 'TRANSCRIPTION',
-              idempotencyKey: `recording:${recordingId}`,
-              model: TRANSCRIPTION_MODEL,
-              promptVersion: SUMMARY_PROMPT_VERSION,
-              result: { recordingId, expectedSummaryRevision },
-            },
-            update: {
-              status: 'PENDING',
-              errorCode: null,
-              runId: null,
-              completedAt: null,
-              result: { recordingId, expectedSummaryRevision },
-            },
-          });
+          const priorJob = await tx.generationJob.findUnique({ where: { tenantId_idempotencyKey: {
+            tenantId: actor.tenantId, idempotencyKey: `recording:${recordingId}`,
+          } } });
+          if (priorJob) throw new ApiError(409, 'This recording already has a processing job. Use a new segment.', 'RECORDING_REVIEW_REQUIRED');
+          const job = await tx.generationJob.create({ data: {
+            tenantId: actor.tenantId, consultationId, userId: recording.userId, kind: 'TRANSCRIPTION',
+            idempotencyKey: `recording:${recordingId}`, model: TRANSCRIPTION_MODEL,
+            promptVersion: SUMMARY_PROMPT_VERSION,
+            result: { recordingId, expectedSummaryRevision, recordingObject: upload.blobObject! },
+          } });
           await tx.consultationEvent.upsert({
             where: { idempotencyKey: `recording-upload:${recordingId}` },
             create: {
@@ -283,52 +314,19 @@ export async function uploadSetupFile(
   });
   if (!conversation) throw new ApiError(404, 'Setup conversation not found.', 'NOT_FOUND');
   const recordingId = randomUUID();
-  const target = { tenantId: actor.tenantId, recordingId, consultationId: null,
-    setupConversationId: conversationId, uploadAttemptId: null };
-  const blobPath = recordingObjectPath(target);
-  const blob = await put(blobPath, file, {
-    access: 'private',
-    addRandomSuffix: false,
-    allowOverwrite: false,
-    contentType: mimeType,
-  });
-  try {
-    const blobObject = captureRecordingObject(target, blob);
-    return await getDb().$transaction(async (tx) => {
-      await assertRecordingPathNotDetached(tx, actor.tenantId, blobPath);
-      await tx.recordingSegment.create({
-        data: {
-          id: recordingId,
-          tenantId: actor.tenantId,
-          setupConversationId: conversationId,
-          userId: actor.userId,
-          segmentKey: recordingId,
-          sequence: 0,
-          blobPath: blob.pathname,
-          blobObject,
-          mimeType,
-          bytes: file.size,
-          consentAt: new Date(),
-          expiresAt: new Date(Date.now() + 14 * 86400000),
-        },
-      });
-      return tx.generationJob.create({
-        data: {
-          tenantId: actor.tenantId,
-          userId: actor.userId,
-          kind: purpose === 'voice' ? 'SETUP_TRANSCRIPTION' : 'CATALOG_EXTRACTION',
-          idempotencyKey: `setup-upload:${recordingId}`,
-          model:
-            purpose === 'voice' ? TRANSCRIPTION_MODEL : process.env.AI_MODEL || 'openai/gpt-6-luna',
-          promptVersion: 'setup-upload-v2.1',
-          result: { recordingId, conversationId },
-        },
-      });
-    });
-  } catch (error) {
-    await del(blob.pathname);
-    throw error;
-  }
+  return performSetupRecordingUpload({ id: recordingId, tenantId: actor.tenantId, userId: actor.userId,
+    locationId, setupConversationId: conversationId, purpose: purpose === 'voice' ? 'VOICE' : 'CATALOG',
+    mimeType, bytes: file.size },
+    path => put(path, file, { access: 'private', addRandomSuffix: false, allowOverwrite: false,
+      contentType: mimeType, abortSignal: AbortSignal.timeout(45_000) }),
+    (tx, journal, object) => tx.generationJob.create({ data: {
+      tenantId: journal.tenantId, userId: journal.userId,
+      kind: purpose === 'voice' ? 'SETUP_TRANSCRIPTION' : 'CATALOG_EXTRACTION',
+      idempotencyKey: `setup-upload:${journal.id}`,
+      model: purpose === 'voice' ? TRANSCRIPTION_MODEL : process.env.AI_MODEL || 'openai/gpt-6-luna',
+      promptVersion: 'setup-upload-v2.1',
+      result: { recordingId: journal.id, conversationId: journal.setupConversationId, recordingObject: object },
+    } }));
 }
 
 export function publicRecording(recording: {
