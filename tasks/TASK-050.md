@@ -1,7 +1,7 @@
 # TASK-050: Approved membership and program offer presentation
 
 TASK_ID: TASK-050
-STATUS: CI_RECOVERY_PREPARED, reviewed offer source published74086258 on2026-10-05; actual normal CI37269377547 failed at the annotated old wellness promptVersion expectation. One-expression repair reviewed; corrected-source publication/automatic CI/independent closure pending. Full pilot incomplete.
+STATUS: DONE, scoped source/publication/corrected-CI independently verified2026-10-05 at6710ed7e. Normal CI37275893506/all22listedsteps SUCCESS, genuine independent closurebcf6fc6c accepted92f56851. Original74086258/CI37269377547 remains FAILED. Closing-doc publication is separate; full pilot incomplete.
 
 Original queued plan below. It was selected after TASK049 actual publication/CI closure; the actual scoped evidence follows. This queued plan addresses approved PRD F-01/F-02/F-07; it adds no payment provider, medical protocol, patient campaign or new catalog type.
 
@@ -62,3 +62,11 @@ Normal new-source CI37269377547/job111632911606 FAILED, actual capture7b123beb. 
 The sole test-expression correction expects INITIAL dripwell-rules-v2.1 and WELLNESS dripwell-rules-v2.2. Independent source/scope10d6c44a PASS preserves all other assertions, six case identities and nine original050 source files. Four unfinished private runner files are frozen UNEXECUTED/PARKED137f3266; no local check/SQL/native/profile/target creation was dispatched and no global absence probe is claimed.
 
 Independent CI-first planf75b9347 PASS and Root acceptancefeaf93ae replace the unexecuted focused-local proposal. The unchanged normal PR workflow uses a fresh disposable PostgreSQL17 database with the existing strict synthetic URL and unfiltered test:unit, which includes the affected file/all six source-eligible cases. Actual future outcomes/counts are unknown. This is the meaningful changed-source integration check; it requires exact source/docs/PR-body review, ordinary reviewed commit/publication, and actual corrected-head CI success plus independent closure before DONE/count28. Old CI37269377547 remains FAILED. No local passing proof/build/helper/migration or manual CI replay is authorized; incidental native/network effects are not inferred as zero. All nine PRD criteria, protected Preview/false gate and full-pilot limits remain unchanged.
+
+## Actual corrected-source closure, October5,2026
+
+Reviewed correction6710ed7e/tree9ebe55f2, single parent74086258, was normally published once without force. Genuine final packagebc9e9b72/actual commitf138c9f8 and actual publication906697d2/6cc43edf bind392 remote/local blob/modes, approved6621-byte PR body, origin, open/unmerged PR2, unchanged main and clean state at capture. PATCH reply had the prior740 head with the correct body; final GET proves6710 with that same body. These sequential replies are not an atomic snapshot. The independent collector's first metadata assertion stop0929c027 is preserved and its projection corrected without replay.
+
+Normal first-attempt pull_request CI37275893506/job111652711495/check111652711495/suite100961581402 completed SUCCESS, all22 listed steps successful including the affected billing/sharing stage. Actual evidence05c0d701 and genuine independent closurebcf6fc6c PASS were fully read and their ten required artifacts verified by Root acceptance92f56851. TASK050 is scoped DONE/count28. Individual case counts/skips/raw logs are unobserved; five other captured suites were queued/null. Old37269377547 and all failed local ancestors remain FAILED. No unfinished local runner, old migration/helper/check, raw-log transport or manual workflow was replayed.
+
+Learning: NO_NEW_LEARNING; existing L035 Seen4/P027/G019 and all Seen counts remain. Source publication and successful CI do not prove deployment, zero incidental provider/Workflow effects, physical/device/clinical/paid behavior or the full pilot. Last verified protected Preview807/literalfalse and all nine unchanged PRD criteria remain separate. Next: exact closing-doc/PR-body factual review and normal docs-only publication, then concrete TASK051 plan review/Root source GO for the already queued recording-retention split.
