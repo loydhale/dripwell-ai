@@ -348,7 +348,7 @@ suite('recording deletion foundation against isolated PostgreSQL', () => {
       consultationId: object.consultationId!, attemptId: object.uploadAttemptId!, blobPath: object.blobPath,
       mimeType: 'audio/webm' }, new File(['x'], 'synthetic.webm', { type: 'audio/webm' }),
     async () => { throw original; }, { putFile: async () => returned, deleteFile: deletion })).rejects.toBe(original);
-    expect(deletion).toHaveBeenCalledWith(object.blobPath);
+    expect(deletion).not.toHaveBeenCalled();
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: object.uploadAttemptId! } }))
       .toMatchObject({ status: 'CLEANUP_PENDING', result: { uploadSettled: true, blobObject: object } });
   });
