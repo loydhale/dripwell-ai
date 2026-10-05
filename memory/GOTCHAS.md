@@ -200,6 +200,8 @@ TASK048 publication compatibility retained at TASK049 closure, 2026-10-05: gh pr
 
 TASK050 application, 2026-10-05: descriptor roles original/compatible are separate from scope metadata, and direct input membership is separate from retained genuine review authority. A saved-map assertion also incorrectly demanded the retired separate Workflow step endpoint; the actual43 displayed/44 mapped routes match the retained combined-flow contract, with /_global-error as the extra map entry. Preserve read-only collector stops and correct only their declared-data projection. They do not relabel actual test/build results, require recursive history inventories or authorize rerunning checks.
 
+TASK050 CI recovery, 2026-10-05: normal check annotations5901391e provide the actual stale promptVersion assertion even though normal raw job-log redirect access failed. Bind the check/head/title/path and stated mismatch; do not invent whole-suite counts or other failure causes from omitted properties or successful preceding steps. Source/plan PASS is distinct from future corrected-source CI. Keep four unfinished private files UNEXECUTED/PARKED, with no local dispatch and no global absence probe. Proportionate typed evidence does not require recursive unchanged-history inventories, transport bypass or passing-check replay. Existing incidental Workflow transport limits remain; no new gotcha or corpus is added.
+
 ## G-020: Private predecessor approval remains a Root operator boundary
 Date discovered: 2026-10-04
 Where: Private TASK046 TRANSPORT.py:272 predecessor and Root acceptance/once-GO handoffs

@@ -96,3 +96,7 @@ CTO: No feature, authority, price, clinical policy, architecture or completion-d
 Auditor co-sign: Exact frozen final package review required before publication; genuine source/results/route/learning receipts accompany the package.
 
 2026-10-05 TASK-050 minor source checkpoint: existing F01/F02/F07 approved offer facts/versioning and eighteen distinct composite cases/PDF3/types/production Webpack evidence recorded; all nine section8 criteria and real-data/service gates unchanged. Independent source/results cd5c956e and learning/audit58ba9293 PASS; final whole-package PRD co-sign remains a separate prepublication gate.
+
+2026-10-05 TASK-050 final minor PRD co-sign is independently PASS e5531406 for the exact prior frozen package; all926 bytes of nine pilot criteria unchanged. Source published74086258; CI37269377547 is FAILED at an existing test expectation, so no feature/full-pilot completion checkpoint is added.
+
+2026-10-05 TASK050 CI recovery verification-plan clarification: one old test expectation now distinguishes initialv2.1/wellnessv2.2, with sourcePASS10d6c44a and CI-first planPASSf75b9347 acceptedfeaf93ae. Use the unchanged normal corrected-source disposable-PG CI for meaningful verification; unfinished local preparation is parked/unexecuted. No PRD text, nine numbered pilot criteria, feature completion, provider/clinical authority or price change; current CI37269377547 remainsFAILED and future CI closure is required.

@@ -313,6 +313,8 @@ Recurrence: TASK048,2026-10-05. Independent source review caught shared Recordin
 
 Recurrence: TASK050, 2026-10-05. A legacy/current wellness union caused the old clinical fixture to fail shared compilation; parse the two generated fixture plans with the strict current schema rather than cast or mislabel their version. A later focused offer case supplied an empty question why, so schema rejection masked its intended eligibility denial and still suppressed the empty-benefit offer. Supply the required synthetic explanation, assert valid configuration, then require the exact missing-eligibility-answer reason. Preserve the subsequent official-terms guard and all other bodies. Earlier independent fixture review missed the empty why. Original compiler/full-unit/focused failures stay FAILED; retain passing identities and correct only the affected case. This is one actual fixture-contract recurrence, not a production defect.
 
+Same-task TASK050 continuation, 2026-10-05: normal CI annotation5901391e exposed one old integration assertion expecting v2.1 for both generated kinds, while the actual wellness result correctly carried v2.2. Preserve the artifact and assert INITIAL2.1/WELLNESS2.2 explicitly. Source review10d6c44a and CI-first planf75b9347 passed, but corrected-source CI is still unobserved. This extends the existing TASK050 contract recurrence; Seen remains4, with no new lesson, counter increment or corpus.
+
 Seen N times: 4
 
 ## L-036: Historical observation flags do not timestamp each later reply

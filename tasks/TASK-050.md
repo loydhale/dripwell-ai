@@ -1,7 +1,7 @@
 # TASK-050: Approved membership and program offer presentation
 
 TASK_ID: TASK-050
-STATUS: SOURCE_RESULTS_PASS, genuine cd5c956e on2026-10-05; learning is complete58ba9293; final whole-package co-sign and exact same-branch publication/current-source CI remain pending. Approved source/check scope is complete; full pilot remains incomplete.
+STATUS: CI_RECOVERY_PREPARED, reviewed offer source published74086258 on2026-10-05; actual normal CI37269377547 failed at the annotated old wellness promptVersion expectation. One-expression repair reviewed; corrected-source publication/automatic CI/independent closure pending. Full pilot incomplete.
 
 Original queued plan below. It was selected after TASK049 actual publication/CI closure; the actual scoped evidence follows. This queued plan addresses approved PRD F-01/F-02/F-07; it adds no payment provider, medical protocol, patient campaign or new catalog type.
 
@@ -50,3 +50,15 @@ Three original synthetic PDF/document pairs were text-extracted without generati
 See [audit](../docs/AUDIT_APPROVED_WELLNESS_OFFERS.md). Mocked SQL/cookie/reminder transport, static markup and synthetic text do not prove live auth/delivery/persistence/concurrency, browser/device layout/hydration, clinical decisions, enrollment/payment or full pilot. Named selector clearing is not complete network evidence; .env.local values were not inspected. No real data, provider/DB/browser/native execution, deployment or new migration occurred. Every050 check entry is now closed/ineligible for replay.
 
 Mandatory learning/audit documentation PASS58ba9293 is complete. Next: finish the exact whole-package factual co-sign; commit only the reviewed package and publish normally without force to this same branch/PR2, read back the exact tree/body/open-unmerged state, and require actual normal current-source CI. Root will record the actual commit/CI closure before selecting the deferred Blob source task. Do not describe prepared publication as completed.
+
+## Actual publication and failed normal CI, October5,2026
+
+Genuine final package/PRD e5531406 and actual commit1a8c3551 PASS; Root ordinary publication/readback e872b3db binds74086258/tree0c1093f2/single parent8e2,392remote/local blob/modes, approved6031-byte PR body and open/unmerged PR2/main unchanged/clean state at capture. Source publication did not deploy the preview.
+
+Normal new-source CI37269377547/job111632911606 FAILED, actual capture7b123beb. Builds/types/domain/auth/lifecycle/transcript passed; billing/sharing failed. Normal check annotation5901391e proves the old lib/job-results.integration.test.ts:152 wellness expectation: expected dripwell-rules-v2.1, actual truthful dripwell-rules-v2.2. Exact full-unit counts are unknown. Normal raw-log redirect failed once; no bypass/retry. Root has dispatched read-only diagnosis and a concrete narrow test-only/focused fresh-owned PG plan to the same Coder; independent Auditor scope and separate Root source/check GO required before execution. Preserve approved wellness provenance and initial/carev2.1; do not relax production versions or replay passing builds/types/cases/old helpers/migrations. Only actual corrected-source CI closure permits DONE/count28 and the saved Blob split.
+
+## Reviewed CI-first recovery, October5,2026
+
+The sole test-expression correction expects INITIAL dripwell-rules-v2.1 and WELLNESS dripwell-rules-v2.2. Independent source/scope10d6c44a PASS preserves all other assertions, six case identities and nine original050 source files. Four unfinished private runner files are frozen UNEXECUTED/PARKED137f3266; no local check/SQL/native/profile/target creation was dispatched and no global absence probe is claimed.
+
+Independent CI-first planf75b9347 PASS and Root acceptancefeaf93ae replace the unexecuted focused-local proposal. The unchanged normal PR workflow uses a fresh disposable PostgreSQL17 database with the existing strict synthetic URL and unfiltered test:unit, which includes the affected file/all six source-eligible cases. Actual future outcomes/counts are unknown. This is the meaningful changed-source integration check; it requires exact source/docs/PR-body review, ordinary reviewed commit/publication, and actual corrected-head CI success plus independent closure before DONE/count28. Old CI37269377547 remains FAILED. No local passing proof/build/helper/migration or manual CI replay is authorized; incidental native/network effects are not inferred as zero. All nine PRD criteria, protected Preview/false gate and full-pilot limits remain unchanged.

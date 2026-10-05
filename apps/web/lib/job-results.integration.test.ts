@@ -150,7 +150,7 @@ suite('addressable generation results against isolated PostgreSQL', () => {
       const result = await response(saved.id);
       expect(result.status).toBe(200);
       expect(await result.json()).toMatchObject({ status: 'complete', result: saved.result,
-        model: 'deterministic-rules', promptVersion: 'dripwell-rules-v2.1', completedAt: saved.completedAt!.toISOString() });
+        model: 'deterministic-rules', promptVersion: kind === 'INITIAL' ? 'dripwell-rules-v2.1' : 'dripwell-rules-v2.2', completedAt: saved.completedAt!.toISOString() });
       expect(await waitForJob(saved.id)).toEqual(saved.result);
       expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: saved.id } })).toEqual(saved);
     }
