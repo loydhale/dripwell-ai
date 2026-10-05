@@ -1,7 +1,7 @@
 import { FatalError, getWorkflowMetadata, sleep } from 'workflow';
 import { start } from 'workflow/api';
 import { ApiError } from '../lib/errors';
-import { DEFERRED_MAINTENANCE } from '../lib/maintenance-context';
+import { DEFERRED_MAINTENANCE, RECORDING_MAINTENANCE_SCOPE } from '../lib/maintenance-context';
 import {
   beginMaintenanceDispatch, claimMaintenance, completeMaintenance, maintenanceFailure,
   recordMaintenanceDispatch, reserveNextMaintenance,
@@ -10,6 +10,9 @@ import {
 import {
   processMaintenanceFamily, requireMaintenancePagesComplete, type MaintenanceFamily,
 } from '../lib/maintenance-pages';
+
+import { processRecordingCleanupFamily } from '../lib/recording-cleanup-pages';
+import type { RecordingCleanupFamily } from '../lib/maintenance-state';
 
 function stepError(error: unknown): never {
   if (error instanceof ApiError) throw new FatalError(error.code);
@@ -43,6 +46,15 @@ export async function maintenancePageStep(claim: MaintenanceClaim, family: Maint
   catch (error) { stepError(error); }
 }
 maintenancePageStep.maxRetries = 2;
+
+export async function maintenanceRecordingCleanupStep(claim: MaintenanceClaim, family: RecordingCleanupFamily) {
+  'use step';
+  try { return await processRecordingCleanupFamily(claim, family); }
+  catch (error) { stepError(error); }
+}
+// A lost provider response is not an application retry permission. Intent/page
+// state fences redelivery; explicit recovery may reclaim the old identity.
+maintenanceRecordingCleanupStep.maxRetries = 0;
 
 export async function maintenanceCompletionStep(claim: MaintenanceClaim) {
   'use step';
@@ -90,6 +102,8 @@ export async function maintenanceWorkflow(input: MaintenanceReservation) {
     await maintenancePageStep(claim, 'expiredChallenges');
     await maintenancePageStep(claim, 'oldSessions');
     await maintenancePageStep(claim, 'oldRates');
+    await maintenanceRecordingCleanupStep(claim, 'recordingUploadCleanup');
+    await maintenanceRecordingCleanupStep(claim, 'expiredAudioRetention');
     completed = await maintenanceCompletionStep(claim);
   } catch (error) {
     await maintenanceFailureStep(claim);
@@ -106,6 +120,6 @@ export async function maintenanceWorkflow(input: MaintenanceReservation) {
 }
 
 export function maintenanceScope() {
-  return { included: ['reminders', 'abandonedUploads', 'interruptedJobs', 'expiredChallenges', 'oldSessions', 'oldRates'],
+  return { included: ['reminders', 'abandonedUploads', 'interruptedJobs', 'expiredChallenges', 'oldSessions', 'oldRates', ...RECORDING_MAINTENANCE_SCOPE],
     deferred: [...DEFERRED_MAINTENANCE] };
 }

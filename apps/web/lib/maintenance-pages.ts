@@ -193,6 +193,7 @@ export async function processMaintenanceFamily(claim: MaintenanceClaim, family: 
     upserted: page.upserted, failed: page.failed, deferred: page.deferred };
 }
 
+/** Full eight-family proof; DB6 processing alone cannot authorize continuation. */
 export async function requireMaintenancePagesComplete(claim: MaintenanceClaim) {
   return withMaintenanceClaim(claim, async (_db, row) => completedMaintenancePages(row.progress),
     ['RUNNING', 'WAITING', 'COMPLETED']);

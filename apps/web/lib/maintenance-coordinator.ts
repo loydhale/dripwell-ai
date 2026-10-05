@@ -170,7 +170,7 @@ export async function completeMaintenance(claim: MaintenanceClaim) {
   return withMaintenanceClaim(claim, async (db, row) => {
     if (row.phase === 'COMPLETED') return null;
     if (row.phase === 'WAITING') return row.nextDueAt!.toISOString();
-    // The page proof and completion write share the same token/row lock. A
+    // All six DB and both recording page proofs share this completion token/row lock. A
     // stale, partial or malformed iteration cannot reserve its continuation.
     const families = completedMaintenancePages(row.progress);
     const lastErrorCode = Object.values(families).some((page) => page.failed || page.deferred) ? 'ITERATION_PARTIAL' : null;

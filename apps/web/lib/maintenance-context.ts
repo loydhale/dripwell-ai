@@ -13,7 +13,8 @@ export interface MaintenanceContext {
 
 export const MAINTENANCE_CADENCE_MS = 15 * 60_000;
 export const MAINTENANCE_LEASE_MS = 5 * 60_000;
-export const DEFERRED_MAINTENANCE = ['recording-upload-blob-cleanup', 'expired-audio-blob-retention'] as const;
+export const DEFERRED_MAINTENANCE: readonly string[] = [];
+export const RECORDING_MAINTENANCE_SCOPE = ['recording-upload-blob-cleanup', 'expired-audio-blob-retention'] as const;
 
 export function maintenanceAuthorization(request: Request): void {
   const secret = process.env.CRON_SECRET;

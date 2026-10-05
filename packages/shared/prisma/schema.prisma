@@ -1331,6 +1331,9 @@ model RecordingDeletionIntent {
   creatorGeneration   BigInt
   creatorOrdinal      BigInt
   creatorRunId        String
+  sourceKind          String?
+  sourceId            String?  @db.Uuid
+  sourceCreatedAt     DateTime?
   status              String   @default("PENDING")
   executionScope      String?
   executionGeneration BigInt?
@@ -1347,6 +1350,8 @@ model RecordingDeletionIntent {
 
   @@unique([tenantId, blobPath])
   @@index([status, createdAt, id])
+  @@unique([reason, sourceKind, sourceId], map: "RecordingDeletionIntent_source_key")
+  @@index([reason, sourceKind, sourceCreatedAt, sourceId, id], map: "RecordingDeletionIntent_source_page_idx")
 }
 
 model ImprovementProposal {

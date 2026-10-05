@@ -5,7 +5,7 @@ const boundary = vi.hoisted(() => ({
 vi.mock('./db', () => ({ getDb: boundary.getDb }));
 vi.mock('workflow/api', () => ({ start: boundary.start }));
 import { maintenanceAuthorization, maintenanceContext, assertMaintenanceContext, nextMaintenanceDue } from './maintenance-context';
-import { completedMaintenancePages, maintenanceState, maintenanceCursorSchema } from './maintenance-state';
+import { completedMaintenancePages, maintenanceState, maintenanceCursorSchema, emptyRecordingCleanupPage } from './maintenance-state';
 import { GET, POST } from '../app/api/jobs/reconcile/route';
 
 const environmentKeys = ['CRON_SECRET', 'VERCEL', 'VERCEL_PROJECT_ID', 'VERCEL_ENV', 'VERCEL_GIT_COMMIT_REF',
@@ -29,9 +29,11 @@ function request(method = 'GET', body?: unknown, auth = 'Bearer owned-machine-fi
   });
 }
 function completed() {
-  return Object.fromEntries(['reminders', 'abandonedUploads', 'interruptedJobs', 'expiredChallenges', 'oldSessions', 'oldRates']
+  const dbPages = Object.fromEntries(['reminders', 'abandonedUploads', 'interruptedJobs', 'expiredChallenges', 'oldSessions', 'oldRates']
     .map((family) => [family, { ids: [] as string[], index: 0, cutoff: '2026-10-04T00:00:00.000Z', changed: 0,
       dismissed: 0, upserted: 0, failed: 0, deferred: 0, finished: true }]));
+  return Object.assign(dbPages, { recordingUploadCleanup: emptyRecordingCleanupPage('2026-10-04T00:00:00.000Z'),
+    expiredAudioRetention: emptyRecordingCleanupPage('2026-10-04T00:00:00.000Z') });
 }
 beforeEach(() => {
   for (const key of environmentKeys) vi.stubEnv(key, '');
@@ -123,7 +125,7 @@ describe('maintenance authority and bounded state', () => {
   });
   test('the existing authenticated Cron GET is a disabled read with no bootstrap', async () => {
     local(); const result = await GET(request(), undefined);
-    expect(result.status).toBe(200); expect(await result.json()).toMatchObject({ state: { enabled: false, phase: 'IDLE', generation: '0' }, deferred: ['recording-upload-blob-cleanup', 'expired-audio-blob-retention'] });
+    expect(result.status).toBe(200); expect(await result.json()).toMatchObject({ state: { enabled: false, phase: 'IDLE', generation: '0' }, deferred: [], included: ['reminders', 'abandonedUploads', 'interruptedJobs', 'expiredChallenges', 'oldSessions', 'oldRates', 'recording-upload-blob-cleanup', 'expired-audio-blob-retention'] });
     expect(boundary.lookup).toHaveBeenCalledOnce(); expect(boundary.start).not.toHaveBeenCalled();
   });
   test('request supplied deployment scope or unknown command is rejected before writes', async () => {
