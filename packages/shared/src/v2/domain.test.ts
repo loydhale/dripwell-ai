@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   activateTrial,
   assertExactApproval,
+  currentWellnessPlanSchema,
   emptyConsultationSummary,
   evaluateCondition,
   evaluateRequiredQuestions,
@@ -469,12 +470,12 @@ test('audit reproduction: clinical wellness service is gated by unanswered requi
   service.rules.exclusions = [];
   config.products.push(service);
   config.products.find((item) => item.id === 'membership')!.rules.exclusions = [];
-  const complete = recommendWellness(config, summary, care(), configurationVersionId);
+  const complete = currentWellnessPlanSchema.parse(recommendWellness(config, summary, care(), configurationVersionId));
   const clinicalOffer = complete.offers.find((item) => item.productId === service.id)!;
   assert.ok(clinicalOffer);
   delete summary.answers.exclusion;
   assert.deepEqual(validateConfigurationForActivation(config), []);
-  const incomplete = recommendWellness(config, summary, care(), configurationVersionId);
+  const incomplete = currentWellnessPlanSchema.parse(recommendWellness(config, summary, care(), configurationVersionId));
   assert.equal(
     incomplete.offers.some((item) => item.productId === service.id),
     false,

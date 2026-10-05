@@ -10,12 +10,14 @@ import {
   type InitialRecommendation,
   type QuestionState,
   type RecommendationItemSnapshot,
+  type WellnessOfferSnapshot,
   type RuleCondition,
   type WellnessPlan,
   type ActualCare,
 } from './contracts.js';
 
 export const ENGINE_VERSION = 'dripwell-rules-v2.1' as const;
+export const WELLNESS_ENGINE_VERSION = 'dripwell-rules-v2.2' as const;
 export type ConditionResult = 'MATCH' | 'NO_MATCH' | 'UNKNOWN';
 const treatmentTypes = new Set(['DRIP', 'ADD_ON', 'INJECTION', 'PEPTIDE']);
 
@@ -338,6 +340,18 @@ function goalMatches(product: CatalogProduct, summary: ConsultationSummary): str
   const goals = normalizedGoals(summary);
   return product.goalTags.filter((tag) => goals.includes(tag.trim().toLocaleLowerCase('en-US')));
 }
+export function wellnessOfferFacts(
+  product: CatalogProduct,
+  summary: ConsultationSummary,
+): Pick<WellnessOfferSnapshot, 'benefits' | 'matchedGoals'> {
+  const tags = product.goalTags.map((tag) => tag.trim().toLocaleLowerCase('en-US'));
+  return {
+    benefits: [...product.benefits],
+    matchedGoals: summary.goals.filter((goal) =>
+      tags.includes(goal.trim().toLocaleLowerCase('en-US')),
+    ),
+  };
+}
 function ranked(products: CatalogProduct[], summary: ConsultationSummary): CatalogProduct[] {
   return [...products].sort(
     (a, b) =>
@@ -510,15 +524,16 @@ export function recommendWellness(
     );
   const offers = eligibleOffers
     .slice(0, config.recommendationPolicy.maxWellnessOffers)
-    .map((product) =>
-      snapshot(product, [
+    .map((product) => ({
+      ...snapshot(product, [
         ...evaluateProductEligibility(product, config, summary).evidence,
         ...goalMatches(product, summary).map((goal) => `Reviewed goal: ${goal}`),
       ]),
-    );
+      ...wellnessOfferFacts(product, summary),
+    }));
   return wellnessPlanSchema.parse({
     configurationVersionId,
-    engineVersion: ENGINE_VERSION,
+    engineVersion: WELLNESS_ENGINE_VERSION,
     visitSummary: summary.goals.length
       ? `During today's visit, you discussed: ${summary.goals.join('; ')}.`
       : 'Your consultation was reviewed by the clinic team.',
@@ -563,6 +578,18 @@ export function validateWellnessSelection(
       item.quantity !== 1
     )
       errors.push(`${product.name} must retain official catalog pricing and terms.`);
+  }
+  if (plan.engineVersion === WELLNESS_ENGINE_VERSION) {
+    for (const item of plan.offers) {
+      const product = config.products.find((candidate) => candidate.id === item.productId);
+      if (!product) continue;
+      const facts = wellnessOfferFacts(product, summary);
+      if (
+        JSON.stringify(item.benefits) !== JSON.stringify(facts.benefits) ||
+        JSON.stringify(item.matchedGoals) !== JSON.stringify(facts.matchedGoals)
+      )
+        errors.push(`${product.name} must retain approved benefits and reviewed goals.`);
+    }
   }
   if (!summary.staffReviewed) errors.push('The consultation summary needs staff review.');
   if (!plan.visitSummary.trim() || !plan.explanation.trim())

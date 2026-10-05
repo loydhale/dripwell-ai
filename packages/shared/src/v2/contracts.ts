@@ -209,7 +209,7 @@ export const actualCareSchema = z.object({
   currency: currencySchema,
 });
 export type ActualCare = z.infer<typeof actualCareSchema>;
-export const wellnessPlanSchema = z.object({
+export const legacyWellnessPlanSchema = z.object({
   configurationVersionId: z.string().uuid(),
   engineVersion: z.literal('dripwell-rules-v2.1'),
   visitSummary: narrative,
@@ -218,6 +218,19 @@ export const wellnessPlanSchema = z.object({
   explanation: narrative,
   safetyFlags: z.array(z.string().max(2000)).max(1000),
 });
+export const wellnessOfferSchema = recommendationItemSchema.extend({
+  benefits: z.array(z.string().max(2000)).max(100),
+  matchedGoals: z.array(z.string().max(2000)).max(100),
+});
+export type WellnessOfferSnapshot = z.infer<typeof wellnessOfferSchema>;
+export const currentWellnessPlanSchema = legacyWellnessPlanSchema.extend({
+  engineVersion: z.literal('dripwell-rules-v2.2'),
+  offers: z.array(wellnessOfferSchema).max(100),
+});
+export const wellnessPlanSchema = z.discriminatedUnion('engineVersion', [
+  legacyWellnessPlanSchema,
+  currentWellnessPlanSchema,
+]);
 export type WellnessPlan = z.infer<typeof wellnessPlanSchema>;
 export const transcriptSegmentSchema = z.object({
   id: z.string().uuid(),

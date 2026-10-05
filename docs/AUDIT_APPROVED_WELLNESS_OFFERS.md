@@ -1,0 +1,30 @@
+# Approved wellness offer presentation, TASK-050
+
+Review date: 2026-10-05. Verdict: PASS for this source and local-validation slice. Reviewed parent: `8e2afaaef483725b5615f3564ccb68ace08f12f0`.
+
+Eligible approved wellness offers now snapshot the clinic's supplied benefits and matched reviewed goals in wellness v2.2 and public takeaway2. Staff, recipient and PDF views show those saved facts, rationale, total official price/currency, exact clinic terms and optional language. They do not infer billing cadence, savings, missing benefits or an enrollment decision. Existing consent, eligibility, safety, approval and privacy gates remain.
+
+Initial recommendations and recorded-care contracts stay v2.1. Legacy wellness v2.1 and takeaway1 remain readable. An existing saved document returns before current-catalog parsing; its original raw payload and hash remain unchanged, while the public schema removes unsupported fields. An approved legacy plan without a saved document creates v1 without enrichment. A tracked legacy edit creates a new version and requires reapproval. Revision and generation-job provenance describe the actual artifact version.
+
+## Source reviewed
+
+The seven production files are [shared contracts](../packages/shared/src/v2/contracts.ts), [rules](../packages/shared/src/v2/engine.ts), [clinic actions](../apps/web/lib/clinic.ts), [sharing/PDF](../apps/web/lib/sharing.ts), [staff consultation](../apps/web/components/consultation.tsx), [shared offer card](../apps/web/components/wellness-offer.tsx) and [recipient page](../apps/web/app/share/[token]/page.tsx). The affected [domain fixture](../packages/shared/src/v2/domain.test.ts) and [new tests](../apps/web/lib/wellness-offers.test.ts) were reviewed with them. Scope matches [TASK-050](../tasks/TASK-050.md).
+
+## Actual validation
+
+- Seventeen new passing identities form a disjoint cross-run composite: fifteen original passes, one corrected legacy-v1 pass, and one corrected eligibility-fixture pass. The original full run remains FAILED at15 passed/2 failed/0 skipped; the intermediate focused run remains FAILED at1 passed/1 failed/15 skipped; the final focused run passed1 with16 deliberate skips and all17 JSON identities. This was not a fresh full-suite invocation.
+- One separately selected existing clinical-wellness domain case passed. Native Node reported1 passed/0 skipped, distinct from17 explicit source-name exclusions. Together these are18 affected passing identities. Corrected shared compilation and web no-emit types passed.
+- The passed original PDF-generation case produced tiny A-v2, B-v2 and legacy-v1 fixtures. Three later text extractions passed without generating them again: saved A USD75/B CAD120 facts, goal wording, benefits, rationale, official terms and optional labels agree. Legacy output has no new benefit/goal enrichment. An unmatched discussed goal remains in the visit summary and is absent from the offer section; private markers and invented monthly cadence are absent.
+- Direct installed Next16.3.8 production Webpack build passed with new BUILD_ID `Ws3R6LAOoM3_4PWBEzk5h`. Raw output compiled26 steps/3 workflows and31 static pages. It displays43 routes;44 app-map entries include the undisplayed internal global-error entry. The Workflow5 combined flow/webhook map matches the previously reviewed contract. This is packaging evidence, not a native run.
+
+Actual checks cover independent benefit-only, goal-only and combined forgery rejection; different immutable clinic catalogs; unconfirmed/declined preferences; unavailable/ineligible/unmatched options; missing benefit/term behavior; tracked edits/reapproval/stale revisions; no-offer completion; legacy creation/early return/raw-hash-before-projection; and shared static presentation. All child/helper/outer completions were successful for the final four stages, without timeouts. Sequential before/after guards matched88 inputs, all9 source files, the held documentation footprint and empty index at review.
+
+Original shared-fixture type correlation, full-unit and intermediate focused failures remain preserved. Recovery changed strict test-fixture parsing, expectation/selection metadata and the invalid question fixture, with a valid-schema and exact-denial precondition. Earlier static review missed that invalid fixture. Production implementation bytes did not change during recovery.
+
+## Limits
+
+Prisma, cookie and reminder transports were mocked; React evidence is static markup and PDF evidence is extracted synthetic text. This does not prove live persistence/concurrency, recipient authentication or delivery, browser hydration, desktop/mobile/PDF layout, clinical authority, payment/enrollment conversion or real-client readiness. No live DB/browser/auth/provider/native-maintenance validation was performed.
+
+The reviewed runner sets production on its build child and clears named data/provider/auth/hosted selectors. Raw build reports the filename `.env.local`; no environment values were inspected and no complete network capture was performed. Separate child streams and combined outer-tool projections are retained; byte/mode checks are sequential. Explicit Webpack does not prove default Turbopack, standalone Eve runtime, new-source CI or deployment. Protected Preview remains a separate source807 observation under the false real-data gate. The full pilot remains incomplete.
+
+Retained private evidence: final actual handoff SHA256 `a6cf5f247f37711e83fef1233fa0c8162cc441469bb6385e09e57084b48516e5`,82 original/compatible artifact pairs and20 references. Genuine independent source/results review SHA256 `cd5c956ed9f26d4c608892af41581b4747225134b8dab445e711f349b789a58f`. Learning is recorded in [LESSONS](../memory/LESSONS.md), [PATTERNS](../memory/PATTERNS.md) and [GOTCHAS](../memory/GOTCHAS.md). Publication and any later CI/deployment are separate Root gates.

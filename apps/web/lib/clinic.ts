@@ -16,6 +16,8 @@ import {
   evaluateProductEligibility,
   recommendInitial,
   recommendWellness,
+  wellnessOfferFacts,
+  WELLNESS_ENGINE_VERSION,
   validateConfigurationForActivation,
   validateInitialSelection,
   validateWellnessSelection,
@@ -214,7 +216,8 @@ async function revision(tx: Tx, actor: ClinicActor, visitId: string, kind: strin
     tenantId: actor.tenantId, consultationId: visitId, kind, revision: number,
     payload: jsonValue(payload), original, userId: actor.userId, reason: category,
     model: original && (kind === 'INITIAL' || kind === 'WELLNESS') ? 'deterministic-rules' : undefined,
-    promptVersion: original ? 'dripwell-rules-v2.1' : undefined,
+    promptVersion: original ? (kind === 'INITIAL' || kind === 'WELLNESS'
+      ? generationEngineVersion(kind, payload) : 'dripwell-rules-v2.1') : undefined,
   } });
 }
 
@@ -585,12 +588,17 @@ async function startConsultation(tx: Tx, actor: ClinicActor, input: Extract<Clin
   return { id: created.id, resumed: false };
 }
 
+function generationEngineVersion(kind: 'INITIAL' | 'WELLNESS', result: unknown) {
+  return kind === 'INITIAL' ? initialRecommendationSchema.parse(result).engineVersion
+    : wellnessPlanSchema.parse(result).engineVersion;
+}
+
 async function logGeneration(tx: Tx, actor: ClinicActor, record: Consultation, kind: 'INITIAL' | 'WELLNESS', number: number, result: unknown) {
   const now = new Date();
   await tx.generationJob.create({ data: {
     tenantId: actor.tenantId, consultationId: record.id, userId: actor.userId, kind,
     status: 'COMPLETE', idempotencyKey: `${kind}:${record.id}:${number}`,
-    model: 'deterministic-rules', promptVersion: 'dripwell-rules-v2.1', result: jsonValue(result),
+    model: 'deterministic-rules', promptVersion: generationEngineVersion(kind, result), result: jsonValue(result),
     usage: { inputTokens: 0, outputTokens: 0, costCents: 0 }, startedAt: now, completedAt: now,
   } });
 }
@@ -750,8 +758,10 @@ async function updateVisit(tx: Tx, actor: ClinicActor, input: Extract<ClinicActi
       if (!record.wellnessPlan || !record.actualCare) throw new ApiError(422, 'Produce the wellness draft before editing it.', 'WELLNESS_PLAN_REQUIRED');
       if (record.wellnessSummaryRevision !== record.summaryRevision || record.wellnessCareRevision !== record.careRevision) throw new ApiError(422, 'Regenerate the wellness draft after correcting the summary or actual care.', 'WELLNESS_INPUTS_CHANGED');
       const existing = wellnessPlanSchema.parse(record.wellnessPlan);
-      const wellness = wellnessPlanSchema.parse({ ...existing, careReceived: actualCareSchema.parse(record.actualCare),
-        offers: productSnapshots(config, summary, input.offerProductIds, ['SERVICE', 'MEMBERSHIP']),
+      const offers = productSnapshots(config, summary, input.offerProductIds, ['SERVICE', 'MEMBERSHIP'])
+        .map(item => ({ ...item, ...wellnessOfferFacts(config.products.find(product => product.id === item.productId)!, summary) }));
+      const wellness = wellnessPlanSchema.parse({ ...existing, engineVersion: WELLNESS_ENGINE_VERSION,
+        careReceived: actualCareSchema.parse(record.actualCare), offers,
         visitSummary: input.visitSummary, explanation: input.explanation });
       validate(validateWellnessSelection(config, summary, wellness), 'The wellness plan needs review.');
       if (sameJson(record.wellnessPlan, wellness) && record.wellnessSummaryRevision === record.summaryRevision && record.wellnessCareRevision === record.careRevision) return { id: record.id, unchanged: true };

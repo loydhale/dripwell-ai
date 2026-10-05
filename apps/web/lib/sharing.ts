@@ -24,7 +24,7 @@ const itemSchema = z.object({
   rationale: z.string(),
   terms: z.string(),
 });
-export const takeawayDocumentSchema = z.object({
+export const legacyTakeawayDocumentSchema = z.object({
   version: z.literal(1),
   clinic: z.object({
     name: z.string(),
@@ -41,6 +41,18 @@ export const takeawayDocumentSchema = z.object({
   offers: z.array(itemSchema),
   warning: z.string(),
 });
+const offerSchema = itemSchema.extend({
+  benefits: z.array(z.string().max(2000)).max(100),
+  matchedGoals: z.array(z.string().max(2000)).max(100),
+});
+export const currentTakeawayDocumentSchema = legacyTakeawayDocumentSchema.extend({
+  version: z.literal(2),
+  offers: z.array(offerSchema).max(100),
+});
+export const takeawayDocumentSchema = z.discriminatedUnion('version', [
+  legacyTakeawayDocumentSchema,
+  currentTakeawayDocumentSchema,
+]);
 export type TakeawayDocument = z.infer<typeof takeawayDocumentSchema>;
 type DocumentItem = TakeawayDocument['offers'][number];
 const hash = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -71,7 +83,7 @@ function publicItem(item: {
   currency: string;
   rationale: string;
   terms: string;
-}): DocumentItem {
+}): z.infer<typeof itemSchema> {
   return {
     name: item.name,
     quantity: item.quantity,
@@ -155,8 +167,7 @@ export async function approvedTakeaway(tenantId: string, consultationId: string,
       consultation.configurationVersion.payload,
     );
     const plan = wellnessPlanSchema.parse(consultation.wellnessPlan);
-    const document: TakeawayDocument = {
-      version: 1,
+    const documentFields = {
       clinic: configuration.clinic,
       reference: consultation.reference,
       visitDate: consultation.createdAt.toISOString(),
@@ -165,9 +176,13 @@ export async function approvedTakeaway(tenantId: string, consultationId: string,
       explanation: plan.explanation,
       careOutcome: plan.careReceived.outcome,
       careReceived: plan.careReceived.items.map(publicItem),
-      offers: plan.offers.map(publicItem),
       warning: sharingWarning,
     };
+    const document: TakeawayDocument = plan.engineVersion === 'dripwell-rules-v2.2'
+      ? { ...documentFields, version: 2, offers: plan.offers.map(item => ({
+          ...publicItem(item), benefits: [...item.benefits], matchedGoals: [...item.matchedGoals],
+        })) }
+      : { ...documentFields, version: 1, offers: plan.offers.map(publicItem) };
     const expiresAt = new Date(
       consultation.createdAt.getTime() + configuration.retention.documentDays * 86400000,
     );
@@ -581,9 +596,19 @@ export async function takeawayPdf(document: TakeawayDocument): Promise<Uint8Arra
   text('Your wellness recommendations', 13, true, 4);
   text(document.explanation);
   for (const item of document.offers) {
-    text(`${item.name}  ·  ${priceLabel(item)}`, 12, true, 3);
-    text(item.rationale);
-    if (item.terms) text(`Terms: ${item.terms}`, 10);
+    text(item.name, 12, true, 3);
+    if ('matchedGoals' in item && item.matchedGoals.length) {
+      text('Goals you discussed', 11, true);
+      for (const goal of item.matchedGoals) text(`• ${goal}`);
+    }
+    text(`Why it fits: ${item.rationale}`);
+    if ('benefits' in item && item.benefits.length) {
+      text('Included by your clinic', 11, true);
+      for (const benefit of item.benefits) text(`• ${benefit}`);
+    }
+    text(`Total official price: ${priceLabel(item)} ${item.currency}`, 11, true);
+    if (item.terms) text(`Clinic terms: ${item.terms}`, 10);
+    text('Optional. Ask your clinic about this option if it interests you.', 10);
   }
   if (!document.offers.length) text('No additional services or memberships were recommended.');
   if (document.clinic.contact) {

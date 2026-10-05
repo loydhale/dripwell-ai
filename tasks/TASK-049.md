@@ -1,7 +1,7 @@
 # TASK-049: Visible client membership outcomes
 
 TASK_ID: TASK-049
-STATUS: SOURCE_REVIEWED, scoped source/checks/types/build/independent review and learning complete2026-10-05; exact final package co-sign and normal same-branch publication/readbacks/new-source CI pending Root. Full pilot remains incomplete.
+STATUS: DONE, scoped source/checks/types/build/review/learning and actual same-branch publication/new-source CI independently verified2026-10-05 at8e2afaae/d208. Full pilot remains incomplete.
 
 The TASK047 publication/CI and TASK048 actual recurrence/cleanup/learning/publication prerequisites are closed. Historical planning text below is superseded by this exact Root dispatch. Root reconciles actual then-current branch/queue/worker state before dispatch. This task follows the October4 Owner clarification that membership/program conversion is DripWell's core commercial purpose.
 

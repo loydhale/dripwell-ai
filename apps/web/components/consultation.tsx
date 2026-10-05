@@ -22,6 +22,7 @@ import {
 import { decimalPrice, parsePrice } from './configuration-editor';
 import { AudioRecorder } from './audio-recorder';
 import { RecordingSegments } from './recording-segments';
+import { WellnessOffer } from './wellness-offer';
 import { waitForJob } from './job-client';
 import { Badge, Celebrate, EmptyState, ErrorBanner, Icon, Modal, Money, friendlyDate } from './ui';
 
@@ -1103,14 +1104,7 @@ function Wellness({
             {plan.offers.length ? (
               <div className="takeaway-offers">
                 {plan.offers.map((item) => (
-                  <div key={item.productId}>
-                    <div>
-                      <strong>{item.name}</strong>
-                      <Money cents={item.priceCents * item.quantity} currency={item.currency} />
-                    </div>
-                    <p>{item.rationale}</p>
-                    {item.terms ? <small>{item.terms}</small> : null}
-                  </div>
+                  <WellnessOffer key={item.productId} offer={item} />
                 ))}
               </div>
             ) : null}

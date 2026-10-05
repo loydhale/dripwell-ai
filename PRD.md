@@ -3,7 +3,7 @@
 **Version:** 2.0, consultation workflow  
 **Status:** Owner-authorized v2 source implemented; release verification and live service status are recorded in [verification evidence](docs/VERIFICATION_REPORT.md)\
 **Owner:** Loyd Hale  
-**Updated:** 2026-10-04\
+**Updated:** 2026-10-05\
 **Plan:** [Implementation plan](docs/IMPLEMENTATION_PLAN.md)  
 **Previous scope:** [Archived v1 PRD](docs/archive/PRD-v1.md)
 
@@ -245,6 +245,8 @@ The [bounded maintenance audit](docs/AUDIT_BOUNDED_MAINTENANCE.md) records indep
 The [compiled recurrence audit](docs/AUDIT_COMPILED_MAINTENANCE_RECURRENCE.md) additionally verifies local native timer recurrence, first-item recovery/current-state reminder effects, stop fencing and exact owned terminal cleanup on source3203f614. Three waits/two natural successors and full shared-data preservation are scoped service evidence; hosted cadence, deferred Blob/provider families and the complete pilot remain separate. All nine acceptance criteria above are unchanged.
 
 The [client membership reporting audit](docs/AUDIT_MEMBERSHIP_REPORTING.md) records the complete-cohort true/false/unknown partition, explicit consultation and recorded-outcome denominators, both primary displays and scoped source/check/build evidence. Twelve distinct affected cases use retained11 plus corrected1, with eleven deliberate focused exclusions and the original assertion failure preserved. Mocked SQL transport and static markup do not establish live enrollment, payment, browser/device or full-pilot evidence. All nine acceptance criteria above remain unchanged.
+
+The [approved wellness offers audit](docs/AUDIT_APPROVED_WELLNESS_OFFERS.md) records approved immutable benefits/matched reviewed goals in wellness v2.2/public takeaway2, truthful generation provenance, unchanged initial/care v2.1 and historical v1 raw hashes, tracked edits/reapproval and matching staff/share/PDF facts. Eighteen distinct affected identities use retained15 plus separately passed legacy and valid-eligibility cases and one shared-domain case; original failures and deliberate focused exclusions remain preserved. Three saved synthetic PDF text checks, types and explicit-production Webpack packaging passed. Mocked transport/static/text evidence does not establish live approval/delivery/browser/device/paid behavior or complete the pilot. All nine acceptance criteria above remain unchanged.
 
 ## 9. Explicit defaults and open decisions
 

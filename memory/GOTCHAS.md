@@ -198,6 +198,8 @@ TASK048 application,2026-10-05: Root's seed-acceptance collector assumed result.
 
 TASK048 publication compatibility retained at TASK049 closure, 2026-10-05: gh pr edit failed on the deprecated GraphQL repository.pullRequest.projectCards field. Normal publication had succeeded; this was a PR-body transport compatibility failure, not an app or build failure. A fresh normal REST GET proved the old 4,850-byte body, then one equivalent structured REST PATCH and final GET proved the approved 5,622-byte body. The raw.pr projection intentionally retains the pre-update body; finalPR is the updated readback. Keep both actual receipts (TASK048_ACTUAL_PR_BODY_UPDATE.json b9327414; TASK048_ACTUAL_REST_PR_BODY_UPDATE.json 31a17cd5) and use the normal supported REST body transport without replaying publication, discovering credentials or silently treating a historical projection as current.
 
+TASK050 application, 2026-10-05: descriptor roles original/compatible are separate from scope metadata, and direct input membership is separate from retained genuine review authority. A saved-map assertion also incorrectly demanded the retired separate Workflow step endpoint; the actual43 displayed/44 mapped routes match the retained combined-flow contract, with /_global-error as the extra map entry. Preserve read-only collector stops and correct only their declared-data projection. They do not relabel actual test/build results, require recursive history inventories or authorize rerunning checks.
+
 ## G-020: Private predecessor approval remains a Root operator boundary
 Date discovered: 2026-10-04
 Where: Private TASK046 TRANSPORT.py:272 predecessor and Root acceptance/once-GO handoffs
@@ -224,6 +226,8 @@ The isolated package build regenerated Prisma/shared output and compiled26 Workf
 
 Evidence:48b2e2d actual failure/scope;1e2a71ed private build-only plan;3dd24059 actual Webpack/post-state review;ffd7d22f actual cleanup review. The supported direct Next16.3.8 Webpack command completed with a new BUILD_ID pEa-kRSVkNVP08orJiPdq, 44 emitted routes,26 steps/3 workflows and integrated TypeScript/static31 output. This does not convert the original default Turbopack failure into PASS.
 
+
+TASK050 reinforcement, 2026-10-05: installed Next16.3.8 preserves an existing NODE_ENV, and the installed Eve integration selects a development-service branch from that value. A source-supported zero-run plan finding was corrected by setting production only for the reviewed build child, without inspecting inherited environment values or changing app config. Actual direct production Webpack then passed; its .env.local filename banner does not prove values were inspected or network traffic captured. Packaging output remains separate from default Turbopack, standalone Eve/native runtime and hosted delivery.
 
 ## G-023: Serialized Workflow errors need supported hydration
 Date discovered: 2026-10-04

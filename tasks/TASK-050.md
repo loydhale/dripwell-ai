@@ -1,9 +1,9 @@
 # TASK-050: Approved membership and program offer presentation
 
 TASK_ID: TASK-050
-STATUS: QUEUED, existing-scope planning only. No source/helper/provider operation is authorized by this brief before Root dispatch.
+STATUS: SOURCE_RESULTS_PASS, genuine cd5c956e on2026-10-05; learning is complete58ba9293; final whole-package co-sign and exact same-branch publication/current-source CI remain pending. Approved source/check scope is complete; full pilot remains incomplete.
 
-Planning only. Select after the current verification queue and enrollment-reporting slice, using the actual then-current source. This queued plan addresses approved PRD F-01/F-02/F-07; it adds no payment provider, medical protocol, patient campaign or new catalog type.
+Original queued plan below. It was selected after TASK049 actual publication/CI closure; the actual scoped evidence follows. This queued plan addresses approved PRD F-01/F-02/F-07; it adds no payment provider, medical protocol, patient campaign or new catalog type.
 
 ## Source observations to verify in the task
 
@@ -26,3 +26,27 @@ Staff can edit the explanation through existing tracked review. Client output mu
 Use distinct synthetic clinics with different official prices/benefits/terms and the actual current source. Meaningful affected checks should cover missing benefits/terms, a catalog change after a historical approval, staff-edited wording/reapproval, unconfirmed/declined wellness-offer preference, ineligible/unavailable products, no suitable offer and unchanged ordinary visit completion without membership. Confirm output/PDF/share facts agree where the implementation touches those paths.
 
 Root writes the actual bounded task/queue; the same Coder implements using mandatory Vercel Plugin/version-matched framework guidance; the same Auditor independently reviews source, real checks and learning. Source work or provider operations require a concrete Root dispatch and the applicable independent execution-plan review. Keep protected Preview and literal ALLOW_REAL_CLIENT_DATA=false; actual model/full-pilot evidence remains separately required.
+
+## Actual Root source dispatch, October5,2026
+
+TASK049 actual publication/new-source CI closure is independently PASS decf6728; Root accepted13 safe evidence descriptors in0f2ea4bc. Fresh native branch-ref GET matches the exact source base above. The same Coder performs this single source slice; the same Auditor reviews immutable source, meaningful actual checks and learning. Root maintains documentation and publishes only reviewed changes to this same branch/PR2.
+
+Implement the concrete wellness-only v2.2 offer snapshot and public takeaway version2 plan while retaining exact legacy v2.1/version1 read compatibility and untouched initial/care semantics. Both generated revision and generation-job prompt metadata must describe the actual result's version. A new tracked edit of a legacy plan may create a new explicitly reapproved version; an untouched saved artifact keeps its original facts and hash. Do not enrich historical documents from a current catalog or copy internal evidence/history/safety flags into public offer fields.
+
+Expected production boundaries are shared v2 contracts/engine, web clinic/sharing, consultation preview, one small shared presentational offer component and the actual app/share/[token]/page.tsx. New affected tests may use actual functions with mocked transport/static markup and tiny private synthetic PDF/text extraction. No old corpus replay. Affected shared/web compilation and one necessary installed Next16.3.8 explicit Webpack build are eligible with named DB/provider/auth/hosted selectors cleared and the literal false gate. Complete clipped boot-file reads before choosing APIs; apply the downloaded Vercel Plugin0.53.0/3b472643 and installed version-matched guidance.
+
+Author source/tests and a concrete bounded validation plan, freeze the exact relevant bytes, obtain the same Auditor's source/plan assessment, then use the separate Root check GO before executing validation. Record every actual first failure, selected/skipped count and limit. Real DB/browser/native/provider/auth or external operations require their own exact owned independently reviewed plan and Root GO; none is needed for this source slice. No helpers from closed tasks, migration replay, secrets inspection, paid route, personal-plan pooling, new clinical/platform authority, gate/protection change or full-pilot claim.
+
+Root protects its STATE/task049/task050 edits until genuine source/results review. Other public docs and index remain untouched by Coder. Return exact source/check evidence and typed descriptors so final learning/docs/publication can be independently reviewed.
+
+## Actual source and affected validation, October5,2026
+
+Independent source/results review cd5c956e PASS binds the unchanged seven reviewed production files and two tests,82 actual artifact pairs/20 references/final88 inputs. Root acceptance09fd0811 releases controlled documentation only. Wellness v2.2/public document2 snapshots supplied benefits/matched reviewed goals with truthful revision/job provenance; staff/share/PDF display the same approved facts. Initial/care v2.1, existing historical v1 raw payload/hash, eligibility, treatment, board/outcomes/reminders/trials/referrals and ordinary completion remain compatible.
+
+Eighteen distinct affected identities comprise original15 new passes plus one separately passed legacy case plus the final valid-eligibility case, and one separately passed shared-domain case. Original shared/full-unit15PASS-2FAIL/focused1PASS-1FAIL remain FAILED. Final focused1PASS/0FAIL/16skipped is not a full17-pass invocation. The domain native run passed1/skipped0 with17 explicit source exclusions. Test-only strict current-schema parsing, correct raw/public expectations, valid question why and intended-denial preconditions preserve all other case bodies; no production/schema relaxation or passing-case replay occurred.
+
+Three original synthetic PDF/document pairs were text-extracted without generation replay: A-v2 USD75, B-v2 CAD120, legacy-v1. Actual facts/total currency/supplied terms/optional wording and privacy/no-invented-cadence/legacy boundaries passed. Web types8.796s and one direct installed Next16.3.8 production Webpack build28.891s passed with actual child/outer0/no timeout and fresh88 pins. BUILD_ID Ws3R6LAOoM3_4PWBEzk5h;26 compiled steps/3workflows,43 displayed routes/44 map entries including internal global-error. Workflow5 combined handler is the previously reviewed contract, not a runtime proof.
+
+See [audit](../docs/AUDIT_APPROVED_WELLNESS_OFFERS.md). Mocked SQL/cookie/reminder transport, static markup and synthetic text do not prove live auth/delivery/persistence/concurrency, browser/device layout/hydration, clinical decisions, enrollment/payment or full pilot. Named selector clearing is not complete network evidence; .env.local values were not inspected. No real data, provider/DB/browser/native execution, deployment or new migration occurred. Every050 check entry is now closed/ineligible for replay.
+
+Mandatory learning/audit documentation PASS58ba9293 is complete. Next: finish the exact whole-package factual co-sign; commit only the reviewed package and publish normally without force to this same branch/PR2, read back the exact tree/body/open-unmerged state, and require actual normal current-source CI. Root will record the actual commit/CI closure before selecting the deferred Blob source task. Do not describe prepared publication as completed.

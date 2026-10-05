@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ApiError } from '@/lib/errors';
 import { priceLabel, sharedDocument, validShare, type TakeawayDocument } from '@/lib/sharing';
 import { VerificationForm } from './verification-form';
+import { WellnessOffer } from '@/components/wellness-offer';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -79,23 +80,7 @@ function VisitDocument({ document, token }: { document: TakeawayDocument; token:
               marginTop: 16,
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                gap: 16,
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-              }}
-            >
-              <h3 style={{ margin: 0 }}>{item.name}</h3>
-              <strong style={{ color: accent }}>{priceLabel(item)}</strong>
-            </div>
-            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>{item.rationale}</p>
-            {item.terms && (
-              <p style={{ color: '#63706b', fontSize: 13, whiteSpace: 'pre-wrap' }}>
-                Terms: {item.terms}
-              </p>
-            )}
+            <WellnessOffer offer={item} />
           </div>
         ))}
         {!document.offers.length && <p>No additional services or memberships were recommended.</p>}
