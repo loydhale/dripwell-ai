@@ -315,7 +315,9 @@ Recurrence: TASK050, 2026-10-05. A legacy/current wellness union caused the old 
 
 Same-task TASK050 continuation, 2026-10-05: normal CI annotation5901391e exposed one old integration assertion expecting v2.1 for both generated kinds, while the actual wellness result correctly carried v2.2. Preserve the artifact and assert INITIAL2.1/WELLNESS2.2 explicitly. Source review10d6c44a and CI-first planf75b9347 passed, but corrected-source CI is still unobserved. This extends the existing TASK050 contract recurrence; Seen remains4, with no new lesson, counter increment or corpus.
 
-Seen N times: 4
+Recurrence: TASK051, 2026-10-05. Original normal CI37290153415 failed before the intended foreign-owner assertion because a full RecordingObjectIdentity was passed to recordingObjectPath, whose runtime target schema strictly accepts only five owner/target fields. TypeScript structural assignability did not remove its six extra identity fields. Project tenantId, recordingId, consultationId, setupConversationId and uploadAttemptId at that caller; retain the full wrong-owner identity, canonical foreign path, all denial/detached-read assertions and production strictness. Independent static review missed this call; preserve its PASS, the original failed test/CI and the pre-execution CI-target guard finding. The exact caller-only repair was independently reviewed and normally published at7d3dff99; corrected automatic fresh-PG CI37295713374/job/check111716307472/suite101015127561 completed SUCCESS with all22 listed steps successful. Individual test counts/skips remain unknown. This is one distinct actual TASK051 fixture-contract recurrence, not a production/provider defect or proof of deletion/hosted/pilot readiness.
+
+Seen N times: 5
 
 ## L-036: Historical observation flags do not timestamp each later reply
 Date: 2026-10-03

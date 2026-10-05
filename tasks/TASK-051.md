@@ -1,7 +1,7 @@
 # TASK-051: Dormant recording deletion-intent foundation
 
 TASK_ID: TASK-051
-STATUS: APPLIED_CALLER_REPAIR_SOURCE_PASS_PENDING_FINAL_PACKAGE_PUBLICATION_AND_CI. Original source2d4ed783/tree8c690afb is published and independently verified; normalCI37290153415 remains FAILED at the annotated strict-target test caller. Separate sourceGO4e3a6186 applied only five target fields. Independent applied-source PASSe2823802 is read/accepted/all11 required members verified. Full reversal restores original a852; every assertion/title/other body/production byte and CI pin is preserved. Exact seven-path final package, ordinary publication and actual automatic corrected-head CI/independent learning closure remain required. Count28/TASK052 queued/fullpilot incomplete.
+STATUS: DONE_SCOPED_DORMANT_FOUNDATION_ONLY. Current source7d3dff99/treebccae is actually published and independently verified; normalCI37295713374/job-check111716307472/suite101015127561 completedSUCCESS with all22 listed steps successful. Genuine cumulative source/publication/CI/learningPASS90596f95 is fully read/all9 inputs verified and acceptedac5ed98f. Independent learningd8c4e1ec appliedd464fa1f; L035 Seen4to5 once, G019 clarification, other Seen unchanged. Counter29. Original source2d4ed783/CI37290153415 remainsFAILED, static miss/guard finding/test identities preserved; counts/skips unknown. Complete consumers/dedicated cleanup/5+5 provider behavior remains TASK052. No provider/hosted/deployment/fullpilot claim.
 PARENT_REQUEST: Owner-authorized completion, saved recording Blob-intent/adoption queue, PRD section6 and section8 criterion9.
 RECOVERY_ATTEMPT: 2. Original pre-execution target-guard review required one correction; actual original source CI now requires the narrow fixture caller correction. Retain the project three-attempt escalation rule, with no endless failing-check replay.
 
@@ -33,7 +33,7 @@ Freeze authored source/migration/test selection for same independent Auditor bef
 
 ## Closure and limits
 
-Same Coder is sole app writer, same Auditor reviews implementation and actual evidence/learning, Root owns STATE/CHANGELOG/task briefs and exact reviewed publication. Counter stays28 until genuine completion. No full-retention/deployment/pilot claim follows from source review.
+Same Coder is sole app writer, same Auditor reviews implementation and actual evidence/learning, Root owns STATE/CHANGELOG/task briefs and exact reviewed publication. Actual genuine cumulative closure90596f95 is now acceptedac5ed98f, counter29 once. This scoped completion does not establish full retention, a deployment or pilot readiness.
 
 Keep protected previews/literalALLOW_REAL_CLIENT_DATA=false. No provider purchase/switch, personal-plan pooling, upgrade, partner application, unselected administrator/clinical-authority bootstrap, messages/emails, real data or new feature/pricing/video/rating scope. Park individual external gates while continuing independent work.
 

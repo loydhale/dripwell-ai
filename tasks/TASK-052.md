@@ -1,7 +1,7 @@
 # TASK-052: Bounded recording cleanup and consumer integration
 
 TASK_ID: TASK-052
-STATUS: QUEUED, depends on actual TASK051 source/CI closure and separate concrete plan/review/Root GO.
+STATUS: READY_FOR_CONCRETE_PLAN_REVIEW, after genuine actual TASK051 source/publication/CI/learning closure90596f95 acceptedac5ed98f; counter29. Root closing-doc publication/readbacks precede next plan dispatch. No source-authoring or execution GO; same Coder/Auditor concrete plan and separate Root GO remain required.
 PARENT_REQUEST: Saved recording deletion/adoption/post-provider queue, PRD section6 and section8 criterion9.
 
 ## Goal and scope
@@ -20,3 +20,5 @@ Integrate dormant051 contracts across all recording consumers/dedicated cleanup,
 Re-read current boot/source and relevant actual plugin/installed APIs. Deliver bounded concrete consumer/provider-step plan for same Auditor and separate Root GO. Author finite-page/late-completion/legacy-defer/takeover/precondition/timeout/dedicated-path integration cases with injected provider/native effects. Use normal automatic fresh-PG CI after reviewed publication unless a separately reviewed concrete need warrants another bounded target.
 
 Actual compiled conditional deletion/uncached absence, hosted migration/enablement/cadence and full two-clinic pilot remain separately scoped. Preserve protected previews/literalfalse, clinical/service authority and ICM/eve. No purchase/provider swap/shared personal plan/upgrade/partner application/privileged bootstrap/messages/emails/real data/closed tool-check-migration replay/manual CI.
+
+Current accepted application prerequisite: source7d3dff9965c23b2da796c1b52b4b6adef0e9f012/treebccae1091d3f1734e54bd2b0ff90ff38dc87d4c0, normalCI37295713374/job-check111716307472/suite101015127561 SUCCESS/all22 listed stages, genuine cumulative90596f95/acceptanceac5ed98f. Individual test counts/skips remain unknown. Original051 failure and all closed runtime/migration/helper/check history remain retained and ineligible for replay. Plan current source only, with explicit consumer/post-I/O/five-plus-five complete boundaries before any provider enablement.
