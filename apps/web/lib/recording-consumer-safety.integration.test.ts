@@ -1,14 +1,17 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { type RecordingSegment } from '@prisma/client';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { Prisma, type RecordingSegment } from '@prisma/client';
+import { ZodError } from 'zod';
 import { clinicConfigurationSchema, emptyConsultationSummary } from '@dripwell/shared/v2';
 import { getDb } from './db';
+import { ApiError } from './errors';
 import { appendReceivedTranscript } from './clinic';
 import { maintenanceContext } from './maintenance-context';
 import type { MaintenanceClaim } from './maintenance-coordinator';
 import { captureRecordingObject, commitRecordingDeletion, recordingObjectPath, type RecordingObjectIdentity } from './recording-deletion-intents';
 import { acknowledgeRecordingStart, claimRecordingStart, failRecordingProcessing, prepareRecordingProcessing,
-  publishRecordingProcessing, refreshRecordingSnapshot } from './recording-processing';
+  publishRecordingProcessing, recordingInputFingerprint, refreshRecordingSnapshot } from './recording-processing';
 import { adoptRecordingUpload, cleanupDiscardedRecordingUploads, cleanupRecordingUploadAttempt } from './recording-uploads';
 import { adoptSetupRecording, performSetupRecordingUpload, reserveSetupRecording, settleSetupRecording } from './setup-recording-uploads';
 import { processRecordingJob } from '../workflows/recordings';
@@ -51,6 +54,109 @@ const configuration = clinicConfigurationSchema.parse({ schemaVersion: 2,
   questions: [], products: [], recommendationPolicy: { clinicalValidated: false, maxAddOns: 0, maxWellnessOffers: 0 },
   reminders: { careOutcomeHours: 1, wellnessDecisionHours: 1 }, retention: { audioDays: 1, documentDays: 1, shareExpiryHours: 1 } });
 
+// Test-local observations only. No query, argument, row, identifier or original
+// exception is serialized; the real transaction and production error mapper run.
+type DiagnosticScope = 'ISOLATED_AGGREGATE' | 'JOIN_ON_CHANGE_FAILURE' | 'SUMMARY_CORRECTION'
+  | 'SUMMARY_STAFF_ONLY' | 'SUMMARY_ADD' | 'SUMMARY_REMOVE' | 'SUMMARY_EXPIRY'
+  | 'SUMMARY_CHILD_RUN' | 'SUMMARY_CHILD_EXPIRY';
+type Phase = 'PREPARE' | 'PRIVATE_PREGET' | 'PRIVATE_POSTGET' | 'PRE_SUMMARY_PUBLICATION' | 'SUMMARY_PUBLICATION' | 'OTHER_TX';
+type Operation = 'RAW_LOCK_OR_CLOCK' | 'RECORDING_READ' | 'RECORDING_WRITE' | 'JOB_READ' | 'JOB_WRITE'
+  | 'CONSULTATION_READ' | 'CONSULTATION_WRITE' | 'REVISION_WRITE' | 'EVENT_READ' | 'EVENT_WRITE' | 'OTHER_TX_OPERATION';
+type Stage = Phase | Operation | 'TX_ENTERED' | 'TX_BODY_RETURNED' | 'TX_COMMITTED' | 'TX_REJECTED'
+  | 'OP_REJECTED' | 'SUMMARY_PROVIDER_ENTERED';
+type ProcessingOutcome = { ok: true } | { error: unknown };
+const apiCodes = ['PROCESSING_JOB_REQUIRED', 'PROCESSING_ACCESS_CHANGED', 'RECORDING_INPUTS_CHANGED',
+  'RECORDING_OBJECT_UNAVAILABLE', 'RECORDING_OBJECT_IDENTITY_INVALID', 'SUMMARY_SNAPSHOT_REQUIRED',
+  'SETUP_LOCATION_BINDING_REQUIRED', 'REAL_CLIENT_DATA_DISABLED', 'JOB_STARTING', 'STORED_FILE_INVALID'] as const;
+const prismaCodes = ['P2002', 'P2003', 'P2010', 'P2025', 'P2028', 'P2034'] as const;
+const sqlStates = ['23514', '23505', '23503', '40001', '40P01'] as const;
+const constraints = ['RecordingSegment_valid_capture', 'RecordingSegment_single_target',
+  'SetupRecordingUpload_capture', 'SetupRecordingUpload_settlement'] as const;
+const validationFields = ['result', 'recordingObject', 'recordingId', 'expectedSummaryRevision', 'processingSummaryAttempt',
+  'schemaVersion', 'clinic', 'name', 'currency', 'contact', 'brandColor', 'questions', 'products',
+  'id', 'text', 'why', 'type', 'options', 'required', 'safetyRelevant', 'activeWhen', 'priority', 'questionId', 'operator', 'value',
+  'description', 'priceCents', 'available', 'ingredients', 'quantity', 'goalTags', 'compatibleWith', 'benefits', 'terms',
+  'clinical', 'rules', 'validated', 'validationNote', 'eligibility', 'exclusions', 'rationale', 'validatedBy',
+  'recommendationPolicy', 'clinicalValidated', 'maxAddOns', 'maxWellnessOffers', 'reminders',
+  'careOutcomeHours', 'wellnessDecisionHours', 'retention', 'audioDays', 'documentDays', 'shareExpiryHours'] as const;
+function allowlisted<T extends string>(value: unknown, values: readonly T[]): T | 'UNKNOWN' {
+  return typeof value === 'string' ? values.find(allowed => allowed === value) ?? 'UNKNOWN' : 'UNKNOWN';
+}
+function safeDiagnosticError(error: unknown) {
+  const classification = error instanceof ApiError ? 'API'
+    : error instanceof Prisma.PrismaClientKnownRequestError ? 'PRISMA_KNOWN'
+    : error instanceof Prisma.PrismaClientUnknownRequestError ? 'PRISMA_UNKNOWN'
+    : error instanceof Prisma.PrismaClientValidationError ? 'PRISMA_VALIDATION'
+    : error instanceof ZodError ? 'ZOD' : error instanceof TypeError ? 'TYPE_ERROR'
+    : error instanceof RangeError ? 'RANGE_ERROR' : error instanceof Error ? 'ERROR' : 'NON_ERROR';
+  const meta = error instanceof Prisma.PrismaClientKnownRequestError ? error.meta : undefined;
+  // A message mention is never promoted to a structured SQLSTATE or cause.
+  const message = error instanceof Error ? error.message : '';
+  const metaMessage = typeof meta?.message === 'string' ? meta.message : '';
+  return { class: classification,
+    code: error instanceof ApiError ? allowlisted(error.code, apiCodes)
+      : error instanceof Prisma.PrismaClientKnownRequestError ? allowlisted(error.code, prismaCodes) : 'UNKNOWN',
+    sqlState: allowlisted(meta?.code, sqlStates),
+    constraintMention: constraints.find(name => message.includes(name) || metaMessage.includes(name)) ?? 'UNKNOWN',
+    validationPaths: error instanceof ZodError ? error.issues.slice(0, 4).map(issue => issue.path.slice(0, 4)
+      .map(part => typeof part === 'string' && validationFields.some(field => field === part) ? part : 'OTHER_PATH')) : [] };
+}
+interface Diagnostic {
+  scope: DiagnosticScope; ordinal: number; phase: Phase; callbackEntered: boolean; bodyReturned: boolean; committed: boolean;
+  attempted: Operation; completed: Operation | 'NONE'; providerEntered: boolean; stages: Stage[];
+  firstError?: { phase: Phase; operation: Operation; error: ReturnType<typeof safeDiagnosticError> };
+}
+const diagnosticContext = new AsyncLocalStorage<Diagnostic>();
+function stage(diagnostic: Diagnostic, value: Stage) {
+  if (!diagnostic.stages.includes(value) && diagnostic.stages.length < 24) diagnostic.stages.push(value);
+}
+function observeError(diagnostic: Diagnostic, error: unknown) {
+  diagnostic.firstError ??= { phase: diagnostic.phase, operation: diagnostic.attempted, error: safeDiagnosticError(error) };
+}
+function summaryProviderEntered() {
+  const diagnostic = diagnosticContext.getStore();
+  if (diagnostic) { diagnostic.providerEntered = true; stage(diagnostic, 'SUMMARY_PROVIDER_ENTERED'); }
+}
+function operation(delegate: string, method: string): Operation {
+  if (delegate === 'RAW') return 'RAW_LOCK_OR_CLOCK';
+  const read = method.startsWith('find') || method === 'count' || method === 'aggregate' || method === 'groupBy';
+  if (delegate === 'recordingSegment') return read ? 'RECORDING_READ' : 'RECORDING_WRITE';
+  if (delegate === 'generationJob') return read ? 'JOB_READ' : 'JOB_WRITE';
+  if (delegate === 'consultation') return read ? 'CONSULTATION_READ' : 'CONSULTATION_WRITE';
+  if (delegate === 'consultationRevision' && !read) return 'REVISION_WRITE';
+  if (delegate === 'consultationEvent') return read ? 'EVENT_READ' : 'EVENT_WRITE';
+  return 'OTHER_TX_OPERATION';
+}
+function observedTransaction(tx: Prisma.TransactionClient, diagnostic: Diagnostic): Prisma.TransactionClient {
+  function invoke(receiver: object, method: Function, args: unknown[], label: Operation) {
+    diagnostic.attempted = label; stage(diagnostic, label);
+    try {
+      // PrismaPromises are lazy. Consume once, then return ONLY that completion
+      // Promise, never both an attached observer and the original lazy promise.
+      return Promise.resolve(Reflect.apply(method, receiver, args)).then(result => {
+        diagnostic.completed = label; return result;
+      }, error => { stage(diagnostic, 'OP_REJECTED'); observeError(diagnostic, error); throw error; });
+    } catch (error) { stage(diagnostic, 'OP_REJECTED'); observeError(diagnostic, error); throw error; }
+  }
+  const delegates = new Set(['recordingSegment', 'generationJob', 'consultation', 'consultationRevision', 'consultationEvent',
+    'user', 'tenant', 'setupConversation', 'clinicConfigurationVersion', 'recordingDeletionIntent', 'setupRecordingUpload']);
+  const cache = new Map<string, object>();
+  return new Proxy(tx, { get(target, key) {
+    const value = Reflect.get(target, key, target);
+    if (typeof key === 'string' && ['$queryRaw', '$executeRaw', '$queryRawUnsafe', '$executeRawUnsafe'].includes(key)
+      && typeof value === 'function') return (...args: unknown[]) => invoke(target, value, args, operation('RAW', key));
+    if (typeof key === 'string' && delegates.has(key) && value && typeof value === 'object') {
+      if (!cache.has(key)) cache.set(key, new Proxy(value, { get(delegate, method) {
+        const original = Reflect.get(delegate, method, delegate);
+        return typeof original === 'function' && typeof method === 'string'
+          ? (...args: unknown[]) => invoke(delegate, original, args, operation(key, method)) : original;
+      } }));
+      return cache.get(key);
+    }
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+}
+
 suite('recording consumer safety against disposable PostgreSQL', () => {
   const nonce = randomUUID();
   const tenantId = randomUUID(); const ownerId = randomUUID(); const staffId = randomUUID();
@@ -63,6 +169,76 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
   const orphanOwners: Array<{ tenantId: string; userId: string; conversationId: string }> = [];
   let control: RecordingSegment;
   let claim: MaintenanceClaim;
+  let restoreTransaction: (() => void) | undefined;
+  const pending = new Set<Promise<ProcessingOutcome>>();
+  let blocked: 'DIAGNOSTIC_NOT_QUIESCENT' | 'DIAGNOSTIC_METADATA_LIMIT' | undefined;
+  let recordCount = 0; let overflowCount = 0; let limitEmitted = false; let quiescenceEmitted = false;
+
+  function requireUnblocked() { if (blocked) throw new Error(blocked); }
+  function emitDiagnostic(record: object): boolean {
+    const encoded = JSON.stringify(record);
+    if (limitEmitted || recordCount >= 11 || Buffer.byteLength(encoded, 'utf8') > 1024) {
+      overflowCount++; blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
+      if (!limitEmitted && recordCount < 12) {
+        limitEmitted = true; recordCount++;
+        console.info(JSON.stringify({ outcome: 'DIAGNOSTIC_METADATA_LIMIT', records: recordCount, overflowCount }));
+      }
+      return false;
+    }
+    recordCount++; console.info(encoded); return true;
+  }
+  function startProcessing(jobId: string, runId: string, scope?: DiagnosticScope): Promise<ProcessingOutcome> {
+    requireUnblocked();
+    const diagnostic: Diagnostic | undefined = scope ? { scope, ordinal: 0, phase: 'OTHER_TX', callbackEntered: false,
+      bodyReturned: false, committed: false, attempted: 'OTHER_TX_OPERATION', completed: 'NONE', providerEntered: false, stages: [] } : undefined;
+    // All starts use this registry, including starts outside diagnostic scopes.
+    const started = diagnostic ? diagnosticContext.run(diagnostic, () => processRecordingJob(jobId, runId))
+      : processRecordingJob(jobId, runId);
+    const finished = started.then<ProcessingOutcome, ProcessingOutcome>(() => ({ ok: true }), (error: unknown) => ({ error }));
+    const tracked = finished.then(outcome => {
+      pending.delete(tracked); // Only actual settlement removes ownership.
+      if (diagnostic) {
+        const safe = emitDiagnostic({ scope: diagnostic.scope, phase: diagnostic.phase, ordinal: diagnostic.ordinal,
+          callbackEntered: diagnostic.callbackEntered, bodyReturned: diagnostic.bodyReturned, committed: diagnostic.committed,
+          attempted: diagnostic.attempted, completed: diagnostic.completed, stages: diagnostic.stages,
+          providerBoundaryEntered: diagnostic.providerEntered, pendingCount: pending.size,
+          outcome: 'error' in outcome ? 'PROCESSING_FAILED' : 'PROCESSING_COMPLETE',
+          firstTransactionError: diagnostic.firstError ?? null,
+          processingError: 'error' in outcome ? safeDiagnosticError(outcome.error) : null });
+        if (!safe && !('error' in outcome)) return { error: new Error('DIAGNOSTIC_METADATA_LIMIT') };
+      }
+      return outcome;
+    });
+    pending.add(tracked);
+    return tracked;
+  }
+  async function runProcessing(jobId: string, runId: string, scope?: DiagnosticScope) {
+    const outcome = await startProcessing(jobId, runId, scope);
+    if ('error' in outcome) throw outcome.error;
+  }
+  async function drainProcessing() {
+    requireUnblocked();
+    const deadline = performance.now() + 15_000;
+    while (pending.size) {
+      const remaining = deadline - performance.now();
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const settled = remaining > 0 ? await Promise.race([
+        Promise.all([...pending]).then(() => true),
+        new Promise<false>(resolve => { timer = setTimeout(() => resolve(false), remaining); }),
+      ]).finally(() => { if (timer !== undefined) clearTimeout(timer); }) : false;
+      if (!settled || performance.now() > deadline) {
+        blocked = 'DIAGNOSTIC_NOT_QUIESCENT';
+        if (!quiescenceEmitted) {
+          quiescenceEmitted = true;
+          emitDiagnostic({ outcome: 'DIAGNOSTIC_NOT_QUIESCENT', pendingCount: pending.size });
+        }
+        // No deletion of pending work, reset, fixture or teardown SQL follows.
+        throw new Error('DIAGNOSTIC_NOT_QUIESCENT');
+      }
+    }
+    requireUnblocked();
+    expect(pending.size).toBe(0);
+  }
 
   beforeAll(async () => {
     vi.stubEnv('ALLOW_REAL_CLIENT_DATA', 'false');
@@ -76,6 +252,33 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     claim = { context, generation: '1', ordinal: '0', token: randomUUID(), mode: 'MANUAL',
       dueAt: new Date().toISOString(), runId: `synthetic-${nonce}` };
     const db = getDb();
+    const originalTransaction = db.$transaction.bind(db);
+    const transaction: typeof db.$transaction = ((...args: unknown[]) => {
+      const diagnostic = diagnosticContext.getStore();
+      const callback = args[0];
+      // Batch PrismaPromises and unscoped calls retain the native overload,
+      // receiver and arguments; no promise is independently observed/consumed.
+      if (!diagnostic || typeof callback !== 'function') return Reflect.apply(originalTransaction, db, args);
+      diagnostic.ordinal++;
+      diagnostic.phase = (['PREPARE', 'PRIVATE_PREGET', 'PRIVATE_POSTGET', 'PRE_SUMMARY_PUBLICATION', 'SUMMARY_PUBLICATION'] as const)
+        [diagnostic.ordinal - 1] ?? 'OTHER_TX';
+      diagnostic.callbackEntered = false; diagnostic.bodyReturned = false; diagnostic.committed = false;
+      diagnostic.attempted = 'OTHER_TX_OPERATION'; diagnostic.completed = 'NONE'; stage(diagnostic, diagnostic.phase);
+      const observedBody = async (tx: Prisma.TransactionClient) => {
+        diagnostic.callbackEntered = true; stage(diagnostic, 'TX_ENTERED');
+        try {
+          const result = await Reflect.apply(callback, undefined, [observedTransaction(tx, diagnostic)]);
+          diagnostic.bodyReturned = true; stage(diagnostic, 'TX_BODY_RETURNED'); return result;
+        } catch (error) { observeError(diagnostic, error); throw error; }
+      };
+      try {
+        return Promise.resolve(Reflect.apply(originalTransaction, db, [observedBody, ...args.slice(1)])).then(result => {
+          diagnostic.committed = true; stage(diagnostic, 'TX_COMMITTED'); return result;
+        }, error => { stage(diagnostic, 'TX_REJECTED'); observeError(diagnostic, error); throw error; });
+      } catch (error) { stage(diagnostic, 'TX_REJECTED'); observeError(diagnostic, error); throw error; }
+    }) as typeof db.$transaction;
+    const spy = vi.spyOn(db, '$transaction').mockImplementation(transaction);
+    restoreTransaction = () => spy.mockRestore();
     for (const id of [tenantId, controlTenantId]) await db.tenant.create({ data: { id,
       slug: `consumer-${id}`, name: 'Synthetic consumer fixture', state: 'TEST', medicalDirector: 'Synthetic only' } });
     for (const [id, tenant, role] of [[ownerId, tenantId, 'SUPER_USER'], [staffId, tenantId, 'STAFF'],
@@ -96,48 +299,58 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       environment: context.environment, branch: context.branch, deploymentId: context.deploymentId, cadenceMs: context.cadenceMs,
       mode: 'MANUAL', enabled: false, phase: 'RUNNING', generation: 1n, ordinal: 0n, claimToken: claim.token, ownerRunId: claim.runId } });
   });
-  beforeEach(() => {
+  beforeEach(async () => {
+    await drainProcessing();
     vi.clearAllMocks();
+    // Reset only injected effects, never the original-client delegating spy.
+    for (const effect of [provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start]) effect.mockReset();
     provider.start.mockImplementation(() => { throw new Error('Unexpected native start'); });
     provider.get.mockImplementation(async (url: string) => {
       const object = objects.get(url); if (!object) throw new Error('Unowned synthetic private read');
       return { statusCode: 200, blob: { url, pathname: object.blobPath, etag: object.etag, size: 2 },
         stream: new ReadableStream<Uint8Array>({ start(controller) { controller.enqueue(new Uint8Array([1, 2])); controller.close(); } }) };
     });
-    provider.transcribe.mockResolvedValue(transcription); provider.summary.mockResolvedValue(summary); provider.catalog.mockResolvedValue(catalog);
+    provider.transcribe.mockResolvedValue(transcription);
+    provider.summary.mockImplementation(async () => { summaryProviderEntered(); return summary; });
+    provider.catalog.mockResolvedValue(catalog);
   });
+  afterEach(async () => { await drainProcessing(); });
   afterAll(async () => {
-    const db = getDb();
-    try { expect(await db.recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control); }
-    finally {
-      // Only rows created by this nonce/its real production calls are eligible.
-      const produced = await db.generationJob.findMany({ where: { tenantId }, select: { id: true } });
-      for (const row of produced) jobIds.add(row.id);
-      await db.recordingDeletionIntent.deleteMany({ where: { id: { in: [...intentIds] } } });
-      await db.setupRecordingUpload.deleteMany({ where: { id: { in: [...journalIds] } } });
-      for (const orphan of orphanOwners) {
-        await db.setupConversation.deleteMany({ where: { id: orphan.conversationId, tenantId: orphan.tenantId } });
-        await db.user.deleteMany({ where: { id: orphan.userId, tenantId: orphan.tenantId } });
-        await db.tenant.deleteMany({ where: { id: orphan.tenantId } });
+    try {
+      await drainProcessing();
+      const db = getDb();
+      try { expect(await db.recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control); }
+      finally {
+        // Only rows created by this nonce/its real production calls are eligible.
+        const produced = await db.generationJob.findMany({ where: { tenantId }, select: { id: true } });
+        for (const row of produced) jobIds.add(row.id);
+        await db.recordingDeletionIntent.deleteMany({ where: { id: { in: [...intentIds] } } });
+        await db.setupRecordingUpload.deleteMany({ where: { id: { in: [...journalIds] } } });
+        for (const orphan of orphanOwners) {
+          await db.setupConversation.deleteMany({ where: { id: orphan.conversationId, tenantId: orphan.tenantId } });
+          await db.user.deleteMany({ where: { id: orphan.userId, tenantId: orphan.tenantId } });
+          await db.tenant.deleteMany({ where: { id: orphan.tenantId } });
+        }
+        await db.generationJob.deleteMany({ where: { id: { in: [...jobIds] }, tenantId } });
+        await db.recordingSegment.deleteMany({ where: { id: { in: [...recordingIds] }, tenantId } });
+        await db.consultation.deleteMany({ where: { id: { in: [...visitIds] }, tenantId } });
+        await db.clinicConfigurationVersion.deleteMany({ where: { id: versionId, tenantId } });
+        await db.setupConversation.deleteMany({ where: { id: conversationId, tenantId } });
+        await db.user.deleteMany({ where: { id: { in: [ownerId, staffId] }, tenantId } });
+        await db.location.deleteMany({ where: { id: locationId, tenantId } });
+        await db.tenant.deleteMany({ where: { id: tenantId } });
+        await db.recordingSegment.deleteMany({ where: { id: controlRecordingId, tenantId: controlTenantId } });
+        await db.setupConversation.deleteMany({ where: { id: controlConversationId, tenantId: controlTenantId } });
+        await db.user.deleteMany({ where: { id: controlOwnerId, tenantId: controlTenantId } });
+        await db.tenant.deleteMany({ where: { id: controlTenantId } });
+        if (claim) await db.maintenanceCoordinator.deleteMany({ where: { key: claim.context.key } });
+        vi.unstubAllEnvs(); await db.$disconnect();
       }
-      await db.generationJob.deleteMany({ where: { id: { in: [...jobIds] }, tenantId } });
-      await db.recordingSegment.deleteMany({ where: { id: { in: [...recordingIds] }, tenantId } });
-      await db.consultation.deleteMany({ where: { id: { in: [...visitIds] }, tenantId } });
-      await db.clinicConfigurationVersion.deleteMany({ where: { id: versionId, tenantId } });
-      await db.setupConversation.deleteMany({ where: { id: conversationId, tenantId } });
-      await db.user.deleteMany({ where: { id: { in: [ownerId, staffId] }, tenantId } });
-      await db.location.deleteMany({ where: { id: locationId, tenantId } });
-      await db.tenant.deleteMany({ where: { id: tenantId } });
-      await db.recordingSegment.deleteMany({ where: { id: controlRecordingId, tenantId: controlTenantId } });
-      await db.setupConversation.deleteMany({ where: { id: controlConversationId, tenantId: controlTenantId } });
-      await db.user.deleteMany({ where: { id: controlOwnerId, tenantId: controlTenantId } });
-      await db.tenant.deleteMany({ where: { id: controlTenantId } });
-      if (claim) await db.maintenanceCoordinator.deleteMany({ where: { key: claim.context.key } });
-      vi.unstubAllEnvs(); await db.$disconnect();
-    }
+    } finally { restoreTransaction?.(); }
   });
 
   async function fixture(kind: 'TRANSCRIPTION' | 'SETUP_TRANSCRIPTION' | 'CATALOG_EXTRACTION' = 'TRANSCRIPTION', consultationId?: string) {
+    requireUnblocked();
     const id = randomUUID(); recordingIds.add(id);
     const consultation = kind === 'TRANSCRIPTION';
     const visit = consultation ? consultationId ?? randomUUID() : null;
@@ -155,10 +368,12 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       url: `https://syntheticstore.private.blob.vercel-storage.com/${path}`, etag: `"${randomUUID()}"` });
     objects.set(object.objectUrl, object);
     const sequence = visit ? await getDb().recordingSegment.count({ where: { tenantId, consultationId: visit } }) : 0;
+    const clock = await databaseClock();
     await getDb().recordingSegment.create({ data: { id, tenantId, userId: consultation ? staffId : ownerId,
       consultationId: visit, setupConversationId: target.setupConversationId, segmentKey: randomUUID(), sequence,
       blobPath: path, blobObject: object, mimeType: kind === 'CATALOG_EXTRACTION' ? 'text/plain' : 'audio/webm', bytes: 2,
-      consentAt: new Date(Date.now() - 7200000), expiresAt: new Date(Date.now() + 3600000) } });
+      consentAt: new Date(clock.getTime() - 7200000), createdAt: new Date(clock.getTime() - 3600000),
+      expiresAt: new Date(clock.getTime() + 3600000) } });
     if (attemptId) {
       jobIds.add(attemptId);
       await getDb().generationJob.create({ data: { id: attemptId, tenantId, consultationId: visit, userId: staffId,
@@ -172,24 +387,55 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       result: { recordingId: id, recordingObject: object, ...(consultation ? { expectedSummaryRevision: 1 } : { conversationId }) } } });
     return { id, object, jobId, runId, visit };
   }
+  async function databaseClock(): Promise<Date> {
+    requireUnblocked();
+    const rows = await getDb().$queryRaw<Array<{ now: Date }>>`SELECT clock_timestamp() AS "now"`;
+    expect(rows).toHaveLength(1); expect(rows[0].now).toBeInstanceOf(Date);
+    expect(Number.isFinite(rows[0].now.getTime())).toBe(true);
+    return rows[0].now;
+  }
+  async function expireRecording(id: string) {
+    requireUnblocked(); expect(recordingIds.has(id)).toBe(true);
+    const row = await getDb().recordingSegment.findFirstOrThrow({ where: { id, tenantId } });
+    const clock = await databaseClock();
+    const expiresAt = new Date(clock.getTime() - 1000);
+    expect(row.createdAt.getTime()).toBeLessThan(expiresAt.getTime());
+    // Preserve creation/consent/object/owner; only this exact fixture expires.
+    await getDb().recordingSegment.update({ where: { id, tenantId }, data: { expiresAt } });
+    const proof = await getDb().$queryRaw<Array<{ valid: boolean }>>`
+      SELECT "createdAt" < "expiresAt" AND "expiresAt" <= clock_timestamp() AS "valid"
+      FROM "RecordingSegment" WHERE "id" = ${id}::uuid AND "tenantId" = ${tenantId}::uuid`;
+    expect(proof).toEqual([{ valid: true }]);
+  }
   async function child(parent: Awaited<ReturnType<typeof fixture>>) {
     const id = randomUUID(); jobIds.add(id);
     return getDb().generationJob.create({ data: { id, tenantId, userId: staffId, consultationId: parent.visit,
       kind: 'SUMMARY', status: 'RUNNING', runId: parent.runId, model: 'synthetic-provider', promptVersion: 'synthetic-only',
       idempotencyKey: `summary:${parent.jobId}` } });
   }
-  async function late(effect: typeof provider.transcribe, owned: Awaited<ReturnType<typeof fixture>>, change: () => Promise<unknown>, result: unknown) {
+  async function late(effect: typeof provider.transcribe, owned: Awaited<ReturnType<typeof fixture>>, change: () => Promise<unknown>,
+    result: unknown, scope?: DiagnosticScope) {
     const entered = deferred(); const release = deferred();
-    effect.mockImplementationOnce(async () => { entered.resolve(); await release.promise; return result; });
-    const finished = processRecordingJob(owned.jobId, owned.runId).then(() => ({ ok: true }), error => ({ error }));
+    effect.mockImplementationOnce(async () => {
+      if (effect === provider.summary) summaryProviderEntered();
+      entered.resolve(); await release.promise; return result;
+    });
+    const finished = startProcessing(owned.jobId, owned.runId, scope);
+    let firstError: unknown; let hasFirstError = false;
     try {
       await Promise.race([entered.promise, finished.then(outcome => {
         if ('error' in outcome) throw outcome.error;
         throw new Error('Synthetic processing returned before the selected provider boundary');
       })]);
       await change();
-    } finally { release.resolve(); }
-    return finished;
+    } catch (error) { firstError = error; hasFirstError = true; }
+    finally { release.resolve(); }
+    // A change error still joins the started work. On a bounded timeout the
+    // registry stays owned and blocked; it is never falsely marked settled.
+    try { await drainProcessing(); }
+    catch (error) { if (!hasFirstError) { firstError = error; hasFirstError = true; } }
+    if (hasFirstError) throw firstError;
+    return await finished;
   }
 
   async function failedSummaryAttempt() {
@@ -198,7 +444,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     const first = await claimRecordingStart(owned.jobId); expect(first).not.toBeNull();
     expect(await acknowledgeRecordingStart(owned.jobId, first!.token, owned.runId)).toBe(true);
     provider.summary.mockRejectedValueOnce(new Error('Synthetic summary failure'));
-    await expect(processRecordingJob(owned.jobId, owned.runId)).rejects.toThrow();
+    await expect(runProcessing(owned.jobId, owned.runId)).rejects.toThrow();
     const summaryJob = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: {
       tenantId, idempotencyKey: `summary:${owned.jobId}` } } });
     jobIds.add(summaryJob.id);
@@ -219,6 +465,37 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
   }
 
   test('recovers the exact failed summary child on a legitimate new attempt without duplicate effects', async () => {
+    // This aggregate reaches the real injected summary boundary before any
+    // previous late/failing work, independently of the retry control below.
+    const isolated = await fixture(); const contributor = await fixture('TRANSCRIPTION', isolated.visit!);
+    await getDb().recordingSegment.update({ where: { id: contributor.id }, data: {
+      transcript: 'Synthetic isolated earlier contributor', status: 'TRANSCRIBED' } });
+    const summaryCallsBefore = provider.summary.mock.calls.length;
+    await runProcessing(isolated.jobId, isolated.runId, 'ISOLATED_AGGREGATE');
+    expect(provider.summary.mock.calls.length).toBe(summaryCallsBefore + 1);
+    expect(provider.summary.mock.calls[summaryCallsBefore][0]).toEqual([
+      { recordingId: isolated.id, text: transcription.text },
+      { recordingId: contributor.id, text: 'Synthetic isolated earlier contributor' },
+    ]);
+    const isolatedChild = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: {
+      tenantId, idempotencyKey: `summary:${isolated.jobId}` } } });
+    jobIds.add(isolatedChild.id);
+    const isolatedInputs = await getDb().recordingSegment.findMany({ where: { tenantId, consultationId: isolated.visit } });
+    expect(isolatedInputs.map(row => row.id).sort()).toEqual([isolated.id, contributor.id].sort());
+    expect(isolatedInputs.find(row => row.id === isolated.id)).toMatchObject({ blobObject: isolated.object });
+    expect(isolatedInputs.find(row => row.id === contributor.id)).toMatchObject({ blobObject: contributor.object });
+    expect(isolatedChild).toMatchObject({ status: 'COMPLETE', runId: isolated.runId,
+      result: { applied: true, recordingInputFingerprint: recordingInputFingerprint(isolatedInputs) } });
+    expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: isolated.jobId } })).toMatchObject({
+      status: 'COMPLETE', runId: isolated.runId,
+      result: { summaryJobId: isolatedChild.id, summaryApplied: true, needsReview: true, recordingObject: isolated.object } });
+    expect(await getDb().consultationEvent.count({ where: { consultationId: isolated.visit!, action: 'TRANSCRIPT_RECEIVED' } })).toBe(1);
+    expect(await getDb().consultationEvent.count({ where: { consultationId: isolated.visit!, action: 'SUMMARY_PROPOSED' } })).toBe(1);
+    expect(await getDb().consultation.findUniqueOrThrow({ where: { id: isolated.visit! } })).toMatchObject({
+      clinicalApprovedVersion: null, wellnessApprovedVersion: null,
+      transcript: [{ id: isolated.id }, { id: contributor.id }],
+      summary: { staffReviewed: false, wellnessOffersAllowed: null } });
+    expect(await getDb().user.findUniqueOrThrow({ where: { id: staffId } })).toMatchObject({ canApproveClinical: false });
     const owned = await failedSummaryAttempt();
     const transcriptEvents = await getDb().consultationEvent.count({ where: { consultationId: owned.visit!, action: 'TRANSCRIPT_RECEIVED' } });
     expect(transcriptEvents).toBe(1);
@@ -241,7 +518,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } })).toEqual(parent);
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.childId } })).toEqual(rearmedChild);
     expect(forbidden).not.toHaveBeenCalled();
-    await processRecordingJob(owned.jobId, newRun);
+    await runProcessing(owned.jobId, newRun);
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } })).toMatchObject({ status: 'COMPLETE', runId: newRun,
       result: { summaryApplied: true, needsReview: true, recordingObject: owned.object } });
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.childId } })).toMatchObject({ status: 'COMPLETE', runId: newRun });
@@ -254,7 +531,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     const completed = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
     const completedChild = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.childId } });
     const calls = [provider.get.mock.calls.length, provider.summary.mock.calls.length];
-    await processRecordingJob(owned.jobId, newRun); await failRecordingProcessing(owned.jobId, owned.runId, 'OLD_FAILURE');
+    await runProcessing(owned.jobId, newRun); await failRecordingProcessing(owned.jobId, owned.runId, 'OLD_FAILURE');
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } })).toEqual(completed);
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.childId } })).toEqual(completedChild);
     expect([provider.get.mock.calls.length, provider.summary.mock.calls.length]).toEqual(calls);
@@ -276,7 +553,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       if (mode === 'unproven') await getDb().generationJob.update({ where: { id: owned.jobId }, data: {
         result: { recordingId: owned.id, recordingObject: owned.object, expectedSummaryRevision: 1 } } });
       if (mode === 'input') await getDb().recordingSegment.update({ where: { id: owned.id }, data: { staffTranscript: 'Later synthetic correction' } });
-      if (mode === 'expiry' || mode === 'detached') await getDb().recordingSegment.update({ where: { id: owned.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+      if (mode === 'expiry' || mode === 'detached') await expireRecording(owned.id);
       if (mode === 'detached') {
         const committed = await commitRecordingDeletion(claim, { identity: owned.object, reason: 'RETENTION' });
         expect(committed.status).toBe('COMMITTED'); if (committed.status === 'COMMITTED') intentIds.add(committed.intentId);
@@ -306,7 +583,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       if (mode === 'input') await getDb().recordingSegment.update({ where: { id: owned.id }, data: { staffTranscript: 'Synthetic correction after native claim' } });
       if (mode === 'child-expiry' || mode === 'parent-expiry') await getDb().generationJob.update({ where: {
         id: mode === 'child-expiry' ? owned.childId : owned.jobId }, data: { expiresAt: new Date(Date.now() - 1000) } });
-      if (mode === 'expiry') await getDb().recordingSegment.update({ where: { id: owned.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+      if (mode === 'expiry') await expireRecording(owned.id);
       const parent = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
       const currentChild = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.childId } });
       await expect(acknowledgeRecordingStart(owned.jobId, claimed!.token,
@@ -319,11 +596,19 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
   });
 
   test('rejects late consultation transcript after detachment or discard', async () => {
+    // A setup transcription settles through the same real transaction/late
+    // helper without consuming the consultation summary mock's original
+    // no-call assertions in the detach/discard branches that follow.
+    const joining = await fixture('SETUP_TRANSCRIPTION');
+    const sentinel = new Error('Synthetic first change failure');
+    await expect(late(provider.transcribe, joining, async () => { throw sentinel; }, transcription,
+      'JOIN_ON_CHANGE_FAILURE')).rejects.toBe(sentinel);
+    expect(pending.size).toBe(0); requireUnblocked();
     for (const mode of ['detach', 'discard'] as const) {
       const owned = await fixture();
       const finished = await late(provider.transcribe, owned, async () => {
         if (mode === 'detach') {
-          await getDb().recordingSegment.update({ where: { id: owned.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+          await expireRecording(owned.id);
           const committed = await commitRecordingDeletion(claim, { identity: owned.object, reason: 'RETENTION' });
           expect(committed.status).toBe('COMMITTED'); if (committed.status === 'COMMITTED') intentIds.add(committed.intentId);
         } else await getDb().recordingSegment.update({ where: { id: owned.id }, data: { status: 'DISCARDED' } });
@@ -335,21 +620,21 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       expect(provider.summary).not.toHaveBeenCalled();
     }
     const blocked = await fixture();
-    await getDb().recordingSegment.update({ where: { id: blocked.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+    await expireRecording(blocked.id);
     const beforeGet = provider.get.mock.calls.length;
-    await expect(processRecordingJob(blocked.jobId, blocked.runId)).rejects.toThrow('RECORDING_OBJECT_UNAVAILABLE');
+    await expect(runProcessing(blocked.jobId, blocked.runId)).rejects.toThrow('RECORDING_OBJECT_UNAVAILABLE');
     expect(provider.get.mock.calls.length).toBe(beforeGet);
   });
 
   test('rejects late setup transcript and catalog draft after availability or owner change', async () => {
     for (const kind of ['SETUP_TRANSCRIPTION', 'CATALOG_EXTRACTION'] as const) {
-      const positive = await fixture(kind); await processRecordingJob(positive.jobId, positive.runId);
+      const positive = await fixture(kind); await runProcessing(positive.jobId, positive.runId);
       expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: positive.jobId } })).toMatchObject({ status: 'COMPLETE' });
       if (kind === 'CATALOG_EXTRACTION') expect(await getDb().setupConversation.findUniqueOrThrow({ where: { id: conversationId } })).toMatchObject({ draft: catalog.output });
       const owned = await fixture(kind);
       const before = await getDb().setupConversation.findUniqueOrThrow({ where: { id: conversationId } });
       const finished = await late(kind === 'CATALOG_EXTRACTION' ? provider.catalog : provider.transcribe, owned, async () => {
-        if (kind === 'SETUP_TRANSCRIPTION') await getDb().recordingSegment.update({ where: { id: owned.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+        if (kind === 'SETUP_TRANSCRIPTION') await expireRecording(owned.id);
         else await getDb().user.update({ where: { id: ownerId }, data: { isActive: false } });
       }, kind === 'CATALOG_EXTRACTION' ? { ...catalog, output: { ...catalog.output, clinicName: 'Late forbidden draft' } } : transcription);
       expect(finished).toMatchObject({ error: { message: kind === 'CATALOG_EXTRACTION' ? 'PROCESSING_ACCESS_CHANGED' : 'RECORDING_OBJECT_UNAVAILABLE' } });
@@ -361,6 +646,10 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
   });
 
   test('rejects summary result application and completion after input or current-run change', async () => {
+    const scopes: Record<'correction' | 'staff-only' | 'add' | 'remove' | 'expiry' | 'child-run' | 'child-expiry', DiagnosticScope> = {
+      correction: 'SUMMARY_CORRECTION', 'staff-only': 'SUMMARY_STAFF_ONLY', add: 'SUMMARY_ADD', remove: 'SUMMARY_REMOVE',
+      expiry: 'SUMMARY_EXPIRY', 'child-run': 'SUMMARY_CHILD_RUN', 'child-expiry': 'SUMMARY_CHILD_EXPIRY',
+    };
     for (const mode of ['correction', 'staff-only', 'add', 'remove', 'expiry', 'child-run', 'child-expiry'] as const) {
       const owned = await fixture(); const other = await fixture('TRANSCRIPTION', owned.visit!);
       await getDb().recordingSegment.update({ where: { id: other.id }, data: { transcript: mode === 'staff-only' ? null : 'Synthetic earlier contributor',
@@ -371,10 +660,10 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
         if (mode === 'correction' || mode === 'staff-only') await getDb().recordingSegment.update({ where: { id: other.id }, data: { staffTranscript: 'New staff correction' } });
         if (mode === 'add') await fixture('TRANSCRIPTION', owned.visit!);
         if (mode === 'remove') await getDb().recordingSegment.delete({ where: { id: other.id } });
-        if (mode === 'expiry') await getDb().recordingSegment.update({ where: { id: other.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+        if (mode === 'expiry') await expireRecording(other.id);
         if (mode === 'child-expiry') await getDb().generationJob.update({ where: { id: summaryJob.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
         if (mode === 'child-run') await getDb().generationJob.update({ where: { id: summaryJob.id }, data: { runId: 'synthetic-new-owner-run' } });
-      }, summary);
+      }, summary, scopes[mode]);
       expect(finished).toMatchObject({ error: { message: mode === 'child-run' || mode === 'child-expiry' ? 'PROCESSING_JOB_REQUIRED'
         : mode === 'expiry' ? 'RECORDING_OBJECT_UNAVAILABLE' : 'RECORDING_INPUTS_CHANGED' } });
       const summaryJob = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: { tenantId, idempotencyKey: `summary:${owned.jobId}` } } });
@@ -390,7 +679,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       const owned = await fixture(); await child(owned);
       await getDb().generationJob.update({ where: { id: owned.jobId }, data: { status } });
       const before = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
-      await processRecordingJob(owned.jobId, owned.runId); await failRecordingProcessing(owned.jobId, owned.runId, 'OLD_FAILURE');
+      await runProcessing(owned.jobId, owned.runId); await failRecordingProcessing(owned.jobId, owned.runId, 'OLD_FAILURE');
       expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } })).toEqual(before);
     }
     const owned = await fixture(); const summaryJob = await child(owned);
@@ -428,7 +717,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     expect(await getDb().consultation.findUniqueOrThrow({ where: { id: owned.visit! } })).toEqual(beforeVisit);
     expect(await getDb().consultationRevision.count({ where: { consultationId: owned.visit! } })).toBe(0);
     expect(await getDb().consultationEvent.count({ where: { consultationId: owned.visit! } })).toBe(0);
-    await processRecordingJob(owned.jobId, owned.runId);
+    await runProcessing(owned.jobId, owned.runId);
     const completed = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
     expect(completed).toMatchObject({ status: 'COMPLETE', result: { summaryApplied: true, needsReview: true, recordingObject: owned.object } });
     const summaryJob = await getDb().generationJob.findUniqueOrThrow({ where: { tenantId_idempotencyKey: { tenantId, idempotencyKey: `summary:${owned.jobId}` } } });
@@ -444,7 +733,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     await getDb().generationJob.update({ where: { id: cachedChild.id }, data: {
       result: { ...summary, recordingInputFingerprint: cachedPrepared!.snapshot.inputFingerprint } } });
     const summaryCalls = provider.summary.mock.calls.length;
-    await processRecordingJob(cached.jobId, cached.runId);
+    await runProcessing(cached.jobId, cached.runId);
     expect(provider.summary.mock.calls.length).toBe(summaryCalls);
     expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: cached.jobId } })).toMatchObject({ status: 'COMPLETE' });
   });
@@ -520,7 +809,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     await getDb().setupRecordingUpload.create({ data: { id: setup.id, tenantId, userId: ownerId, locationId, setupConversationId: conversationId,
       purpose: 'VOICE', mimeType: 'audio/webm', bytes: 2, blobPath: setup.object.blobPath,
       consentAt: new Date(Date.now() - 7200000), expiresAt: new Date(Date.now() + 3600000), uploadSettled: true, blobObject: setup.object } });
-    await getDb().recordingSegment.update({ where: { id: setup.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
+    await expireRecording(setup.id);
     const committed = await commitRecordingDeletion(claim, { identity: setup.object, reason: 'RETENTION' });
     expect(committed.status).toBe('COMMITTED'); if (committed.status === 'COMMITTED') intentIds.add(committed.intentId);
     await expect(adoptSetupRecording(setup.id, setup.object, async () => 'forbidden')).rejects.toMatchObject({ code: 'RECORDING_OBJECT_UNAVAILABLE' });
