@@ -33,6 +33,7 @@ import { getDb } from './db';
 import type { ClinicActor } from './auth';
 import { ApiError } from './errors';
 import { ledgerBalances, type CreditBalance } from './credits';
+import { membershipMetrics, type MembershipMetrics } from './membership-metrics';
 
 const uuid = z.string().uuid();
 const expectedVersion = z.number().int().positive();
@@ -261,11 +262,11 @@ export type ConsultationView = Omit<Consultation,
   configuration: ClinicConfiguration; questionStates: import('@dripwell/shared/v2').QuestionState[];
   decisionNeedsReview: boolean; adjustments: unknown[]; revisions: unknown[]; events: unknown[]; jobs: unknown[];
 };
-export type ClinicMetrics = {
+export type ClinicMetrics = MembershipMetrics & {
   from: string; to: string; denominator: number; consultations: number;
   careStarted: number; careNotStarted: number; carePending: number;
   wellnessAccepted: number; wellnessRejected: number; wellnessTbd: number;
-  wellnessUndecided: number; membershipEnrollments: number; adjustments: number; overdue: number;
+  wellnessUndecided: number; adjustments: number; overdue: number;
   completionMedianHours: number | null;
 };
 export type ClinicDashboard = {
@@ -331,7 +332,7 @@ export async function getClinicDashboard(actor: ClinicActor, input: z.input<type
       { createdAt: anchor.createdAt, id: { lt: anchor.id } },
     ] }] } : boardWhere;
     const isOwner = currentActor.role === 'SUPER_USER';
-    const [versions, visits, consultationCount, notifications, careGroups, decisionGroups, denominator, outcomes,
+    const [versions, visits, consultationCount, notifications, careGroups, decisionGroups, outcomes,
       adjustmentCount, overdue, subscription, staff, proposals, changes, tenant, referralCount, convertedCount, credits] = await Promise.all([
       tx.clinicConfigurationVersion.findMany({ where: { tenantId: currentActor.tenantId, locationId,
         ...(!isOwner ? { status: 'ACTIVE' as const } : {}) }, orderBy: { version: 'desc' }, take: 100 }),
@@ -344,7 +345,6 @@ export async function getClinicDashboard(actor: ClinicActor, input: z.input<type
       tx.consultation.groupBy({ by: ['wellnessDecision'], where: { ...periodWhere,
         wellnessDecisionRevision: { equals: tx.consultation.fields.wellnessRevision },
         wellnessApprovedVersion: { equals: tx.consultation.fields.wellnessRevision } }, _count: { _all: true } }),
-      tx.consultation.count({ where: periodWhere }),
       tx.consultation.findMany({ where: periodWhere, select: { actualCare: true, createdAt: true, completedAt: true, careOutcome: true, wellnessDecision: true } }),
       tx.consultationAdjustment.count({ where: { tenantId: currentActor.tenantId, consultation: periodWhere } }),
       tx.consultation.count({ where: { tenantId: currentActor.tenantId, locationId, isTest: false, archivedAt: null,
@@ -365,6 +365,9 @@ export async function getClinicDashboard(actor: ClinicActor, input: z.input<type
       isOwner ? tx.creditLedger.findMany({ where: { tenantId: currentActor.tenantId },
         select: { id: true, sourceEventId: true, reversesId: true, kind: true, amountCents: true, currency: true } }) : Promise.resolve([]),
     ]);
+    // Counts and unknown outcomes share one complete cohort within the serializable snapshot.
+    const denominator = outcomes.length;
+    const memberships = membershipMetrics(outcomes);
     const configurations = versions.map(configurationView);
     const now = Date.now();
     const trialLimit = subscription?.trialLimit ?? 10;
@@ -391,9 +394,8 @@ export async function getClinicDashboard(actor: ClinicActor, input: z.input<type
       metrics: { from: period.from.toISOString(), to: period.to.toISOString(), denominator, consultations: denominator,
         careStarted: careCount('STARTED'), careNotStarted: careCount('NOT_STARTED'), carePending: careCount('PENDING'),
         wellnessAccepted: decisionCount('ACCEPTED'), wellnessRejected: decisionCount('REJECTED'), wellnessTbd: decisionCount('TBD'),
-        wellnessUndecided: denominator - decisionCount('ACCEPTED') - decisionCount('REJECTED') - decisionCount('TBD'), membershipEnrollments: outcomes.filter(item => {
-          const parsed = actualCareSchema.safeParse(item.actualCare); return parsed.success && parsed.data.membershipEnrolled === true;
-        }).length, adjustments: adjustmentCount, overdue, completionMedianHours: median },
+        wellnessUndecided: denominator - decisionCount('ACCEPTED') - decisionCount('REJECTED') - decisionCount('TBD'),
+        ...memberships, adjustments: adjustmentCount, overdue, completionMedianHours: median },
       improvements: JSON.parse(JSON.stringify(proposals)), adjustments: JSON.parse(JSON.stringify(changes)),
       staff: staff.map(item => ({ id: item.id, name: `${item.firstName} ${item.lastName}`.trim(), email: item.email,
         role: item.role, isActive: item.isActive, canApproveClinical: item.canApproveClinical })),

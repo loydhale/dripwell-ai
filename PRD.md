@@ -244,6 +244,8 @@ The [bounded maintenance audit](docs/AUDIT_BOUNDED_MAINTENANCE.md) records indep
 
 The [compiled recurrence audit](docs/AUDIT_COMPILED_MAINTENANCE_RECURRENCE.md) additionally verifies local native timer recurrence, first-item recovery/current-state reminder effects, stop fencing and exact owned terminal cleanup on source3203f614. Three waits/two natural successors and full shared-data preservation are scoped service evidence; hosted cadence, deferred Blob/provider families and the complete pilot remain separate. All nine acceptance criteria above are unchanged.
 
+The [client membership reporting audit](docs/AUDIT_MEMBERSHIP_REPORTING.md) records the complete-cohort true/false/unknown partition, explicit consultation and recorded-outcome denominators, both primary displays and scoped source/check/build evidence. Twelve distinct affected cases use retained11 plus corrected1, with eleven deliberate focused exclusions and the original assertion failure preserved. Mocked SQL transport and static markup do not establish live enrollment, payment, browser/device or full-pilot evidence. All nine acceptance criteria above remain unchanged.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |

@@ -6,6 +6,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { consultationStages } from '@dripwell/shared/v2';
 import { useClinic, locationHref, stageLabels, stageTones } from './clinic-context';
 import { Badge, EmptyState, ErrorBanner, Icon, Modal, friendlyDate } from './ui';
+import { MembershipOutcomes } from './membership-outcomes';
 
 export function Dashboard() {
   const { data, mutate, refresh, loadMore, loading, pageError, locationId } = useClinic();
@@ -137,7 +138,7 @@ export function Dashboard() {
         <div className="stat-card">
           <span>New consultations</span>
           <strong>{data.metrics.denominator}</strong>
-          <small>Unique visits in selected period</small>
+          <small>Consultation visits in selected period</small>
           <Icon name="people" />
         </div>
         <div className="stat-card">
@@ -170,6 +171,7 @@ export function Dashboard() {
           <Icon name="clock" />
         </div>
       </div>
+      <MembershipOutcomes metrics={data.metrics} />
       <div className="board-toolbar">
         <div className="segmented">
           <button className={!archiveView ? 'selected' : ''} onClick={() => setArchiveView(false)}>

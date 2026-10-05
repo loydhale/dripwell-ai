@@ -87,3 +87,10 @@ Sections changed: Factual section8 checkpoint only.
 Summary: Local compiled timer/recovery/stop/closure evidence81414db8/50bd031e supplements the existing maintenance source checkpoint. All nine acceptance criteria remain exact, SHA2560f7d461c15feb4208c390eeb028948d40edb710e415310586a518691dfdb0456.
 CTO: No feature, clinical authority, architecture or completion-definition change. Hosted/Blob/provider/full-pilot gates remain open.
 Auditor co-sign: Exact frozen closure-package review required before publication; genuine runtime/cleanup/learning receipts accompany the package.
+
+## 2026-10-05, v2.0, MINOR, CLIENT MEMBERSHIP REPORTING CHECKPOINT
+
+Sections changed: Factual section8 checkpoint only, existing approved F06/F12.
+Summary: Same-row complete consultation cohort membership partition and primary UI source/check/build evidence4b16c23d; original failure/focused exclusions and SQL/browser/live-sales limits retained. All nine numbered pilot criteria remain byte-identical, SHA2560f7d461c15feb4208c390eeb028948d40edb710e415310586a518691dfdb0456.
+CTO: No feature, authority, price, clinical policy, architecture or completion-definition change. TASK050 and live/full-pilot gates remain separate.
+Auditor co-sign: Exact frozen final package review required before publication; genuine source/results/route/learning receipts accompany the package.

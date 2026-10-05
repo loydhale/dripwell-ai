@@ -1,9 +1,9 @@
 # TASK-049: Visible client membership outcomes
 
 TASK_ID: TASK-049
-STATUS: QUEUED, existing-scope planning only. No source/helper/provider operation is authorized by this brief before Root dispatch.
+STATUS: SOURCE_REVIEWED, scoped source/checks/types/build/independent review and learning complete2026-10-05; exact final package co-sign and normal same-branch publication/readbacks/new-source CI pending Root. Full pilot remains incomplete.
 
-Status: planning only. Do not dispatch before TASK047 publication/readbacks and TASK048 recurrence checks are closed. Root reconciles actual then-current branch/queue/worker state before dispatch. This draft follows the October4 Owner clarification that membership/program conversion is DripWell's core commercial purpose.
+The TASK047 publication/CI and TASK048 actual recurrence/cleanup/learning/publication prerequisites are closed. Historical planning text below is superseded by this exact Root dispatch. Root reconciles actual then-current branch/queue/worker state before dispatch. This task follows the October4 Owner clarification that membership/program conversion is DripWell's core commercial purpose.
 
 ## Approved scope
 
@@ -36,3 +36,9 @@ Then independently review the real source/results, update STATE/CHANGELOG/task a
 ## Next separate presentation slice
 
 Following reporting, improve staff-facing offer and approved takeaway clarity under F-07 using existing stated goals, eligible choices, clinic-approved rationale/benefits, official prices/currency and terms. Prepare a concrete separate brief. Missing data stays missing; no invented savings, cadence or clinical claims. Preserve staff edits, exact-revision approval and PDF/share equality.
+
+## Actual scoped verification
+
+Seven reviewed application/test paths implement complete selected-cohort enrolled/did-not-enroll/not-recorded metrics and the same accessible Dashboard/Owner summary. Independent source/results4b16c23d and current route-contract supplemente92803b6 PASS. First affected run11PASS/1FAIL/0skip remains FAILED; only two expected dateTime literals changed, then one corrected case passed with eleven explicit exclusions. Twelve distinct composite cases, types and necessary current-source Webpack build PASS; BUILD_ID CSZLi10VDKbb2jx5k6JpB. [Audit](../docs/AUDIT_MEMBERSHIP_REPORTING.md) preserves mock/static/build/runtime limits.
+
+Root applied the genuine existing L017/L037/G019 learning fragments, all Seen lines unchanged/no new pattern. Source helpers are terminal and ineligible for replay. Same Coder/Auditor co-sign exact final docs/PR-body before normal review-branch publication. TASK050 remains a separate approved queued task. No live SQL/browser/enrollment/payment/provider/new authority or full-pilot proof occurred.

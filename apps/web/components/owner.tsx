@@ -6,6 +6,7 @@ import { emptyConsultationSummary } from '@dripwell/shared/v2';
 import { isOwner, locationHref, useClinic } from './clinic-context';
 import { SyntheticIntake } from './configuration-editor';
 import { Badge, EmptyState, ErrorBanner, Icon, Modal, Money, friendlyDate } from './ui';
+import { MembershipOutcomes } from './membership-outcomes';
 
 const classifications = {
   APPROPRIATE_CORRECTION: 'Appropriate staff correction',
@@ -109,11 +110,7 @@ export function Owner() {
           <Icon name="clock" />
         </div>
       </div>
-      <p className="board-help">
-        Reporting period: {friendlyDate(data.metrics.from)} to {friendlyDate(data.metrics.to)}.
-        Denominator: {data.metrics.denominator} real consultations. Archived visits remain included.
-        Setup tests are excluded.
-      </p>
+      <MembershipOutcomes metrics={data.metrics} />
       {error ? <ErrorBanner message={error} /> : null}
       {notice ? (
         <div className="notice notice-subtle" role="status">

@@ -18,6 +18,7 @@ import type {
   QuestionState,
   WellnessPlan,
 } from '@dripwell/shared/v2';
+import type { MembershipMetrics } from '../lib/membership-metrics';
 
 export interface ConfigurationVersion {
   id: string;
@@ -128,7 +129,7 @@ export interface ClinicPayload {
   consultationCount: number;
   consultationPagination: { nextCursor: string | null; pageSize: number };
   notifications: NotificationView[];
-  metrics: {
+  metrics: MembershipMetrics & {
     from: string;
     to: string;
     denominator: number;
@@ -140,7 +141,6 @@ export interface ClinicPayload {
     wellnessRejected: number;
     wellnessTbd: number;
     wellnessUndecided: number;
-    membershipEnrollments: number;
     adjustments: number;
     overdue: number;
     completionMedianHours: number | null;
