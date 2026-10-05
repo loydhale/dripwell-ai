@@ -242,6 +242,8 @@ The [normal-owner MFA audit](docs/AUDIT_NORMAL_OWNER_MFA.md) additionally verifi
 
 The [bounded maintenance audit](docs/AUDIT_BOUNDED_MAINTENANCE.md) records independently reviewed default-disabled coordinator/effect fencing,17 unit checks,14 distinct composite PostgreSQL behaviors, typecheck, explicit isolated Webpack build and original-owned-target cleanup. Native starts are mocked in source tests; actual compiled recurrence TASK048, hosted enablement and deferred Blob families remain separate. This scoped checkpoint does not satisfy the full service/retention criterion or change any pilot criterion above.
 
+The [compiled recurrence audit](docs/AUDIT_COMPILED_MAINTENANCE_RECURRENCE.md) additionally verifies local native timer recurrence, first-item recovery/current-state reminder effects, stop fencing and exact owned terminal cleanup on source3203f614. Three waits/two natural successors and full shared-data preservation are scoped service evidence; hosted cadence, deferred Blob/provider families and the complete pilot remain separate. All nine acceptance criteria above are unchanged.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |

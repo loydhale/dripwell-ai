@@ -194,6 +194,9 @@ TASK-046 recurrence, 2026-10-04: the terminal helper already passed before three
 TASK047 application,2026-10-04: Root reported a final integrity collector guessing undeclared PLAN.json, receiving FileNotFoundError before writes or operations, then using rg to locate the actual PLAN.md and verifying its declared descriptors. No exact failure-artifact descriptor was supplied for that reported selector error. Earlier saved-data schema/name projector limits remain in their original reviews. These are reporting failures; preserve them without reclassifying successful build/cleanup or rerunning operations. Use the actual manifest schema and declared filenames. Extend existing G-019; no new Seen increment, lesson or corpus is proposed.
 
 
+TASK048 application,2026-10-05: Root's seed-acceptance collector assumed result.rows; the saved result uses fixtureRows. Its KeyError was retained in e5031aff before acceptance writes or operations. A later runtime-acceptance collector assumed the Coder manifest verdict was PASS; the actual label was ACTUAL_HELPER_PASS_PENDING_INDEPENDENT_REVIEW. That assertion43715d28 also preceded acceptance/GO/operations. Project the declared saved schemas and bind the genuine independent PASS separately; correct consumer metadata only. Neither failure changes successful init/seed/runtime/cleanup or authorizes replay. Preserve both original records; no new Seen increment, lesson or corpus is proposed.
+
+
 ## G-020: Private predecessor approval remains a Root operator boundary
 Date discovered: 2026-10-04
 Where: Private TASK046 TRANSPORT.py:272 predecessor and Root acceptance/once-GO handoffs
@@ -202,6 +205,9 @@ What to do: Root must verify the genuine independent PASS and required actual ev
 What NOT to do: Treat matching hashes or stagePASS as independent approval, manufacture or rewrite a PASS, silently dispatch a next phase, or replay a closed helper after its owned inputs are gone.
 
 TASK047 application,2026-10-04: Root verifies genuine independent reviews, required descriptor membership/modes and actual prerequisite evidence, accepts them, then issues each separate once-GO. Exclusive intents, source hashes and a pinned review alone do not parse authorship or authorize a phase. Preserve distinct source/pure/readiness/case/type/build/cleanup gates in copied tools. Actual Webpack before/after guards and then separately authorized cleanup bound exact original OID23592/nonce/profile/container, owned51 empty/ledger0/zero connections and shared50/101. The cleanup completed once; original database and profile were removed, shared whole-table counts/digests and final143 source pins preserved. Current filesystem inspection independently confirms profile absence including dangling links. Database absence and container preservation are supported by successful executed source/final result/outer completion; separate raw internal command outputs were not retained. Closed isolation entries are now ineligible for replay.
+
+TASK048 application,2026-10-05: Each init/seed/runtime/cleanup dispatch required Root's genuine independent-review/evidence-membership checks and separate once-GO. Source/exclusive intents and descriptor hashes support integrity; they do not establish cryptographic Root authorship. All four operations are terminal and closed entries are ineligible for replay.
+
 
 ## G-021: Artifact output paths can overwrite pinned inputs
 Date discovered: 2026-10-04
@@ -216,3 +222,10 @@ Where: TASK047 private verification tooling
 The isolated package build regenerated Prisma/shared output and compiled26 Workflow steps/3 workflows, then Next16.3.8 Turbopack rejected the prepared apps/web/node_modules link outside its filesystem root. This is copied-build tooling failure, not demonstrated application failure or completed build. Installed docs require linked dependencies within a common root. Installed CLI/dispatcher support build --webpack. A private direct CLI continuation can avoid the package wrapper's repeated prerequisite generation, with unchanged app config and a reviewed explicit environment. Strip conflicting inherited bundler selectors; do not assume the supplemental skill's bundler config/BUNDLER examples are installed APIs. Preserve failed output/reached subprocesses. A later Webpack success must be labeled by bundler and cannot establish default Turbopack, independent Eve runtime or natural recurrence.
 
 Evidence:48b2e2d actual failure/scope;1e2a71ed private build-only plan;3dd24059 actual Webpack/post-state review;ffd7d22f actual cleanup review. The supported direct Next16.3.8 Webpack command completed with a new BUILD_ID pEa-kRSVkNVP08orJiPdq, 44 emitted routes,26 steps/3 workflows and integrated TypeScript/static31 output. This does not convert the original default Turbopack failure into PASS.
+
+
+## G-023: Serialized Workflow errors need supported hydration
+Date discovered: 2026-10-04
+Where: Private TASK048 failed-run observer, installed Workflow5.0.1
+The gotcha: Native run.error is serialized data; reading an assumed error.message does not establish the actual failure cause, even when an observation requests resolveData:none. Independent original plan25f465d5 caught this before runtime dispatch.
+What to do: For an already failed run ID, use the installed public workflow/api getRun(id).returnValue to hydrate in RAM, then the exported workflow/internal/errors WorkflowRunFailedError.is classifier and exact cause.message === MAINTENANCE_STALE. Bound the observation to2000ms and check the overall monotonic deadline after it returns. Persist only a safe STALE/OTHER classification, never raw hydrated error data. Do not wake, start or cancel a run to inspect its cause. The corrected derivative61c2f966 preserved the strict stale assertion; actual runtime81414db8 classified the third failed run through this supported path.

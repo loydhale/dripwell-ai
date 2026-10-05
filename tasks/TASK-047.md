@@ -1,7 +1,7 @@
 # TASK-047: Bounded database maintenance coordinator
 
 TASK_ID: TASK-047
-STATUS: Scoped source/checks/build/owned-cleanup and learning DONE under genuine independent3dd24059/ffd7d22f/7877bcc2. Exact final document co-sign/publication/readbacks remain the next operator gate. The task does not complete F09 or the pilot. Source base2e7cebaa/tree0b7cd7c5; exact current source/docs are frozen for final co-sign after cleanup closure.
+STATUS: DONE for approved source/owned-check/build/cleanup/learning and exact reviewed publication/new-source CI, under genuine independent finald71c3d26/b946b323/84d262c8/c7aec880. Published3203f614/treee7554866; all22 reported CI steps success, raw logs/count details unavailable. No hosted cadence or full-pilot completion.
 
 Goal: Implement the existing DB reminder/recovery/auth/rate maintenance work with finite iteration limits and one durable manual/scheduled coordinator on the existing Vercel Workflow stack. PRD F09 and section8 service/retry scope remain authoritative. Do not add clinical features or treat source/local checks as hosted cadence or pilot completion.
 
@@ -41,3 +41,10 @@ The earlier artifact collector overwrote installed pnpm.cjs with manifest JSON. 
 Root cleanup-only onceGO86357814 followed genuine source/build eligibility3dd24059 and actual member/mode/source guards. The unchanged helper completed PASS/outer0, removed only original database dripwell_task047_verification/OID23592/nonce3b4b0c7e-a6b4-4050-9eed-0cec5e5136cf without FORCE and unlinked only its hash-owned original profile. Fresh before51empty/ledger0/zero connections and before/after shared50-table/101-row maps, container and143source/17path preservation were saved. Current profile absence including dangling-symlink absence is observed. Database absence is source-asserted in the successful helper without separately saved raw zero-count/internal psql streams; preserve this limit. No operational replay or extra SQL belongs to document review.
 
 Independent actual cleanupffd7d22f and finalized learning7877bcc2/c450b59d PASS. Learning is applied and STATE/CHANGELOG/PRD minor checkpoint updated. Freeze exact source/docs and publish only co-signed bytes to feat/dripwell-consultation-v2/PR2. Keep protected807 Preview/literalfalse and main/production unchanged. Retain the compiled artifact for separately queued TASK048 if its application inputs match the final published source; all TASK047 isolation entries are now closed and cannot be replayed.
+
+## Actual publication and current-source CI closure
+
+Exact reviewed normal force:false publication reached3203f614ca9fa6d7a2d0d22844f1039f6cd39cc8/treee7554866fa3ed180e53061d3c3e0057b8e3a2b84, single parent2e7cebaa. Actual recursive readback matches384 blobIDs/modes; PR2open/unmerged and exact4850-byte body122281d0. Genuine final package d71c3d26, actual commit b946b323 and publication84d262c8 independently PASS. Actual new-source CI37239996507/job111546634910 attempt1 completed-success and all22 reported steps success, independent closurec7aec880. The native job-log redirect returned Forbidden, so no raw log, precise count, zero-skip or native-bundle detail claim. Two annotations were uninspected at the earlier CI closure. Later saved read9a96d4c9 reports Node20 action-target deprecation/forced Node24 and the Ubuntu26 runner rollout; no new CI run or upgrade. SourceCI prerequisite permits separately bounded048 private-tool selection, not execution. Historical807/181 and local17/composite14 remain distinct; no passing check or migration replay.
+
+
+Follow-on checkpoint, October5,2026: TASK048 actual compiled local recurrence and exact owned cleanup independently PASS81414db8/50bd031e on this unchanged source/build. See [compiled audit](../docs/AUDIT_COMPILED_MAINTENANCE_RECURRENCE.md). Source047 and current CI evidence are unchanged; all47/48 operational tools remain closed.
