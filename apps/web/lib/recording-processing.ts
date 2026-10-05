@@ -80,7 +80,7 @@ async function inputRows(tx: Tx, object: RecordingObjectIdentity) {
 async function authority(tx: Tx, job: GenerationJob, object: RecordingObjectIdentity) {
   await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${job.userId}::uuid AND "tenantId" = ${job.tenantId}::uuid FOR SHARE`;
   const user = await tx.user.findFirst({ where: { id: job.userId, tenantId: job.tenantId, isActive: true }, include: { tenant: true } });
-  if (!user?.tenant.isActive) denied('PROCESSING_ACCESS_CHANGED');
+  if (!user?.tenant?.isActive) denied('PROCESSING_ACCESS_CHANGED');
   const recording = await tx.recordingSegment.findFirst({ where: { id: object.recordingId, tenantId: object.tenantId } });
   if (!recording || recording.userId !== user.id) denied();
   if (object.consultationId) {

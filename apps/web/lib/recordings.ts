@@ -244,7 +244,7 @@ export async function receiveConsultationRecording(actor: ClinicActor, data: For
           const sourceUser = await tx.user.findFirst({ where: { id: recording.userId, tenantId: actor.tenantId, isActive: true } });
           const session = await tx.authSession.findFirst({ where: { id: actor.sessionId, userId: actor.userId, revokedAt: null, expiresAt: { gt: now } } });
           const visit = await tx.consultation.findFirst({ where: { id: consultationId, tenantId: actor.tenantId }, include: { location: true } });
-          if (!user?.tenant.isActive || !sourceUser || !session || !visit || !visit.location.isActive || visit.archivedAt
+          if (!user?.tenant?.isActive || !sourceUser || !session || !visit || !visit.location.isActive || visit.archivedAt
             || !visit.consentAt || visit.consentDeclined || current.expiresAt <= now
             || !['SUPER_USER', 'STAFF'].includes(user.role) || (user.role === 'STAFF' && visit.providerId !== user.id))
             throw new ApiError(409, 'Recording access changed while uploading.', 'RECORDING_UPLOAD_INTERRUPTED');

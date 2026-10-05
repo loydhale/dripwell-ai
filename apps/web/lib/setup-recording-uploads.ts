@@ -20,7 +20,7 @@ async function owner(tx: Tx, row: SetupRecordingReservation) {
   const conversation = await tx.setupConversation.findFirst({ where: { id: row.setupConversationId,
     tenantId: row.tenantId, userId: row.userId, locationId: row.locationId,
     location: { is: { tenantId: row.tenantId, isActive: true } } } });
-  if (!user?.tenant.isActive || !conversation) interrupted();
+  if (!user?.tenant?.isActive || !conversation) interrupted();
 }
 
 export async function reserveSetupRecording(input: SetupRecordingReservation) {
