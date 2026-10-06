@@ -204,3 +204,8 @@ TASK052 source authoring authorized after genuine independent planPASSaf49da5c/a
 
 
 2026-10-06 TASK-055 — Independent actual compiled/default Blob 2.8.0 proof PASS at source 58b0a9ed/documentary 18a6ed85: two fresh nonclinical originals, wrong-ETag OBJECT_CHANGED with both preserved, original subject deletion and private uncached SDK null while control remained intact before compensation; original-only control cleanup also returned null. Both exits 0/no timeout; 15 timely logical calls (PUT 2/GET 10/delete 3), pending 0/obligations 0/owned dispatcher closed. Proof 2197ms; helper 2781ms. Scoped closure/count 33 awaits Root acceptance. NO_NEW_LEARNING; Seen 5/spent TASK052 budgets held. Hosted maintenance/clinical/full pilot remain open; default-disabled/protected807/literalfalse held.
+
+- 2026-10-06 TASK056: add one isolated real-PG provenance-index attribution case with exact P2002 columns, canonical distinct old paths and positive control. Eight old cases/production/schema/CI held; new-source validation remains unexecuted pending independent review and first ordinary automatic CI.
+
+
+2026-10-06 TASK-056 — Independent static source/package PASS: one appended case c166bc6b isolates provenance uniqueness from tenant/path uniqueness and requires real Prisma P2002 with exact columns plus a distinct-provenance control. Original eight cases/imports/helpers/hooks/nonce guard/teardown remain byte-held; production/schema/migrations/CI unchanged. New compilation and case outcomes are unexecuted; normal publication, first automatic fresh-PG17 CI and independent actual review remain separate. NO_NEW_LEARNING; count33/Seen5 and all pilot/protection/default-disabled/literalfalse/spent-budget gates held.

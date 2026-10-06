@@ -256,6 +256,8 @@ The [trusted-store binding audit](docs/AUDIT_RECORDING_STORE_BINDING.md) records
 
 The [compiled private Blob proof](docs/AUDIT_COMPILED_BLOB_PROOF.md) records TASK055 actual default selected SDK verification at source58b, independently PASS03b6ba41 and accepted1706f03b. Wrong-ETag original preservation, original conditional deletion/private uncached subject absence with control intact before compensation, and original-only control cleanup/absence were observed in15 logical calls with pending0/obligations0/dispatcherclosed. Scopedcount33/Seen5 does not complete hosted maintenance, clinical ownership, whole retention or criterion9. Source CI was not replayed; maintenance stays default-disabled, protected807/literalfalse and all nine criteria remain held. Isolated provenance-index attribution is approved next verification work.
 
+The [isolated provenance-index test](docs/AUDIT_RECORDING_PROVENANCE_INDEX.md) adds one existing F03/criterion9 coverage case with exact PostgreSQL error-column attribution and a positive distinct-provenance control. This is an authored source checkpoint; changed-source CI and actual outcome/learning review remain unexecuted. All12 feature requirements and all nine pilot criteria remain unchanged.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |

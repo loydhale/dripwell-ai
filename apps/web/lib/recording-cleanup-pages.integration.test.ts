@@ -389,4 +389,76 @@ suite('recording cleanup pages PostgreSQL', () => {
     expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlId } })).toEqual(control);
     expect(pending.size).toBe(0); expect(quiescenceBlocked).toBe(false);
   });
+
+  test('attributes duplicate immutable provenance independently of tenant path uniqueness', async () => {
+    const db = getDb(), firstId = id(), rejectedId = id(), positiveId = id();
+    for (const intentId of [firstId, rejectedId, positiveId]) intentIds.add(intentId);
+    const firstRecordingId = id(), secondRecordingId = id(), syntheticConsultationId = id(), syntheticAttemptId = id();
+    const firstObject = objectFor(firstRecordingId);
+    // Direct nonclinical index fixtures, not adopted source objects or returned provider metadata.
+    const original = await db.recordingDeletionIntent.create({ data: {
+      id: firstId, tenantId, recordingId: firstRecordingId, consultationId: null,
+      setupConversationId: conversationId, uploadAttemptId: null, reason: 'RETENTION',
+      blobPath: firstObject.blobPath, objectUrl: firstObject.objectUrl, storeId: firstObject.storeId, etag: firstObject.etag,
+      creatorScope: claim.context.key, creatorGeneration: BigInt(claim.generation),
+      creatorOrdinal: BigInt(claim.ordinal), creatorRunId: claim.runId, status: 'PENDING',
+      sourceKind: 'RECORDING', sourceId: firstRecordingId, sourceCreatedAt: sourceAt, createdAt: sourceAt,
+    } });
+    // A canonical hypothetical consultation path intentionally does not match this source's setup target.
+    // No consultation, upload job or source recording is created, adopted or sent to provider I/O.
+    const duplicateObject = objectFor(firstRecordingId, syntheticConsultationId, syntheticAttemptId);
+    const duplicate = {
+      ...original, id: rejectedId, consultationId: syntheticConsultationId, setupConversationId: null,
+      uploadAttemptId: syntheticAttemptId, blobPath: duplicateObject.blobPath, objectUrl: duplicateObject.objectUrl,
+      storeId: duplicateObject.storeId, etag: duplicateObject.etag,
+    };
+    expect(duplicate.id).not.toBe(original.id);
+    expect(original.tenantId).toBe(tenantId); expect(duplicate.tenantId).toBe(tenantId);
+    expect(duplicate.blobPath).not.toBe(original.blobPath);
+    expect([duplicate.tenantId, duplicate.blobPath]).not.toEqual([original.tenantId, original.blobPath]);
+    expect([original.reason, original.sourceKind, original.sourceId]).toEqual(['RETENTION', 'RECORDING', firstRecordingId]);
+    expect([duplicate.reason, duplicate.sourceKind, duplicate.sourceId])
+      .toEqual([original.reason, original.sourceKind, original.sourceId]);
+    expect(duplicate.sourceCreatedAt).toEqual(sourceAt);
+    expect(original.blobPath).toBe(`private/${tenantId}/setup/${firstRecordingId}`);
+    expect(duplicate.blobPath)
+      .toBe(`private/${tenantId}/recordings/${syntheticConsultationId}/${firstRecordingId}/${syntheticAttemptId}`);
+    expect(original.objectUrl).toBe(`https://${original.storeId}.private.blob.vercel-storage.com/${original.blobPath}`);
+    expect(duplicate.objectUrl).toBe(`https://${duplicate.storeId}.private.blob.vercel-storage.com/${duplicate.blobPath}`);
+    let failure: unknown;
+    try { await db.recordingDeletionIntent.create({ data: duplicate }); }
+    catch (error) { failure = error; }
+    expect(failure).toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+    if (!(failure instanceof Prisma.PrismaClientKnownRequestError))
+      throw new Error('Expected the real provenance uniqueness violation.');
+    expect(failure.code).toBe('P2002');
+    expect(failure.meta?.target).toEqual(['reason', 'sourceKind', 'sourceId']);
+    expect(await db.recordingDeletionIntent.findUnique({ where: { id: rejectedId } })).toBeNull();
+    expect(await db.recordingDeletionIntent.findUniqueOrThrow({ where: { id: firstId } })).toEqual(original);
+
+    const positiveObject = objectFor(secondRecordingId, syntheticConsultationId, syntheticAttemptId);
+    const positive = {
+      ...duplicate, id: positiveId, recordingId: secondRecordingId, sourceId: secondRecordingId,
+      blobPath: positiveObject.blobPath, objectUrl: positiveObject.objectUrl,
+      storeId: positiveObject.storeId, etag: positiveObject.etag,
+    };
+    expect([positive.reason, positive.sourceKind]).toEqual([original.reason, original.sourceKind]);
+    expect(positive.sourceId).not.toBe(original.sourceId); expect(positive.sourceId).toBe(positive.recordingId);
+    expect(positive.sourceCreatedAt).toEqual(original.sourceCreatedAt);
+    expect(positive.tenantId).toBe(tenantId); expect(positive.blobPath).not.toBe(original.blobPath);
+    expect(positive.blobPath)
+      .toBe(`private/${tenantId}/recordings/${syntheticConsultationId}/${secondRecordingId}/${syntheticAttemptId}`);
+    expect(positive.objectUrl).toBe(`https://${positive.storeId}.private.blob.vercel-storage.com/${positive.blobPath}`);
+    const created = await db.recordingDeletionIntent.create({ data: positive });
+    expect(created).toMatchObject({ id: positiveId, tenantId, recordingId: secondRecordingId,
+      consultationId: syntheticConsultationId, setupConversationId: null, uploadAttemptId: syntheticAttemptId,
+      reason: 'RETENTION', sourceKind: 'RECORDING', sourceId: secondRecordingId, sourceCreatedAt: sourceAt,
+      blobPath: positive.blobPath, objectUrl: positive.objectUrl, creatorScope: claim.context.key, status: 'PENDING' });
+    expect(await db.recordingDeletionIntent.count({ where: {
+      id: { in: [firstId, rejectedId, positiveId] }, creatorScope: claim.context.key,
+    } })).toBe(2);
+    expect(await db.recordingDeletionIntent.findUnique({ where: { id: rejectedId } })).toBeNull();
+    expect(await db.recordingDeletionIntent.findUniqueOrThrow({ where: { id: firstId } })).toEqual(original);
+    expect(await db.recordingSegment.findUniqueOrThrow({ where: { id: controlId } })).toEqual(control);
+  });
 });
