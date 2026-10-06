@@ -12,7 +12,10 @@ export type RecordingDeleteOutcome = { deleted: true; durationMs: number }
 /** Same trusted-store contract as the private reader. Never persist this value. */
 export function recordingDeleteToken(object: RecordingObjectIdentity, token = process.env.BLOB_READ_WRITE_TOKEN): string {
   const identity = parseRecordingObjectIdentity(object);
-  if (!token?.startsWith('vercel_blob_rw_') || token.split('_')[3] !== identity.storeId)
+  const tokenStoreId = token?.split('_')[3];
+  if (!token?.startsWith('vercel_blob_rw_') || !tokenStoreId
+    || !/^[A-Za-z0-9][A-Za-z0-9-]{0,127}$/.test(tokenStoreId)
+    || tokenStoreId.toLowerCase() !== identity.storeId)
     throw new ApiError(503, 'The original private store is unavailable.', 'RECORDING_STORE_UNAVAILABLE');
   return token;
 }

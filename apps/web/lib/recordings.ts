@@ -86,7 +86,10 @@ export async function readPrivateRecording(snapshot: RecordingProcessingSnapshot
   const token = process.env.BLOB_READ_WRITE_TOKEN!;
   // Full URL/pathname in SDK metadata echo our request; the trusted store and
   // exact returned ETag/size/body checks carry object validation, not that echo.
-  if (!token.startsWith('vercel_blob_rw_') || token.split('_')[3] !== snapshot.object.storeId)
+  const tokenStoreId = token.split('_')[3];
+  if (!token.startsWith('vercel_blob_rw_') || !tokenStoreId
+    || !/^[A-Za-z0-9][A-Za-z0-9-]{0,127}$/.test(tokenStoreId)
+    || tokenStoreId.toLowerCase() !== snapshot.object.storeId)
     throw new ApiError(409, 'The selected private store does not match this recording.', 'RECORDING_OBJECT_IDENTITY_INVALID');
   const expectedBytes = await recordingProcessingTransaction(async tx => {
     const current = await assertRecordingProcessing(tx, snapshot);

@@ -203,4 +203,55 @@ describe('recording cleanup pages', () => {
       .rejects.toMatchObject({ code: 'MAINTENANCE_STALE' });
     expect(io).toHaveBeenCalledOnce(); expect(tx.recordingDeletionIntent.update).not.toHaveBeenCalled();
   });
+
+  test('accepts a mixed-case trusted store for one unchanged conditional delete', async () => {
+    const token = 'vercel_blob_rw_SyNtHeTiCsToRe_OPAQUE_MiXeD';
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', token);
+    const io = vi.fn(async (_url: string, _options: { token: string; ifMatch: string; abortSignal: AbortSignal }) => {});
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    try {
+      expect(await deleteRecordingBlob(object, 321, io)).toEqual({ deleted: true, durationMs: expect.any(Number) });
+      expect(io).toHaveBeenCalledTimes(1);
+      expect(io).toHaveBeenCalledWith(object.objectUrl, {
+        token, ifMatch: object.etag, abortSignal: expect.any(AbortSignal),
+      });
+      expect(timeout).toHaveBeenCalledTimes(1);
+      expect(timeout).toHaveBeenCalledWith(321);
+      expect(io.mock.calls[0]![1].abortSignal).toBe(timeout.mock.results[0]!.value);
+      expect(object.storeId).toBe('syntheticstore');
+      expect(tx.recordingDeletionIntent.update).not.toHaveBeenCalled();
+    } finally { timeout.mockRestore(); }
+  });
+
+  test('rejects wrong and malformed token store components before conditional deletion', async () => {
+    const target = { tenantId: object.tenantId, recordingId: object.recordingId,
+      consultationId: object.consultationId, setupConversationId: object.setupConversationId,
+      uploadAttemptId: object.uploadAttemptId };
+    const canonical = captureRecordingObject(target, { pathname: object.blobPath,
+      url: 'https://kstore.private.blob.vercel-storage.com/' + object.blobPath, etag: object.etag });
+    const io = vi.fn(async () => {});
+    for (const token of [
+      undefined, 'vercel_blob_rw_otherstore_OPAQUE', 'wrong_blob_rw_kstore_OPAQUE',
+      'vercel_blob_rw__OPAQUE', 'vercel_blob_rw_-kstore_OPAQUE',
+      'vercel_blob_rw_' + 'k'.repeat(129) + '_OPAQUE', 'vercel_blob_rw_k store_OPAQUE',
+      'vercel_blob_rw_Kstore_OPAQUE',
+    ]) {
+      vi.stubEnv('BLOB_READ_WRITE_TOKEN', token);
+      await expect(deleteRecordingBlob(canonical, 321, io)).rejects.toMatchObject({ code: 'RECORDING_STORE_UNAVAILABLE' });
+      expect(io).not.toHaveBeenCalled();
+      expect(tx.recordingDeletionIntent.update).not.toHaveBeenCalled();
+    }
+    expect(canonical.storeId).toBe('kstore');
+  });
+
+  test('retains identity and deadline denials with a mixed-case trusted delete token', async () => {
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', 'vercel_blob_rw_SyNtHeTiCsToRe_OPAQUE_MiXeD');
+    const io = vi.fn(async () => {});
+    for (const invalid of [{ ...object, objectUrl: object.objectUrl + '?changed=1' }, { ...object, etag: '' }])
+      await expect(deleteRecordingBlob(invalid, 321, io)).rejects.toMatchObject({ code: 'RECORDING_OBJECT_IDENTITY_INVALID' });
+    for (const remainingMs of [0, -1, 1.5, 20_001])
+      await expect(deleteRecordingBlob(object, remainingMs, io)).rejects.toMatchObject({ code: 'RECORDING_CLEANUP_DEADLINE' });
+    expect(io).not.toHaveBeenCalled();
+    expect(tx.recordingDeletionIntent.update).not.toHaveBeenCalled();
+  });
 });

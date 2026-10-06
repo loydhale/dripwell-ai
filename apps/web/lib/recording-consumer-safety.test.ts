@@ -217,4 +217,75 @@ describe('recording consumer safety contracts', () => {
     }
     expect(body).not.toHaveBeenCalled();
   });
+
+  test('accepts a mixed-case trusted store and forwards the original private-read token', async () => {
+    const { snapshot, object, row } = fixture();
+    const token = 'vercel_blob_rw_SyNtHeTiCsToRe_OPAQUE_MiXeD';
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', token);
+    effects.guard.mockResolvedValue({ rows: [row] });
+    const get = vi.fn().mockResolvedValue(returned(object));
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    try {
+      expect(await readPrivateRecording(snapshot, get)).toEqual(new Uint8Array([1, 2]));
+      expect(get).toHaveBeenCalledTimes(1);
+      expect(get).toHaveBeenCalledWith(object.objectUrl, {
+        access: 'private', useCache: false, token, abortSignal: expect.any(AbortSignal),
+      });
+      expect(timeout).toHaveBeenCalledTimes(1);
+      expect(timeout).toHaveBeenCalledWith(45_000);
+      expect(get.mock.calls[0]![1].abortSignal).toBe(timeout.mock.results[0]!.value);
+      expect(effects.guard.mock.calls.map(call => call[1])).toEqual([snapshot, snapshot]);
+      expect(object.storeId).toBe('syntheticstore');
+      expect(snapshot.object).toBe(object);
+    } finally { timeout.mockRestore(); }
+  });
+
+  test('rejects wrong and malformed token store components before private I/O', async () => {
+    const original = fixture();
+    const target = { tenantId: original.object.tenantId, recordingId: original.object.recordingId,
+      consultationId: original.object.consultationId, setupConversationId: original.object.setupConversationId,
+      uploadAttemptId: original.object.uploadAttemptId };
+    const pathname = recordingObjectPath(target);
+    const object = captureRecordingObject(target, { pathname,
+      url: 'https://kstore.private.blob.vercel-storage.com/' + pathname, etag: original.object.etag });
+    const row: RecordingSegment = { ...original.row, blobPath: object.blobPath, blobObject: object };
+    const snapshot: RecordingProcessingSnapshot = { ...original.snapshot, object,
+      inputFingerprint: recordingInputFingerprint([row]) };
+    effects.guard.mockResolvedValue({ rows: [row] });
+    const get = vi.fn(() => { throw new Error('Malformed token must not reach private I/O'); });
+    const cases = [
+      { token: undefined, code: 'PRIVATE_STORAGE_UNAVAILABLE' },
+      { token: 'vercel_blob_rw_otherstore_OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+      { token: 'wrong_blob_rw_kstore_OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+      { token: 'vercel_blob_rw__OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+      { token: 'vercel_blob_rw_-kstore_OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+      { token: 'vercel_blob_rw_' + 'k'.repeat(129) + '_OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+      { token: 'vercel_blob_rw_k store_OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+      { token: 'vercel_blob_rw_Kstore_OPAQUE', code: 'RECORDING_OBJECT_IDENTITY_INVALID' },
+    ];
+    expect(object.storeId).toBe('kstore');
+    expect(row.blobObject).toBe(object);
+    expect(snapshot.inputFingerprint).toBe(recordingInputFingerprint([row]));
+    for (const { token, code } of cases) {
+      vi.stubEnv('BLOB_READ_WRITE_TOKEN', token);
+      await expect(readPrivateRecording(snapshot, get)).rejects.toMatchObject({ code });
+      expect(get).not.toHaveBeenCalled();
+      expect(effects.guard).not.toHaveBeenCalled();
+    }
+  });
+
+  test('retains the post-read authority fence with a mixed-case trusted token', async () => {
+    const { snapshot, object, row } = fixture();
+    const token = 'vercel_blob_rw_SyNtHeTiCsToRe_OPAQUE_MiXeD';
+    vi.stubEnv('BLOB_READ_WRITE_TOKEN', token);
+    effects.guard.mockResolvedValueOnce({ rows: [row] })
+      .mockRejectedValueOnce(new ApiError(409, 'Late synthetic authority denial', 'PROCESSING_JOB_REQUIRED'));
+    const get = vi.fn().mockResolvedValue(returned(object));
+    await expect(readPrivateRecording(snapshot, get)).rejects.toMatchObject({ code: 'PROCESSING_JOB_REQUIRED' });
+    expect(get).toHaveBeenCalledTimes(1);
+    expect(get).toHaveBeenCalledWith(object.objectUrl, {
+      access: 'private', useCache: false, token, abortSignal: expect.any(AbortSignal),
+    });
+    expect(effects.guard.mock.calls.map(call => call[1])).toEqual([snapshot, snapshot]);
+  });
 });
