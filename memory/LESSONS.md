@@ -333,6 +333,7 @@ Same-task TASK052 transaction-boundary continuation, 2026-10-05: d186’s bounde
 
 Same-task TASK052 type-boundary continuation, 2026-10-05: manual infrastructure attempt2 acquired a runner, then Next failed TS18046 on result.id/tenantId in the real-update observer. Static a8c9ed67 missed that reflected completion is unknown. Narrow a nonnull object and both keys before exact owner comparisons, without a cast; keep the sole real delegate consumption and returned value unchanged. Bundle compilation did not complete the build, and all25 consumer cases remained unexecuted. Preserve the original failures and Seen5.
 
+Saved-source TASK057 contract refinement, 2026-10-06: the frozen project-name hostname prefix excludes the independently recorded exact old deployment's owned origin. Installed CLI/API source does not guarantee that prefix. Bind any separately reviewed old-metadata contract to the exact deployment ID, project and pinned owned origin; keep new-deployment acknowledgement separate. Preserve earlier static/fake PASS and the generic actual projection failure: this run's discarded response, rejected field and cause remain UNKNOWN. This is an existing L-035 refinement, not a new entry or proven live cause; Seen remains5.
 Seen N times: 5
 
 ## L-036: Historical observation flags do not timestamp each later reply

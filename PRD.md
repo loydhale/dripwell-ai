@@ -258,6 +258,8 @@ The [compiled private Blob proof](docs/AUDIT_COMPILED_BLOB_PROOF.md) records TAS
 
 The [isolated provenance-index test](docs/AUDIT_RECORDING_PROVENANCE_INDEX.md) records TASK056 independent actual PASS631f471b/Root4f1c408c at reviewed source834329e8. First ordinary fresh-PG17 PR CI37416931444 passed all22 stages and237tests/18files, including old8+new1 cleanup cases. Exact real-P2002 provenance columns, the distinct-provenance positive control and tracked hooks passed. Scoped count34/Seen5 does not establish shared/hosted/physical/clinical cleanup or whole retention. All12 feature requirements and nine pilot criteria remain unchanged. Current protected Preview readiness/update is the next justified verification task; no deployment or schema effect is authorized by this checkpoint.
 
+The [current protected Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) records accepted source/config checks, the failed original whole-metadata phase and a separately reviewed exact-old-origin component. Its original4-control fake passed; the distinct once read and independent actual review6a9037c6/Root0db75483 admit present target:null and READY at capture with timely owned closure. Thirteen logical native commands are closed, without old-phase replay or source-budget refill. That component does not establish complete metadata/composite freshness/new-deployment acknowledgement/runtime/protection or authorize staging/deployment/schema changes. Read-only structural planning and a factual documentary checkpoint continue; all12 features/nine numbered pilot criteria/count34/Seen5 remain unchanged.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |
