@@ -254,6 +254,8 @@ The [recording cleanup pages audit](docs/AUDIT_RECORDING_CLEANUP_PAGES.md) recor
 
 The [trusted-store binding audit](docs/AUDIT_RECORDING_STORE_BINDING.md) records accepted source58b and first ordinary fresh-PG17 PR CI37397578008, with all22 stages and236 tests in18 files passing. Six new and20 retained consumer/delete identities are subsets in two13-test passing files. ASCII-before-fold comparison preserves original opaque credentials, immutable URL/ETag and existing authority/deadline fences. Scoped source/CI completion advances count32 once; injected I/O does not establish current real SDK authorization, physical deletion/uncached absence, hosted enablement or the full pilot. TASK055 plans the separately owned compiled/live storage proof; maintenance remains default-disabled and all nine criteria above remain unchanged.
 
+The [compiled private Blob proof](docs/AUDIT_COMPILED_BLOB_PROOF.md) records TASK055 actual default selected SDK verification at source58b, independently PASS03b6ba41 and accepted1706f03b. Wrong-ETag original preservation, original conditional deletion/private uncached subject absence with control intact before compensation, and original-only control cleanup/absence were observed in15 logical calls with pending0/obligations0/dispatcherclosed. Scopedcount33/Seen5 does not complete hosted maintenance, clinical ownership, whole retention or criterion9. Source CI was not replayed; maintenance stays default-disabled, protected807/literalfalse and all nine criteria remain held. Isolated provenance-index attribution is approved next verification work.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |
