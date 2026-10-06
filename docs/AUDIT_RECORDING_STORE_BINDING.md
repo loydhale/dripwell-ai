@@ -1,6 +1,18 @@
 # TASK054 recording trusted-store compatibility audit
 
-Status: exact four-source/v2-document/full-body static PASSa74aafb3 accepted1aa45242; genuine after-PASS learning incorporated oncef54a0183. Final incorporation/normal publication/first changed-source CI remain; six new cases and compilation UNEXECUTED, OPEN/count31. This documents an existing recording compatibility fix, not full pilot completion or current provider eligibility.
+Status: SCOPED SOURCE/FIRST-CI PASS, accepted actual source58b/CI37397578008;236tests18files and count32 once. Closing docs are pending review/publication. Current real SDK authorization, physical deletion/uncached absence, hosted enablement and full pilot remain unverified.
+
+## Current actual publication, checks and learning
+
+2026-10-06T01:30:07.214719+00:00 TASK054 source and first-CI verification are scoped DONE. Published source58b0a9ed61332523f2453519c8c0c601df15f78b/tree0f34bbc2, single ef7 parent, matches all415 canonical leaves and the ten reviewed source/document paths. Genuine independent actual review27637/5d151923 is accepted14457/5cf2737b after full read and all45 direct input checks. First ordinary pull_request CI37397578008, attempt1, job/check112057108078, suite101298421433 passed all22 stages, both builds/types/schema/migrations and236/236 tests in18/18 files. Both affected files passed13; six new and20 retained identities are subsets of236. The default reporter does not separately print every short title, explicit skips or matrix counts. New provider controls use injected I/O; source-bound owned PostgreSQL assertions and standard CI service cleanup are distinct from physical/shared/hosted proof. Exact after-actual CHANGELOG633/b1139e69 and SESSION520/145c7cb5 fragments are incorporated once in result3446/be529e63, with immutable immediate snapshots. NO_NEW_LEARNING; L035Seen5/allSeen/LPG stay held. Count31 advances to32 once. Closing documents/full-body minor evidence review and docs-only same-branch publication are next; source/check/log/migration replay is excluded. The next approved task is TASK055 read-only concrete planning for current compiled/live conditional deletion, uncached absence and owned-control preservation, after closing publication is accepted. Current SDK eligibility is unverified; connector metadata403 remains a parked scope denial. Maintenance default-disabled, last-verified protected Preview807, literal ALLOW_REAL_CLIENT_DATA=false, all nine pilot/production gates and spent052 budgets remain. Until-done authorization/hourly scheduled wake-ups continue. No additional Owner login or purchase is established.
+
+The two13-case affected file outcomes bind the exact six new/twenty retained source identities. Negative-loop iterations are not extra cases. Nine retained diagnostics fit998 UTF8 bytes/21 stages and all reported pending counts are0. Passing hooks and standard service removal support their owned source/CI scope. They do not prove physical cancellation, shared/hosted absence or the full retention story. TASK053's existing P2002 assertion duplicates both the old tenant/path key and the new provenance tuple; isolated runtime attribution of the new unique index remains a separate gap.
+
+Auditor's saved-string field projection stop1429/9862acd5 was corrected only from existing artifacts, with no operation or log refetch. The original static/header and discovery stops remain historical metadata findings. Exact genuine actual receipt5d151923, Coder factualae6d5356/ad882f89 and Root acceptance5cf2737b supply independent provenance.
+
+## Historical source-publication freeze requirements
+
+The following source/plan/UNEXECUTED/open-count observations describe their earlier phases and are superseded by the actual outcome above. They do not describe current execution results.
 
 ## Cause and unchanged ownership
 
