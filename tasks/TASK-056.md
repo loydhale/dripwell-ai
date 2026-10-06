@@ -1,6 +1,6 @@
 # TASK-056: Isolated recording provenance-index attribution
 
-Status: STATIC_SOURCE_PACKAGE_PASS_RUNTIME_UNEXECUTED. Root acceptance, separate normal publication and first automatic changed-source fresh-PG17 CI remain pending. TASK055 closing publication is accepted at e919b3d3/tree165a4683. This is the approved distinct-path/same-provenance coverage gap; no TASK052 retry or budget reset.
+Status: DONE_SCOPED. Genuine actual review631f471b/Root acceptance4f1c408c verifies publication and first ordinary automatic CI37416931444. Count33 advances to34 once; Seen5 held. Closing documentation/body publication remains separate. Full pilot is not complete.
 
 Goal: Establish meaningful ordinary fresh-PostgreSQL evidence that the existing immutable Blob provenance unique index rejects a duplicate independently of the older tenant/path uniqueness constraint. Existing P2002 evidence duplicated both keys and does not isolate the new index.
 
@@ -14,8 +14,15 @@ Seal the exact source/old-case/support pins, smallest planned path/delta, expect
 
 Standing boundaries: sole Coder/independent Auditor, ICM root folders and authored apps/web/agent/workflows held. Source change and actual CI require reviewed evidence/learning/STATE/CHANGELOG updates. TASK055 compile/provider/session8528 and prior operations stay consumed. Maintenance default-disabled, last verified protected807 and ALLOW_REAL_CLIENT_DATA=false persist. No Gateway credits/provider swap/personal subscription pooling, upgrade, partnership, unselected administrator, real clients, messages/emails, deployment or merge. Stripe/Resend/clinical/model/device/full two-clinic and production gates remain; hourly continuation is scheduled wake-ups, not uninterrupted execution.
 
+## Historical authoring checkpoints
+
 CTO planning checkpoint 2026-10-06T04:28:17.853875+00:00: exact baseline6dece083/source58b, count33/Seen5. Only the same Coder read-only source/schema/index/installed-doc trace and sealed one-path proposal are selected. Independent plan review and a distinct source-authoring GO precede implementation; no SQL/check/provider/helper/native operation is authorized.
 
 2026-10-06T04:45:49.024279+00:00 TASK056 concrete one-file/one-added-case plan independently PASSb9aef2f6, all53 direct descriptors full-read/verified and acceptedfb7e7cd6. Separate source-authoring-only GO6b64f0f2 permits the same sole Coder exactly the appended provenance-index attribution case. Eight old bodies/imports/helpers/hooks/guard/teardown and all production/schema/migration/CI files remain byte-held. Three tracked IDs/two prospective inserts/one rejection/no source rows, exact real P2002 columns and positive control are UNEXECUTED. Applied source/Root-doc/full-body independent review and separate ordinary publication/first automatic fresh-PG17 CI remain required. Count33/Seen5 and all pilot/data/protection/service/release and spent budgets held.
 
 2026-10-06T04:50:50.222314+00:00 TASK056 one-case source is authored/frozen in genuine Coder handoff99a8570d; sole test40065/c166bc6b/diff6071/1835427f preserves original34404-byte prefix+5-byte suffix/all eight old cases. Root metadata verifies exact original/current/snapshot/diff and held supports; this is integrity, not source PASS. The new index-attribution/positive-control fixture is AUTHORED_UNEXECUTED. Same Auditor combined source/final eight Root docs/full8568-byte body review precedes separate normal publication and first automatic fresh-PG17 changed-source CI. No local check/import/SQL/provider or old operation replay. Count33/Seen5/all pilot/protection/literalfalse/default-disabled/spent gates held.
+
+
+## Accepted actual outcome
+
+Reviewed source834329e8/treebfccf1d7/singlee919 and all419 mode/blob leaves were normally published to open/unmerged PR2, with exact8568-byte source body, held title/main and clean local/origin/index/worktree. The first ordinary automatic PR CI37416931444 attempt1, job/check112117490427 and suite101349670249, passed all22 stages. Original normal App logs report237/237 tests and18/18 files, including the source-bound nine-case cleanup PostgreSQL suite. Fresh PG17.11/fourteen migrations, both builds, Workflow27steps/3workflows, type checks and service teardown are logged. The new strict real-P2002 ordered columns and positive distinct-provenance assertions passed alongside all eight held cases and exact tracked hooks. No explicit skipped/per-case timing/inner-loop count or global/shared/hosted/physical cleanup is inferred. NO_NEW_LEARNING; exact647/529-byte records are applied once. Root accepted scoped DONE/count34; next TASK057 read-only current protected Preview planning remains separately gated.
