@@ -247,3 +247,5 @@ TASK052 source authoring authorized after genuine independent planPASSaf49da5c/a
 - 2026-10-06: Preserve independently reviewed incomplete B reader sources430/439/472 unexecuted, park TASK057 release work, and queue TASK058 read-only trial-concurrency feasibility; NO_NEW_LEARNING/count34/Seen5 held, no new app checks or deployment.
 
 - 2026-10-07: Add independently reviewed trial rollback/same-key concurrency proof; first CI37554713501 passed238 Vitest tests/19 files and separate15 clinic Node tests. Scopedcount35 once with this reviewed checkpoint, NO_NEW_LEARNING/Seen5; full pilot/hosted/release gates remain open.
+
+2026-10-07 TASK059: added reviewed normal-owner two-clinic handler/PostgreSQL isolation test; first CI37565425519 passed239 Vitest/20 files plus separate clinic15/15; exact cleanup and limits accepted, pilot activation/history/rollback remain open.

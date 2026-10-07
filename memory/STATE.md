@@ -1,9 +1,21 @@
 # STATE.md
 
 CONTINUOUS_MODE: ON
-Tasks completed this run: 35
+Tasks completed this run: 36
 
 ## Current resume, authoritative
+
+2026-10-07T03:27:36.613765+00:00 TASK059_ACCEPTED_ISOLATION_OUTCOME_CHECKPOINT_THEN_TASK060
+
+TASK059's selected handler/PostgreSQL isolation proof has independent actual PASS fdab032b and Root adoption 059d465c. Reviewed test source 7a6e0bdf/tree258e72ba has one a206 parent, 428 leaves and all 427 prior leaves held. The first ordinary fresh-PG17.11 CI 37565425519/job112611907998 passed all 22 listed stages, the named new case, Vitest 239 tests in 20 files and separate clinic Node 15/15. This outcome checkpoint proposes count 35 to 36 once. NO_NEW_LEARNING 75b6b91c retains L035 Seen5 and all other learning counts.
+
+Two normal owner signups, MFA, opaque sessions, CSRF, current Request/Response handlers and real Prisma exercised different synthetic SERVICE catalogs/prices. An AsyncLocalStorage Next cookie context was explicitly simulated; fetch and Workflow-start leaves were configured to throw if invoked. Fixture A/B prices were USD50/USD85, with A's edit USD55, not actual clinic prices. Saved blocked tests, activation422, foreign test/edit404 and rollback409 assertions preserved their required configuration/audit snapshots. A's edit left B unchanged; legitimate rate-bucket effects were asserted separately. The original CLOSURE CANDIDATE reports18 started/returned handlers,46 additional owned ORM operations,pending0,two cleaned lineages,unresolved0 and2597ms. Final named-case PASS at2600ms/file2601ms corroborates source-enforced cleanup/key-absence assertions. Complete raw DB rows, generated IDs and per-handler result/delete receipts remain unretained. These timings do not establish the clinical latency targets.
+
+Next: publish only this independently co-signed ten-document/full-PR-body outcome checkpoint normally on the same review branch with [skip ci], verify actual publication/body/clean current binding and independently accept closure. Then dispatch sole Coder [TASK060](../tasks/TASK-060.md) READ_ONLY feasibility for qualifying paid platform referral credit/replay, already required by PRD8 criterion8. Existing selected Stripe sandbox setup/Product/Price remain retained without recreation. No next-task source/effect authority or passing-check rerun is granted. Park individual unmet policy/provider/hosted dependencies and continue independent approved work.
+
+Successful activation, immutable active history and positive rollback remain blocked for this ordinary clinicalfalse/SERVICE-only story by current initial-recommendation and clinical-authority requirements. This is partial evidence for criteria1/9, not complete criteria1/6/9 or the pilot. All12 approved features, nine numbered PRD8 criteria and production gates remain required. TASK057 stays internally parked without another automatic attempt or acceptance substitute. Last source-verified hosted Preview80729f2f remains historical evidence; the new Git source is not verified as a protected deployment. Requested runtime/build ALLOW_REAL_CLIENT_DATA=false, effective hostedfalseUNVERIFIED/encrypted defaultsUNKNOWN and maintenanceDEFAULT_DISABLED stay held. No direct new deployment, shared migration, purchase/upgrade/provider swap, partner application, email/message, admin bootstrap or real client data occurred. Until-done authorization and hourly scheduled continuation persist. No cancellation, new Owner question or all-external WAITING blocker is established.
+
+## Historical TASK058 accepted checkpoint, superseded by current resume
 
 2026-10-07T01:37:46.855587+00:00 TASK058_TRIAL_PROOF_ACCEPTED_OUTCOME_CHECKPOINT_THEN_TASK059
 
