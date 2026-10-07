@@ -176,3 +176,12 @@ Task trigger: TASK063 existing roles/retention proof; original failed type-build
 CTO: Scopedcount38->39 once through reviewed actual closure, one genuine L035 Seen5->6 recurrence, four distinct phase fragments once. Research report dates historical observations and records already implemented049/050 follow-through. Next064 is existing-scope read-only real-PG enrollment-reporting feasibility, no source/effect authority.
 Auditor co-sign: This exact candidate documentary/fullbody/MINOR/publication plan needs separate independent co-sign before effects; actual review97fb730b/distinct NO_NEW_LEARNINGe9ed7f1f adopted.
 Owner authorization: Existing approved PRD and standing until-done authorization; no new feature/price/provider or Owner decision.
+
+## 2026-10-07, v2 checkpoint, MINOR
+Section changed:8 scoped enrollment cohort and recording regression, count40 drift.
+Summary: Reporting/publication/nativePASSe22ba427/Root3ef5c68e; newcase1324ms/file1327ms. WholeCI37656684044CHANGES_REQUIRED;11of12mapped bodies/OWNED_JOB_UPDATE P2034 observed, causeUNKNOWN. All12features/nine exact criteria/architecture/prices/data gates held.
+Task trigger: TASK064 existing F06/F12 quality verification and Tier2 TASK061R1 saved-source/log-only diagnosis.
+CTO: Count39to40 once only after reviewed documentary publication/actualclosure; prior oneL0356to7/four phase fragments once. Actuallearning788397f4 adds no recurrence. TASK065 creates no source/effect/attempt reset or TASK057 acceptance substitute.
+Auditor co-sign: Exact frozen documentary/MINOR/fullbody/publication interface requires independentPASS before publication; source actualreview/learning genuinely adopted.
+Owner authorization: Standing until-done/existingPRD, no new feature/provider/price/Owner decision.
+

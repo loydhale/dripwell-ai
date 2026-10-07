@@ -1,0 +1,364 @@
+{
+  "actualLearning": {
+    "bytes": 9433,
+    "mode": "0600",
+    "path": "/workspace/dripwell-task064-audit-private/TASK064_V3_ACTUAL_MIXED_FIRST_CI_DISTINCT_AFTER_VERDICT_LEARNING.json",
+    "sha256": "788397f494e7eccddfdab45fc35a1f5f54e3cf08a793a718b4f05cdad4d6a9f7"
+  },
+  "actualReview": {
+    "bytes": 32247,
+    "mode": "0600",
+    "path": "/workspace/dripwell-task064-audit-private/TASK064_V3_ACTUAL_PUBLICATION_NATIVE_AND_MIXED_FIRST_CI_INDEPENDENT_REVIEW.json",
+    "sha256": "e22ba427cfff45b9a2872a4b7b4b32f80075d5e03a0dc04290889f9812ad1578"
+  },
+  "documentaryCount40OnlyOnceOnActualClosure": true,
+  "gates": {
+    "TASK057": "PERMANENT_INTERNAL_PARK",
+    "acceptedUnappliedSeen": 7,
+    "all12FeaturesRequired": true,
+    "all9PilotCriteriaRequired": true,
+    "automaticGitDeployment": "UNKNOWN",
+    "count": 39,
+    "directVercelDeployment": 0,
+    "effectiveHostedFalse": "UNVERIFIED",
+    "liveL035Seen": 6,
+    "maintenanceDefault": "DISABLED",
+    "native13": "CLOSED",
+    "newRecurrenceHere": false,
+    "paidClinicalProviderHostedGates": "HELD",
+    "requestedAllowRealClientData": false
+  },
+  "nextReadOnly": {
+    "ancestry": "EXISTING_RECORDING_CONSUMER_SAFETY_TASK061_R1_CONTINUATION_WITH_NEW_ORIGINAL_FAILURE_EVIDENCE",
+    "authoringOrEffectsGranted": false,
+    "conditions": [
+      "No fourth TASK064 source/fixture/native/CI entry and no TASK057 repair/reset/reimplementation/substitute.",
+      "New task numbering does not reset TASK061 R1 attempt/authority history or create automatic correction capacity. Any future source/effect proposal needs separate genuine admissibility, explicit existing ancestry/budgets, Root adoption and finite GO.",
+      "Do not run/import/compile/probe/refetch/rerun tests/SQL/provider effects during read-only diagnosis.",
+      "An exact MINOR readiness/documentary checkpoint must record the whole regression and direct next diagnostic resume before queue handoff.",
+      "Prioritize this blocking regression before further unrelated quality work or merge/release claims; no Owner credential/action is established by these saved results."
+    ],
+    "reason": "The current changed-source CI provides a newly observed failure in an existing recording component. Continuous-mode Tier2 permits evidence-based bug/gap triage. The changed evidence makes source/log diagnosis meaningful; no prior passing check is repeated.",
+    "scope": "Read retained current case/helper/mapper/production transaction/retry code and original925/1322 failure, then propose the smallest concrete bounded plan if a source-supported need exists. Preserve UNKNOWN causal fields and all original oracles until evidence supports a change.",
+    "verdict": "ADMISSIBLE_READ_ONLY_DIAGNOSTIC_PLANNING_ONLY"
+  },
+  "noNewL035Event": true,
+  "originalCI": {
+    "apiEventAndDirectHead": "UNRETAINED",
+    "checkout": {
+      "main": "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+      "merge": "2b79191abe6a9355ef48422fb23b7233590a9d9a",
+      "rawLines": [
+        186,
+        188,
+        213,
+        216
+      ],
+      "source": "1aa61f19b69fcf0eb3f8f35eeb0af72a37d46061"
+    },
+    "conclusion": "failure",
+    "job": 112913395064,
+    "listedSteps": {
+      "failure": 1,
+      "skipped": 1,
+      "success": 20,
+      "total": 22
+    },
+    "log": {
+      "rawBytes": 220399,
+      "rawSha256": "b976d3df74494fec0214c853ca6cc289aa8e7575c2dcd970cd0aa8a224feec53",
+      "retrieval": "ONE_ORIGINAL_RETRIEVAL_ALREADY_CLOSED_NO_REFETCH",
+      "structuredContentRawEquality": true,
+      "wrapperBytes": 240690,
+      "wrapperSha256": "5eaae389d173fbd6043757a79a7ce4e82b49b67692ebe80f4c4f86cbeeae5cce"
+    },
+    "logReadingQualification": "Original wrapper/raw byte equality and hashes verified. Checkout/setup/current Node results/new case/frame/failure/footer were semantically inspected; routine dependency installation and unrelated SQL/container output are not a causal audit or a new full-story proof.",
+    "migrationScope": "All14 fresh disposable CI migrations ran. This is not a shared/deployed DB migration or permission to reapply schema.",
+    "run": 37656684044,
+    "runAttempt": "UNRETAINED",
+    "runNumber": 45,
+    "separateClinicNode": {
+      "cancelled": 0,
+      "failed": 0,
+      "passed": 15,
+      "rawLines": [
+        755,
+        756,
+        775,
+        777,
+        778,
+        779,
+        780
+      ],
+      "skipped": 0,
+      "tests": 15
+    },
+    "status": "completed",
+    "steps": "1-16 succeeded, including fresh PG17 generation/validation/all14 disposable migrations, both builds, TypeScript and preceding domain/auth/clinic/extraction stages. Step17 billing/sharing failed; post31 skipped; posts32-35 succeeded.",
+    "vitest": {
+      "aggregateSkips": "NOT_LISTED",
+      "failedFiles": 1,
+      "failedTests": 1,
+      "passedFiles": 23,
+      "passedTests": 242,
+      "totalFiles": 24,
+      "totalTests": 243
+    },
+    "workflow": 372642242
+  },
+  "pilotComplete": false,
+  "productionComplete": false,
+  "rawRowsAndIndividualResponses": "RAM_ONLY_UNRETAINED",
+  "reportingComponent": {
+    "case": "partitions the complete enrollment cohort across real PostgreSQL without inheriting board filters",
+    "file": {
+      "elapsedMs": 1327,
+      "path": "apps/web/lib/membership-reporting.integration.test.ts",
+      "rawLine": 841,
+      "result": "PASS",
+      "tests": 1
+    },
+    "frameVersusCase": "The frame precedes final write/flush/join/original-clock/context and COMPLETE_CLOSURE assertions at source429-432. Named case/file PASS supplies later terminal support. The frame tag alone is not acceptance.",
+    "limits": "Complete DB rows/individual dashboard responses were RAM-only and unretained.271 additional ORM and93 measured product delegate reads are source counters, not a total SQL-statement count. No ordinary signup/MFA/network HTTP/browser/clinical/provider/payment/sales-lift/full-pilot/production proof or clinical latency target is inferred.",
+    "namedCase": {
+      "elapsedMs": 1324,
+      "rawLine": 843,
+      "result": "PASS"
+    },
+    "oracles": [
+      "D1-D3: full selected A1 period cohort6=enrolled1+declined1+unknown4, membershipRecorded2/rate0.5, unaffected by board search/pageSize/archive presentation; exact selected board IDs and legacy-invalid archive omission checked.",
+      "D4-D5: distinct A2 declined cohort and B1 enrolled cohort remain isolated. D6 requires exact foreign-location404 without a successful response. D7 empty period has zero cohort and null rate.",
+      "Inclusive-from/exclusive-to dates, archived history, isTest exclusion and SQL-null/JSON-null/valid-membership-null/invalid-care unknowns are separately represented by exact owned rows. Enrollment is distinct from wellness, service purchase and collected payment.",
+      "Five bounded full scalar/native-FK census boundaries cover the52-model45+7 partition and pre/post product read preservation. Quiescent audit-free exact native-FK deletion removes23 owned roots; owned client closes and prior globals/module cache restore.",
+      "One original30s clock,20s effect cutoff, real current Prisma receiver/lazy completion, persistent first-error/unsafeOwnership/unknown refusal and2048-byte safe final writer remain source enforced;1320ms frame plus subsequent PASS is within the original budget."
+    ],
+    "safeFrame": {
+      "additionalOrm": 271,
+      "censuses": 5,
+      "cleanupOrm": 113,
+      "closed": true,
+      "delegateReads": 93,
+      "deleted": 23,
+      "denied": 1,
+      "elapsedMs": 1320,
+      "first": null,
+      "forbidden": 0,
+      "moduleRestored": true,
+      "obligations": 0,
+      "outcome": "CLOSURE_CANDIDATE",
+      "pending": 0,
+      "phase": "CLEANUP",
+      "rawLine": 840,
+      "restored": true,
+      "returned": 6,
+      "scenarioOrm": 158,
+      "service": 7,
+      "task": "TASK064",
+      "transactions": 7,
+      "unknown": false,
+      "unresolved": false,
+      "unsafeOwnership": false
+    },
+    "sourceEvidence": "Exact accepted434-line3aad source is unchanged, equal immutable snapshot and Gitblob24eef. Source359-374 contains D1-D7;375-432 covers counts/joins/census/exact cleanup/client/globals/cache/final writer. Held P01-P08/C01-C08 and installed Plugin0.53.0/Prisma6.19.3/Vitest5.0.3/Next16.3.8/TypeScript5.9.3/Workflow guidance continuity are reused honestly from the exact accepted static review."
+  },
+  "rootAdoption": {
+    "bytes": 7609,
+    "mode": "0600",
+    "path": "/workspace/dripwell-task064-root-private/GENUINE_ROOT_V3_ACTUAL_SCOPED_PASS_AND_DISTINCT_LEARNING_ADOPTION.json",
+    "sha256": "3ef5c68e7e35e0cd788c06739e6014f4ded220af3ca39e6cd43f24f0d896d82f"
+  },
+  "safeOriginalFrames": {
+    "membership": {
+      "additionalOrm": 271,
+      "censuses": 5,
+      "cleanupOrm": 113,
+      "closed": true,
+      "delegateReads": 93,
+      "deleted": 23,
+      "denied": 1,
+      "elapsedMs": 1320,
+      "first": null,
+      "forbidden": 0,
+      "moduleRestored": true,
+      "obligations": 0,
+      "outcome": "CLOSURE_CANDIDATE",
+      "pending": 0,
+      "phase": "CLEANUP",
+      "restored": true,
+      "returned": 6,
+      "service": 7,
+      "task": "TASK064",
+      "transactions": 7,
+      "unknown": false,
+      "unresolved": false,
+      "unsafeOwnership": false
+    },
+    "recording": {
+      "boundary": "OUTCOME_ASSERTION",
+      "callbacks": {
+        "entered": 15,
+        "returned": 14
+      },
+      "completedKinds": 0,
+      "faults": {
+        "commits": 0,
+        "completedPublicationBodies": 11,
+        "injectedErrors": 11,
+        "remaining": 1,
+        "rollbacks": 11
+      },
+      "firstUnexpectedError": {
+        "boundary": "OWNED_JOB_UPDATE",
+        "class": "PRISMA_KNOWN",
+        "code": "P2034",
+        "constraintMention": "UNKNOWN",
+        "sqlState": "UNKNOWN"
+      },
+      "kind": "TRANSCRIPTION",
+      "masked": {
+        "calls": 1,
+        "class": "PRISMA_KNOWN",
+        "code": "P2034",
+        "lastInjectedError": false,
+        "ownedInjectedError": true,
+        "seen": true
+      },
+      "outcome": "FAILED",
+      "pendingCount": 0,
+      "providerCalls": {
+        "catalog": 0,
+        "get": 1,
+        "start": 0,
+        "summary": 0,
+        "transcribe": 1
+      },
+      "scope": "MAPPED_EXHAUSTION_SENTINEL"
+    }
+  },
+  "schema": "TASK064_SAFE_NATIVE_ENROLLMENT_REPORTING_EVIDENCE",
+  "source": {
+    "commit": "1aa61f19b69fcf0eb3f8f35eeb0af72a37d46061",
+    "fourOriginalWrites": "V3S01 blob24eef, V3S02 treebc4b, V3S03 commit1aa, V3S04 typed success:true expected2136/nonforce samebranch. Each spent before dispatch and closed once; no BODY write, force, main merge or replay.",
+    "message": "test: verify membership enrollment reporting with real PostgreSQL",
+    "messageBytes": 65,
+    "messageFinalLF": false,
+    "originalFiniteSourceClock": {
+      "deadlineMonotonic": 529025.350145734,
+      "lastPostReturnRemainingMs": 547719,
+      "outerMs": 600000,
+      "reset": false,
+      "startMonotonic": 528425.350145734
+    },
+    "pr": {
+      "base": "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+      "bodyBytes": 5558,
+      "bodySha256": "a4a0b9df3d5c4e53dd23f389df7a435c696062b273f7108c0f24d19d0a96022b",
+      "head": "1aa61f19b69fcf0eb3f8f35eeb0af72a37d46061",
+      "merged": false,
+      "number": 2,
+      "sourcePhaseBodyUpdate": false,
+      "state": "open",
+      "titleHeld": true
+    },
+    "rawCommitAndTree": "Raw UTF8 commit in actual447 capture independently matches its SHA256 and commit SHA1, exact parent/tree/message/noLF. Pure in-RAM tree serialization independently derives bc4b from all447 recorded leaf OIDs.",
+    "singleParent": "2136ec5c5572d4dbdebd7addc68168bdea3957d1",
+    "skipCI": false,
+    "source": {
+      "actualIdentity": {
+        "dev": 27,
+        "gid": 1000,
+        "ino": 305914,
+        "nlink": 1,
+        "uid": 1000
+      },
+      "blob": "24eef163392e7f39a626143ede0c40f9a575782c",
+      "bytes": 31055,
+      "gitMode": "100644",
+      "ordinaryLines": 434,
+      "path": "apps/web/lib/membership-reporting.integration.test.ts",
+      "physicalMode": "0600",
+      "sha256": "3aad875e18b285b1f3e5e45c68e8d681e6ac97144fbe5f4dac127c9acc79bea5"
+    },
+    "tree": "bc4b1568695c6d11e5d2b24374e3b9e6e054cc17"
+  },
+  "wholeRegression": {
+    "actual": {
+      "commits": 0,
+      "completedPublicationBodies": 11,
+      "remaining": 1,
+      "rollbacks": 11
+    },
+    "case": "exhausts bounded publication conflicts without committing partial effects",
+    "cause": "UNKNOWN",
+    "changedByTASK064": false,
+    "column": 31,
+    "evidenceLimits": "The direct exhaustion prefix precedes the failing mapped assertion. Subsequent mapped-outcome/state/last-injected identity and terminal-loop assertions at1323+ did not acquire a PASS from this failed case. Pending0 and commits0 are observed counters, not proof of its whole fixture compensation. OWNED_JOB_UPDATE/P2034 identifies a recorded boundary; it does not establish why only11 injected bodies completed or prove a product defect, timeout, flakiness or coupling to the new reporting test.",
+    "expected": {
+      "commits": 0,
+      "completedPublicationBodies": 12,
+      "remaining": 0,
+      "rollbacks": 12
+    },
+    "file": "apps/web/lib/recording-consumer-safety.integration.test.ts",
+    "fileSha256": "063529d6915d4f1a7f27d33413bf0a02e0919a97da007bbec767d7f52be19357",
+    "oldAncestry": "TASK061 initial ordinary CI37574789977 failed the distinct 'retries rolled back publication without repeating providers or duplicating effects' case with original failing kind/causeUNKNOWN. TASK061 R1 added bounded mapper input/boundary observation to the already-existing second mapped exhaustion invocation, not a new provider/SQL invocation. Its accepted5624632f/CI37581836016 passed the12-error/last-owned-identity oracle. This current063529 source is unchanged; the present failed assertion is the mapped exhaustion case, not a restored failure or newly proved cause of375747.",
+    "oldV2TypeFailure": "Original37648926351 failed TypeScript before tests; four diagnostics and historical static PASS miss remain retained. Current build/type success does not rewrite that outcome.",
+    "rawLines": [
+      924,
+      925,
+      927,
+      956,
+      957,
+      965,
+      966,
+      967,
+      968,
+      969,
+      970,
+      973,
+      981,
+      985,
+      986,
+      1016
+    ],
+    "requiredNextAction": "Separately reviewed saved-source/log-only diagnosis of this exact current mapped-exhaustion failure, preserving original12-count/state/provider/identity assertions and bounds. No unchanged CI retry, relaxed count, timeout expansion, guessed repair or production-source change.",
+    "safeObservation": {
+      "boundary": "OUTCOME_ASSERTION",
+      "callbacks": {
+        "entered": 15,
+        "returned": 14
+      },
+      "completedKinds": 0,
+      "firstUnexpectedError": {
+        "boundary": "OWNED_JOB_UPDATE",
+        "class": "PRISMA_KNOWN",
+        "code": "P2034",
+        "constraintMention": "UNKNOWN",
+        "sqlState": "UNKNOWN"
+      },
+      "injectedErrors": 11,
+      "kind": "TRANSCRIPTION",
+      "masked": {
+        "calls": 1,
+        "class": "PRISMA_KNOWN",
+        "code": "P2034",
+        "lastInjectedError": false,
+        "ownedInjectedError": true,
+        "seen": true
+      },
+      "outcome": "FAILED",
+      "pendingCount": 0,
+      "providerCalls": {
+        "catalog": 0,
+        "get": 1,
+        "start": 0,
+        "summary": 0,
+        "transcribe": 1
+      },
+      "scope": "MAPPED_EXHAUSTION_SENTINEL"
+    },
+    "severity": "BLOCKING_WHOLE_CHECK_AND_MERGE_READINESS",
+    "sourceLine": 1322,
+    "testScopeStartLine": 1309
+  }
+}

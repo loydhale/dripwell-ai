@@ -1,6 +1,17 @@
 # PROJECT_CONTEXT.md
 
-## Current context, authoritative
+## Current TASK064 cohort proof and recording regression
+
+Actual TASK064 reviewe22ba427/Root3ef5c68e accepts the real-PG enrollment cohort and source/publication/native scope. Source1aa61f19, firstCI37656684044/job112913395064/run45: newcasePASS1324ms/file1327ms, cohort6=1enrolled+1declined+4unknown/recorded2/rate0.5,271ORM(158scenario113cleanup)/23owned deleted/5censuses/restored closure. WholeCI remains FAILURE/CHANGES_REQUIRED:20success1failure1skip, Vitest242passed1failed/24files, separateNode15/15zero skips. Existing recording mapped-exhaustion1322:31 saw11bodies/11rollbacks/remaining1 vs12/12/0, commits0; OWNED_JOB_UPDATE/P2034 and mapper identity are observed boundaries, causeUNKNOWN. Subsequent failing-case assertions/whole fixture compensation are unproved; original375747 kind/cause remainsUNKNOWN.
+
+Original376489 TypeScript failure/static miss stays immutable; one previously accepted L035Seen6to7/four distinct phase fragments apply once, actualNO_NEW_LEARNING788397f4 adds no event. Scopedcount39to40 applies once through independently reviewed documentary publication and actual closure, with count40 drift; planning/static/repair/diagnostic phases add no count. All3 TASK064 source allocations are spent, no fourth/reset/refill.
+
+Next: complete exact documentary/MINOR/fullPRbody co-sign, normal[skip ci] publication and independent actual current451-leaf/body/clean closure; then sole Coder TASK065 READ_ONLY existing recording diagnosis under TASK061R1 ancestry and remaining readiness. A new number resets no prior attempt/budget. Future source/check/SQL/provider/effect requires separate admissibility, Rootadoption and finiteGO. No Source64/57 retry, CI/log/refetch/sharedmigration replay.
+
+All12features/ninePRD8criteria/production gates remain required, actual full two-clinic clinical/provider/approval/care/sharePDF/board/outcome/reminder/owner-version/trial/paid-referral/roles-retention story incomplete. TASK057 permanent internalpark/no fourth/reset/retry/repair/reimplementation/substitute/native13closed. TASK060 selected paid admin/MFA/policy/current callback/authentic selected invoice/credit and model/transcription/domain/clinical/device dependencies remain individually parked; existing Stripe terms/resources retained and pending questions not repeated. Preview80729f2f is historical, current deployed source unverified; historical90b0565/Gateway403 remains incomplete. Requested ALLOW_REAL_CLIENT_DATA=false/protected previews, effectivehostedfalseUNVERIFIED/encrypteddefaultsUNKNOWN/maintenanceDEFAULT_DISABLED. No provider swap/credit purchase/personal ChatGPT pooling/upgrades/partner application/admin bootstrap/outbound messages/real client data. Standing until-done/hourly wake-ups persist, no uninterrupted-worker claim.
+
+
+## Historical TASK063 context, superseded by TASK064
 
 2026-10-07 12:59:08 UTC TASK063_SCOPED_ACTUAL_OUTCOME_CHECKPOINT_THEN_TASK064
 

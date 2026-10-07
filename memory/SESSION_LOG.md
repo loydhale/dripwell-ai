@@ -550,3 +550,13 @@ TASK063 retained phase learning/status, incorporated once with this reviewed out
 2026-10-07 TASK063: V3 CI37622006306 independently passed recording authority and owned closure; 12 handlers, 242 Vitest/23 files, separate Node15/15. Original failed CI retained; full pilot open. Same L035 recurrence only; no count/Seen advance.
 
 2026-10-07 12:59:08 UTC TASK063 actualPASS97fb730b and Root9e80a10a adopted. Exact documentary/fullbody/MINOR checkpoint proposes scoped38->39 and original actualL035Seen5->6 once through accepted publication/actual closure. Four distinct phase fragments above; V3static/actual add no recurrence/pattern/gotcha. Candidate-only preparation leaves original live443/counters held until once reviewed normal publication/FF. Next064 read-only existing real-SQL enrollment-reporting feasibility after actual closure; no source/effect authority. All12features/ninecriteria/production/protected807/dualfalse/effectivehostedfalseUNVERIFIED/defaultdisabled/paidproviderclinicalparks/TASK057permanentinternalpark/native13closed held. Metadata sealer scope stop corrected before any candidate/repo/effect write, not an app failure or Seen recurrence.
+
+2026-10-07 TASK064 planning: no new learning; one fictional real-PG enrollment cohort is prospectively admissible under P01-P08; source/effects remain unallocated, count39/Seen6 held.
+
+2026-10-07 TASK064 static audit: no new learning; sticky census-ownership refusal is required before cleanup, source CHANGES_REQUIRED and unexecuted; count39/Seen6 held.
+
+2026-10-07 TASK064 actual CI: publication/native PASS; CI37648926351 failed TypeScript before tests; one L035 recurrence proposed Seen6->7, count39 held; no fixture/case/cleanup outcome.
+
+2026-10-07 TASK064 V3 actual: reporting component PASS; CI37656684044 whole FAILURE, recording exhaustion cause UNKNOWN. No new learning; prior L035 Seen7 proposal remains unapplied.
+
+2026-10-07 TASK064 checkpoint: scoped reporting/publication/nativePASSe22ba427/Root3ef5c68e, wholeCI37656684044 FAILURE/causeUNKNOWN retained. Count39to40 once on reviewed documentary actualclosure, accepted priorV2L0356to7 once/four exact phase fragments, actualNO_NEW_LEARNING788397f4. NextTASK065 saved-source/log-only TASK061R1 diagnosis/no budget reset or sourceeffect. All12/9pilot/production gates held.

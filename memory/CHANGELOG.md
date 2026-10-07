@@ -1,5 +1,8 @@
 # CHANGELOG.md
 
+2026-10-07 TASK064: accepted real-PG enrollment cohort/owned cleanup1aa61f19/newcase1324ms/file1327ms; wholeCI37656684044 remains failed, exact recording boundary/causeUNKNOWN retained. Record one L0356to7/four phase fragments/count39to40 once through reviewed documentary closure/count40drift, all12/9gates and nextTASK065 saved-source/log-only TASK061R1 diagnosis; no source/check/provider/sharedmigration/deploy replay.
+
+
 2026-10-06 TASK057 PRD.md, current Preview audit, STATE/PROJECT_CONTEXT/SESSION_LOG/CHANGELOG/PRD_CHANGELOG and TASK-057 — record genuine final3 source/applied CHANGES_REQUIRED, original failed-terminal evidence and NO_NEW_LEARNING; PARK/no fourth, retain all pilot gates and prepare distinct read-only B planning. Exact documentary/full-body/MINOR co-sign and publication remain prospective at this capture.
 
 ## Historical private draft checkpoints, superseded by the final3 disposition
