@@ -1,8 +1,16 @@
 # TASK-063: Remaining roles and recording-retention verification feasibility
 
+Status: SCOPED_ACTUAL_PASS_OUTCOME_CHECKPOINT. Counts once as scoped DONE after this exact reviewed documentary publication and independent actual closure. No whole-pilot completion or next-task source/effect authority.
+
+Current result: Independent actualPASS97fb730b and Root9e80a10a at source3c745201; ordinaryCI37622006306/all22 stages/Vitest242-23/separateNode15-15, new case/filePASS and bounded owned closure. Original firstCI37615527361 type failure and static misses preserved, one actualL035 recurrence/four distinct phase fragments once. See [audit](../docs/AUDIT_RECORDING_ROUTE_AUTHORITY.md), [evidence](../docs/evidence/TASK063_RECORDING_ROUTE_AUTHORITY.json) and currentSTATE. Conditional next [TASK064](TASK-064.md) is existing-scope read-only enrollment-reporting feasibility after true actual documentary closure.
+
+MINOR citation erratum: section7 is Non-goals; access/retention intent belongs to sections2/6 and section8criterion9. No requirement changed.
+
+## Historical approved read-only brief, superseded by the scoped actual outcome above
+
 Status: NEXT_APPROVED_READ_ONLY_AFTER_TASK062_REVIEWED_OUTCOME_PUBLICATION_AND_ACTUAL_CLOSURE. No source or effect authority.
 
-Goal: Find one meaningful unblocked component of the already-approved PRD section8 criterion9 and section7 access/retention requirements. Keep DripWell's IV-spa purpose: suitable approved membership/program offers and accurate recorded decisions/enrollment, with trustworthy private consultation data handling.
+Goal: Find one meaningful unblocked component of the already-approved PRD section8 criterion9 and sections2/6 access/retention requirements. Keep DripWell's IV-spa purpose: suitable approved membership/program offers and accurate recorded decisions/enrollment, with trustworthy private consultation data handling.
 
 Use the latest branch boot corpus, own Coder persona, continuous-mode workflow, actual current publication/closure binding and applicable open-source Vercel Plugin auth/storage/Workflow/verification guidance plus version-matched installed docs. Confirm the managed runtime and final/idle workers. Root remains CTO; same sole Coder plans/implements; same independent Auditor reviews/learns. Preserve ICM roots and authored apps/web/agent and apps/web/workflows.
 

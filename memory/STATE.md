@@ -1,9 +1,33 @@
 # STATE.md
 
 CONTINUOUS_MODE: ON
-Tasks completed this run: 38
+Tasks completed this run: 39
 
 ## Current resume, authoritative
+
+Execution status: TASK063_SCOPED_ACCEPTED_OUTCOME_CHECKPOINT_PUBLICATION_CLOSURE_THEN_TASK064_READ_ONLY_ENROLLMENT_REPORTING_FEASIBILITY. This is not all-external WAITING_ON_DEPENDENCIES.
+
+2026-10-07 12:59:08 UTC TASK063_SCOPED_ACTUAL_OUTCOME_CHECKPOINT_THEN_TASK064
+
+TASK063 has genuine independent actual PASS97fb730b and Root adoption9e80a10a. Reviewed source3c745201/treebf0b5327, soleparent1f9d654d, has443 leaves with all other442 held. Ordinary changed-source fresh-PG17.11 CI37622006306/job112794307366 passed all22 listed stages, Vitest242 tests/23files and separate clinic Node15/15 with explicit0skips. New named case2376ms/file2378ms. Vitest aggregate skips, direct API event/head/run_attempt and raw complete row/response/internal-retry receipts remainUNRETAINED. Scopedcount38->39 applies once through independent exact documentary review/publication/actual closure; planning/static/type correction adds no separate count.
+
+Real current recording GET/retry handlers/auth/Prisma and explicitly simulated AsyncLocalStorage Next cookie context prove three allowed metadata projections and nine exact denials: cross-tenant404, expired consultation/setup410, nonowning setup owner403, missing session401, current owner demotion403 and current session revocation401. The exact source enforces private no-cache headers, nine public fields and two-clinic full selected scalar preservation. Fictional SUPER_USER/STAFF actors are clinicalfalse/MFAfalse; DRAFT/configuration/setup/isTest:true consultation metadata is synthetic only, with no physical recording object or approved clinical output.
+
+Original414-byte CLOSURE_CANDIDATE at2371ms:12started/12returned handlers(GET7/retry5/denied9),367tracked additionalORM(269scenario+98cleanup),forbidden0,deleted20,readers0/readerClosureUnknownfalse,5census,pending0,unknownfalse,resolved/closed/restored/moduleRestoredtrue. Named-case/file/jobPASS corroborates source-enforced exact native-FK compensation, empty postcensus, true joins/owned disconnect/context/global/module restoration and final safe-write/original-clock guards. Raw IDs/tokens/full DB rows/individual handler bodies/deletion receipts areRAM-only; tracked operations are not all SQL or internal retries. No reader-cancel failure path or clinical latency target is established.
+
+Exact five new R3S publication calls and three new R3N commands each ran once. Typed ref success briefly had a stale normalized PR head; read-only reconciliation held the unconsumed body call before continuing it, with no write replay. The tracked source was restored only to its exact parent worktree bytes, then once fast-forwarded to the actual returned commit, retaining explicit exits0 and fresh physical identity. All original S/N entries/log reads remain closed.
+
+Original source1f9 firstCI37615527361 failed web TypeScript before tests with TS2345/TS18048. The exactly two-line reviewed correction explicitly types the existing ID list as string[] and returns through the original poison-before-throw absent-cookie branch; production/all other test bytes stayed held. Preserve V1 staticA01/A02 findings, V2 missed-boundary staticPASS and failedCI. Both type diagnostics are one distinct actualTASK063 L035 recurrence, Seen5->6 once. Four genuine186/197/235/247-byte SESSION phase fragments are incorporated once; V3 static and actual learning add no additional recurrence/pattern/gotcha. Historical375747 recording kind/cause remainsUNKNOWN.
+
+Commercial purpose: the review branch already implements TASK049 enrollment/no-enrollment/not-recorded cards with complete-cohort denominators and TASK050 approved goal/benefit/price/terms presentation across staff/approved takeaway/synthetic PDF text. The research report now dates its original October4 observations and records that follow-through, without measured sales lift or deployed/live-sales claims.
+
+Next: independently co-sign this exact documentary/MINOR/full-body/publication plan, publish it once as normal Git documentation[skip ci], then accept actual publication/body/all446 current leaves/clean context. Only afterward dispatch the same sole Coder [TASK064](../tasks/TASK-064.md) READ_ONLY existing F06/F12 real-PG enrollment-reporting feasibility. Compare prior TASK049 mocked-Prisma and current ordinary clinic SQL coverage; choose at most one necessary uncovered cohort/denominator/tenant/location/date/archive/test/paging behavior, within three source files, or return exact blockers/already-covered outcome. No next-task source/import/check/SQL/fixture/provider/deployment authority. No duplicate passing test or low-value verification loop.
+
+All12features/ninePRD8 criteria and production gates remain required: actual two-clinic capture/transcription/model output/exact-revision clinical approval/actual care/approved accurate sharingPDF/all six board/outcome/reminder triggers/owner activationhistoryrollback/14-day trialconcurrency/authentic paid referralcredit/roles services retention end-to-end. TASK060 selected admin/policy/current hosted callback/authentic sandbox payment prerequisites stay individually parked; provider/transcription eligibility, sender/domain, approved clinical protocols and device/hosted gates remain. Do not repeat pending questions or Gateway403 probes, buy credits, pool personal ChatGPT access, swap provider, invent prices, bootstrap an unselected admin, purchase upgrades, submit partner applications or send messages/emails.
+
+TASK057 stays permanently internally parked with no fourth/reset/retry/repair/reimplementation/substitute; native13 closed. Protected source80729f2f is historical; current Git source has no completed protected-deployment verification. Requested runtime/build ALLOW_REAL_CLIENT_DATA=false, effectivehostedfalseUNVERIFIED/encrypteddefaultsUNKNOWN/maintenanceDEFAULT_DISABLED remain. Fresh empty CI-target migrations did not replay shared migrations. Standing until-done authorization and hourly scheduled wake-ups persist, without an uninterrupted-worker claim. No cancellation, verified full completion or all-external WAITING_ON_DEPENDENCIES is established by this checkpoint.
+
+## Historical TASK062 accepted checkpoint, superseded by current resume
 
 Execution status: TASK062_SCOPED_ACCEPTED_OUTCOME_PUBLICATION_CLOSURE_THEN_TASK063_READ_ONLY_RETENTION_FEASIBILITY. This is not all-external WAITING_ON_DEPENDENCIES.
 

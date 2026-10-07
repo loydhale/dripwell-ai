@@ -2,6 +2,14 @@
 
 Owner steering, October 4, 2026: help an IV spa convert appropriate new-client visits into clinic memberships or programs and improve client satisfaction. Recording and administration support that purpose. This report informs the existing F-06/F-07/F-10/F-12 scope; it does not expand the pilot definition or claim verified sales lift.
 
+## Implemented follow-through in the review branch, October 7, 2026
+
+The first two bounded product tasks above have been implemented in the review branch. [TASK049's audit](AUDIT_MEMBERSHIP_REPORTING.md) records both primary displays showing confirmed enrollment, did-not-enroll and not-recorded from the same complete selected-period consultation cohort, with explicit overall and recorded-outcome denominators. Its production aggregator was tested through mocked Prisma transport; real SQL execution and live sales data were not established.
+
+[TASK050's audit](AUDIT_APPROVED_WELLNESS_OFFERS.md) records approved matched goals and benefits, official price/currency, faithful clinic-supplied terms and optional alternatives across staff output, public approved takeaway and saved synthetic PDF text. Edits require reapproval, and legacy approved documents retain their historical facts. The corrected ordinary source CI37275893506 passed all22 listed stages; individual counts/skips/raw logs for that run remain unobserved.
+
+These changes support the IV-spa membership/program goal. They do not establish conversion lift, collected payments, clinical suitability for real clients, complete browser/provider/sharing flows or a current protected deployment of these sources. The old research-capture observations and briefs below retain their October4 context. A separately reviewed read-only TASK064 may assess the disclosed real-PostgreSQL reporting gap after TASK063's actual documentary closure; it grants no new source/test/effect authority.
+
 ## Findings and priorities
 
 | Priority | Product improvement | Existing coverage and remaining source gap | Scope |
@@ -29,7 +37,7 @@ The public pages below returned HTTP 200 on October 4, 2026, around 19:34 UTC. C
 
 Vendor claims about higher revenue, retention or health benefits are marketing statements. These sources establish publicly described product features and offer practices; they do not establish a causal conversion improvement for DripWell. No competitor price, service claim or commitment has been copied into a clinic configuration. Research reviewed page text, not an operational competitor account or visual product walkthrough.
 
-## Current source observations
+## Source observations at research capture, October 4, 2026
 
 - `packages/shared/src/v2/engine.ts`, `recommendWellness`: reviewed facts, actual care, eligibility, location catalog, goal evidence, approved rationale, official price/currency and terms determine draft offers. The current general explanation asks the client to ask their clinic about optional next steps.
 - `apps/web/components/consultation.tsx`: staff can edit/approve the wellness output, indicate accepted/rejected/TBD with a note, and separately record optional membership enrollment/service purchase and an amount. Unknown is supported. These are source observations, not a complete live visit.
@@ -37,7 +45,7 @@ Vendor claims about higher revenue, retention or health benefits are marketing s
 - `apps/web/components/dashboard.tsx` and `apps/web/components/owner.tsx`: selected-period denominators and excluded setup tests are described; archived visits remain in historical reporting. Presenting enrollment must preserve those definitions and location/role boundaries.
 - The current care mutation also invalidates wellness output/approval when recorded care changes. A future commercial workflow review must account for that dependency; no proposed shortcut can silently preserve a stale approved takeaway.
 
-## Bounded next product brief
+## Bounded product brief at research capture, October 4, 2026
 
 Once the current maintenance source and its separately queued recurrence evidence are closed, prepare a small F-06/F-12 task to expose enrollment reporting already supported by the approved data model. Prefer a clear membership enrollment card and owner breakdown. Keep true/false/null distinct, show selected-period/location scope, exclude setup tests, retain archived history and label staff confirmation accurately. Program/service purchases need their own clearly defined aggregate; do not relabel all service purchases as program sales.
 

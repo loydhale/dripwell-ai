@@ -168,3 +168,11 @@ Task trigger: TASK062 selected reminder ownership/archive/restore proof.
 CTO: Existing scope, scopedcount37->38 once with reviewed actual closing; no planning/static/correction increment. Next063 read-only roles/services/retention, no source/effect authority.
 Auditor co-sign: Exact documentary/fullbody/MINOR/publication-plan review required before publication; actualPASS7ad64447/NO_NEW_LEARNING5ef6217a adopted.
 Owner authorization: Standing until-done and existing PRD, no new Owner decision requested.
+
+## 2026-10-07 12:59 — v2 verification checkpoint — MINOR
+Section changed:8 scoped recording metadata/retry authority evidence; TASK063 citation erratum sections2/6/8criterion9.
+Summary: Genuine actualPASS97fb730b/Root9e80a10a, source3c745201, ordinaryCI37622006306/all22 stages/Vitest242-23/separateNode15-15; exact source-enforced owned closure with explicit unretained/direct-cookie/provider/wholepilot limits. Approved features and all nine numbered criteria unchanged.
+Task trigger: TASK063 existing roles/retention proof; original failed type-build and earlier static findings preserved.
+CTO: Scopedcount38->39 once through reviewed actual closure, one genuine L035 Seen5->6 recurrence, four distinct phase fragments once. Research report dates historical observations and records already implemented049/050 follow-through. Next064 is existing-scope read-only real-PG enrollment-reporting feasibility, no source/effect authority.
+Auditor co-sign: This exact candidate documentary/fullbody/MINOR/publication plan needs separate independent co-sign before effects; actual review97fb730b/distinct NO_NEW_LEARNINGe9ed7f1f adopted.
+Owner authorization: Existing approved PRD and standing until-done authorization; no new feature/price/provider or Owner decision.
