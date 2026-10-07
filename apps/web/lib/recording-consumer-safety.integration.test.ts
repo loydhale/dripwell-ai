@@ -25,9 +25,19 @@ vi.mock('workflow', () => {
   class RetryableError extends Error { static is(value: unknown) { return value instanceof RetryableError; } }
   return { FatalError, RetryableError, getWorkflowMetadata: () => ({ workflowRunId: 'unused-synthetic-run' }) };
 });
-vi.mock('./ai', async importOriginal => ({ ...await importOriginal<typeof import('./ai')>(),
-  transcribePrivateAudio: provider.transcribe, extractConsultationSummary: provider.summary,
-  lookupGenerationCost: vi.fn(async () => null), estimateTextCost: vi.fn(() => null) }));
+// The factory captures only hoisted state. ALS is read by the manual tap at runtime.
+const mapperTap = vi.hoisted(() => ({ observe: undefined as ((error: unknown) => void) | undefined,
+  poison: undefined as (() => void) | undefined }));
+vi.mock('./ai', async importOriginal => {
+  const actual = await importOriginal<typeof import('./ai')>();
+  return { ...actual, transcribePrivateAudio: provider.transcribe, extractConsultationSummary: provider.summary,
+    lookupGenerationCost: vi.fn(async () => null), estimateTextCost: vi.fn(() => null),
+    safeAIError(error: unknown) {
+      try { mapperTap.observe?.(error); }
+      catch { mapperTap.poison?.(); }
+      finally { return actual.safeAIError(error); } // Exactly the real value or its own exception.
+    } };
+});
 vi.mock('ai', async importOriginal => ({ ...await importOriginal<typeof import('ai')>(), generateText: provider.catalog }));
 
 // Guard before getDb/hooks: exactly the existing fresh disposable CI target.
@@ -107,6 +117,65 @@ function safeDiagnosticError(error: unknown) {
     validationPaths: error instanceof ZodError ? error.issues.slice(0, 4).map(issue => issue.path.slice(0, 4)
       .map(part => typeof part === 'string' && validationFields.some(field => field === part) ? part : 'OTHER_PATH')) : [] };
 }
+type RetryScope = 'INITIAL_PUBLICATION_RETRY' | 'MAPPED_EXHAUSTION_SENTINEL';
+type RetryKind = 'TRANSCRIPTION' | 'SETUP_TRANSCRIPTION' | 'CATALOG_EXTRACTION' | 'UNKNOWN';
+type RetryBoundary = 'FIXTURE' | 'BASELINE' | 'WORK' | 'CALLBACK' | 'OWNED_JOB_UPDATE'
+  | 'BEFORE_ROLLBACK_ORACLE' | 'AFTER_ROLLBACK_ORACLE' | 'TRANSACTION_REJECTION'
+  | 'SAFE_AI_MAPPER' | 'OUTCOME_ASSERTION' | 'RETRY_ORACLES' | 'DRAIN' | 'UNKNOWN';
+type RetryError = Pick<ReturnType<typeof safeDiagnosticError>, 'class' | 'code' | 'sqlState' | 'constraintMention'>;
+interface RetryObservation {
+  scope: RetryScope; kind: RetryKind; completedKinds: number; boundary: RetryBoundary;
+  entries: number; returns: number; poison: boolean; settled: boolean;
+  providerBaseline?: number[];
+  faults?: { completedPublicationBodies: number; rollbacks: number; commits: number; remaining: number; injectedErrors: number };
+  firstUnexpectedError: (RetryError & { boundary: RetryBoundary }) | null;
+  masked: { seen: boolean; calls: number; class: RetryError['class'] | 'UNKNOWN'; code: RetryError['code'];
+    ownedInjectedError: boolean | null; lastInjectedError: boolean | null };
+  isInjected: (error: unknown) => boolean; isLastInjected: (error: unknown) => boolean;
+}
+const retryContext = new AsyncLocalStorage<RetryObservation>();
+function retryObservation(scope: RetryScope, kind: RetryKind = 'UNKNOWN'): RetryObservation {
+  return { scope, kind, completedKinds: 0, boundary: 'FIXTURE', entries: 0, returns: 0, poison: false, settled: false,
+    firstUnexpectedError: null, masked: { seen: false, calls: 0, class: 'UNKNOWN', code: 'UNKNOWN',
+      ownedInjectedError: null, lastInjectedError: null }, isInjected: () => false, isLastInjected: () => false };
+}
+function retryMark(boundary: RetryBoundary) {
+  const observation = retryContext.getStore();
+  if (observation) observation.boundary = boundary;
+}
+function retryError(error: unknown): RetryError {
+  const safe = safeDiagnosticError(error);
+  return { class: safe.class, code: safe.code, sqlState: safe.sqlState, constraintMention: safe.constraintMention };
+}
+function retryCaught(error: unknown, observation = retryContext.getStore()) {
+  if (!observation) return;
+  try {
+    if (!observation.isInjected(error) && observation.firstUnexpectedError === null)
+      observation.firstUnexpectedError = { boundary: observation.boundary, ...retryError(error) };
+  } catch { observation.poison = true; }
+}
+function retryIncrement(key: 'entries' | 'returns', observation = retryContext.getStore()) {
+  if (!observation) return;
+  if (observation[key] < 64) observation[key]++;
+  else { observation[key] = 65; observation.poison = true; }
+}
+mapperTap.poison = () => { const observation = retryContext.getStore(); if (observation) observation.poison = true; };
+mapperTap.observe = error => {
+  const observation = retryContext.getStore();
+  if (!observation) return;
+  observation.boundary = 'SAFE_AI_MAPPER';
+  try {
+    const safe = retryError(error);
+    const owned = observation.isInjected(error);
+    if (observation.masked.calls < 64) observation.masked.calls++;
+    else { observation.masked.calls = 65; observation.poison = true; }
+    observation.masked.seen = true; observation.masked.class = safe.class; observation.masked.code = safe.code;
+    observation.masked.ownedInjectedError = owned; observation.masked.lastInjectedError = observation.isLastInjected(error);
+    if (!owned && observation.firstUnexpectedError === null)
+      observation.firstUnexpectedError = { boundary: observation.boundary, ...safe };
+  } catch { observation.poison = true; }
+};
+
 interface Diagnostic {
   scope: DiagnosticScope; ordinal: number; phase: Phase; callbackEntered: boolean; bodyReturned: boolean; committed: boolean;
   attempted: Operation; completed: Operation | 'NONE'; providerEntered: boolean; stages: Stage[];
@@ -193,6 +262,41 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       return false;
     }
     recordCount++; console.info(encoded); return true;
+  }
+  function retryCount(value: number, max: number, observation: RetryObservation): number | 'OVERFLOW' {
+    if (Number.isSafeInteger(value) && value >= 0 && value <= max) return value;
+    observation.poison = true; return 'OVERFLOW';
+  }
+  function retryRecord(observation: RetryObservation, outcome: 'COMPLETE' | 'FAILED' | 'UNKNOWN') {
+    const bounded = (value: number, max: number) => retryCount(value, max, observation);
+    const effects = [provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start];
+    const calls = observation.providerBaseline;
+    return { scope: observation.scope, kind: observation.kind, completedKinds: bounded(observation.completedKinds, 3),
+      outcome, boundary: observation.boundary,
+      callbacks: { entered: bounded(observation.entries, 64), returned: bounded(observation.returns, 64) },
+      faults: observation.faults ? { completedPublicationBodies: bounded(observation.faults.completedPublicationBodies, 12),
+        rollbacks: bounded(observation.faults.rollbacks, 12), commits: bounded(observation.faults.commits, 12),
+        remaining: bounded(observation.faults.remaining, 12), injectedErrors: bounded(observation.faults.injectedErrors, 12) } : 'UNKNOWN',
+      providerCalls: calls ? { get: bounded(effects[0].mock.calls.length - calls[0], 16),
+        transcribe: bounded(effects[1].mock.calls.length - calls[1], 16), summary: bounded(effects[2].mock.calls.length - calls[2], 16),
+        catalog: bounded(effects[3].mock.calls.length - calls[3], 16), start: bounded(effects[4].mock.calls.length - calls[4], 16) } : 'UNKNOWN',
+      pendingCount: blocked === 'DIAGNOSTIC_NOT_QUIESCENT' ? 'UNKNOWN' : bounded(pending.size, 64),
+      firstUnexpectedError: observation.firstUnexpectedError,
+      masked: { ...observation.masked, calls: bounded(observation.masked.calls, 64) } };
+  }
+  function finishRetryObservation(observation: RetryObservation, failed: boolean) {
+    try {
+      // A record is an observation, not a teardown/whole-case proof. Never join twice.
+      const complete = !failed && observation.settled && pending.size === 0 && !blocked;
+      const record = retryRecord(observation, complete ? 'COMPLETE' : failed ? 'FAILED' : 'UNKNOWN');
+      if (observation.poison) blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
+      if (blocked) record.outcome = failed ? 'FAILED' : 'UNKNOWN';
+      if (!emitDiagnostic(record)) observation.poison = true;
+    } catch { observation.poison = true; blocked ??= 'DIAGNOSTIC_METADATA_LIMIT'; }
+    if (observation.poison) blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
+    if (pending.size) blocked ??= 'DIAGNOSTIC_NOT_QUIESCENT';
+    // The catch/finally never replaces an already thrown original failure.
+    if (!failed) requireUnblocked();
   }
   function startProcessing(jobId: string, runId: string, scope?: DiagnosticScope,
     retainedDiagnostic?: Diagnostic): Promise<ProcessingOutcome> {
@@ -883,7 +987,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
 
   type OwnedRecording = Awaited<ReturnType<typeof fixture>>;
   type ConflictOptions = {
-    boundary: 'INITIAL' | 'FINAL'; count: number;
+    boundary: 'INITIAL' | 'FINAL'; count: number; observation?: RetryObservation;
     beforeRollback?: (tx: Prisma.TransactionClient) => Promise<void>;
     afterRollback?: () => Promise<void>;
   };
@@ -915,6 +1019,13 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
     const context = new AsyncLocalStorage<boolean>();
     const faults = { errors: [] as Prisma.PrismaClientKnownRequestError[], rollbacks: 0, commits: 0,
       completedPublicationBodies: 0, remaining: options.count };
+    const observation = options.observation;
+    if (observation) {
+      observation.settled = false;
+      // Consult only this existing fault array; never copy/store a new raw error.
+      observation.isInjected = error => faults.errors.some(injected => injected === error);
+      observation.isLastInjected = error => faults.errors.length === 12 && error === faults.errors[11];
+    }
     const injected: typeof db.$transaction = ((...args: unknown[]) => {
       const callback = args[0];
       // Batch calls, unrelated work and rollback-side mutations keep the exact
@@ -923,112 +1034,164 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       let wroteUsage = false; let wroteFinalSummary = false; let selected = false;
       let ownError: Prisma.PrismaClientKnownRequestError | undefined;
       const body = async (tx: Prisma.TransactionClient) => {
-        const jobs = tx.generationJob;
-        const observedJobs = new Proxy(jobs, { get(target, key) {
-          const method = Reflect.get(target, key, target);
-          if (key !== 'update' || typeof method !== 'function') return typeof method === 'function' ? method.bind(target) : method;
-          return async (...input: unknown[]) => {
-            // Consume this real lazy PrismaPromise exactly once and return its
-            // completion, preserving the delegate receiver and arguments.
-            const result = await Reflect.apply(method, target, input);
-            const change = input[0] as Prisma.GenerationJobUpdateArgs;
-            if (change.where.id === owned.jobId && result !== null && typeof result === 'object' && 'id' in result && 'tenantId' in result && result.id === owned.jobId && result.tenantId === tenantId) {
-              wroteUsage ||= change.data.usage !== undefined;
-              const value = change.data.result;
-              wroteFinalSummary ||= change.data.status === 'COMPLETE' && value !== null && typeof value === 'object'
-                && !Array.isArray(value) && 'summaryJobId' in value;
+        retryMark('CALLBACK'); retryIncrement('entries');
+        try {
+          const jobs = tx.generationJob;
+          const observedJobs = new Proxy(jobs, { get(target, key) {
+            const method = Reflect.get(target, key, target);
+            if (key !== 'update' || typeof method !== 'function') return typeof method === 'function' ? method.bind(target) : method;
+            return async (...input: unknown[]) => {
+              // Consume this real lazy PrismaPromise exactly once and return its
+              // completion, preserving the delegate receiver and arguments.
+              // Until the real result validates ownership, a failed update is UNKNOWN.
+              retryMark('UNKNOWN');
+              try {
+                const result = await Reflect.apply(method, target, input);
+                const change = input[0] as Prisma.GenerationJobUpdateArgs;
+                if (change.where.id === owned.jobId && result !== null && typeof result === 'object' && 'id' in result && 'tenantId' in result && result.id === owned.jobId && result.tenantId === tenantId) {
+                  retryMark('OWNED_JOB_UPDATE');
+                  wroteUsage ||= change.data.usage !== undefined;
+                  const value = change.data.result;
+                  wroteFinalSummary ||= change.data.status === 'COMPLETE' && value !== null && typeof value === 'object'
+                    && !Array.isArray(value) && 'summaryJobId' in value;
+                }
+                return result;
+              } catch (error) { retryCaught(error); throw error; }
+            };
+          } });
+          const observed = new Proxy(tx, { get(target, key) {
+            if (key === 'generationJob') return observedJobs;
+            const value = Reflect.get(target, key, target);
+            return typeof value === 'function' ? value.bind(target) : value;
+          } });
+          const result = await Reflect.apply(callback, undefined, [observed]);
+          retryMark('CALLBACK'); retryIncrement('returns');
+          // Identify the selected boundary from completed real owned writes, not
+          // a retry-sensitive transaction ordinal or a mirrored guard predicate.
+          selected = options.boundary === 'FINAL' ? wroteFinalSummary : wroteUsage && !wroteFinalSummary;
+          if (selected) {
+            faults.completedPublicationBodies++;
+            if (faults.remaining > 0) {
+              if (options.beforeRollback) retryMark('BEFORE_ROLLBACK_ORACLE');
+              await options.beforeRollback?.(tx);
+              faults.remaining--;
+              ownError = new Prisma.PrismaClientKnownRequestError('Synthetic owned publication conflict', {
+                code: 'P2034', clientVersion: Prisma.prismaVersion.client,
+              });
+              faults.errors.push(ownError);
+              throw ownError; // The real transaction rolls all its writes back.
             }
-            return result;
-          };
-        } });
-        const observed = new Proxy(tx, { get(target, key) {
-          if (key === 'generationJob') return observedJobs;
-          const value = Reflect.get(target, key, target);
-          return typeof value === 'function' ? value.bind(target) : value;
-        } });
-        const result = await Reflect.apply(callback, undefined, [observed]);
-        // Identify the selected boundary from completed real owned writes, not
-        // a retry-sensitive transaction ordinal or a mirrored guard predicate.
-        selected = options.boundary === 'FINAL' ? wroteFinalSummary : wroteUsage && !wroteFinalSummary;
-        if (selected) {
-          faults.completedPublicationBodies++;
-          if (faults.remaining > 0) {
-            await options.beforeRollback?.(tx);
-            faults.remaining--;
-            ownError = new Prisma.PrismaClientKnownRequestError('Synthetic owned publication conflict', {
-              code: 'P2034', clientVersion: Prisma.prismaVersion.client,
-            });
-            faults.errors.push(ownError);
-            throw ownError; // The real transaction rolls all its writes back.
           }
-        }
-        return result;
+          return result;
+        } catch (error) { retryCaught(error); throw error; }
       };
       return Promise.resolve(Reflect.apply(delegate, db, [body, ...args.slice(1)])).then(result => {
         if (selected) faults.commits++;
         return result;
       }, async error => {
+        retryMark('TRANSACTION_REJECTION'); retryCaught(error);
         if (ownError && error === ownError) {
           faults.rollbacks++;
           // Await rejection/rollback first. The mutation/read is outside both
           // transaction observers before the error can reach the retry loop.
           const afterRollback = options.afterRollback;
-          if (afterRollback) await context.exit(() => diagnosticContext.exit(afterRollback));
+          if (afterRollback) {
+            retryMark('AFTER_ROLLBACK_ORACLE');
+            try { await context.exit(() => diagnosticContext.exit(afterRollback)); }
+            catch (oracleError) { retryCaught(oracleError); throw oracleError; }
+          }
         }
         throw error;
       });
     }) as typeof db.$transaction;
     spy.mockImplementation(injected);
-    let outcome: ProcessingOutcome;
-    try { await context.run(true, work); outcome = { ok: true }; }
-    catch (error) { outcome = { error }; }
-    try { await drainProcessing(); }
-    catch (error) { if (!('error' in outcome)) outcome = { error }; }
-    // A persistent quiescence/metadata block prevents reset and subsequent SQL.
-    if (!blocked) spy.mockImplementation(delegate);
-    return { outcome, faults };
+    const finish = async () => {
+      let outcome: ProcessingOutcome;
+      retryMark('WORK');
+      try { await context.run(true, work); outcome = { ok: true }; }
+      catch (error) {
+        // A mapper-observed original already has an identity/classification. Its
+        // public wrapper is not a second original error or an unexpected fault.
+        if (!observation?.masked.seen) retryCaught(error);
+        outcome = { error };
+      }
+      retryMark('DRAIN');
+      try { await drainProcessing(); if (observation) observation.settled = true; }
+      catch (error) { retryCaught(error); if (!('error' in outcome)) outcome = { error }; }
+      if (observation) {
+        observation.faults = { completedPublicationBodies: faults.completedPublicationBodies,
+          rollbacks: faults.rollbacks, commits: faults.commits, remaining: faults.remaining, injectedErrors: faults.errors.length };
+        try { retryRecord(observation, 'UNKNOWN'); } catch { observation.poison = true; }
+        if (observation.poison) blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
+        if (blocked && !('error' in outcome)) outcome = { error: new Error(blocked) };
+      }
+      // Reset only after the original join and while no persistent poison is known.
+      if (!blocked) spy.mockImplementation(delegate);
+      return { outcome, faults };
+    };
+    return observation ? retryContext.run(observation, finish) : finish();
   }
 
   test('retries rolled back publication without repeating providers or duplicating effects', async () => {
-    for (const kind of ['TRANSCRIPTION', 'SETUP_TRANSCRIPTION', 'CATALOG_EXTRACTION'] as const) {
-      const owned = await fixture(kind);
-      const baseline = await publicationState(getDb(), owned);
-      const calls = [provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length);
-      const result = await withPublicationConflict(owned, { boundary: 'INITIAL', count: 1,
-        beforeRollback: async tx => {
-          expect(await publicationState(tx, owned)).toMatchObject({ parentHasUsage: true,
-            parentStatus: kind === 'TRANSCRIPTION' ? 'RUNNING' : 'COMPLETE',
-            transcriptRevisions: kind === 'TRANSCRIPTION' ? 1 : 0,
-            transcriptEvents: kind === 'TRANSCRIPTION' ? 1 : 0 });
-        },
-        afterRollback: async () => { expect(await publicationState(getDb(), owned)).toEqual(baseline); },
-      }, () => runProcessing(owned.jobId, owned.runId));
-      expect(result.outcome).toEqual({ ok: true });
-      expect(result.faults).toMatchObject({ rollbacks: 1, commits: 1, completedPublicationBodies: 2, remaining: 0 });
-      expect(result.faults.errors).toHaveLength(1);
-      expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start]
-        .map((effect, index) => effect.mock.calls.length - calls[index])).toEqual([
-          1, kind === 'CATALOG_EXTRACTION' ? 0 : 1, kind === 'TRANSCRIPTION' ? 1 : 0,
-          kind === 'CATALOG_EXTRACTION' ? 1 : 0, 0,
-        ]);
-      const parent = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
-      expect(parent).toMatchObject({ status: 'COMPLETE', runId: owned.runId, errorCode: null });
-      expect(parent.usage).toEqual(kind === 'CATALOG_EXTRACTION' ? { estimatedCostCents: null, costUsd: null }
-        : { transcription: { durationSeconds: 1, providerUsage: null }, estimatedCostCents: null, costUsd: null });
-      if (kind === 'TRANSCRIPTION') {
-        expect(await publicationState(getDb(), owned)).toMatchObject({ parentStatus: 'COMPLETE', childStatus: 'COMPLETE',
-          transcriptRevisions: 1, summaryRevisions: 1, transcriptEvents: 1, summaryEvents: 1, revisions: 2, events: 2 });
-        expect(await getDb().consultation.findUniqueOrThrow({ where: { id: owned.visit! } })).toMatchObject({
-          clinicalApprovedVersion: null, wellnessApprovedVersion: null, summary: { staffReviewed: false } });
-      } else if (kind === 'SETUP_TRANSCRIPTION') {
-        expect(parent.result).toMatchObject({ transcript: transcription.text, needsReview: true });
-        expect(await getDb().generationJob.count({ where: { tenantId, idempotencyKey: `summary:${owned.jobId}` } })).toBe(0);
-      } else {
-        expect(parent.result).toMatchObject({ draft: catalog.output, activeConfigurationChanged: false });
-        expect(await getDb().setupConversation.findUniqueOrThrow({ where: { id: conversationId } })).toMatchObject({ draft: catalog.output });
-      }
-      expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control);
-    }
+    const observation = retryObservation('INITIAL_PUBLICATION_RETRY');
+    await retryContext.run(observation, async () => {
+      let failed = false;
+      try {
+        for (const kind of ['TRANSCRIPTION', 'SETUP_TRANSCRIPTION', 'CATALOG_EXTRACTION'] as const) {
+          observation.kind = kind;
+          observation.entries = 0; observation.returns = 0; observation.settled = false;
+          observation.faults = undefined; observation.providerBaseline = undefined;
+          observation.masked = { seen: false, calls: 0, class: 'UNKNOWN', code: 'UNKNOWN',
+            ownedInjectedError: null, lastInjectedError: null };
+          observation.isInjected = () => false; observation.isLastInjected = () => false;
+          // Keep persistent poison/first unexpected classification across kinds.
+          retryMark('FIXTURE');
+          const owned = await fixture(kind);
+          retryMark('BASELINE');
+          const baseline = await publicationState(getDb(), owned);
+          const calls = [provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length);
+          observation.providerBaseline = calls;
+          const result = await withPublicationConflict(owned, { boundary: 'INITIAL', count: 1, observation,
+            beforeRollback: async tx => {
+              expect(await publicationState(tx, owned)).toMatchObject({ parentHasUsage: true,
+                parentStatus: kind === 'TRANSCRIPTION' ? 'RUNNING' : 'COMPLETE',
+                transcriptRevisions: kind === 'TRANSCRIPTION' ? 1 : 0,
+                transcriptEvents: kind === 'TRANSCRIPTION' ? 1 : 0 });
+            },
+            afterRollback: async () => { expect(await publicationState(getDb(), owned)).toEqual(baseline); },
+          }, () => runProcessing(owned.jobId, owned.runId));
+          retryMark('OUTCOME_ASSERTION');
+          expect(result.outcome).toEqual({ ok: true });
+          retryMark('RETRY_ORACLES');
+          expect(result.faults).toMatchObject({ rollbacks: 1, commits: 1, completedPublicationBodies: 2, remaining: 0 });
+          expect(result.faults.errors).toHaveLength(1);
+          expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start]
+            .map((effect, index) => effect.mock.calls.length - calls[index])).toEqual([
+              1, kind === 'CATALOG_EXTRACTION' ? 0 : 1, kind === 'TRANSCRIPTION' ? 1 : 0,
+              kind === 'CATALOG_EXTRACTION' ? 1 : 0, 0,
+            ]);
+          const parent = await getDb().generationJob.findUniqueOrThrow({ where: { id: owned.jobId } });
+          expect(parent).toMatchObject({ status: 'COMPLETE', runId: owned.runId, errorCode: null });
+          expect(parent.usage).toEqual(kind === 'CATALOG_EXTRACTION' ? { estimatedCostCents: null, costUsd: null }
+            : { transcription: { durationSeconds: 1, providerUsage: null }, estimatedCostCents: null, costUsd: null });
+          if (kind === 'TRANSCRIPTION') {
+            expect(await publicationState(getDb(), owned)).toMatchObject({ parentStatus: 'COMPLETE', childStatus: 'COMPLETE',
+              transcriptRevisions: 1, summaryRevisions: 1, transcriptEvents: 1, summaryEvents: 1, revisions: 2, events: 2 });
+            expect(await getDb().consultation.findUniqueOrThrow({ where: { id: owned.visit! } })).toMatchObject({
+              clinicalApprovedVersion: null, wellnessApprovedVersion: null, summary: { staffReviewed: false } });
+          } else if (kind === 'SETUP_TRANSCRIPTION') {
+            expect(parent.result).toMatchObject({ transcript: transcription.text, needsReview: true });
+            expect(await getDb().generationJob.count({ where: { tenantId, idempotencyKey: `summary:${owned.jobId}` } })).toBe(0);
+          } else {
+            expect(parent.result).toMatchObject({ draft: catalog.output, activeConfigurationChanged: false });
+            expect(await getDb().setupConversation.findUniqueOrThrow({ where: { id: conversationId } })).toMatchObject({ draft: catalog.output });
+          }
+          expect(await getDb().recordingSegment.findUniqueOrThrow({ where: { id: controlRecordingId } })).toEqual(control);
+          observation.completedKinds++;
+        }
+      } catch (error) { failed = true; retryCaught(error); throw error; }
+      finally { finishRetryObservation(observation, failed); }
+    });
   });
 
   test('reuses a captured summary after a final publication rollback', async () => {
@@ -1142,17 +1305,35 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
 
     // A separate owned invocation proves the unchanged safe mapper, without a
     // native Workflow step or inventing a child whose creation was rolled back.
-    const processing = await fixture(); const processingBaseline = await publicationState(getDb(), processing);
-    const mapped = await withPublicationConflict(processing, { boundary: 'INITIAL', count: 12,
-      afterRollback: async () => { expect(await publicationState(getDb(), processing)).toEqual(processingBaseline); },
-    }, () => runProcessing(processing.jobId, processing.runId));
-    expect(mapped.faults).toMatchObject({ rollbacks: 12, commits: 0, completedPublicationBodies: 12, remaining: 0 });
-    expect(mapped.outcome).toMatchObject({ error: { message: 'AI_PROCESSING_FAILED' } });
-    expect(await publicationState(getDb(), processing)).toEqual(processingBaseline);
-    await failRecordingProcessing(processing.jobId, processing.runId, 'AI_PROCESSING_FAILED');
-    expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: processing.jobId } })).toMatchObject({ status: 'FAILED', errorCode: 'AI_PROCESSING_FAILED' });
-    expect(await getDb().generationJob.count({ where: { tenantId, idempotencyKey: `summary:${processing.jobId}` } })).toBe(0);
-    expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length)).toEqual([1, 1, 0, 0, 0]);
+    const observation = retryObservation('MAPPED_EXHAUSTION_SENTINEL', 'TRANSCRIPTION');
+    await retryContext.run(observation, async () => {
+      let failed = false;
+      try {
+        retryMark('FIXTURE');
+        const processing = await fixture();
+        retryMark('BASELINE');
+        const processingBaseline = await publicationState(getDb(), processing);
+        observation.providerBaseline = [provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start]
+          .map(effect => effect.mock.calls.length);
+        const mapped = await withPublicationConflict(processing, { boundary: 'INITIAL', count: 12, observation,
+          afterRollback: async () => { expect(await publicationState(getDb(), processing)).toEqual(processingBaseline); },
+        }, () => runProcessing(processing.jobId, processing.runId));
+        retryMark('OUTCOME_ASSERTION');
+        expect(mapped.faults).toMatchObject({ rollbacks: 12, commits: 0, completedPublicationBodies: 12, remaining: 0 });
+        expect(mapped.outcome).toMatchObject({ error: { message: 'AI_PROCESSING_FAILED' } });
+        expect(await publicationState(getDb(), processing)).toEqual(processingBaseline);
+        await failRecordingProcessing(processing.jobId, processing.runId, 'AI_PROCESSING_FAILED');
+        expect(await getDb().generationJob.findUniqueOrThrow({ where: { id: processing.jobId } })).toMatchObject({ status: 'FAILED', errorCode: 'AI_PROCESSING_FAILED' });
+        expect(await getDb().generationJob.count({ where: { tenantId, idempotencyKey: `summary:${processing.jobId}` } })).toBe(0);
+        expect([provider.get, provider.transcribe, provider.summary, provider.catalog, provider.start].map(effect => effect.mock.calls.length)).toEqual([1, 1, 0, 0, 0]);
+        expect(observation.masked).toMatchObject({ seen: true, calls: 1, class: 'PRISMA_KNOWN', code: 'P2034',
+          ownedInjectedError: true, lastInjectedError: true });
+        expect(observation.firstUnexpectedError).toBeNull();
+        expect(observation.poison).toBe(false);
+        observation.completedKinds++;
+      } catch (error) { failed = true; retryCaught(error); throw error; }
+      finally { finishRetryObservation(observation, failed); }
+    });
 
     for (const status of ['COMPLETE', 'CANCELLED', 'NEWER'] as const) {
       const terminal = await fixture(); const terminalChild = await child(terminal);
