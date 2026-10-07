@@ -1,0 +1,154 @@
+{
+  "schema": "DRIPWELL_TASK058_SCOPED_TRIAL_EVIDENCE_V1",
+  "task": "TASK058",
+  "datedUtc": "2026-10-07T01:37:46.855587+00:00",
+  "verdict": "INDEPENDENT_ACTUAL_PASS_SCOPED",
+  "source": {
+    "commit": "38adf324f322921d903329d4f6a7ead45cfb7709",
+    "tree": "370f52d50335385e3d9207884e5c0a3eddca824d",
+    "parent": "cd06f76b0462f290c190fe57a29a1794e1b4f26e",
+    "path": "apps/web/lib/trial-concurrency.integration.test.ts",
+    "bytes": 26833,
+    "lines": 432,
+    "sha256": "9415d1a759e87bebfcfc0e3978fd9952ca86a7f1f21d394fec178af849d98f99",
+    "blob": "13304ada3cc625c24d4a4cb71571657ee6361ed7",
+    "leaves": 424,
+    "priorHeldLeaves": 423
+  },
+  "originalCI": {
+    "url": "https://github.com/loydhale/dripwell-ai/actions/runs/37554713501",
+    "runId": 37554713501,
+    "jobId": 112578182761,
+    "status": "completed",
+    "conclusion": "success",
+    "allListedSuccessfulStages": 22,
+    "checkout": "564356ccad41cecd540317d33753a0991424d1fa",
+    "source": "38adf324f322921d903329d4f6a7ead45cfb7709",
+    "base": "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+    "namedCase": "preserves the last trial unit across concurrent same-key starts and rolled-back initiation",
+    "namedCasePassed": true,
+    "caseMs": 1539,
+    "fileMs": 1545,
+    "separateSuites": {
+      "nodeClinic": {
+        "tests": 15,
+        "passed": 15,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "lines": [
+          772,
+          774,
+          775,
+          776,
+          777,
+          778
+        ]
+      },
+      "Vitest": {
+        "files": 19,
+        "tests": 238,
+        "allReportedPassed": true,
+        "lines": [
+          916,
+          917
+        ]
+      },
+      "wholeCITotal": "NOT_SUMMED_OR_INFERRED"
+    },
+    "explicitEventHeadRunAttempt": "UNRETAINED_NO_INFERENCE",
+    "originalLogFetches": 1,
+    "manualCIOrLocalApplicationReplay": 0
+  },
+  "actualRecords": [
+    {
+      "line": 835,
+      "record": {
+        "stage": "ROLLBACK_VERIFIED",
+        "actualWriteWitnesses": 4,
+        "pending": 0,
+        "baselineUsed": 9
+      }
+    },
+    {
+      "line": 838,
+      "record": {
+        "stage": "OVERLAP_VERIFIED",
+        "distinctCurrentCallbacks": 2,
+        "ownedBlockers": 1
+      }
+    },
+    {
+      "line": 844,
+      "record": {
+        "stage": "COMMITTED_STATE_VERIFIED",
+        "logicalStarts": 3,
+        "committedNewVisits": 1,
+        "used": 10,
+        "usageRows": 10
+      }
+    },
+    {
+      "line": 847,
+      "record": {
+        "stage": "QUIESCENT_CLEANUP_VERIFIED",
+        "pending": 0,
+        "initialFalseRestored": true,
+        "consumerRowsAbsent": true,
+        "elapsedMs": 1536
+      }
+    }
+  ],
+  "reviewAndLearning": {
+    "actualReview": {
+      "basename": "TASK058_ACTUAL_SOURCE_PUBLICATION_AND_FIRST_NORMAL_CI_INDEPENDENT_REVIEW.json",
+      "bytes": 26025,
+      "sha256": "95db53dc8f01d8003f886b4d06f696432b0a58a4aab95cc69ce9e4108046471a"
+    },
+    "actualLearning": {
+      "basename": "TASK058_ACTUAL_SOURCE_PUBLICATION_AND_FIRST_NORMAL_CI_AFTER_VERDICT_LEARNING.json",
+      "bytes": 5245,
+      "sha256": "602170466e617b164d9bfe9d0c6fbfdbef2c09fe9c27aeb3df8ea8ab130f5b82"
+    }
+  },
+  "rootAdoption": {
+    "basename": "ACTUAL_RESULT_AND_LEARNING_ACCEPTANCE.json",
+    "bytes": 18273,
+    "sha256": "27094b927e746c5fb4993aa587e642439b298905d9669bd5f0f062d411082a67",
+    "role": "CTO_EVIDENCE_ADOPTION_NOT_CODE_AUDIT"
+  },
+  "originalArtifacts": {
+    "decodedLogEnvelope": {
+      "basename": "ORIGINAL_JOB_LOG_ENVELOPE.json",
+      "bytes": 217834,
+      "sha256": "a7f5395d287f417dd3fa20f176f50adff3a1c256b003bb04c446aa0e75cc5025"
+    },
+    "jobLog": {
+      "basename": "JOB_LOGS.txt",
+      "bytes": 200356,
+      "sha256": "23e0b3d2e81554be48698a03a6a5e89b6ec70c853ba7dc1c1d60ece399b1759c"
+    },
+    "terminalAPIs": {
+      "basename": "TERMINAL_APIS.json",
+      "bytes": 30193,
+      "sha256": "922bcf3570a68b684feb50410411c748eaa8737be3505a28316e878c146d0fa9"
+    }
+  },
+  "limits": [
+    "No raw DB response rows, exact IDs, backend PIDs, wait arrays or retry counts were retained; assertions plus attributed original four proof records and named PASS supply the scoped actual evidence.",
+    "No explicit run_attempt/event/head_sha or complete third-party matrix is present in the saved API envelope; checkout/query correlation supplies truthful source binding without fabricating these fields.",
+    "The seeded14-day interval, direct-service trial limits and same-key atomicity do not alone certify the full normal-route/browser/hosted commercial pilot or a wall-time14-day trial.",
+    "Fresh disposable migration/build success does not unblock shared schema, protected new source deployment, A/B/C, service bindings, source/runtime false proof or default-disabled maintenance.",
+    "No new deployment/protection/alias/client/provider operation, repository/document write or source amendment was performed by Auditor."
+  ],
+  "authority": "STAFF_NONCLINICAL_DIRECT_SERVICE_FRESH_SYNTHETIC_CI_ONLY",
+  "positiveFlagException": "EXPLICITLY_REVIEWED_ISOLATED_PROCESS_ONLY_INITIALFALSE_RESTORED",
+  "hostedFlagOrDeploymentChange": false,
+  "pilotComplete": false,
+  "criterion7Complete": false,
+  "learningDisposition": "NO_NEW_LEARNING",
+  "SeenL035": 5,
+  "scopedTaskCount": "34_TO_35_ONCE_WITH_REVIEWED_OUTCOME_CHECKPOINT",
+  "nextTask": "TASK059_READ_ONLY_CONFIGURATION_FEASIBILITY_AFTER_DOCUMENTARY_PUBLICATION_CLOSURE"
+}

@@ -1,4 +1,19 @@
-# TASK-058: Trial concurrency verification feasibility
+# TASK-058: Trial rollback and same-key concurrency verification
+
+Status: SCOPED_DONE_AFTER_ACTUAL_PASS_AND_THIS_REVIEWED_OUTCOME_CHECKPOINT. Final documentary publication/readback/closure precede TASK059 dispatch. Count34→35 once; SeenL035 remains5. This scoped task does not complete the full pilot or all of criterion7.
+
+The [audit](../docs/AUDIT_TRIAL_CONCURRENCY.md) and [evidence](../docs/evidence/TASK058_TRIAL_CONCURRENCY.json) preserve accepted plan/static-source/original-publication/actual-CI/learning distinctions. Sole Coder authored one432-line/one-case test; independent Auditor source/package PASS7b1eaec2 and actual PASS95db53dc were adopted by Root. Source38adf324/tree370f52d5/424 leaves holds all423 prior leaves. Source SHA2569415d1a759e87bebfcfc0e3978fd9952ca86a7f1f21d394fec178af849d98f99, blob13304ada3cc625c24d4a4cb71571657ee6361ed7.
+
+First ordinary CI37554713501/job112578182761 passed all22 listed stages, the named case, Vitest238/19 and separate clinic Node15/15. Real transaction rollback witnessed four writes and restored seeded9/control0; actual same-key overlap behind one owned blocker produced one new visit/credit with created/resumed results and used10. Owned quiescent cleanup passed/pending0/initial processfalse restored in1536ms. No local application check, manualCI/rerun or passing-check replay occurred. All14 migrations in the original fresh disposable CI are distinct from shared/hosted migration admissions.
+
+The explicit positive synthetic test-process exception was separately reviewed/adopted only under the strict fresh-CI pre-effect guard and original30s/20s budget. No deployed flag or production guard changed. Real service/Prisma/reminder DB behavior is distinguished from the throwing Workflow api.start boundary. STAFF/direct ACTIVE nonclinical USD0.01 fixtures and seeded nine units are not ordinary-owner activation, clinical authority, live model/transcription/mail/payment, HTTP/browser,14-day elapsed-wall-time or full-story evidence. Raw DB rows/PIDs/wait arrays/retry counts and explicit run-attempt/event API fields remain unretained.
+
+Learning: genuine planning/static/actual after-verdict records are NO_NEW_LEARNING; existing L027/L035/P015/G019 cover the mechanisms. Actual learning SESSION fragment is incorporated once; no LPG/Seen increment. TASK057 stays internally parked, old allocations remain closed, protected807/requesteddualfalse/effectivefalseUNVERIFIED/default-disabled maintenance/all12features/ninepilot/production gates remain held. Standing until-done authorization/hourly continuation stay enabled.
+
+Next: exact reviewed outcome checkpoint publication/actual closure/current context, then [TASK059](TASK-059.md) read-only normal two-clinic different-catalog/price and activation/history/rollback feasibility. No new source/effect authority and no passing CI/check replay.
+
+## Original read-only feasibility brief, historical
+
 
 Status: NEXT_APPROVED_READ_ONLY_FEASIBILITY_AFTER_REVIEWED_CHECKPOINT_PUBLICATION_AND_CONTEXT_BINDING. No source or execution authority; no result or task-count increment.
 

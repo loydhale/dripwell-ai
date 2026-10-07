@@ -3,7 +3,7 @@
 **Version:** 2.0, consultation workflow  
 **Status:** Owner-authorized v2 source implemented; release verification and live service status are recorded in [verification evidence](docs/VERIFICATION_REPORT.md)\
 **Owner:** Loyd Hale  
-**Updated:** 2026-10-05\
+**Updated:** 2026-10-07\
 **Plan:** [Implementation plan](docs/IMPLEMENTATION_PLAN.md)  
 **Previous scope:** [Archived v1 PRD](docs/archive/PRD-v1.md)
 
@@ -263,10 +263,14 @@ The [current protected Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) r
 
 Protected Preview preparation update, October6,2026: the [current Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) preserves original4PASS/source rejection and attempt2 failed evidence separately. The final500-line diagnostic derivative received independent source/applied CHANGES_REQUIRED: its original invocation exited1 without a normal result, diagnostic frame or any of the five internal records. Counts/cause/child activity/clock/closure remain UNKNOWN. A separately identified static P05 partial-known-count validation gap does not establish the actual failure cause. FINAL3 is PARKED; remaining0/automatic0, no fourth/reset/retry/repair or acceptance substitute. NO_NEW_LEARNING leaves count34/Seen5 unchanged. Only a separately assigned read-only B plan may follow the independently co-signed documentary publication/rebind; B raw-byte/physical-map evidence cannot replace parked A canonical acceptance. B source/physical reads, C preparation and remote new-ID acknowledgement remain mandatory, NONE_UNALLOCATED, with C blocked on A. All12 features/nine numbered pilot criteria/defaults remain unchanged.
 
-### Protected release lane parked, independent trial verification queued
+### Historical protected release checkpoint, superseded by trial evidence below
 
 The [current Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) records genuine factual-only review995cbd63/Rootce24ea99 of the incomplete three-module source packet430/439/472 lines. FD generations/default mutation denial, full required edge/control coverage and safe frame/first-failure retention remain gaps. The original four controls and216 authored partial-count variants were never run; no source correctness or runtime PASS is accepted. Source is integrity-only, never import or execute; its single applied gate remains unused. NO_NEW_LEARNING06834b60 leaves count34/Seen5 unchanged. A FINAL3 remains permanently parked, C blocked and real B/C/remote unallocated. The release lane is internally parked without another automatic authoring loop; it is not all-external waiting. [TASK058](tasks/TASK-058.md) next plans independent actual trial-concurrency verification already required by criterion7, after reviewed checkpoint publication/context binding. It grants no source/test/effect authority and cannot substitute for release acceptance. All12 features/nine numbered pilot criteria and production/data/protection/defaults remain unchanged. No new app check or deployment occurred.
 
+
+### Actual trial rollback and same-key concurrency evidence
+
+The [trial concurrency audit](docs/AUDIT_TRIAL_CONCURRENCY.md) and [retained evidence projection](docs/evidence/TASK058_TRIAL_CONCURRENCY.json) record independent actual PASS95db53dc/Root27094b92 for published test38adf324/tree370f52d5 and its first ordinary fresh-PG17 CI37554713501. All22 listed stages passed; the new named case is within Vitest238 tests/19 files, with clinic Node15/15 separate. Four genuine write witnesses rolled back to seeded9/control0. Two distinct same-key callbacks overlapped behind one owned blocker, then joined to one new consultation/usage/event and final used10. Quiescent owned cleanup, pending0 and initial test-process false restoration were observed in1536ms. Raw full DB rows/PIDs/retry counts are unretained; source-enforced assertions and the four original proof records are the evidence. Disclosed seeded units, STAFF/nonclinical direct-service fixtures and a throwing Workflow-start leaf do not establish normal-owner activation, HTTP/browser/clinical/provider/full-story behavior, a14-day wall-clock trial, complete criterion7 or pilot completion. The isolated positive process exception does not change hosted guards. NO_NEW_LEARNING/Seen5 remain held; scopedcount35 is applied once with the reviewed outcome checkpoint. TASK057 remains internally parked. After exact closing publication/readback, [TASK059](tasks/TASK-059.md) assesses the existing different-catalog/price and owner activation/history/rollback gaps read-only. All12 feature requirements/nine numbered criteria, production/data/protection/service/default-disabled maintenance gates remain unchanged; no new deployment or shared migration occurred.
 
 ## 9. Explicit defaults and open decisions
 
