@@ -1,9 +1,27 @@
 # STATE.md
 
 CONTINUOUS_MODE: ON
-Tasks completed this run: 37
+Tasks completed this run: 38
 
 ## Current resume, authoritative
+
+Execution status: TASK062_SCOPED_ACCEPTED_OUTCOME_PUBLICATION_CLOSURE_THEN_TASK063_READ_ONLY_RETENTION_FEASIBILITY. This is not all-external WAITING_ON_DEPENDENCIES.
+
+2026-10-07T09:26:09.627496+00:00 TASK062_SCOPED_ACCEPTED_OUTCOME_CHECKPOINT_THEN_TASK063
+
+TASK062 has genuine independent actual PASS7ad64447 and typed Root adoption09bb45a6; originalc01733dd is retained. Reviewed source1907a02f/treea41bc0a9, soleparent2d5430e9, has439 leaves and all438 prior leaves held. First ordinary fresh-PG17.11 CI37597360617/job112713145427 passed all22 listed stages, Vitest241/22 and separate clinic Node15/15 with0skips. New case1100ms/file1102ms; Vitest skip totalUNRETAINED. Scopedcount37->38 is proposed once with reviewed documentary publication/actual closure, no planning/static/correction increment. NO_NEW_LEARNING5ef6217a keepsSeen5/all learning entries held.
+
+Real Prisma/current direct services with fictional STAFF/session/DRAFT clinics and disclosed fictional isTest=false metadata run only under the adopted disposable-CI/literalfalse fence. Passing source assertions separate old/new/foreign visibility from notification.read404 authority, preserve exact A/B selected scalars, and retain one stable reminder key/ID/due timing/carriedisRead through one fixture CAS/archive/restore. Archive dismisses; restore reactivates the same row. Fixture CAS is not a product reassignment endpoint or renewed unread alert. One exact blocked lazy Workflow-start is a disclosed leaf; native/hosted/durable delivery remains unproved.
+
+Original CLOSURE_CANDIDATE:19services(5reconciles/8dashboards/6mutations,4returned/2denied), additionalORM266 including98cleanup/derived168scenario, blockedStart1,deleted18,pending0,unknownfalse,resolved/closed/restoredtrue,firstnull,1095ms before final emission. Final named-case/file/jobPASS corroborates source-enforced45-model/five-boundary census, exact FK-order compensation/empty postcensus, true joins, owned disconnect/global restoration and safe-write/original-clock postchecks. Full raw rows/UUIDs/service bodies/retry counts/post-write timestamp areUNRETAINED. Selected ledgers are not all internal SQL/retries; timing is not a clinical target.
+
+Exact five original source writes, selectedoncefetch/exactowned-source unlink/onceFF and retained explicit exits0 are accepted. Fresh PR/local/origin1907, canonical/index439/physical4360600+3inherited0644 match; main9fa held/PR2openunmerged. Stale normalized head was reconciled fresh without replay. V1 static CHANGES_REQUIRED was prevented before execution; historical recording CI37574789977 remains FAILURE/kindcauseUNKNOWN with no causal repair/flakiness inference. Root prewrite metadata and command-construction stops were retained and corrected only in unproduced documentation; source/CI/publication were not replayed.
+
+Next: independent exact documentary/MINOR/fullbody/publication-plan co-sign, separate normal publication[skip ci], then actual closure/current binding. Only afterward dispatch sole Coder [TASK063](../tasks/TASK-063.md) READ_ONLY remaining PRD8criterion9 roles/services/recording-retention feasibility, reusing046/048/051-056/059/061/062 and choosing at most one meaningful uncovered ordinary-handler/real-PG gap. No future source/import/check/SQL/provider/deployment/effect authority. Park actual clinical/model/approval/artifact/hosted/physical prerequisites individually; if no independent component exists return exact external/internally parked lanes without a duplicate test. TASK060 paid authority/policy/current hosted callback/authentic selected sandbox payment/credit prerequisites remain parked with retained resources/Owner terms, no repeat questions.
+
+All12features/nine numbered PRD8criteria and production gates stay required: actual two-clinic recording/transcription/model output/exact-revision approvals/secure sharing/PDF, all six stages/decisions/corrections/reminders/archive/restore, trial time/concurrency, qualifying paid referral credit and complete roles/services/retention. TASK057 permanent internal parks/no fourth/reset/retry/repair/reimplementation/substitute; native13closed. Protected source80729f2f is historical; current Git source lacks completed protected deployment verification. Requested runtime/build ALLOW_REAL_CLIENT_DATA=false; effective hostedfalseUNVERIFIED/encrypted defaultsUNKNOWN/maintenanceDEFAULT_DISABLED stay held. Fresh empty-target CI migrations did not replay shared migrations. No directdeploy/provider swap/credits/purchase/upgrade/partner application/message/email/unselected-admin bootstrap/invented prices/realdata. Until-done authorization/hourly wake-ups persist; no cancellation, verified completion or all-external waiting.
+
+## Historical TASK061 accepted checkpoint, superseded by current resume
 
 Execution status: TASK061_SCOPED_ACCEPTED_REVIEWED_OUTCOME_PUBLICATION_CLOSURE_THEN_TASK062_READ_ONLY_BOARD_FEASIBILITY. This is not all-external WAITING_ON_DEPENDENCIES.
 
