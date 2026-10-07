@@ -1,5 +1,14 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-07 — v2.0 — MINOR, TASK065 READINESS DISPOSITION
+
+Section changed: Section8 evidence checkpoint only; twelve feature requirements and all nine numbered criteria unchanged.
+Summary: Records genuine read-only recording diagnosis/trial-coverage comparison/nine-criterion gap assessment, unchanged failedCI/causeUNKNOWN, explicit full-story dependency resume and separate consumed recording/permanent release parks. No source/effect authority or completion-definition change.
+Task trigger: TASK065, approved saved queue and continuous-mode ladder.
+CTO: Root83854fd3 adopted factualPASSc3501d0c and distinct NO_NEW_LEARNINGad8f9906. Count40/L035Seen7 held; no new feature, architecture, clinical rule or permission.
+Auditor co-sign: Independent Auditor; this exact documentary/MINOR body must have its separate immutable prospective PASS before publication. The genuine prospective verdict and actual publication receipt bind this exact-body co-sign, separately from the earlier read-only verdict.
+Owner authorization: Existing until-done scope. No additional Owner decision or repeated pending question; pilot and production incomplete.
+
 Every PRD edit is logged here. This is how Owner spots drift at a glance.
 
 Format:
