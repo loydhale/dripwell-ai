@@ -119,7 +119,7 @@ suite('Current recording route authority', () => {
     const setupId = randomUUID(), recordingIds = [randomUUID(), randomUUID(), randomUUID()];
     const tenantIds = [a.tenant, b.tenant], locationIds = [a.location, b.location], configIds = [a.config, b.config];
     const visitIds = [a.visit, b.visit], userIds = members.map(row => row.user), sessionIds = members.map(row => row.session);
-    const allIds = [...tenantIds, ...locationIds, ...configIds, ...visitIds, ...userIds, ...sessionIds, setupId, ...recordingIds];
+    const allIds: string[] = [...tenantIds, ...locationIds, ...configIds, ...visitIds, ...userIds, ...sessionIds, setupId, ...recordingIds];
     const captured = new Map<string, Map<string, Row>>();
     const deleteKeys: Record<string, string[]> = {
       tenant: ['id', 'slug'], location: ['id', 'tenantId'], user: ['id', 'tenantId', 'email'],
@@ -248,7 +248,7 @@ suite('Current recording route authority', () => {
       vi.doMock('server-only', () => ({}));
       const cookies = async () => {
         proof.require(); const request = context.getStore();
-        if (!request) forbidden('COOKIE_CONTEXT');
+        if (!request) return forbidden('COOKIE_CONTEXT');
         return { get: (name: string) => {
           const value = request.headers.get('cookie')?.split(';').map(part => part.trim())
             .find(part => part.startsWith(`${name}=`))?.slice(name.length + 1);
