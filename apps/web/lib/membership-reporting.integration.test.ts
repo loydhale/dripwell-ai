@@ -192,8 +192,13 @@ suite('Real PostgreSQL membership reporting', () => {
       for (const [model, where] of Object.entries(matrix)) {
         const expected = owned.get(model) ?? new Map<string, Row>();
         const delegate: unknown = db && Reflect.get(db, model);
-        proof.assert(object(delegate) && typeof delegate.findMany === 'function', 'CENSUS_DELEGATE', true);
-        const rows: unknown = await query(() => Reflect.apply(delegate.findMany, delegate, [{ where, take: expected.size + 1 }]), cleanup);
+        const findMany: unknown = object(delegate) ? delegate.findMany : undefined;
+        proof.assert(object(delegate) && typeof findMany === 'function', 'CENSUS_DELEGATE', true);
+        const rows: unknown = await query((): Promise<unknown> => {
+          const value: unknown = Reflect.apply(findMany, delegate, [{ where, take: expected.size + 1 }]);
+          proof.assert(object(value) && typeof value.then === 'function', 'CENSUS_PROMISE', true);
+          return Promise.resolve(value);
+        }, cleanup);
         proof.assert(Array.isArray(rows) && rows.length === expected.size && rows.length <= 11, 'CENSUS_COUNT', true);
         for (const row of rows) {
           proof.assert(object(row) && uuid(row.id) && expected.has(row.id), 'CENSUS_OWNERSHIP', true);
@@ -380,11 +385,14 @@ suite('Real PostgreSQL membership reporting', () => {
           const where = Object.fromEntries(deleteKeys[model]!.map(key => [key, row[key]]));
           proof.assert(where.id === id && Object.values(where).every(value => typeof value === 'string'), 'EXACT_DELETE_IDENTITY');
           const delegate: unknown = Reflect.get(db, model);
-          proof.assert(object(delegate) && typeof delegate.deleteMany === 'function', 'DELETE_DELEGATE');
+          const deleteMany: unknown = object(delegate) ? delegate.deleteMany : undefined;
+          proof.assert(object(delegate) && typeof deleteMany === 'function', 'DELETE_DELEGATE');
           proof.unresolved = true;
-          const result: unknown = await query(() => {
+          const result: unknown = await query((): Promise<unknown> => {
             proof.assert(!proof.unsafeOwnership, 'UNSAFE_CENSUS_OWNERSHIP');
-            return Reflect.apply(delegate.deleteMany, delegate, [{ where }]);
+            const value: unknown = Reflect.apply(deleteMany, delegate, [{ where }]);
+            proof.assert(object(value) && typeof value.then === 'function', 'DELETE_PROMISE');
+            return Promise.resolve(value);
           }, true);
           proof.assert(object(result) && result.count === 1, 'EXACT_DELETE_COUNT'); rows.delete(id); proof.deleted++; proof.unresolved = false;
         }
