@@ -249,3 +249,5 @@ TASK052 source authoring authorized after genuine independent planPASSaf49da5c/a
 - 2026-10-07: Add independently reviewed trial rollback/same-key concurrency proof; first CI37554713501 passed238 Vitest tests/19 files and separate15 clinic Node tests. Scopedcount35 once with this reviewed checkpoint, NO_NEW_LEARNING/Seen5; full pilot/hosted/release gates remain open.
 
 2026-10-07 TASK059: added reviewed normal-owner two-clinic handler/PostgreSQL isolation test; first CI37565425519 passed239 Vitest/20 files plus separate clinic15/15; exact cleanup and limits accepted, pilot activation/history/rollback remain open.
+
+2026-10-07 TASK061 / R1: independently accepted current clinic role/session transaction proof and test-only recording retry diagnostics; first changed-source CI37581836016 passes22 stages, Vitest240/21 and separate clinic Node15/15. Preserve original37574789977 FAILURE/causeUNKNOWN; update exact outcome/paid parks/nextTASK062 queue/MINORPRD8, genuine learning fragments once and scopedcount36->37 once. No hosted/provider/sharedmigration proof or check replay.

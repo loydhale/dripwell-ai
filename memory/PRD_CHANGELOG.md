@@ -151,3 +151,12 @@ Auditor CA, 2026-10-06: co-sign MINOR TASK056 accepted provenance-index/positive
 - 2026-10-07, MINOR section8 evidence: accepted scoped original trial rollback/concurrency/cleanup proof95db53dc/Root27094b92 and next existing criteria1/6 read-only Task059. All12 feature requirements/nine numbered criteria/provider/price/clinical/architecture/data/production/completion requirements remain held. Exact independent factual/MINOR/fullbody co-sign is required before this checkpoint publication; this authored line is not that co-sign. Scopedcount35 is the once reviewed checkpoint value; Seen5 unchanged.
 
 2026-10-07 TASK059 MINOR: section8 adds actual normal-owner handler/PG differing-catalog/price isolation evidence and limits, without changing any12 feature requirement or nine numbered acceptance criteria. Source7a6e0bdf/firstCI37565425519 actual PASSfdab032b accepted059d465c. Exact documentary/fullbody co-sign is required in this immutable outcome package before publication. Seen5 unchanged; nextTASK060 is existing paid-referral verification feasibility.
+
+## 2026-10-07, v2.0, MINOR, CURRENT CLINIC AUTHORITY EVIDENCE
+
+Section changed: Section8 evidence checkpoint only; all nine numbered criteria and12 features unchanged.
+Summary: Preserve original whole CI failure/causeUNKNOWN, accept current scoped role/session/tenant proof and recording diagnostic first-CI PASS, record paid prerequisites individually parked and next approved board/outcome/reminder feasibility.
+Task trigger: TASK061 and its R1 diagnostic, with TASK060 read-only feasibility disposition.
+CTO: In-scope evidence and next queue, no expanded feature or changed completion requirement. Count36->37 is one scoped TASK061 closure; no planning/R1 increment.
+Auditor co-sign: Subject to exact frozen documentary/fullbody MINOR review before publication; genuine actual technical PASS4de44e78 and NO_NEW_LEARNING9ab1ab7c already adopted.
+Owner authorization: Standing until-done instruction and existing PRD scope; no new Owner decision requested.
