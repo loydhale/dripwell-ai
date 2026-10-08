@@ -298,6 +298,69 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
     },
   );
 
+  test('a fresh setup conversation succeeds after a terminal old session without changing its saved history', async () => {
+    const db = getDb();
+    const originalResponse = await setup(setupRequest(randomUUID()), undefined);
+    expect(originalResponse.status).toBe(200);
+    const original = await originalResponse.json();
+    const configurations = await db.clinicConfigurationVersion.findMany({ where: { tenantId } });
+    boundary.sendMessage.mockImplementationOnce(async (sessionId: string) => {
+      expect(sessionId).toBe(original.eveSessionId);
+      throw Object.assign(new Error('Synthetic terminal setup session.'), {
+        status: 409, code: 'session_not_active',
+      });
+    });
+    const failedKey = randomUUID();
+    const failedResponse = await setup(request('/api/setup', 'POST', {
+      locationId, message, conversationId: original.conversationId, idempotencyKey: failedKey,
+    }), undefined);
+    expect(failedResponse.status).toBe(503);
+    expect(await failedResponse.json()).toMatchObject({ code: 'AI_PROCESSING_FAILED' });
+    const failed = await db.generationJob.findUniqueOrThrow({
+      where: { tenantId_idempotencyKey: { tenantId, idempotencyKey: `setup-message:${failedKey}` } },
+    });
+    expect(failed).toMatchObject({ status: 'FAILED', errorCode: 'AI_PROCESSING_FAILED',
+      result: { conversationId: original.conversationId, messageHash: digest(message) } });
+    const oldConversation = await db.setupConversation.findUniqueOrThrow({ where: { id: original.conversationId } });
+    expect(oldConversation.eveSessionId).toBe(original.eveSessionId);
+    expect(oldConversation.messages).toHaveLength(3);
+    expect(oldConversation.messages).toMatchObject([
+      { id: `${original.generationId}:user`, role: 'user', text: message },
+      { id: `${original.generationId}:assistant`, role: 'assistant' },
+      { id: `${failed.id}:user`, role: 'user', text: message },
+    ]);
+    const oldJobs = await db.generationJob.findMany({
+      where: { id: { in: [original.generationId, failed.id] } }, orderBy: { id: 'asc' },
+    });
+    const freshKey = randomUUID();
+    const freshResponse = await setup(setupRequest(freshKey), undefined);
+    expect(freshResponse.status).toBe(200);
+    const fresh = await freshResponse.json();
+    expect(fresh).toMatchObject({ activeConfigurationChanged: false, assistantMessage: expect.any(String) });
+    expect(fresh.conversationId).not.toBe(original.conversationId);
+    expect(fresh.eveSessionId).not.toBe(original.eveSessionId);
+    expect(fresh.generationId).not.toBe(failed.id);
+    const saved = await db.setupConversation.findUniqueOrThrow({ where: { id: fresh.conversationId } });
+    expect(saved).toMatchObject({ tenantId, locationId, userId: ownerId, eveSessionId: fresh.eveSessionId });
+    expect(saved.messages).toHaveLength(2);
+    expect(saved.messages).toMatchObject([
+      { id: `${fresh.generationId}:user`, role: 'user', text: message },
+      { id: `${fresh.generationId}:assistant`, role: 'assistant' },
+    ]);
+    expect(await db.generationJob.findUniqueOrThrow({ where: { id: fresh.generationId } }))
+      .toMatchObject({ status: 'COMPLETE', userId: ownerId, tenantId,
+        idempotencyKey: `setup-message:${freshKey}` });
+    expect(await db.setupConversation.findUniqueOrThrow({ where: { id: oldConversation.id } })).toEqual(oldConversation);
+    expect(await db.generationJob.findMany({
+      where: { id: { in: [original.generationId, failed.id] } }, orderBy: { id: 'asc' },
+    })).toEqual(oldJobs);
+    expect(await db.clinicConfigurationVersion.findMany({ where: { tenantId } })).toEqual(configurations);
+    expect(boundary.createSession).toHaveBeenCalledTimes(2);
+    expect(boundary.attachSession.mock.calls.map((args) => args[0]))
+      .toEqual([original.eveSessionId, original.eveSessionId, fresh.eveSessionId]);
+    expect(boundary.sendMessage).toHaveBeenCalledTimes(3);
+  });
+
   test('overlapping failed setup retries claim one running job and perform one additional send', async () => {
     boundary.sendMessage.mockRejectedValueOnce(new Error('Synthetic temporary send failure.'));
     const key = randomUUID();

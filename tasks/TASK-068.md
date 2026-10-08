@@ -2,7 +2,7 @@
 
 TASK_ID: TASK-068
 PARENT_REQUEST: Owner: "You coding this. We need to be done." Standing until-done authorization, same review branch/PR #2.
-STATUS: QUEUED after TASK067 independent result/learning/documentary closure.
+STATUS: IN_PROGRESS from reviewed closing HEAD ddb2933a8acc700ee338ae85c0387b1b1a308909 after TASK067 closure.
 
 ## Goal and approved scope
 
@@ -48,3 +48,9 @@ The sole allowed local dependency operation is lockfile-only, scripts-disabled r
 7. Independent actual-result review, distinct learning, minor PRD evidence co-sign and STATE/CHANGELOG close the task. Actual browser/HTTP/model/clinical/hosted pilot and production gates remain separately unverified.
 
 No TASK068 application, test, package or lockfile change may begin before TASK067's closing publication. Coder baseline will be the actual resulting branch head; old TASK067 route behavior and accepted regression cases remain preserved.
+
+## Implementation admission
+
+TASK067 reviewed documentary closure is published at ddb2933a8acc700ee338ae85c0387b1b1a308909/tree84c6bbae645fe67c930524ba290ec052c2976e69, local/origin/remote/open PR2 confirmed equal and Git clean. Its source is unchanged from accepted b4aef87a/first CI37791656066. CTO adopted independent final PASS and L-043 learning; count41 applied once.
+
+Coder selected exact dev jsdom27.4.0 using actual registry engines ^20.19.0 || ^22.12.0 || >=24.0.0 and its packaged README. Version30.1.1 requires Node24.15+, so the compatible selected pin avoids relying on an unverified minor runtime. Existing actual pnpm10.32.1 entry /home/agent/.npm/_npx/9ca9742ac2b5f389/node_modules/pnpm/bin/pnpm.cjs, SHA256b276da51dc8ca5b0d3ee3371695b50fc8b3244b281b091c63a3f082a88dadeb9, is read-only confirmed; bare fallback is not selected. Sole admitted dependency operation uses direct installed Node, NODE_DISABLE_COMPILE_CACHE=1, --lockfile-only and --ignore-scripts, with inherited proxy/CA. No local application import/check or retained target/client effects are authorized.

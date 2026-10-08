@@ -53,16 +53,19 @@ function SetupAssistant({
   onProposal: (proposal: Proposal | null) => void;
   locationId: string;
 }) {
+  const { captureBusy } = useClinic();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState('');
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [canRestart, setCanRestart] = useState(false);
   const [missing, setMissing] = useState<string[]>([]);
   const [voiceConsent, setVoiceConsent] = useState(false);
   const [readiness, setReadiness] = useState<boolean | null>(null);
   const requestKey = useRef<string | null>(null);
   const lastMessage = useRef<string | null>(null);
+  const loadVersion = useRef(0);
   const alive = useRef(true);
   useEffect(() => {
     alive.current = true;
@@ -74,11 +77,13 @@ function SetupAssistant({
   conversationRef.current = conversationId;
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const version = ++loadVersion.current;
     setConversationId(undefined);
     setMessages([]);
     setMissing([]);
     onProposal(null);
     setError('');
+    setCanRestart(false);
     requestKey.current = null;
     lastMessage.current = null;
     if (!locationId) return;
@@ -93,7 +98,7 @@ function SetupAssistant({
       };
     }>(`/api/setup?locationId=${encodeURIComponent(locationId)}`)
       .then((result) => {
-        if (!current) return;
+        if (!current || loadVersion.current !== version) return;
         if (result.conversation) {
           setConversationId(result.conversation.id);
           setMessages(result.conversation.messages || []);
@@ -112,9 +117,11 @@ function SetupAssistant({
               : null),
         );
       })
-      .catch((cause) =>
-        setError(cause instanceof Error ? cause.message : 'Unable to reopen setup conversation.'),
-      );
+      .catch((cause) => {
+        if (!current || loadVersion.current !== version) return;
+        setError(cause instanceof Error ? cause.message : 'Unable to reopen setup conversation.');
+        setCanRestart(true);
+      });
     return () => {
       current = false;
     };
@@ -127,8 +134,22 @@ function SetupAssistant({
         : 'smooth',
     });
   }, [messages, busy]);
+  function startNewConversation() {
+    if (busy || captureBusy) return;
+    loadVersion.current++;
+    conversationRef.current = undefined;
+    setConversationId(undefined);
+    setMessages([]);
+    setMissing([]);
+    onProposal(null);
+    setError('');
+    setCanRestart(false);
+    requestKey.current = null;
+    lastMessage.current = null;
+  }
   function accept(result: SetupResponse) {
     if (!alive.current) return;
+    setCanRestart(false);
     setConversationId(result.conversationId);
     if (result.assistantMessage)
       setMessages((items) => [
@@ -164,6 +185,7 @@ function SetupAssistant({
       requestKey.current = null;
       lastMessage.current = null;
     } catch (cause) {
+      setCanRestart(true);
       setError(
         cause instanceof Error
           ? cause.message
@@ -190,6 +212,7 @@ function SetupAssistant({
       if (result.conversationId) setConversationId(result.conversationId);
       const output = await waitForJob(result.jobId);
       if (!alive.current) return;
+      setCanRestart(false);
       if (typeof output.conversationId === 'string') setConversationId(output.conversationId);
       if (typeof output.transcript === 'string') {
         setMessage(output.transcript);
@@ -217,6 +240,7 @@ function SetupAssistant({
     } catch (cause) {
       const msg = cause instanceof Error ? cause.message : 'Upload could not be processed.';
       setError(msg);
+      setCanRestart(true);
       throw new Error(msg);
     } finally {
       setBusy(false);
@@ -243,6 +267,21 @@ function SetupAssistant({
         </div>
       ) : null}
       {error ? <ErrorBanner message={error} /> : null}
+      {canRestart ? (
+        <div className="notice notice-subtle">
+          <div>
+            <p>Starting fresh keeps the text below and leaves saved conversations unchanged.</p>
+            <button
+              className="button button-small"
+              type="button"
+              disabled={busy || captureBusy}
+              onClick={startNewConversation}
+            >
+              Start a new setup conversation
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className="chat-messages" ref={scrollRef}>
         {messages.length ? (
           messages.map((item) => (
