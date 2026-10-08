@@ -18,6 +18,8 @@ Saved recording-processing.ts151-184 caps the database-only publication loop at 
 
 TASK052's automatic3 corrections and TASK061R1's one deliberate diagnostic allocation are consumed. TASK065 read-only work does not refill them or TASK064's three spent source candidates. TASK057 is separately permanently internally parked after final3, with no fourth/reset/retry/repair/reimplementation/acceptance substitute and native13closed. A dependency-wait label does not relabel either internal park as external or complete release acceptance.
 
+TASK066 is new necessary diagnostic work after changed approved evidence and separate authority, without refilling prior allocations. Its [current audit](AUDIT_RECORDING_FIRST_OPERATION_DIAGNOSTIC.md) records four reported passing new observer controls, a different local early fixture generated-client validation failure, and independently accepted private pure controls. Whole changed-source CI and the historical SQL cause are unresolved; no pilot criterion is completed. Proposed reviewed diagnostic publication/fresh ordinary CI has separate admission gates. Current local target/process/baseline holds and permanent release park remain.
+
 ## Nine unchanged pilot criteria
 
 The exact numbered criteria in PRD section8 are retained. This matrix distinguishes accepted components from required complete-story evidence; missing saved facts are not proof of current remote absence.

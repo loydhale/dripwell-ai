@@ -1,0 +1,262 @@
+{
+  "schema": "DRIPWELL_TASK066_RECORDING_DIAGNOSTIC_EVIDENCE_V1",
+  "dateUtc": "2026-10-08",
+  "disposition": "REVIEWED_DIAGNOSTIC_SOURCE; FRESH_CHANGED_SOURCE_CI_PENDING; PILOT_AND_PRODUCTION_INCOMPLETE",
+  "repository": "loydhale/dripwell-ai",
+  "branch": "feat/dripwell-consultation-v2",
+  "PR": 2,
+  "source": {
+    "path": "apps/web/lib/recording-consumer-safety.integration.test.ts",
+    "bytes": 116497,
+    "sha256": "fddffd33cad9392b2c7097cb90b78a7d0a345d1bc87db9bacae777d6feb610ba",
+    "sourceIndependentReviewSha256": "91c9299d345df90d385e6dd1e488d77513017dd92d629ed88327673c621dd9fc",
+    "originalCasesAndBodiesByteEqual": 15,
+    "newObserverControls": 4,
+    "maximumClosedDiagnosticUtf8Bytes": 1019,
+    "allowedDiagnosticUtf8Bytes": 1024,
+    "productionSourceChanged": false
+  },
+  "supplementalSavedNativeReport": {
+    "sha256": "166a1b3c031f11237457ab2a67da38585c85a548f578a591898f915f44b8b682",
+    "bytes": 12037,
+    "projectionSha256": "130e43d20e572216f0e9fb5c76968bf0ee2b6fedcccd1362fbc29b7da9acea9e",
+    "independentActualReviewSha256": "9a6f9dbd48c174042dfdf5d5b692e24c64f382a1b1c9bde51966228b7181f24c",
+    "reportedCases": [
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL recovers the exact failed summary child on a legitimate new attempt without duplicate effects",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL denies retry claims for terminal foreign active unproven or changed failed children",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL rechecks failed child and input authority before the new native acknowledgment can rearm",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL rejects late consultation transcript after detachment or discard",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL rejects late setup transcript and catalog draft after availability or owner change",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL rejects summary result application and completion after input or current-run change",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL prevents stale cancelled parent or child success and failure overwrites",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL rolls back recording transcript usage revisions and events together",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL retains exact setup settlement after adoption rollback and preserves unrelated control",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL enforces immutable setup owner and single-assignment settlement with no cascade",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL keeps adoption and tombstone ordering consistent across intake setup and cleanup",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL retries rolled back publication without repeating providers or duplicating effects",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL reuses a captured summary after a final publication rollback",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "fullName": "recording consumer safety against disposable PostgreSQL rechecks authority inputs expiry and terminal runs after a conflict",
+        "selection": "EXCLUDED",
+        "status": "skipped"
+      },
+      {
+        "durationMilliseconds": 37.129164999999944,
+        "fullName": "recording consumer safety against disposable PostgreSQL exhausts bounded publication conflicts without committing partial effects",
+        "selection": "SELECTED",
+        "status": "failed"
+      },
+      {
+        "durationMilliseconds": 3.4787469999999985,
+        "fullName": "recording retry observer controls preserves real receivers and arguments with one lazy completion",
+        "selection": "SELECTED",
+        "status": "passed"
+      },
+      {
+        "durationMilliseconds": 2.197751999999923,
+        "fullName": "recording retry observer controls preserves synchronous and asynchronous originals and exempts only the owned identity",
+        "selection": "SELECTED",
+        "status": "passed"
+      },
+      {
+        "durationMilliseconds": 1.1063830000000507,
+        "fullName": "recording retry observer controls reports settlement only after the full body returns and keeps callback failure unknown",
+        "selection": "SELECTED",
+        "status": "passed"
+      },
+      {
+        "durationMilliseconds": 1.100985000000037,
+        "fullName": "recording retry observer controls poisons cap or serialization failure without replacing mapper results or exceptions",
+        "selection": "SELECTED",
+        "status": "passed"
+      }
+    ],
+    "totals": {
+      "cases": 19,
+      "passed": 4,
+      "failed": 1,
+      "excludedSkipped": 14
+    },
+    "approvedFiles": 1,
+    "reportedHierarchicalSuites": 3,
+    "success": false,
+    "failureDurationMilliseconds": 37.129164999999944,
+    "closedFirstFailure": {
+      "classification": "PRISMA_VALIDATION",
+      "boundary": "INITIAL_FIXTURE_RECORDING_SEGMENT_CREATE",
+      "unknownArgument": "blobObject",
+      "sourceLine": 679,
+      "testEntryLine": 1479,
+      "knownSqlCode": false,
+      "retryProviderMapperOraclesReached": "NOT_ESTABLISHED_BY_THIS_FAILURE"
+    },
+    "timesUtc": {
+      "fileEnd": "2026-10-08T01:45:07.500129+00:00",
+      "fileStart": "2026-10-08T01:45:07.368000+00:00",
+      "start": "2026-10-08T01:45:06.432000+00:00"
+    },
+    "qualification": "Exact approved file/names and times/mtime support attribution to the original once focused entry. They do not independently attest executed-module hashes, descendant closure, post-baseline restoration or cleanup. Excluded cases are not passes. No approved retry record is retained in this JSON; no other output inference."
+  },
+  "currentLocalGeneratedClient": {
+    "repositorySchemaSha256": "f15f9c1140f6bd603c4284ac98d88b3aabc7125b4d9a1241f90b2f0804c6d78d",
+    "generatedSchemaSha256": "aa67b4c8457d58cdd6ec0ddc60049d3e0f383675f4f2f893f0e56967f1116fe9",
+    "generatedRuntimeSha256": "bda3a62e4a8bd9ab7e1e8ec6c3e7fb850123da690ba25269f527914f2e5a814e",
+    "generatedTypesSha256": "9e1a8db934a6e83ccaa04cf2ca1582ef119ac187757be88858203f909e3bbdfc",
+    "checkedInRecordingSegmentHasBlobObject": true,
+    "generatedModelAndUncheckedCreateHasBlobObject": false,
+    "standaloneTypecheck": "BLOCKED_NOT_EXECUTED",
+    "localGenerationPerformed": false,
+    "qualifiedMeaning": "Current source/cache mismatch matches the local reported fixture validation failure; this is not the historical CI publication/SQL cause or a hosted-runtime claim.",
+    "blockedTypecheckFactualReviewSha256": "7091e878d30a1c29023b1a566d4567cc8e984fb4fa6bfc79bf9682610d5f4f08"
+  },
+  "privateFailureRecorder": {
+    "sourceSha256": "cf227ade941cbd538bef9dcf084e688125bbb7986a9d498b861b71bdf82161f0",
+    "sourceIndependentReviewSha256": "b707b187514b079b881e7c697139a7a703365062965c5f8e9b99529d22e77103",
+    "actualPureReceiptSha256": "d706e1d4f6806f635e453690dec9912220e6fe32a612eb521e4396f4b3c13084",
+    "actualIndependentReviewSha256": "b72e0d8d968b715d29a8e6005eb0ad2be671f24dfda3e4ae63fece63c01417bf",
+    "groupsPassed": 4,
+    "nativeExit": 0,
+    "firstFailure": null,
+    "internalElapsedSeconds": 0.014515,
+    "assertionsEnabled": true,
+    "applicationImports": false,
+    "subprocesses": false,
+    "SQL": false,
+    "network": false,
+    "qualification": "Private pure recorder/state controls are separate from the four reported Vitest observer controls and do not establish recording, process, database or pilot completion."
+  },
+  "originalLocalRun": {
+    "receiptSha256": "fc116c28fdb855eefd37a3bc8163cd6e8f89b8601ebbf0c3f121e54ce65b32f8",
+    "outcome": "FAILED",
+    "nativeExit": 1,
+    "retainedCanonicalChecks": [],
+    "stdoutBytes": 83,
+    "stderrBytes": 0,
+    "mainReaped": true,
+    "pipeEOF": true,
+    "localDescriptorsClosed": true,
+    "ownedClosure": "UNKNOWN",
+    "initialAll52EmptyBaselineSha256": "1b7f2b3d198a284d7e1a8f9d48300e3cd5c13c42f642d4d129c9396c50a694dd",
+    "postBaselineRestoration": "UNPROVED",
+    "fixtureCompensation": "UNPROVED",
+    "successorFull19AndTypecheck": "NOT_ENTERED",
+    "ownedTargetRetained": "b127525d87c2b5971c5d7cd23b890dfb9610dee26c9ee46588280dead965f439",
+    "migrationsAppliedOnceToFreshTarget": 14,
+    "reappliedMigrations": 0,
+    "reappliedMigrationsScope": "Retained local b127 target only; unchanged normal first fresh CI creates a new isolated synthetic schema."
+  },
+  "workerInventory": {
+    "changedReceiptSha256": "13f1f3f3dbfd487a9d940d24fa5a022f1b947b452268301e427eebd01d446a22",
+    "independentActualReviewSha256": "fa9ce47ea8b9e5f0d45076dde53ef4920a6d21e8c18d21f72302f3f846dfc1e0",
+    "numericRows": 1289,
+    "identityReads": 19,
+    "elapsedSeconds": 0.129436,
+    "nativeExit": 0,
+    "oldExactIdentity": "TERMINAL_Z_EXECUTION_TERMINATED_OS_UNREAPED",
+    "oldOtherMainAndMetadataClientGroups": "ABSENT_AT_SNAPSHOT",
+    "newNativeClientClosure": "UNKNOWN_POST_SNAPSHOT_DESCENDANT_CREATION_UNPROVED",
+    "noActiveUnobservedChildClaimed": true,
+    "secondInventory": false,
+    "SQLOrDisposalAdmitted": false
+  },
+  "historicalCI": {
+    "runId": 37656684044,
+    "jobId": 112913395064,
+    "outcome": "FAILURE_CHANGES_REQUIRED",
+    "vitestPassed": 242,
+    "vitestFailed": 1,
+    "vitestFiles": 24,
+    "nodePassed": 15,
+    "nodeSkipped": 0,
+    "completedPublicationBodies": 11,
+    "requiredPublicationBodies": 12,
+    "rollbacks": 11,
+    "commits": 0,
+    "remainingFaults": 1,
+    "sqlCause": "UNKNOWN_UNCHANGED"
+  },
+  "nextValidation": {
+    "path": "UNCHANGED_FRESH_ORDINARY_PR_CI_AFTER_REVIEWED_SOURCE_PUBLICATION",
+    "workflow": ".github/workflows/v2-checks.yml",
+    "workflowSha256": "ec4b680617aa6a60b52d0ae9bc0d0c07de4ac7ab72a43275a36b984a558a87e0",
+    "freshSchemaGenerationBeforeBuildsTypesTests": true,
+    "localStaleCheckOrPGRetry": false,
+    "status": "PROSPECTIVE_BOUNDED_ADMISSIBILITY_PASS; FINAL_DOCUMENTARY_LEARNING_LEASE_ROOT_GIT_GO_HELD; ACTUAL_CI_PENDING",
+    "notGrantedByEvidence": true,
+    "prospectiveIndependentReviewSha256": "d1af6cf3ef53fbbc3868494c5dec6ff4af6deefbf1a1811c46c60d8b361b1219",
+    "distinctLaterLearningSha256": "c1317e743c235c30652385566244507306507fb3e7d27bf5154e232572d1dc9c",
+    "genuineRootAdoptionSha256": "5624dd1ff48442ad37f19d5ae1b60f466fa6a7ca7618b40a83c323634d87eebf",
+    "exactTotalPublicationPaths": 10,
+    "publicationSourcePaths": 1,
+    "publicationDocumentaryPaths": 9,
+    "freshRunFullRecordingCasesIfReached": 19
+  },
+  "learning": {
+    "distinctAfterVerdictPhases": true,
+    "sameTaskL035FragmentsAppliedOnce": true,
+    "completedTasks": 40,
+    "L035Seen": 7,
+    "newLessonIdentities": 0
+  },
+  "safeguards": {
+    "ALLOW_REAL_CLIENT_DATA": false,
+    "protectedPreviewsRequired": true,
+    "currentDeployedGitSource": "UNKNOWN",
+    "pilotCriteriaVerifiedAsWholeStory": false,
+    "productionRollout": "HELD",
+    "TASK057": "PERMANENT_PARK_NO_FOURTH_RESET_REPAIR_REIMPLEMENTATION_OR_SUBSTITUTE",
+    "noPurchasesProviderSwapsPersonalPoolingMessagesAdminBootstrap": true
+  }
+}

@@ -33,9 +33,7 @@ vi.mock('./ai', async importOriginal => {
   return { ...actual, transcribePrivateAudio: provider.transcribe, extractConsultationSummary: provider.summary,
     lookupGenerationCost: vi.fn(async () => null), estimateTextCost: vi.fn(() => null),
     safeAIError(error: unknown) {
-      try { mapperTap.observe?.(error); }
-      catch { mapperTap.poison?.(); }
-      finally { return actual.safeAIError(error); } // Exactly the real value or its own exception.
+      return retryMap(error, original => actual.safeAIError(original), mapperTap.observe, mapperTap.poison);
     } };
 });
 vi.mock('ai', async importOriginal => ({ ...await importOriginal<typeof import('ai')>(), generateText: provider.catalog }));
@@ -123,12 +121,30 @@ type RetryBoundary = 'FIXTURE' | 'BASELINE' | 'WORK' | 'CALLBACK' | 'OWNED_JOB_U
   | 'BEFORE_ROLLBACK_ORACLE' | 'AFTER_ROLLBACK_ORACLE' | 'TRANSACTION_REJECTION'
   | 'SAFE_AI_MAPPER' | 'OUTCOME_ASSERTION' | 'RETRY_ORACLES' | 'DRAIN' | 'UNKNOWN';
 type RetryError = Pick<ReturnType<typeof safeDiagnosticError>, 'class' | 'code' | 'sqlState' | 'constraintMention'>;
+type RetryOperation = 'RAW_LOCK_OR_CLOCK' | 'RECORDING_READ' | 'RECORDING_WRITE' | 'JOB_READ' | 'JOB_WRITE'
+  | 'CONSULTATION_READ' | 'CONSULTATION_WRITE' | 'REVISION_WRITE' | 'EVENT_READ' | 'EVENT_WRITE'
+  | 'USER_READ' | 'USER_WRITE' | 'LOCATION_READ' | 'CONFIGURATION_READ' | 'SETUP_READ' | 'SETUP_WRITE'
+  | 'INTENT_READ' | 'UPLOAD_READ' | 'UPLOAD_WRITE' | 'TAKEAWAY_READ' | 'TAKEAWAY_WRITE'
+  | 'SHARE_READ' | 'SHARE_WRITE' | 'NONE_AT_SETTLEMENT' | 'UNKNOWN';
+type RetryRejectionAt = 'DELEGATE_SYNC' | 'DELEGATE_ASYNC' | 'CALLBACK' | 'TX_SETTLEMENT' | 'UNKNOWN';
+interface RetryTransactionState {
+  last: RetryOperation; entered: boolean; returned: boolean; usageSeen: boolean; selected: boolean;
+}
+type RetryRejection = RetryTransactionState & { op: RetryOperation; at: RetryRejectionAt };
+function retryTransactionState(): RetryTransactionState {
+  return { last: 'UNKNOWN', entered: false, returned: false, usageSeen: false, selected: false };
+}
+function retryRejection(op: RetryOperation = 'UNKNOWN', at: RetryRejectionAt = 'UNKNOWN',
+  state = retryTransactionState()): RetryRejection {
+  return { op, at, last: state.last, entered: state.entered, returned: state.returned,
+    usageSeen: state.usageSeen, selected: state.selected };
+}
 interface RetryObservation {
   scope: RetryScope; kind: RetryKind; completedKinds: number; boundary: RetryBoundary;
   entries: number; returns: number; poison: boolean; settled: boolean;
   providerBaseline?: number[];
   faults?: { completedPublicationBodies: number; rollbacks: number; commits: number; remaining: number; injectedErrors: number };
-  firstUnexpectedError: (RetryError & { boundary: RetryBoundary }) | null;
+  firstUnexpectedError: (RetryError & RetryRejection & { boundary: RetryBoundary }) | null;
   masked: { seen: boolean; calls: number; class: RetryError['class'] | 'UNKNOWN'; code: RetryError['code'];
     ownedInjectedError: boolean | null; lastInjectedError: boolean | null };
   isInjected: (error: unknown) => boolean; isLastInjected: (error: unknown) => boolean;
@@ -147,17 +163,87 @@ function retryError(error: unknown): RetryError {
   const safe = safeDiagnosticError(error);
   return { class: safe.class, code: safe.code, sqlState: safe.sqlState, constraintMention: safe.constraintMention };
 }
-function retryCaught(error: unknown, observation = retryContext.getStore()) {
+function retryCaught(error: unknown, observation = retryContext.getStore(), rejection = retryRejection()) {
   if (!observation) return;
   try {
     if (!observation.isInjected(error) && observation.firstUnexpectedError === null)
-      observation.firstUnexpectedError = { boundary: observation.boundary, ...retryError(error) };
+      observation.firstUnexpectedError = { boundary: observation.boundary, ...retryError(error), ...rejection };
   } catch { observation.poison = true; }
 }
 function retryIncrement(key: 'entries' | 'returns', observation = retryContext.getStore()) {
   if (!observation) return;
   if (observation[key] < 64) observation[key]++;
   else { observation[key] = 65; observation.poison = true; }
+}
+function retryCount(value: number, max: number, observation: RetryObservation): number | 'OVERFLOW' {
+  if (Number.isSafeInteger(value) && value >= 0 && value <= max) return value;
+  observation.poison = true; return 'OVERFLOW';
+}
+function retryMap<T>(error: unknown, map: (error: unknown) => T,
+  observe?: (error: unknown) => void, poison?: () => void): T {
+  try { observe?.(error); }
+  catch { poison?.(); }
+  finally { return map(error); } // The same original, exactly once, including its own exception.
+}
+function encodeDiagnostic(record: object) { return JSON.stringify(record); }
+function diagnosticWithinBounds(encoded: string) { return Buffer.byteLength(encoded, 'utf8') <= 1024; }
+function emitRetryDiagnostic(observation: RetryObservation, record: object, emit: (record: object) => boolean) {
+  try { if (!emit(record)) observation.poison = true; }
+  catch { observation.poison = true; }
+}
+
+// Fixed delegate and method families only; no retained args, rows, errors or operation history.
+const retryDelegates: Readonly<Record<string, readonly [RetryOperation, RetryOperation]>> = {
+  recordingSegment: ['RECORDING_READ', 'RECORDING_WRITE'], generationJob: ['JOB_READ', 'JOB_WRITE'],
+  consultation: ['CONSULTATION_READ', 'CONSULTATION_WRITE'], consultationRevision: ['UNKNOWN', 'REVISION_WRITE'],
+  consultationEvent: ['EVENT_READ', 'EVENT_WRITE'], user: ['USER_READ', 'USER_WRITE'],
+  location: ['LOCATION_READ', 'UNKNOWN'], clinicConfigurationVersion: ['CONFIGURATION_READ', 'UNKNOWN'],
+  setupConversation: ['SETUP_READ', 'SETUP_WRITE'], recordingDeletionIntent: ['INTENT_READ', 'UNKNOWN'],
+  setupRecordingUpload: ['UPLOAD_READ', 'UPLOAD_WRITE'], takeaway: ['TAKEAWAY_READ', 'TAKEAWAY_WRITE'],
+  shareLink: ['SHARE_READ', 'SHARE_WRITE'], shareSession: ['SHARE_READ', 'SHARE_WRITE'],
+};
+const retryReads = ['findUnique', 'findUniqueOrThrow', 'findFirst', 'findFirstOrThrow', 'findMany', 'count', 'aggregate', 'groupBy'];
+const retryWrites = ['create', 'createMany', 'createManyAndReturn', 'update', 'updateMany', 'updateManyAndReturn', 'upsert', 'delete', 'deleteMany'];
+function retryObservedTransaction<T extends object>(tx: T, observation: RetryObservation | undefined,
+  state: RetryTransactionState): T {
+  if (!observation || !['INITIAL_PUBLICATION_RETRY', 'MAPPED_EXHAUSTION_SENTINEL'].includes(observation.scope)) return tx;
+  function invoke(receiver: object, method: Function, args: unknown[], op: RetryOperation) {
+    try {
+      // Assimilate the real lazy PrismaPromise once and return only its completion.
+      return Promise.resolve(Reflect.apply(method, receiver, args)).then(result => {
+        state.last = op; return result;
+      }, error => { retryCaught(error, observation, retryRejection(op, 'DELEGATE_ASYNC', state)); throw error; });
+    } catch (error) { retryCaught(error, observation, retryRejection(op, 'DELEGATE_SYNC', state)); throw error; }
+  }
+  const cache = new Map<string, object>(); // At most the fourteen fixed delegate keys above.
+  return new Proxy(tx, { get(target, key) {
+    const value = Reflect.get(target, key, target);
+    if (typeof key === 'string' && ['$queryRaw', '$executeRaw', '$queryRawUnsafe', '$executeRawUnsafe'].includes(key)
+      && typeof value === 'function') return (...args: unknown[]) => invoke(target, value, args, 'RAW_LOCK_OR_CLOCK');
+    if (typeof key === 'string' && Object.hasOwn(retryDelegates, key) && value !== null && typeof value === 'object') {
+      const family = retryDelegates[key];
+      if (!cache.has(key)) cache.set(key, new Proxy(value, { get(delegate, method) {
+        const original = Reflect.get(delegate, method, delegate);
+        if (typeof original !== 'function') return original;
+        const category = typeof method === 'string' && retryReads.includes(method) ? 0
+          : typeof method === 'string' && retryWrites.includes(method) ? 1 : undefined;
+        return category === undefined ? original.bind(delegate)
+          : (...args: unknown[]) => invoke(delegate, original, args, family[category]);
+      } }));
+      return cache.get(key);
+    }
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+}
+function retryTransactionCompletion<T>(invoke: () => T | PromiseLike<T>, observation: RetryObservation | undefined,
+  state: RetryTransactionState): Promise<T> {
+  try {
+    return Promise.resolve(invoke()).then(value => value, error => {
+      retryCaught(error, observation, retryRejection(state.returned ? 'NONE_AT_SETTLEMENT' : 'UNKNOWN',
+        state.returned ? 'TX_SETTLEMENT' : 'UNKNOWN', state));
+      throw error;
+    });
+  } catch (error) { retryCaught(error, observation, retryRejection('UNKNOWN', 'UNKNOWN', state)); throw error; }
 }
 mapperTap.poison = () => { const observation = retryContext.getStore(); if (observation) observation.poison = true; };
 mapperTap.observe = error => {
@@ -172,7 +258,7 @@ mapperTap.observe = error => {
     observation.masked.seen = true; observation.masked.class = safe.class; observation.masked.code = safe.code;
     observation.masked.ownedInjectedError = owned; observation.masked.lastInjectedError = observation.isLastInjected(error);
     if (!owned && observation.firstUnexpectedError === null)
-      observation.firstUnexpectedError = { boundary: observation.boundary, ...safe };
+      observation.firstUnexpectedError = { boundary: observation.boundary, ...safe, ...retryRejection() };
   } catch { observation.poison = true; }
 };
 
@@ -232,6 +318,119 @@ function observedTransaction(tx: Prisma.TransactionClient, diagnostic: Diagnosti
   } });
 }
 
+describe('recording retry observer controls', () => {
+  test('preserves real receivers and arguments with one lazy completion', async () => {
+    const observation = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    const state = retryTransactionState(); state.entered = true;
+    const input = {}; const options = {}; const output = {};
+    let invocations = 0; let consumptions = 0;
+    const lazy: PromiseLike<typeof output> = { then(onfulfilled, onrejected) {
+      consumptions++; return Promise.resolve(output).then(onfulfilled, onrejected);
+    } };
+    const jobs = { update(this: object, ...args: unknown[]) {
+      expect(this).toBe(jobs); expect(args).toEqual([input, options]); invocations++; return lazy;
+    } };
+    const tx = { generationJob: jobs, $queryRaw(this: object, ...args: unknown[]) {
+      expect(this).toBe(tx); expect(args).toEqual([input, options]); invocations++; return lazy;
+    } };
+    expect(retryObservedTransaction(tx, undefined, state)).toBe(tx);
+    const observed = retryObservedTransaction(tx, observation, state);
+    expect(observed.generationJob).toBe(observed.generationJob);
+    const completion = observed.generationJob.update(input, options);
+    expect(completion).not.toBe(lazy); expect(invocations).toBe(1); expect(consumptions).toBe(0);
+    expect(await completion).toBe(output);
+    expect(invocations).toBe(1); expect(consumptions).toBe(1); expect(state.last).toBe('JOB_WRITE');
+    expect(await observed.$queryRaw(input, options)).toBe(output);
+    expect(invocations).toBe(2); expect(consumptions).toBe(2); expect(state.last).toBe('RAW_LOCK_OR_CLOCK');
+    expect(observation.firstUnexpectedError).toBeNull(); expect(observation.poison).toBe(false);
+  });
+
+  test('preserves synchronous and asynchronous originals and exempts only the owned identity', async () => {
+    const observation = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    const state = retryTransactionState(); state.entered = true;
+    const owned = new Prisma.PrismaClientKnownRequestError('Synthetic owned conflict', {
+      code: 'P2034', clientVersion: Prisma.prismaVersion.client,
+    });
+    observation.isInjected = error => error === owned;
+    const ownedTx = retryObservedTransaction({ generationJob: { update() { throw owned; } } }, observation, state);
+    let caught: unknown;
+    try { ownedTx.generationJob.update(); } catch (error) { caught = error; }
+    expect(caught).toBe(owned); expect(observation.firstUnexpectedError).toBeNull();
+    const synchronous = new TypeError('Synthetic synchronous original');
+    const syncTx = retryObservedTransaction({ generationJob: { update() { throw synchronous; } } }, observation, state);
+    try { syncTx.generationJob.update(); } catch (error) { caught = error; }
+    expect(caught).toBe(synchronous);
+    expect(observation.firstUnexpectedError).toMatchObject({ op: 'JOB_WRITE', at: 'DELEGATE_SYNC',
+      class: 'TYPE_ERROR', last: 'UNKNOWN', entered: true, returned: false });
+    const asynchronous = new Prisma.PrismaClientKnownRequestError('Synthetic distinct conflict', {
+      code: 'P2034', clientVersion: Prisma.prismaVersion.client, meta: { code: '40001' },
+    });
+    const asyncObservation = retryObservation('INITIAL_PUBLICATION_RETRY');
+    asyncObservation.isInjected = error => error === owned;
+    let consumptions = 0;
+    const lazy: PromiseLike<never> = { then(onfulfilled, onrejected) {
+      consumptions++; return Promise.reject<never>(asynchronous).then(onfulfilled, onrejected);
+    } };
+    const asyncTx = retryObservedTransaction({ user: { findFirst() { return lazy; } } }, asyncObservation, state);
+    await expect(asyncTx.user.findFirst()).rejects.toBe(asynchronous);
+    expect(consumptions).toBe(1);
+    expect(asyncObservation.firstUnexpectedError).toMatchObject({ op: 'USER_READ', at: 'DELEGATE_ASYNC',
+      class: 'PRISMA_KNOWN', code: 'P2034', sqlState: '40001', last: 'UNKNOWN' });
+    const first = observation.firstUnexpectedError;
+    retryCaught(asynchronous, observation, retryRejection('USER_READ', 'DELEGATE_ASYNC', state));
+    expect(observation.firstUnexpectedError).toBe(first);
+  });
+
+  test('reports settlement only after the full body returns and keeps callback failure unknown', async () => {
+    const original = new Error('Synthetic settlement original');
+    const state = retryTransactionState(); state.entered = true; state.last = 'JOB_WRITE'; state.usageSeen = true;
+    const unknown = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    await expect(retryTransactionCompletion(() => Promise.reject(original), unknown, state)).rejects.toBe(original);
+    expect(unknown.firstUnexpectedError).toMatchObject({ op: 'UNKNOWN', at: 'UNKNOWN', last: 'JOB_WRITE', returned: false });
+    const callback = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    retryCaught(original, callback, retryRejection('UNKNOWN', 'CALLBACK', state));
+    await expect(retryTransactionCompletion(() => Promise.reject(original), callback, state)).rejects.toBe(original);
+    expect(callback.firstUnexpectedError).toMatchObject({ op: 'UNKNOWN', at: 'CALLBACK', last: 'JOB_WRITE', returned: false });
+    const settlement = retryObservation('MAPPED_EXHAUSTION_SENTINEL'); state.returned = true;
+    await expect(retryTransactionCompletion(() => Promise.reject(original), settlement, state)).rejects.toBe(original);
+    expect(settlement.firstUnexpectedError).toMatchObject({ op: 'NONE_AT_SETTLEMENT', at: 'TX_SETTLEMENT',
+      last: 'JOB_WRITE', entered: true, returned: true, usageSeen: true, selected: false });
+    const value = {};
+    expect(await retryTransactionCompletion(() => value, settlement, state)).toBe(value);
+  });
+
+  test('poisons cap or serialization failure without replacing mapper results or exceptions', () => {
+    const capped = retryObservation('MAPPED_EXHAUSTION_SENTINEL'); capped.entries = 64;
+    retryIncrement('entries', capped); expect(capped.entries).toBe(65); expect(capped.poison).toBe(true);
+    expect(retryCount(capped.entries, 64, capped)).toBe('OVERFLOW');
+    const wide = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    emitRetryDiagnostic(wide, { syntheticPadding: 'x'.repeat(1025) }, record => diagnosticWithinBounds(encodeDiagnostic(record)));
+    expect(wide.poison).toBe(true);
+    const serialization = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    emitRetryDiagnostic(serialization, { toJSON() { throw new Error('Synthetic serialization fault'); } },
+      record => diagnosticWithinBounds(encodeDiagnostic(record)));
+    expect(serialization.poison).toBe(true);
+    const observation = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    const original = new Error('Synthetic mapper input'); const mapped = {}; const mapperFailure = new Error('Synthetic mapper exception');
+    let calls = 0;
+    observation.isInjected = error => error === original; observation.isLastInjected = error => error === original;
+    const result = retryContext.run(observation, () => retryMap(original, error => {
+      expect(error).toBe(original); calls++; return mapped;
+    }, mapperTap.observe, mapperTap.poison));
+    expect(result).toBe(mapped); expect(calls).toBe(1); expect(observation.firstUnexpectedError).toBeNull();
+    expect(observation.masked).toMatchObject({ seen: true, calls: 1, ownedInjectedError: true, lastInjectedError: true });
+    const observerFailure = new Error('Synthetic observer fault');
+    let caught: unknown;
+    try { retryMap(original, error => { expect(error).toBe(original); calls++; throw mapperFailure; },
+      () => { throw observerFailure; }, () => { observation.poison = true; }); }
+    catch (error) { caught = error; }
+    expect(caught).toBe(mapperFailure); expect(calls).toBe(2); expect(observation.poison).toBe(true);
+    const poisoned = retryObservation('MAPPED_EXHAUSTION_SENTINEL');
+    poisoned.isInjected = () => { throw observerFailure; };
+    retryCaught(original, poisoned); expect(poisoned.poison).toBe(true); expect(poisoned.firstUnexpectedError).toBeNull();
+  });
+});
+
 suite('recording consumer safety against disposable PostgreSQL', () => {
   const nonce = randomUUID();
   const tenantId = randomUUID(); const ownerId = randomUUID(); const staffId = randomUUID();
@@ -252,8 +451,8 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
 
   function requireUnblocked() { if (blocked) throw new Error(blocked); }
   function emitDiagnostic(record: object): boolean {
-    const encoded = JSON.stringify(record);
-    if (limitEmitted || recordCount >= 11 || Buffer.byteLength(encoded, 'utf8') > 1024) {
+    const encoded = encodeDiagnostic(record);
+    if (limitEmitted || recordCount >= 11 || !diagnosticWithinBounds(encoded)) {
       overflowCount++; blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
       if (!limitEmitted && recordCount < 12) {
         limitEmitted = true; recordCount++;
@@ -262,10 +461,6 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       return false;
     }
     recordCount++; console.info(encoded); return true;
-  }
-  function retryCount(value: number, max: number, observation: RetryObservation): number | 'OVERFLOW' {
-    if (Number.isSafeInteger(value) && value >= 0 && value <= max) return value;
-    observation.poison = true; return 'OVERFLOW';
   }
   function retryRecord(observation: RetryObservation, outcome: 'COMPLETE' | 'FAILED' | 'UNKNOWN') {
     const bounded = (value: number, max: number) => retryCount(value, max, observation);
@@ -291,7 +486,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       const record = retryRecord(observation, complete ? 'COMPLETE' : failed ? 'FAILED' : 'UNKNOWN');
       if (observation.poison) blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
       if (blocked) record.outcome = failed ? 'FAILED' : 'UNKNOWN';
-      if (!emitDiagnostic(record)) observation.poison = true;
+      emitRetryDiagnostic(observation, record, emitDiagnostic);
     } catch { observation.poison = true; blocked ??= 'DIAGNOSTIC_METADATA_LIMIT'; }
     if (observation.poison) blocked ??= 'DIAGNOSTIC_METADATA_LIMIT';
     if (pending.size) blocked ??= 'DIAGNOSTIC_NOT_QUIESCENT';
@@ -1033,10 +1228,13 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
       if (!context.getStore() || typeof callback !== 'function') return Reflect.apply(delegate, db, args);
       let wroteUsage = false; let wroteFinalSummary = false; let selected = false;
       let ownError: Prisma.PrismaClientKnownRequestError | undefined;
+      const retryState = retryTransactionState();
       const body = async (tx: Prisma.TransactionClient) => {
+        retryState.entered = true;
         retryMark('CALLBACK'); retryIncrement('entries');
         try {
-          const jobs = tx.generationJob;
+          const retryTx = retryObservedTransaction(tx, observation, retryState);
+          const jobs = retryTx.generationJob;
           const observedJobs = new Proxy(jobs, { get(target, key) {
             const method = Reflect.get(target, key, target);
             if (key !== 'update' || typeof method !== 'function') return typeof method === 'function' ? method.bind(target) : method;
@@ -1051,6 +1249,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
                 if (change.where.id === owned.jobId && result !== null && typeof result === 'object' && 'id' in result && 'tenantId' in result && result.id === owned.jobId && result.tenantId === tenantId) {
                   retryMark('OWNED_JOB_UPDATE');
                   wroteUsage ||= change.data.usage !== undefined;
+                  retryState.usageSeen = wroteUsage;
                   const value = change.data.result;
                   wroteFinalSummary ||= change.data.status === 'COMPLETE' && value !== null && typeof value === 'object'
                     && !Array.isArray(value) && 'summaryJobId' in value;
@@ -1059,7 +1258,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
               } catch (error) { retryCaught(error); throw error; }
             };
           } });
-          const observed = new Proxy(tx, { get(target, key) {
+          const observed = new Proxy(retryTx, { get(target, key) {
             if (key === 'generationJob') return observedJobs;
             const value = Reflect.get(target, key, target);
             return typeof value === 'function' ? value.bind(target) : value;
@@ -1069,6 +1268,7 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
           // Identify the selected boundary from completed real owned writes, not
           // a retry-sensitive transaction ordinal or a mirrored guard predicate.
           selected = options.boundary === 'FINAL' ? wroteFinalSummary : wroteUsage && !wroteFinalSummary;
+          retryState.selected = selected;
           if (selected) {
             faults.completedPublicationBodies++;
             if (faults.remaining > 0) {
@@ -1082,10 +1282,13 @@ suite('recording consumer safety against disposable PostgreSQL', () => {
               throw ownError; // The real transaction rolls all its writes back.
             }
           }
+          // The injection/oracle is part of this real transaction body. A
+          // callback return alone cannot be called successful settlement.
+          retryState.returned = true;
           return result;
-        } catch (error) { retryCaught(error); throw error; }
+        } catch (error) { retryCaught(error, observation, retryRejection('UNKNOWN', 'CALLBACK', retryState)); throw error; }
       };
-      return Promise.resolve(Reflect.apply(delegate, db, [body, ...args.slice(1)])).then(result => {
+      return retryTransactionCompletion(() => Reflect.apply(delegate, db, [body, ...args.slice(1)]), observation, retryState).then(result => {
         if (selected) faults.commits++;
         return result;
       }, async error => {
