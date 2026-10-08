@@ -2,9 +2,11 @@
 
 CONTINUOUS_MODE: ON
 Tasks completed this run: 40
-Execution status: WAITING_ON_DEPENDENCIES for the approved full clinical/hosted two-clinic story. TASK066 diagnostic source validation is complete; historical causal diagnosis, retained local PG/process restoration and permanent TASK057 release parking remain separate internal holds.
+Execution status: WORKING on TASK067, failed owner setup-message retry, an independently confirmed in-scope bug. Full clinical/hosted two-clinic verification remains dependent on the parked external inputs below. TASK066 source validation is complete; historical causal diagnosis, retained local PG/process restoration and permanent TASK057 release parking remain separate internal holds.
 
 ## Current resume, authoritative
+
+TASK067 is the next unblocked approved task. The actual setup POST replays a FAILED message job without another attempt while the UI retains its key. The Coder confirmed this production path and the missing recovery regression against baseline1b5bff53. [TASK-067](../tasks/TASK-067.md) scopes one production route and the existing setup integration tests. Coder implements, independent Auditor reviews, then the first ordinary changed-source CI validates against its new disposable service. No local imports/tests/builds/generation/SQL/provider calls are authorized; retained TASK066 effects and permanent TASK057 remain held. Count40 stays unchanged until source, actual checks and learning are accepted. This current queue supersedes older no-candidate statements only for this newly confirmed defect.
 
 The owner authorized work until genuine completion. DripWell's purpose is to help an IV spa present suitable approved memberships/programs during the new-client offer and record actual enrollment, decline and unknown outcomes. All twelve PRD features, all nine exact section8 criteria and production gates remain required. Neither pilot nor production is done. [Readiness matrix](../docs/AUDIT_PILOT_READINESS_GAPS.md), [TASK066 evidence](../docs/AUDIT_RECORDING_FIRST_OPERATION_DIAGNOSTIC.md) and [task](../tasks/TASK-066.md) are the current resume references.
 

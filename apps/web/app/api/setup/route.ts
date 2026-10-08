@@ -71,14 +71,48 @@ export const POST = apiRoute(
     const messageHash = createHash('sha256').update(input.message).digest('hex');
     const lockKey = `${actor.tenantId}:${createHash('sha256').update(key).digest('hex')}`;
     const prepared = await db.$transaction(async (tx) => {
-      // Serialize only creation. Model work happens outside this transaction.
+      // Serialize creation and failed-job claims. Model work stays outside this transaction.
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`;
       const existing = await tx.generationJob.findUnique({
         where: {
           tenantId_idempotencyKey: { tenantId: actor.tenantId, idempotencyKey: key },
         },
       });
-      if (existing) return { existing, conversation: null, job: null };
+      if (existing) {
+        const payload =
+          existing.result && typeof existing.result === 'object' && !Array.isArray(existing.result)
+            ? existing.result
+            : {};
+        const conversation =
+          typeof payload.conversationId === 'string'
+            ? await tx.setupConversation.findFirst({
+                where: {
+                  id: payload.conversationId,
+                  tenantId: actor.tenantId,
+                  userId: actor.userId,
+                  locationId,
+                },
+              })
+            : null;
+        if (
+          existing.kind !== 'SETUP_CHAT' ||
+          existing.userId !== actor.userId ||
+          !conversation ||
+          payload.messageHash !== messageHash ||
+          (input.conversationId && input.conversationId !== conversation.id)
+        )
+          throw new ApiError(
+            409,
+            'This request key belongs to another operation.',
+            'IDEMPOTENCY_CONFLICT',
+          );
+        if (existing.status !== 'FAILED') return { existing, conversation, job: null };
+        const job = await tx.generationJob.update({
+          where: { id: existing.id },
+          data: { status: 'RUNNING', errorCode: null, startedAt: new Date(), completedAt: null },
+        });
+        return { existing: null, conversation, job };
+      }
       const conversation = input.conversationId
         ? await tx.setupConversation.findFirst({
             where: {
@@ -114,32 +148,10 @@ export const POST = apiRoute(
         existing.result && typeof existing.result === 'object' && !Array.isArray(existing.result)
           ? existing.result
           : {};
-      const canonical =
-        typeof payload.conversationId === 'string'
-          ? await db.setupConversation.findFirst({
-              where: {
-                id: payload.conversationId,
-                tenantId: actor.tenantId,
-                userId: actor.userId,
-                locationId,
-              },
-            })
-          : null;
-      if (
-        existing.userId !== actor.userId ||
-        !canonical ||
-        payload.messageHash !== messageHash ||
-        (input.conversationId && input.conversationId !== canonical.id)
-      )
-        throw new ApiError(
-          409,
-          'This request key belongs to another operation.',
-          'IDEMPOTENCY_CONFLICT',
-        );
       if (existing.status === 'COMPLETE') return json({ ...payload, messageHash: undefined });
       return json(
         {
-          conversationId: canonical.id,
+          conversationId: prepared.conversation!.id,
           generationId: existing.id,
           jobId: existing.id,
           status: existing.status.toLowerCase(),

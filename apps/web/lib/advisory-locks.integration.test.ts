@@ -53,6 +53,7 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
   const adminToken = randomBytes(32).toString('base64url');
   const staffToken = randomBytes(32).toString('base64url');
   const ownedAdditionalTenants: string[] = [];
+  const ownedAdditionalSetupRateKeys: string[] = [];
   const origin = 'https://synthetic-advisory.example.test';
   const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 
@@ -149,7 +150,7 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
       await db.platformPolicy.deleteMany({ where: { id: 'global', updatedById: adminId } });
     }
     await db.rateLimitBucket.deleteMany({
-      where: { key: digest(`setup-chat:${tenantId}:${ownerId}`) },
+      where: { key: { in: [digest(`setup-chat:${tenantId}:${ownerId}`), ...ownedAdditionalSetupRateKeys] } },
     });
     await db.referral.deleteMany({ where: { referrerTenantId: tenantId, referredTenantId: { in: ownedAdditionalTenants } } });
     await db.tenant.delete({ where: { id: tenantId } });
@@ -169,6 +170,26 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
   const message = 'Set up a synthetic clinic catalog without proposing clinical protocols.';
   const setupRequest = (key: string, text = message) =>
     request('/api/setup', 'POST', { locationId, message: text, idempotencyKey: key });
+  async function failedSetup(key: string) {
+    const response = await setup(setupRequest(key), undefined);
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({ code: 'AI_PROCESSING_FAILED' });
+    const db = getDb();
+    const job = await db.generationJob.findUniqueOrThrow({
+      where: { tenantId_idempotencyKey: { tenantId, idempotencyKey: `setup-message:${key}` } },
+    });
+    expect(job).toMatchObject({ kind: 'SETUP_CHAT', status: 'FAILED', userId: ownerId,
+      errorCode: 'AI_PROCESSING_FAILED', completedAt: expect.any(Date) });
+    const payload = job.result;
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
+        typeof payload.conversationId !== 'string') throw new Error('Missing saved setup identity.');
+    const conversation = await db.setupConversation.findUniqueOrThrow({ where: { id: payload.conversationId } });
+    expect(payload).toEqual({ conversationId: conversation.id, messageHash: digest(message) });
+    expect(conversation).toMatchObject({ tenantId, locationId, userId: ownerId });
+    expect(conversation.messages).toHaveLength(1);
+    expect(conversation.messages).toMatchObject([{ id: `${job.id}:user`, role: 'user', text: message }]);
+    return { job, conversation };
+  }
   function policy(version: number): ReferralPolicy {
     return {
       version, creditCents: 2500, currency: 'USD', attributionDays: 30,
@@ -239,6 +260,149 @@ suite('setup and policy operations against isolated PostgreSQL', () => {
     expect(await db.generationJob.count({
       where: { tenantId, idempotencyKey: `setup-message:${key}` },
     })).toBe(1);
+    expect(boundary.createSession).toHaveBeenCalledTimes(1);
+    expect(boundary.sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  test.each(['session creation', 'message send'])(
+    'a failed setup %s can retry the unchanged message without duplicating its identity',
+    async (failureStage) => {
+      if (failureStage === 'session creation')
+        boundary.createSession.mockRejectedValueOnce(new Error('Synthetic temporary session failure.'));
+      else boundary.sendMessage.mockRejectedValueOnce(new Error('Synthetic temporary send failure.'));
+      const key = randomUUID();
+      const { job: failed, conversation } = await failedSetup(key);
+      const db = getDb();
+      const configurations = await db.clinicConfigurationVersion.findMany({ where: { tenantId } });
+      const response = await setup(setupRequest(key), undefined);
+      expect(response.status).toBe(200);
+      const output = await response.json();
+      expect(output).toMatchObject({ conversationId: conversation.id, generationId: failed.id,
+        activeConfigurationChanged: false });
+      const complete = await db.generationJob.findUniqueOrThrow({ where: { id: failed.id } });
+      expect(complete).toMatchObject({ status: 'COMPLETE', errorCode: null, completedAt: expect.any(Date),
+        idempotencyKey: failed.idempotencyKey, userId: failed.userId, tenantId: failed.tenantId });
+      expect(complete.createdAt).toEqual(failed.createdAt);
+      const saved = await db.setupConversation.findUniqueOrThrow({ where: { id: conversation.id } });
+      expect(saved.messages).toHaveLength(2);
+      expect(saved.messages).toMatchObject([{ id: `${failed.id}:user`, role: 'user', text: message },
+        { id: `${failed.id}:assistant`, role: 'assistant' }]);
+      if (conversation.eveSessionId) expect(saved.eveSessionId).toBe(conversation.eveSessionId);
+      expect(await db.generationJob.count({ where: { tenantId, idempotencyKey: failed.idempotencyKey } })).toBe(1);
+      expect(await db.clinicConfigurationVersion.findMany({ where: { tenantId } })).toEqual(configurations);
+      const replay = await setup(setupRequest(key), undefined);
+      expect(replay.status).toBe(200);
+      expect(await replay.json()).toEqual(output);
+      expect(boundary.createSession).toHaveBeenCalledTimes(failureStage === 'session creation' ? 2 : 1);
+      expect(boundary.sendMessage).toHaveBeenCalledTimes(failureStage === 'session creation' ? 1 : 2);
+    },
+  );
+
+  test('overlapping failed setup retries claim one running job and perform one additional send', async () => {
+    boundary.sendMessage.mockRejectedValueOnce(new Error('Synthetic temporary send failure.'));
+    const key = randomUUID();
+    const { job: failed, conversation } = await failedSetup(key);
+    const db = getDb();
+    const conversationCount = await db.setupConversation.count({ where: { tenantId } });
+    let started!: () => void;
+    let finish!: () => void;
+    const modelStarted = new Promise<void>((resolve) => { started = resolve; });
+    const modelFinished = new Promise<void>((resolve) => { finish = resolve; });
+    const complete = boundary.sendMessage.getMockImplementation()!;
+    boundary.sendMessage.mockImplementationOnce(async (...args) => {
+      started();
+      await modelFinished;
+      return complete(...args);
+    });
+    const retry = setup(setupRequest(key), undefined);
+    try {
+      expect(await Promise.race([
+        modelStarted.then(() => 'model-running'), retry.then(() => 'finished-early'),
+      ])).toBe('model-running');
+      expect(await db.generationJob.findUniqueOrThrow({ where: { id: failed.id } }))
+        .toMatchObject({ status: 'RUNNING', errorCode: null, completedAt: null, result: failed.result });
+      const replay = await setup(setupRequest(key), undefined);
+      expect(replay.status).toBe(202);
+      expect(await replay.json()).toMatchObject({ status: 'running', errorCode: null,
+        conversationId: conversation.id, generationId: failed.id, jobId: failed.id });
+      expect(boundary.sendMessage).toHaveBeenCalledTimes(2);
+      finish();
+      const response = await retry;
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({ conversationId: conversation.id, generationId: failed.id });
+    } finally {
+      finish();
+      await retry;
+    }
+    expect(await db.setupConversation.count({ where: { tenantId } })).toBe(conversationCount);
+    expect(await db.generationJob.count({ where: { tenantId, idempotencyKey: failed.idempotencyKey } })).toBe(1);
+    expect((await db.setupConversation.findUniqueOrThrow({ where: { id: conversation.id } })).messages)
+      .toMatchObject([{ id: `${failed.id}:user`, role: 'user' }, { id: `${failed.id}:assistant`, role: 'assistant' }]);
+    expect(boundary.createSession).toHaveBeenCalledTimes(1);
+    expect(boundary.sendMessage).toHaveBeenCalledTimes(2);
+  });
+
+  test('failed setup claims reject conflicting messages, conversations, locations, owners, tenants and job kinds', async () => {
+    boundary.sendMessage.mockRejectedValueOnce(new Error('Synthetic temporary send failure.'));
+    const key = randomUUID();
+    const { job: failed, conversation } = await failedSetup(key);
+    const db = getDb();
+    const assertUnchanged = async () => {
+      expect(await db.generationJob.findUniqueOrThrow({ where: { id: failed.id } })).toEqual(failed);
+      expect(await db.setupConversation.findUniqueOrThrow({ where: { id: conversation.id } })).toEqual(conversation);
+      expect(boundary.sendMessage).toHaveBeenCalledTimes(1);
+    };
+    const deny = async (body: unknown, status = 409) => {
+      const response = await setup(request('/api/setup', 'POST', body), undefined);
+      expect(response.status).toBe(status);
+      if (status === 409) expect(await response.json()).toMatchObject({ code: 'IDEMPOTENCY_CONFLICT' });
+      await assertUnchanged();
+    };
+    const body = { locationId, message, idempotencyKey: key };
+    await deny({ ...body, message: 'A different synthetic setup message.' });
+    const otherLocation = await db.location.create({ data: { tenantId, name: 'Synthetic second setup location' } });
+    await deny({ ...body, locationId: otherLocation.id });
+    const otherConversation = await db.setupConversation.create({ data: { tenantId, locationId, userId: ownerId } });
+    await deny({ ...body, conversationId: otherConversation.id });
+    const otherOwner = await db.user.create({ data: { tenantId, role: 'SUPER_USER',
+      email: `synthetic-retry-owner-${randomUUID()}@example.test`, passwordHash: 'unusable-synthetic-password',
+      firstName: 'Synthetic', lastName: 'Other owner' } });
+    const otherToken = randomBytes(32).toString('base64url');
+    await db.authSession.create({ data: { userId: otherOwner.id, tokenHash: hashToken(otherToken),
+      expiresAt: new Date(Date.now() + 600000) } });
+    ownedAdditionalSetupRateKeys.push(digest(`setup-chat:${tenantId}:${otherOwner.id}`));
+    const foreign = await db.tenant.create({ data: { name: 'Synthetic retry control clinic',
+      slug: `synthetic-retry-${randomUUID()}`, state: 'TEST', medicalDirector: 'Synthetic fixture' } });
+    ownedAdditionalTenants.push(foreign.id);
+    const foreignLocation = await db.location.create({ data: { tenantId: foreign.id, name: 'Synthetic foreign location' } });
+    const foreignOwner = await db.user.create({ data: { tenantId: foreign.id, role: 'SUPER_USER',
+      email: `synthetic-retry-foreign-${randomUUID()}@example.test`, passwordHash: 'unusable-synthetic-password',
+      firstName: 'Synthetic', lastName: 'Foreign owner' } });
+    const foreignToken = randomBytes(32).toString('base64url');
+    await db.authSession.create({ data: { userId: foreignOwner.id, tokenHash: hashToken(foreignToken),
+      expiresAt: new Date(Date.now() + 600000) } });
+    ownedAdditionalSetupRateKeys.push(digest(`setup-chat:${foreign.id}:${foreignOwner.id}`));
+    try {
+      boundary.cookieValues.set(SESSION_COOKIE, otherToken);
+      await deny(body);
+      boundary.cookieValues.set(SESSION_COOKIE, foreignToken);
+      await deny(body, 404);
+      await deny({ ...body, locationId: foreignLocation.id, conversationId: conversation.id }, 404);
+      expect(await db.generationJob.count({ where: { tenantId: foreign.id } })).toBe(0);
+      expect(await db.setupConversation.count({ where: { tenantId: foreign.id } })).toBe(0);
+    } finally {
+      boundary.cookieValues.set(SESSION_COOKIE, ownerToken);
+    }
+    const wrongKind = await db.generationJob.update({ where: { id: failed.id }, data: { kind: 'SUMMARY' } });
+    try {
+      const response = await setup(setupRequest(key), undefined);
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({ code: 'IDEMPOTENCY_CONFLICT' });
+      expect(await db.generationJob.findUniqueOrThrow({ where: { id: failed.id } })).toEqual(wrongKind);
+      expect(await db.setupConversation.findUniqueOrThrow({ where: { id: conversation.id } })).toEqual(conversation);
+    } finally {
+      await db.generationJob.update({ where: { id: failed.id }, data: { kind: failed.kind } });
+    }
     expect(boundary.createSession).toHaveBeenCalledTimes(1);
     expect(boundary.sendMessage).toHaveBeenCalledTimes(1);
   });
