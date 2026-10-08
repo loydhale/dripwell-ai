@@ -1,6 +1,10 @@
 # SESSION_LOG.md
 
-## Current session,2026-10-07
+## Current session,2026-10-08
+
+2026-10-08 TASK066 actual publication and first fresh changed-source CI: reviewed source38353a962a16e29ade2f5439b3ae8346408761d0/parent740b9da1/tree9581863a published to the existing branch/open PR2 after exact documentary1818712a/later550a/adoptionbbf729 and Root Git GO969c. First ordinary CI37723246077/attempt1/job113135489455 checked merge2518f3da with the same tree and passed all22steps/builds/types,247Vitest/24files, recording19/19 (14751ms/exhaustion2076ms) and separate clinicNode15/15/zero skips. Current12body/12rollback/12ownedinjection/zero-commit/rem0 frame preserves all provider/mapper assertions, firstUnexpectedError:null. Actual publication/local-Git/CI PASS e80924a8 and distinct later NO_NEW_LEARNING7f5fdde3 were fully read/genuinely adopted9a77bbf3. Auditor authored only the exact actual-result CHANGELOG line; no corpus/count mutation.
+
+Local Git metadata now matches published383; ten source/documentary worktree bytes were unchanged, raw12037/166a remained private/untracked with one anchored local exclude append. This proves no local process/SQL cleanup. One reported exec-server transport rejection preceded successful bounded pwd b5f4bb and later0ec33d; no continuing runtime blocker, restart or owner action. Historical376 SQLcause, localfc116/13f/b127 restoration and permanent TASK057 remain held. Diagnostic source validation is complete; whole TASK066 goal/pilot/production are not. Count40/Seen7 held. Short actual-result documentary closure only, no source/check/CI/PG replay; next queue WAITING_ON_DEPENDENCIES for changed approved full-story prerequisites with separate internal parks. Until-done/hourly continuation stays enabled, no new or repeated question.
 
 2026-10-07 OWNER_RECORDING_RECOVERY_PROPOSAL: no new learning. Current source/retained evidence supports a prospective one-file diagnostic admission only; no new application execution, causal repair or automatic budget reset.
 

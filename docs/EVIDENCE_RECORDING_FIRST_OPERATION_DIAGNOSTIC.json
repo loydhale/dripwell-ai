@@ -1,7 +1,7 @@
 {
   "schema": "DRIPWELL_TASK066_RECORDING_DIAGNOSTIC_EVIDENCE_V1",
   "dateUtc": "2026-10-08",
-  "disposition": "REVIEWED_DIAGNOSTIC_SOURCE; FRESH_CHANGED_SOURCE_CI_PENDING; PILOT_AND_PRODUCTION_INCOMPLETE",
+  "disposition": "DIAGNOSTIC_SOURCE_VALIDATION_COMPONENT_COMPLETE; HISTORICAL_CAUSAL_GOAL_LOCAL_RESTORATION_PILOT_AND_PRODUCTION_INCOMPLETE; FULL_STORY_WAITING_ON_DEPENDENCIES",
   "repository": "loydhale/dripwell-ai",
   "branch": "feat/dripwell-consultation-v2",
   "PR": 2,
@@ -14,7 +14,8 @@
     "newObserverControls": 4,
     "maximumClosedDiagnosticUtf8Bytes": 1019,
     "allowedDiagnosticUtf8Bytes": 1024,
-    "productionSourceChanged": false
+    "productionSourceChanged": false,
+    "publishedCommit": "38353a962a16e29ade2f5439b3ae8346408761d0"
   },
   "supplementalSavedNativeReport": {
     "sha256": "166a1b3c031f11237457ab2a67da38585c85a548f578a591898f915f44b8b682",
@@ -233,7 +234,7 @@
     "workflowSha256": "ec4b680617aa6a60b52d0ae9bc0d0c07de4ac7ab72a43275a36b984a558a87e0",
     "freshSchemaGenerationBeforeBuildsTypesTests": true,
     "localStaleCheckOrPGRetry": false,
-    "status": "PROSPECTIVE_BOUNDED_ADMISSIBILITY_PASS; FINAL_DOCUMENTARY_LEARNING_LEASE_ROOT_GIT_GO_HELD; ACTUAL_CI_PENDING",
+    "status": "CONSUMED_AND_COMPLETE_FIRST_ORDINARY_CHANGED_SOURCE_CI; NO_RETRY_OR_NEW_EFFECT_GRANTED",
     "notGrantedByEvidence": true,
     "prospectiveIndependentReviewSha256": "d1af6cf3ef53fbbc3868494c5dec6ff4af6deefbf1a1811c46c60d8b361b1219",
     "distinctLaterLearningSha256": "c1317e743c235c30652385566244507306507fb3e7d27bf5154e232572d1dc9c",
@@ -241,14 +242,23 @@
     "exactTotalPublicationPaths": 10,
     "publicationSourcePaths": 1,
     "publicationDocumentaryPaths": 9,
-    "freshRunFullRecordingCasesIfReached": 19
+    "freshRunFullRecordingCasesIfReached": 19,
+    "actualRunId": 37723246077,
+    "actualSourceCommit": "38353a962a16e29ade2f5439b3ae8346408761d0",
+    "actualFullRecordingCasesPassed": 19
   },
   "learning": {
     "distinctAfterVerdictPhases": true,
     "sameTaskL035FragmentsAppliedOnce": true,
     "completedTasks": 40,
     "L035Seen": 7,
-    "newLessonIdentities": 0
+    "newLessonIdentities": 0,
+    "actualIndependentReviewSha256": "e80924a82ccc6f83774d80e0786cd5929b96f750f727d9807ce0310db3cf02c2",
+    "distinctActualAfterVerdictLearningSha256": "7f5fdde31ef5d1b9ee9d253ead0ab3c3325f4e9e429bbfb6a5cc98839b56bca0",
+    "genuineRootActualAdoptionSha256": "9a77bbf37ce6a85a5d82478bf5787ea2277582cc5ab1729c966e8a47db70f632",
+    "actualLearningOutcome": "NO_NEW_LEARNING",
+    "actualCorpusChange": false,
+    "additionalL035Fragment": false
   },
   "safeguards": {
     "ALLOW_REAL_CLIENT_DATA": false,
@@ -258,5 +268,175 @@
     "productionRollout": "HELD",
     "TASK057": "PERMANENT_PARK_NO_FOURTH_RESET_REPAIR_REIMPLEMENTATION_OR_SUBSTITUTE",
     "noPurchasesProviderSwapsPersonalPoolingMessagesAdminBootstrap": true
+  },
+  "actualPublication": {
+    "commit": "38353a962a16e29ade2f5439b3ae8346408761d0",
+    "parent": "740b9da1b4f4d243e2d8fe2b437a78955b2bd3e6",
+    "tree": "9581863a059b3ed51c39a7c7f3f0b2eace04904e",
+    "exactTotalPaths": 10,
+    "sourcePaths": 1,
+    "documentaryPaths": 9,
+    "PRStillOpenUnmerged": true,
+    "nonforceExpectedOldRefUpdates": 1,
+    "receiptSha256": "28cd0415a642da982c576155f65538da211e10a4000f063bde191eaa62923971",
+    "finalIndependentDocumentaryReviewSha256": "1818712a73dc7dc34063a0d5cc765cdf2ed0721e3fcae98b0a80e5ebbfc771f0",
+    "rootGitGoSha256": "969c047cb8d45bca2bf446c9f56fab037cb8e7922363edc2f3cd73353842c0c7",
+    "actualIndependentReviewSha256": "e80924a82ccc6f83774d80e0786cd5929b96f750f727d9807ce0310db3cf02c2",
+    "localMetadataReconciliationSha256": "7b77fa08386df75287a3870a7009c495b7018da3e62d6a9da713a331c62dd602",
+    "localHEADAndOrigin": "38353a962a16e29ade2f5439b3ae8346408761d0",
+    "localTree": "9581863a059b3ed51c39a7c7f3f0b2eace04904e",
+    "localStatusCleanAtReconciliation": true,
+    "rawLocalReportRetainedUntracked": true,
+    "soleLocalExcludeAppend": "/apps/web/.vitest/",
+    "processDatabaseCleanupPerformed": false,
+    "deployedSourceProved": false
+  },
+  "actualFirstFreshCI": {
+    "status": "PASS_ACTUAL_FIRST_NORMAL_CHANGED_SOURCE_CI",
+    "run": {
+      "attempt": 1,
+      "conclusion": "success",
+      "createdAt": "2026-10-08T03:32:55Z",
+      "event": "pull_request",
+      "headSha": "38353a962a16e29ade2f5439b3ae8346408761d0",
+      "id": 37723246077,
+      "path": ".github/workflows/v2-checks.yml",
+      "runNumber": 46,
+      "startedAt": "2026-10-08T03:32:55Z",
+      "status": "completed",
+      "updatedAt": "2026-10-08T03:35:31Z",
+      "url": "https://github.com/loydhale/dripwell-ai/actions/runs/37723246077"
+    },
+    "jobId": 113135489455,
+    "jobConclusion": "success",
+    "checkedOutMerge": "2518f3dac79009aa885972c9d3b0bbe7bb483bc2",
+    "mergeParents": [
+      "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+      "38353a962a16e29ade2f5439b3ae8346408761d0"
+    ],
+    "tree": "9581863a059b3ed51c39a7c7f3f0b2eace04904e",
+    "results": {
+      "VitestFailed": 0,
+      "VitestFilesPassed": 24,
+      "VitestPassed": 247,
+      "exhaustionCaseMilliseconds": 2076,
+      "recordingCasesPassed": 19,
+      "recordingFileMilliseconds": 14751,
+      "separateClinicNodeFailed": 0,
+      "separateClinicNodePassed": 15,
+      "separateClinicNodeSkipped": 0,
+      "stepsFailed": 0,
+      "stepsSkipped": 0,
+      "stepsSucceeded": 22
+    },
+    "closedRetryFrames": [
+      {
+        "boundary": "RETRY_ORACLES",
+        "callbacks": {
+          "entered": 5,
+          "returned": 5
+        },
+        "completedKinds": 3,
+        "faults": {
+          "commits": 1,
+          "completedPublicationBodies": 2,
+          "injectedErrors": 1,
+          "remaining": 0,
+          "rollbacks": 1
+        },
+        "firstUnexpectedError": null,
+        "kind": "CATALOG_EXTRACTION",
+        "masked": {
+          "calls": 0,
+          "class": "UNKNOWN",
+          "code": "UNKNOWN",
+          "lastInjectedError": null,
+          "ownedInjectedError": null,
+          "seen": false
+        },
+        "outcome": "COMPLETE",
+        "pendingCount": 0,
+        "providerCalls": {
+          "catalog": 1,
+          "get": 1,
+          "start": 0,
+          "summary": 0,
+          "transcribe": 0
+        },
+        "scope": "INITIAL_PUBLICATION_RETRY"
+      },
+      {
+        "boundary": "OUTCOME_ASSERTION",
+        "callbacks": {
+          "entered": 15,
+          "returned": 15
+        },
+        "completedKinds": 1,
+        "faults": {
+          "commits": 0,
+          "completedPublicationBodies": 12,
+          "injectedErrors": 12,
+          "remaining": 0,
+          "rollbacks": 12
+        },
+        "firstUnexpectedError": null,
+        "kind": "TRANSCRIPTION",
+        "masked": {
+          "calls": 1,
+          "class": "PRISMA_KNOWN",
+          "code": "P2034",
+          "lastInjectedError": true,
+          "ownedInjectedError": true,
+          "seen": true
+        },
+        "outcome": "COMPLETE",
+        "pendingCount": 0,
+        "providerCalls": {
+          "catalog": 0,
+          "get": 1,
+          "start": 0,
+          "summary": 0,
+          "transcribe": 1
+        },
+        "scope": "MAPPED_EXHAUSTION_SENTINEL"
+      }
+    ],
+    "exactLogBytes": 207119,
+    "exactLogSha256": "12cd00aa06d5a4caae2280ab164008b99c5e883f48ab91ceebb09cb3ff3e9be6",
+    "metadataSha256": "7bca69ae1908dfc16a6d090faf34f372628035eba7b8f9a373f0abc22443582c",
+    "currentPrismaGenerated": true,
+    "freshIsolatedSyntheticMigrations": 14,
+    "retainedLocalMigrationsReapplied": 0,
+    "unchangedWorkflow": true,
+    "unfilteredVitestReached": true,
+    "CI_ALLOW_REAL_CLIENT_DATA": false,
+    "qualification": "All247/247cases24/24files and19/19recording on this exact CI merge tree are actual source/test validation. Default native reporter omits some fast individual names;19-total,unfiltered command and wholefile pass validate the reviewed19-case collection, not a new saved19-name JSON or independent in-process module hash. Providers remain synthetic test interception, no live recording/transcription/model/clinical/device/sandbox-paid claim.",
+    "historicalUnexpectedSQLCauseIdentified": false,
+    "productionRepairProved": false,
+    "retainedLocalRestorationProved": false,
+    "liveProvidersOrTwoClinicPilotProved": false,
+    "checksRerun": false
+  },
+  "dependencyResume": {
+    "executionStatus": "WAITING_ON_DEPENDENCIES_FULL_STORY_WITH_SEPARATE_INTERNAL_HOLDS",
+    "sourceDiagnosticValidation": "COMPLETE",
+    "wholeTASK066IdentificationGoal": "NOT_COMPLETE",
+    "externalPrerequisites": [
+      "Selected clinically approved catalogs/prices/terms/protocols and ordinary owner/clinical reviewer authority",
+      "Eligible usable selected capture/transcription/model access, genuine consent and representative device evidence",
+      "Approved current artifact and existing owned Resend domain/sender/key/authorized-recipient handoff",
+      "Selected tenantless MFA administrator, published versioned referral policy/attribution, current protected callback and authentic selected sandbox payment/invoice/credit/replay correlation",
+      "Remaining ordinary hosted roles/retention/security/cadence and production gates"
+    ],
+    "separateInternalHolds": [
+      "Historical original unexpected SQL cause remains UNKNOWN; no current failing check is established by greenCI",
+      "Retained local fc116/13f/b127 process/SQL/baseline restoration remains unproved; no replay/probe/SQL/disposal admitted",
+      "Permanent TASK057 release park remains; no fourth/reset/repair/reimplementation/substitute"
+    ],
+    "newNecessarySourceCandidateEstablished": false,
+    "resumeOnlyChangedApprovedEvidenceAfterWorkerAndAuthorityReconciliation": true,
+    "repeatPendingQuestionsOrBusyLoop": false,
+    "allTwelveFeaturesAndNinePRD8CriteriaUnchanged": true,
+    "untilDoneAuthorizationAndHourlyContinuationRetained": true
   }
 }
