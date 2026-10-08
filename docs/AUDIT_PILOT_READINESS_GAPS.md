@@ -2,6 +2,12 @@
 
 DripWell helps an IV spa present suitable approved membership/program offers and record actual enrollment, decline and unknown outcomes during the new-client workflow. Source features and synthetic evidence are implemented, but the approved pilot and production release are incomplete.
 
+## Current independent setup work, October8,2026
+
+[TASK067](../tasks/TASK-067.md) fixes the previously retained FAILED setup-message replay: an authorized owner can retry the same durable operation after a transient create/send failure, with overlapping retries deduplicated. Independent source and actual-result review accepted b4aef87a/first ordinary CI37791656066, all22 stages/builds/types and251/251 Vitest tests across24files, including four new regressions within the10-case setup module. Distinct L-043 learning was adopted; scoped count41 applies once. These intercepted provider leaves do not prove actual model output, clinical activation or a full pilot criterion.
+
+[TASK068](../tasks/TASK-068.md) is next: the UI keeps/reloads a terminal bound eve session with no fresh-conversation action. Installed client documentation establishes that it cannot revive. This independently confirmed F01 gap is code work, separate from external account/clinical inputs and old internal parks. The earlier bounded no-candidate assessment below remains historical, not proof that independent work is absent.
+
 ## Accepted assessment and evidence boundary
 
 The same original Coder assessed retained source/logs and earlier accepted component coverage at710ffd788bfdfa058a7bfd624efd8da97455028f/treece45d7e78622ecd2d34550d6ed0a598d66334d60. Independent Auditor c3501d0cf978a0d51843c3f640f15c7eddd17d946b230183f9c5a5dabe415a51 accepted the read-only factual disposition. Distinct after-verdict learning ad8f9906c5a916eccd1a9fb14e276e0ea8df7a9941487ef128a0611f43388cf0 is NO_NEW_LEARNING; Root83854fd3 genuinely adopted both. No new source, application execution, SQL, fixture, provider or deployed verification was performed. Count40/L035Seen7 are unchanged.
@@ -48,4 +54,4 @@ Keep protected previews/requested runtime-build ALLOW_REAL_CLIENT_DATA=false, ef
 
 The saved Owner login question establishes no verified application email/password or selected platform administrator. Temporary fictional accounts were compensated; no reset email/account creation occurred.
 
-[STATE](../memory/STATE.md) records WAITING_ON_DEPENDENCIES for the full story alongside distinct internal parks. Hourly continuation/until-done authorization remain; wake-ups are not an uninterrupted worker. Notify only for changed blockers or a genuinely needed action. If a genuinely changed independent approved gap appears, resume its exact reviewed scope without resetting prior allocations. No new full pilot criterion was completed by this assessment.
+[STATE](../memory/STATE.md) records active TASK068 setup recovery work while full-story external inputs and distinct internal parks remain held. Hourly continuation/until-done authorization remain; wake-ups are not an uninterrupted worker. Notify only for changed blockers or a genuinely needed action. If a genuinely changed independent approved gap appears, resume its exact reviewed scope without resetting prior allocations. No new full pilot criterion was completed by this assessment.

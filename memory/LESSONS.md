@@ -419,3 +419,12 @@ The unit request() helper and the owned-PG copy each lacked its function-closing
 
 Evidence: a627cfaf initial unit failure;f2747a8a actual unit17/PG transform;9cf0d62f and8e5a9cb2 one-brace plans.
 Seen N times: 1
+
+## L-043: Failed idempotent operations need an explicit retry transition
+Date: 2026-10-08
+Task: TASK-067
+What went wrong: Owner setup kept its message and idempotency key after HTTP503, but the existing-job branch replayed FAILED forever. The next submission performed no new send even when a transient failure had cleared.
+Root cause: Durable identity reuse covered successful and running operations without a failed-operation claim. Existing replay tests omitted failure followed by unchanged resubmission.
+Avoid by: Trace the UI's retained key through every job state. Authorize the exact owner, tenant, location, conversation, message and operation kind before claiming a failed job under the same lock used for creation. Clear terminal metadata, retain durable IDs and message dedupe, and keep provider work outside the transaction. Test failed create/send recovery, overlapping retry, completed replay and conflicting identities against the actual handler/database. A failed application job does not establish that its bound eve session remains usable; terminal-session recovery requires separate coverage.
+Evidence: Independently reviewed source b4aef87a and first ordinary CI37791656066 passed the four new regressions within the10-case setup handler module and251 Vitest tests. Intercepted eve leaves do not prove live provider or terminal-session recovery.
+Seen N times: 1

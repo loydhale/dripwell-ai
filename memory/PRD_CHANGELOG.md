@@ -1,5 +1,14 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-08 — v2.0 — MINOR, TASK067 SETUP RETRY COMPONENT
+
+Section changed: Section8 evidence checkpoint only; all twelve feature requirements and nine numbered criteria are unchanged.
+Summary: Records the failed-message retry repair and qualified first fresh-CI result; terminal-session and full clinical/provider/browser verification remain required.
+Task trigger: TASK067, continuous-mode Tier2 known F01 bug and direct Owner request to code until done.
+CTO: Existing authorized scope; source PASS was read/adopted before same-branch publication. Independent actual-result PASS and the subsequent distinct L-043 learning were fully read/adopted; minor checkpoint co-signed and documentary closure reviewed for publication.
+Auditor co-sign: /root/setup_retry_auditor, 2026-10-08, PASS. Actual CI and evidence-only checkpoint verified; all twelve features and nine numbered criteria remain unchanged.
+Owner authorization: Standing until-done authorization. No new feature, provider, commercial or real-data authority.
+
 ## 2026-10-07 — v2.0 — MINOR, TASK065 READINESS DISPOSITION
 
 Section changed: Section8 evidence checkpoint only; twelve feature requirements and all nine numbered criteria unchanged.
