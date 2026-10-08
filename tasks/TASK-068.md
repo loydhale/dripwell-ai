@@ -2,7 +2,7 @@
 
 TASK_ID: TASK-068
 PARENT_REQUEST: Owner: "You coding this. We need to be done." Standing until-done authorization, same review branch/PR #2.
-STATUS: IN_PROGRESS from reviewed closing HEAD ddb2933a8acc700ee338ae85c0387b1b1a308909 after TASK067 closure.
+STATUS: DONE (scoped owner-setup recovery; pilot and production remain incomplete).
 
 ## Goal and approved scope
 
@@ -54,3 +54,13 @@ No TASK068 application, test, package or lockfile change may begin before TASK06
 TASK067 reviewed documentary closure is published at ddb2933a8acc700ee338ae85c0387b1b1a308909/tree84c6bbae645fe67c930524ba290ec052c2976e69, local/origin/remote/open PR2 confirmed equal and Git clean. Its source is unchanged from accepted b4aef87a/first CI37791656066. CTO adopted independent final PASS and L-043 learning; count41 applied once.
 
 Coder selected exact dev jsdom27.4.0 using actual registry engines ^20.19.0 || ^22.12.0 || >=24.0.0 and its packaged README. Version30.1.1 requires Node24.15+, so the compatible selected pin avoids relying on an unverified minor runtime. Existing actual pnpm10.32.1 entry /home/agent/.npm/_npx/9ca9742ac2b5f389/node_modules/pnpm/bin/pnpm.cjs, SHA256b276da51dc8ca5b0d3ee3371695b50fc8b3244b281b091c63a3f082a88dadeb9, is read-only confirmed; bare fallback is not selected. Sole admitted dependency operation uses direct installed Node, NODE_DISABLE_COMPILE_CACHE=1, --lockfile-only and --ignore-scripts, with inherited proxy/CA. No local application import/check or retained target/client effects are authorized.
+
+## Accepted result and scoped closure
+
+Independent source/documentary PASS attempt1 admitted five frozen source paths and three documents. Reviewed publication6f0ac9d17723d994160f81c16ce2d54144385e0f, parentddb2933a, tree94bd08645f665594b2c85b8b0dc38156dd08684f, is on the same review branch/open PR2; ordinary Git fetch and guarded HEAD/index reconciliation left local/origin/worktree clean and equal.
+
+First ordinary [CI37797971073](https://github.com/loydhale/dripwell-ai/actions/runs/37797971073), attempt1/run48/job113382291194, tested merge80c72a332c85cef7e04920d6fe7b37d6995487af with that exact tree. All22 steps, both builds and typechecks passed. Vitest256/256 across25files includes actual Setup DOM4/4(file358ms), actual handler/PG11/11(file1271ms) and unchanged recording19/19(file15053ms); these are subsets, not additive. Separate Node domain23/auth8/clinic15/transcript11 each fail0/skipped0. Fresh CI installed the reviewed lockfile, generated current Prisma and applied14 migrations once to its new synthetic service. Individual new-case timings and a separate row/cleanup census were not retained.
+
+CTO fully read and genuinely adopted independent actual-result PASS and the distinct later NO_NEW_LEARNING assessment. No lesson/pattern/gotcha or Seen change: L043Seen1/L042Seen1/L035Seen7 retained. Scoped count41to42 applies once through this closing checkpoint; final documentary/PRD co-sign precedes same-branch documentation publication. [The audit](../docs/AUDIT_SETUP_CONVERSATION_RESTART.md) preserves frozen hashes, exact private evidence and the final verdict.
+
+The supported path is an explicit new conversation, not revival of a terminal ID. jsdom/fetch/eve interception and successful real-PG assertions establish synthetic recovery and old-history preservation, not actual browser/HTTP/provider/clinical activation, eligible hosted inference or a full pilot criterion. All nine unchanged PRD8 criteria and production gates, protected previews/requested false guard, current deployed-source/effective-guard unknowns, default-disabled maintenance, external prerequisites and separate retained/permanent internal holds remain. No new source/check/dependency/SQL/provider/deployment operation follows this documentation-only closure.

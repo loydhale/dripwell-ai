@@ -1,5 +1,14 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-08 — v2.0 — MINOR, TASK068 FRESH SETUP CONVERSATION
+
+Section changed: Section8 evidence checkpoint only; all twelve feature requirements and nine numbered criteria are unchanged.
+Summary: Records explicit fresh-conversation recovery, retained typed input/saved history and stale-load fencing, with qualified first fresh-CI256/25files/DOM4/handler11 results. Live provider/browser/clinical and full pilot/production evidence remain required.
+Task trigger: TASK068, continuous-mode Tier2 known F01 bug and standing Owner request to code until done.
+CTO: Fully read and genuinely adopted independent source/documentary PASS, actual-result PASS and distinct later NO_NEW_LEARNING; scoped DONE/count41to42 once and precise dependency resume.
+Auditor co-sign: /root/setup_retry_auditor, 2026-10-08, PASS. Evidence-only MINOR checkpoint, actual CI and scoped closure verified; all twelve features and nine numbered criteria remain unchanged. See the final documentary verdict in [TASK068 audit](../docs/AUDIT_SETUP_CONVERSATION_RESTART.md).
+Owner authorization: Standing until-done authorization. No new feature, provider, commercial, clinical or real-data authority.
+
 ## 2026-10-08 — v2.0 — MINOR, TASK067 SETUP RETRY COMPONENT
 
 Section changed: Section8 evidence checkpoint only; all twelve feature requirements and nine numbered criteria are unchanged.
