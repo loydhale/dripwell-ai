@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:,">
+  <title>DripWell · Consultation GUI preview</title>
+  <style>
+    :root { color-scheme: light; --ink:#1c302e; --muted:#536a66; --line:#dce5e1; --soft:#f3f6f4; --paper:#fff; --green:#16594c; --green-soft:#e9f3ed; --amber:#805313; --amber-soft:#fff5df; --violet:#685085; --violet-soft:#f2edf8; --red:#884341; --red-soft:#faeeeb; --shadow:0 3px 14px #153b2910; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f7f9f7; color:var(--ink); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; color:inherit; }
+    button,select,input[type="search"] { min-height:42px; }
+    button,select { cursor:pointer; }
+    button { border:1px solid var(--line); border-radius:8px; background:var(--paper); padding:9px 14px; font-weight:600; text-align:center; }
+    button:hover:enabled { border-color:#91aaa1; background:#f0f5f1; }
+    button:disabled { color:#63716e; background:#f1f4f2; border-color:#dce3df; cursor:not-allowed; }
+    :focus-visible { outline:3px solid #286ea5; outline-offset:3px; }
+    h1,h2,h3,p { margin:0; }
+    h1 { font-size:30px; line-height:1.2; letter-spacing:-1px; font-weight:650; }
+    h2 { font-size:19px; line-height:1.35; letter-spacing:-.3px; }
+    h3 { font-size:15px; line-height:1.4; }
+    p { color:var(--muted); }
+    svg { flex-shrink:0; vertical-align:middle; }
+    [hidden] { display:none !important; }
+    .skip { position:fixed; top:10px; left:12px; z-index:10; transform:translateY(-150%); background:var(--paper); padding:12px; color:var(--green); border-radius:6px; }
+    .skip:focus { transform:translateY(0); }
+    .shell { display:grid; grid-template-columns:208px minmax(0,1fr); min-height:100vh; }
+    .sidebar { background:#eef3ef; border-right:1px solid var(--line); padding:28px 18px; display:flex; flex-direction:column; gap:26px; }
+    .brand { display:flex; align-items:center; gap:10px; padding:0 8px; font-size:22px; letter-spacing:-.8px; font-weight:700; }
+    .brand-symbol { display:grid; place-items:center; width:32px; height:36px; background:var(--green); color:#fff; border-radius:10px 10px 14px 14px; }
+    .eyebrow { font-size:11px; line-height:1.5; letter-spacing:1.4px; text-transform:uppercase; font-weight:700; color:var(--muted); }
+    .side-caption { margin:0 10px 10px; }
+    .side-nav { display:grid; gap:6px; }
+    .side-item { display:flex; align-items:center; gap:10px; text-align:left; width:100%; background:none; border-color:transparent; padding:11px; }
+    .side-item.active { background:#fff; border-color:#d7e2da; box-shadow:0 1px 4px #18342b06; }
+    .side-item:disabled { background:none; border-color:transparent; color:#62716c; }
+    .side-note { margin:8px 10px 0; font-size:12px; }
+    .side-foot { margin-top:auto; background:#e4ede5; border:1px solid #d4e0d7; border-radius:10px; padding:14px; font-size:12px; }
+    .side-foot strong { display:block; font-size:13px; margin-bottom:5px; }
+    .workspace { min-width:0; }
+    .topbar { background:#fff; padding:14px 32px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .breadcrumb { color:var(--muted); font-size:13px; display:flex; align-items:center; flex-wrap:wrap; gap:9px; }
+    .topbar .tag { flex-shrink:0; }
+    .tag { display:inline-flex; align-items:center; gap:6px; font-size:11px; line-height:1.45; font-weight:650; padding:4px 8px; border-radius:5px; background:var(--soft); color:var(--muted); }
+    .tag.green { color:var(--green); background:var(--green-soft); }
+    .tag.amber { color:var(--amber); background:var(--amber-soft); }
+    .tag.violet { color:var(--violet); background:var(--violet-soft); }
+    .tag.red { color:var(--red); background:var(--red-soft); }
+    .tag.outline { background:#fff; border:1px solid var(--line); }
+    main { padding:32px; min-width:0; }
+    .page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; margin-bottom:24px; }
+    .page-head p { margin-top:8px; max-width:620px; }
+    .primary { background:var(--green); border-color:var(--green); color:#fff; display:inline-flex; gap:8px; align-items:center; justify-content:center; }
+    .primary:hover:enabled { background:#104c40; border-color:#104c40; }
+    .primary-wrap { text-align:right; flex-shrink:0; }
+    .primary-wrap small { display:block; max-width:210px; margin-top:7px; color:var(--muted); font-size:11px; }
+    .preview-tools { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; background:#f0edf6; border:1px solid #e3ddee; padding:12px 16px; border-radius:10px; margin-bottom:24px; }
+    .preview-copy { flex:1 1 240px; }
+    .preview-copy strong { font-size:12px; color:#594273; display:block; }
+    .preview-copy p { font-size:12px; color:#665978; margin-top:2px; }
+    .field { display:flex; flex-direction:column; gap:5px; min-width:0; }
+    .field label { font-size:11px; color:var(--muted); font-weight:650; }
+    select { background:#fff; border:1px solid var(--line); border-radius:7px; padding:8px 30px 8px 11px; max-width:100%; }
+    .preview-tools select { min-height:36px; max-width:310px; font-size:12px; }
+    .daily { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:20px; padding:20px 22px; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); margin-bottom:24px; }
+    .daily-title { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin:5px 0; }
+    .daily p { font-size:13px; max-width:600px; }
+    .filters { display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; padding-bottom:20px; }
+    .filters .search { flex:1 1 175px; }
+    .filters .field { flex:1 1 150px; }
+    .filters .field select { width:100%; }
+    input[type="search"] { width:100%; background:#fff; border:1px solid var(--line); border-radius:7px; padding:9px 12px; }
+    .clear { flex:0 0 auto; font-size:12px; font-weight:600; }
+    .board-caption { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+    .board-caption h2 { font-size:16px; }
+    .board-caption p { font-size:12px; }
+    .board { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+    .lane { min-width:0; padding:12px 10px; border:1px solid #e2e9e3; background:#edf2ee; border-radius:9px; }
+    .lane-head { min-height:126px; }
+    .lane-top { display:flex; gap:6px; align-items:flex-start; justify-content:space-between; margin-bottom:8px; }
+    .lane h3 { font-size:12px; font-weight:700; line-height:1.5; }
+    .count { display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px; border:1px solid #d6e2d9; background:#f8fbf8; color:var(--muted); border-radius:5px; font-size:11px; }
+    .lane p { font-size:11px; line-height:1.55; }
+    .stage-dot { width:7px; height:7px; border-radius:50%; background:#788c83; display:inline-block; flex-shrink:0; margin-top:5px; }
+    .lane:nth-child(2) .stage-dot { background:#568b83; }
+    .lane:nth-child(3) .stage-dot { background:#8a78a0; }
+    .lane:nth-child(4) .stage-dot { background:#388168; }
+    .lane:nth-child(5) .stage-dot { background:#aa6962; }
+    .lane:nth-child(6) .stage-dot { background:#ad893d; }
+    .visit-card { display:block; width:100%; padding:13px 12px; text-align:left; border:1px solid #d9e3dc; border-radius:8px; box-shadow:0 2px 4px #15352806; margin-top:12px; font-weight:400; }
+    .visit-card:hover:enabled { background:#fff; border-color:#4c8773; transform:translateY(-1px); }
+    .visit-card strong { display:block; font-size:13px; font-weight:650; }
+    .card-meta { font-size:11px; color:var(--muted); display:block; margin:4px 0; }
+    .card-task { display:block; margin:13px 0 11px; font-size:12px; color:var(--ink); line-height:1.55; }
+    .card-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:7px; }
+    .card-open { display:flex; align-items:center; justify-content:space-between; font-size:11px; color:var(--green); margin-top:13px; border-top:1px solid #edf2ee; padding-top:10px; font-weight:650; }
+    .lane-empty { margin-top:12px; padding:18px 8px; text-align:center; border:1px dashed #d1ded4; border-radius:8px; font-size:11px; color:var(--muted); }
+    .footnote { font-size:12px; margin-top:18px; color:var(--muted); }
+    .state-panel { border:1px dashed #cddbd2; background:#fff; border-radius:10px; padding:34px 24px; text-align:center; margin-bottom:18px; }
+    .state-panel p { max-width:480px; margin:8px auto 16px; font-size:13px; }
+    .state-symbol { width:40px; height:40px; margin:0 auto 12px; background:var(--soft); border-radius:12px; display:grid; place-items:center; color:var(--green); }
+    .skeleton { height:9px; border-radius:3px; background:#dce6df; margin-top:8px; width:80%; }
+    .skeleton.short { width:50%; }
+    .skeleton-card { background:#f9fbf9; border:1px solid #dae5dd; border-radius:8px; padding:16px 12px; min-height:130px; margin-top:12px; }
+    .back { display:inline-flex; align-items:center; gap:8px; border:none; background:transparent; padding:0 0 12px; min-height:36px; color:var(--green); font-size:13px; }
+    .back:hover:enabled { background:transparent; border:none; color:#0a382e; }
+    .visit-head { margin-bottom:16px; }
+    .visit-head .page-head { margin:10px 0 14px; }
+    .visit-head h1 { font-size:27px; }
+    .visit-meta { display:flex; flex-wrap:wrap; gap:6px 14px; color:var(--muted); font-size:12px; margin-top:8px; }
+    .stage-banner { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; background:#eef3ef; border:1px solid var(--line); border-radius:9px; padding:12px 16px; }
+    .stage-banner p { font-size:12px; margin-top:4px; }
+    .stage-banner strong { font-size:13px; }
+    .visit-layout { display:grid; grid-template-columns:minmax(0,1fr) 258px; gap:22px; margin-top:22px; align-items:start; }
+    .steps { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; padding:0; margin:0 0 20px; list-style:none; }
+    .steps button { width:100%; height:100%; overflow-wrap:anywhere; text-align:left; background:transparent; padding:10px 8px; border-color:transparent; color:var(--muted); font-size:11px; font-weight:500; }
+    .steps button[aria-current="step"] { background:var(--green-soft); color:var(--green); border-color:#c6ded0; font-weight:650; }
+    .step-num { display:block; font-size:10px; font-weight:750; margin-bottom:4px; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:12px; padding:24px; box-shadow:var(--shadow); }
+    .panel-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; }
+    .panel-head p { margin-top:5px; font-size:13px; }
+    .notice { border:1px solid #e9d7ac; background:var(--amber-soft); border-radius:8px; padding:13px 15px; margin:16px 0; }
+    .notice strong { font-size:13px; color:#734b12; display:block; }
+    .notice p { font-size:12px; color:#765c30; margin-top:4px; }
+    .notice.calm { background:#edf5f0; border-color:#cfe1d5; }
+    .notice.calm strong { color:var(--green); }
+    .notice.calm p { color:#496a5b; }
+    .detail-list { margin:0; }
+    .detail-list > div { display:flex; align-items:flex-start; gap:16px; justify-content:space-between; border-bottom:1px solid #e9eeeb; padding:13px 0; }
+    .detail-list > div:last-child { border-bottom:none; }
+    dt { color:var(--muted); font-size:12px; }
+    dd { margin:0; font-size:12px; font-weight:600; text-align:right; max-width:65%; overflow-wrap:anywhere; }
+    .operation { border-top:1px solid #e8eeea; margin-top:20px; padding-top:18px; }
+    .operation p { font-size:12px; margin-top:7px; }
+    .op-buttons { display:flex; flex-wrap:wrap; gap:8px; }
+    .op-buttons button { font-size:12px; }
+    .outline-box { border:1px dashed #cedbd2; border-radius:9px; padding:18px; margin:16px 0; }
+    .outline-box p { font-size:12px; margin-top:5px; }
+    .facts-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .fact-block { background:var(--soft); border:1px solid #e3eae5; padding:14px; border-radius:8px; }
+    .fact-block span { font-size:11px; color:var(--muted); display:block; }
+    .fact-block strong { display:block; font-size:13px; margin-top:5px; }
+    .fact-block p { font-size:11px; margin-top:5px; }
+    .nav-footer { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:14px; margin-top:20px; }
+    .nav-footer p { font-size:11px; }
+    .nav-footer button { color:var(--green); font-size:12px; }
+    .summary { padding:18px; box-shadow:none; }
+    .summary h2 { font-size:14px; margin-bottom:12px; }
+    .summary .detail-list > div { padding:10px 0; gap:10px; }
+    .summary dt,.summary dd { font-size:11px; }
+    .summary dd { max-width:58%; }
+    .summary p { font-size:11px; margin-top:12px; }
+    .summary hr { border:none; border-top:1px solid var(--line); margin:16px 0; }
+    .summary .tag { margin-top:6px; }
+    .record-context { border-top:1px solid var(--line); padding-top:12px; margin-top:15px; }
+    .footer { border-top:1px solid var(--line); margin-top:32px; padding-top:15px; display:flex; gap:20px; justify-content:space-between; flex-wrap:wrap; color:var(--muted); font-size:11px; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media(min-width:1600px) { main { max-width:1500px; margin:auto; } .lane-head { min-height:104px; } }
+    @media(max-width:1270px) { .board { grid-template-columns:repeat(3,minmax(0,1fr)); } .lane-head { min-height:88px; } .visit-layout { grid-template-columns:minmax(0,1fr) 230px; gap:16px; } main { padding:26px; } .topbar { padding:14px 26px; } }
+    @media(max-width:980px) { .shell { grid-template-columns:168px minmax(0,1fr); } .sidebar { padding:24px 12px; } .brand { font-size:20px; gap:7px; } .visit-layout { grid-template-columns:minmax(0,1fr); } .summary .detail-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 24px; } .lane-head { min-height:104px; } .daily { padding:18px; } .primary-wrap { max-width:185px; } }
+    @media(max-width:700px) { .shell { display:block; } .sidebar { padding:12px 18px; border-right:none; border-bottom:1px solid var(--line); display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:16px; } .brand { padding:0; } .brand-symbol { width:26px; height:29px; border-radius:8px 8px 11px 11px; } .side-caption,.side-foot,.side-note,.side-item:disabled { display:none; } .side-nav { display:block; } .side-item { padding:8px 10px; min-height:36px; font-size:12px; } .sidebar > div { min-width:0; } .topbar { padding:12px 18px; } main { padding:24px 18px; } h1 { font-size:27px; } .page-head { gap:14px; flex-direction:column; } .primary-wrap { width:100%; max-width:none; text-align:left; } .primary-wrap small { max-width:none; } .preview-tools { margin-top:20px; padding:12px; } .preview-tools .field,.preview-tools select { width:100%; max-width:none; } .daily { grid-template-columns:minmax(0,1fr); gap:14px; } .daily button { justify-self:start; } .filters { gap:10px; } .filters .field { flex-basis:calc(50% - 10px); } .filters .search { flex-basis:100%; } .clear { min-height:36px; } .board-caption { align-items:flex-start; } .board { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } .lane-head { min-height:115px; } .visit-card { padding:12px 10px; } .panel { padding:18px; } .steps { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; } .steps li:last-child { grid-column:1 / -1; } .steps button { padding:10px 12px; font-size:12px; min-height:64px; } .visit-head .page-head { gap:10px; } .visit-head h1 { font-size:25px; } .stage-banner { flex-direction:column; gap:8px; } .panel-head { flex-wrap:wrap; } .summary .detail-list { grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px; } .facts-grid { gap:9px; } .nav-footer { align-items:flex-start; } }
+    @media(max-width:360px) { .board { grid-template-columns:minmax(0,1fr); } .lane-head { min-height:0; } .steps { grid-template-columns:repeat(2,minmax(0,1fr)); } .facts-grid,.summary .detail-list { grid-template-columns:minmax(0,1fr); } .topbar { flex-wrap:wrap; } }
+    @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to daily work</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Workspace navigation">
+      <div class="brand"><span class="brand-symbol" aria-hidden="true"><svg width="18" height="23" viewBox="0 0 20 25" fill="none"><path d="M10 2C7 7 3 11 3 16a7 7 0 0 0 14 0c0-5-4-9-7-14Z" stroke="currentColor" stroke-width="1.7"/><path d="M6 16c0 2 1.5 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>DripWell</div>
+      <div>
+        <p class="eyebrow side-caption">Staff workspace</p>
+        <nav class="side-nav" aria-label="Preview screens">
+          <button id="board-nav" class="side-item active" type="button" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="2" width="4" height="12" rx="1" stroke="currentColor"/><rect x="9" y="2" width="5" height="8" rx="1" stroke="currentColor"/></svg>Consultations</button>
+          <button class="side-item" type="button" disabled aria-describedby="outside-preview">Clinic setup</button>
+          <button class="side-item" type="button" disabled aria-describedby="outside-preview">Insights</button>
+        </nav>
+        <p id="outside-preview" class="side-note">Setup and insights are outside this two-screen preview.</p>
+      </div>
+      <div class="side-foot"><strong>A clearer daily flow</strong><p>Open a sample. Explore five views. Return to your board.</p></div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Staff workspace</span><span aria-hidden="true">/</span><strong id="crumb">Consultations</strong></div>
+        <span class="tag violet">Fictional GUI preview</span>
+      </header>
+      <main id="main" tabindex="-1">
+        <section id="board-screen" aria-labelledby="board-title">
+          <div class="page-head">
+            <div><p class="eyebrow">Daily work</p><h1 id="board-title" tabindex="-1">Your consultation board</h1><p>Keep the next step in sight. Open a sample visit to explore the flow.</p></div>
+            <div class="primary-wrap"><button id="start-sample" class="primary" type="button"><span aria-hidden="true">+</span> Start sample visit</button><small>Opens a fictional view. Creates no visit or trial use.</small></div>
+          </div>
+          <div class="preview-tools">
+            <div class="preview-copy"><strong>Prototype controls · presentation only</strong><p>Two synthetic clinics. All visits, staff labels, dates and states are fictional.</p></div>
+            <div class="field"><label for="board-scenario">Board preview state</label><select id="board-scenario"><option value="sample">Sample board</option><option value="empty">Empty board</option><option value="loading">Loading board</option></select></div>
+          </div>
+          <div class="daily" id="daily-card">
+            <div><p class="eyebrow">Pick up where you left off</p><div class="daily-title"><h2>DEMO-002 is ready to review</h2><span class="tag amber">Approval pending</span></div><p>A saved initial output needs review. Producing an output does not approve it or start care.</p></div>
+            <button id="resume-sample" type="button" data-open="DEMO-002">Resume sample visit <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="filters" aria-label="Sample board filters">
+            <div class="field"><label for="clinic-filter">Synthetic clinic</label><select id="clinic-filter"><option value="A">Synthetic clinic A</option><option value="B">Synthetic clinic B</option><option value="all">Both synthetic clinics</option></select></div>
+            <div class="field"><label for="staff-filter">Demo staff</label><select id="staff-filter"><option value="all">All demo staff</option><option value="01">Demo staff 01</option><option value="02">Demo staff 02</option></select></div>
+            <div class="field"><label for="attention-filter">Attention</label><select id="attention-filter"><option value="all">All sample visits</option><option value="overdue">Overdue outcome</option><option value="approval">Approval needed</option></select></div>
+            <div class="field"><label for="archive-filter">Archive flag</label><select id="archive-filter"><option value="active">Active only</option><option value="archived">Archived only</option><option value="all">Active and archived</option></select></div>
+            <div class="field search"><label for="encounter-search">Find a sample encounter</label><input id="encounter-search" type="search" placeholder="e.g. DEMO-002" autocomplete="off"></div>
+            <button id="clear-filters" class="clear" type="button">Reset filters</button>
+          </div>
+          <div class="board-caption"><h2>Six saved stages</h2><p id="board-count" role="status" aria-live="polite"></p></div>
+          <div id="board-state" hidden></div>
+          <div id="board" class="board" aria-label="Fictional consultation stages"></div>
+          <p class="footnote">Stage reflects a saved milestone or explicit staff decision. Approval, care, sales, payment and archive are separate facts.</p>
+        </section>
+        <section id="visit-screen" aria-labelledby="visit-title" hidden>
+          <div class="visit-head">
+            <button id="back-board" class="back" type="button"><span aria-hidden="true">←</span> Back to board</button>
+            <div class="page-head"><div><p class="eyebrow">Sample consultation</p><h1 id="visit-title" tabindex="-1"></h1><div id="visit-meta" class="visit-meta"></div></div><span class="tag violet">View only · nothing is recorded</span></div>
+            <div id="stage-banner" class="stage-banner"></div>
+          </div>
+          <div class="preview-tools">
+            <div class="preview-copy"><strong>Visit scenario preview · fictional snapshots</strong><p>Changes only the displayed snapshot. Returning to the board preserves its samples and filters.</p></div>
+            <div class="field"><label for="visit-scenario">Visit preview state</label><select id="visit-scenario"><option value="saved">Saved sample state</option><option value="blocked">Blocked: required facts unresolved</option><option value="approved">Approved revision: care pending</option><option value="care-started">Approved revision: care started</option><option value="care-not-started">Approved revision: care not started</option><option value="changed">Revision changed: approval invalidated</option><option value="accepted">Wellness decision: accepted</option><option value="rejected">Wellness decision: rejected</option><option value="tbd">Wellness decision: TBD</option><option value="archived">Archived: unresolved decision</option></select></div>
+          </div>
+          <div class="visit-layout">
+            <div>
+              <nav aria-label="Five visit views"><ol id="steps" class="steps"></ol></nav>
+              <div id="visit-panel"></div>
+              <div class="nav-footer"><p>Viewing a step never changes a stage, approval or outcome.</p><button id="next-view" type="button"></button></div>
+            </div>
+            <aside id="visit-summary" class="panel summary" aria-label="Independent sample facts"></aside>
+          </div>
+        </section>
+        <noscript><div class="notice"><strong>JavaScript is needed to explore this preview.</strong><p>This file contains no external dependencies. Enable JavaScript to open fictional samples and navigate views.</p></div></noscript>
+        <footer class="footer"><span>Original design concept for Owner review. Final production layout is not selected.</span><span>Synthetic presentation only · no clinical content or connected services</span></footer>
+        <p id="navigation-status" class="sr-only" role="status" aria-live="polite"></p>
+      </main>
+    </div>
+  </div>
+  <script>
+    'use strict';
+    const stages = Object.freeze([
+      { title:'Consultation started', meaning:'After a consultation is successfully initiated in software.' },
+      { title:'Initial recommendations given', meaning:'After an initial output is produced and saved. Approval is separate.' },
+      { title:'Wellness recommendations produced', meaning:'After a wellness output is produced and saved. Approval is separate.' },
+      { title:'Wellness recommendations accepted', meaning:'Staff explicitly record acceptance of a produced, approved wellness revision.' },
+      { title:'Wellness recommendations rejected', meaning:'Staff explicitly record rejection of a produced, approved wellness revision.' },
+      { title:'Wellness recommendation TBD', meaning:'Staff explicitly record a pending decision for a produced, approved wellness revision.' }
+    ]);
+    const snapshots = Object.freeze({
+      intake:Object.freeze({stage:0,initial:null,initialApproval:null,wellness:null,wellnessApproval:null,care:'Pending',decision:'Not recorded',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:true,changed:false}),
+      review:Object.freeze({stage:1,initial:'I2',initialApproval:null,wellness:null,wellnessApproval:null,care:'Pending',decision:'Not recorded',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:false,changed:false}),
+      produced:Object.freeze({stage:2,initial:'I2',initialApproval:'I2',wellness:'W2',wellnessApproval:null,care:'Started',decision:'Not recorded',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:true,blocked:false,changed:false}),
+      approved:Object.freeze({stage:1,initial:'I2',initialApproval:'I2',wellness:null,wellnessApproval:null,care:'Pending',decision:'Not recorded',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:false,changed:false}),
+      'care-started':Object.freeze({stage:1,initial:'I2',initialApproval:'I2',wellness:null,wellnessApproval:null,care:'Started',decision:'Not recorded',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:false,changed:false}),
+      'care-not-started':Object.freeze({stage:1,initial:'I2',initialApproval:'I2',wellness:null,wellnessApproval:null,care:'Not started',decision:'Not recorded',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:false,changed:false}),
+      changed:Object.freeze({stage:2,initial:'I3',initialApproval:null,wellness:'W3',wellnessApproval:null,care:'Started',decision:'Reconsideration required',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:true,blocked:false,changed:true}),
+      accepted:Object.freeze({stage:3,initial:'I2',initialApproval:'I2',wellness:'W2',wellnessApproval:'W2',care:'Started',decision:'Accepted for W2',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:false,changed:false}),
+      rejected:Object.freeze({stage:4,initial:'I2',initialApproval:'I2',wellness:'W2',wellnessApproval:'W2',care:'Not started',decision:'Rejected for W2',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:false,blocked:false,changed:false}),
+      tbd:Object.freeze({stage:5,initial:'I2',initialApproval:'I2',wellness:'W2',wellnessApproval:'W2',care:'Started',decision:'TBD for W2',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:false,overdue:true,blocked:false,changed:false}),
+      archived:Object.freeze({stage:5,initial:'I2',initialApproval:'I2',wellness:'W2',wellnessApproval:'W2',care:'Started',decision:'TBD for W2',enrollment:'Not recorded',purchase:'Not recorded',payment:'Unknown',archived:true,overdue:true,blocked:false,changed:false})
+    });
+    const samples = Object.freeze([
+      {id:'DEMO-001',clinic:'A',staff:'01',time:'09:10',snapshot:'intake',task:'Confirm consent and review missing facts.',step:0},
+      {id:'DEMO-002',clinic:'A',staff:'01',time:'09:35',snapshot:'review',task:'Review initial revision I2. Approval is pending.',step:2},
+      {id:'DEMO-003',clinic:'A',staff:'02',time:'10:05',snapshot:'produced',task:'Review wellness revision W2 before any decision.',step:4},
+      {id:'DEMO-004',clinic:'A',staff:'02',time:'10:20',snapshot:'accepted',task:'Acceptance recorded. Enrollment and payment unknown.',step:4},
+      {id:'DEMO-005',clinic:'A',staff:'01',time:'10:40',snapshot:'rejected',task:'Rejection recorded. Care is separately not started.',step:4},
+      {id:'DEMO-006',clinic:'A',staff:'02',time:'11:00',snapshot:'tbd',task:'Decision is TBD. A sample outcome is overdue.',step:4},
+      {id:'DEMO-007',clinic:'B',staff:'01',time:'09:00',snapshot:'review',task:'Review initial revision I2 in synthetic clinic B.',step:2},
+      {id:'DEMO-008',clinic:'B',staff:'02',time:'09:25',snapshot:'intake',task:'Required information remains unresolved.',step:1},
+      {id:'DEMO-009',clinic:'B',staff:'02',time:'09:50',snapshot:'archived',task:'Archived with unresolved TBD. Active reminders suppressed.',step:4}
+    ].map(sample => Object.freeze(sample)));
+    const startSample = Object.freeze({id:'DEMO-NEW',clinic:'A',staff:'01',time:'Not created',snapshot:'intake',task:'Explore the beginning of a sample visit.',step:0});
+    const stepNames = ['Consent & capture','Facts & questions','Recommendation & approval','Actual care','Wellness & sharing'];
+    const $ = id => document.getElementById(id);
+    const escapeText = value => String(value).replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+    let currentSample = null;
+    let currentStep = 0;
+    let returnControl = null;
+    let boardScroll = 0;
+    const row = (label,value) => `<div><dt>${escapeText(label)}</dt><dd>${escapeText(value)}</dd></div>`;
+    const tag = (label,color='') => `<span class="tag ${color}">${escapeText(label)}</span>`;
+    const notice = (title,copy,calm=false) => `<div class="notice${calm ? ' calm' : ''}"><strong>${escapeText(title)}</strong><p>${escapeText(copy)}</p></div>`;
+    const operations = (id,labels,reason) => `<div class="operation"><div class="op-buttons">${labels.map(label=>`<button type="button" disabled aria-describedby="${id}">${escapeText(label)}</button>`).join('')}</div><p id="${id}">${escapeText(reason)}</p></div>`;
+    const viewSnapshot = () => $('visit-scenario').value === 'saved' ? snapshots[currentSample.snapshot] : ($('visit-scenario').value === 'blocked' ? snapshots.intake : snapshots[$('visit-scenario').value]);
+    function filteredSamples() {
+      const clinic = $('clinic-filter').value;
+      const staff = $('staff-filter').value;
+      const attention = $('attention-filter').value;
+      const archive = $('archive-filter').value;
+      const search = $('encounter-search').value.trim().toUpperCase();
+      return samples.filter(sample => {
+        const state = snapshots[sample.snapshot];
+        const needsApproval = Boolean(state.initial && !state.initialApproval || state.wellness && !state.wellnessApproval);
+        return (clinic === 'all' || sample.clinic === clinic) && (staff === 'all' || sample.staff === staff) && (attention === 'all' || attention === 'overdue' && state.overdue && !state.archived || attention === 'approval' && needsApproval) && (archive === 'all' || archive === 'archived' && state.archived || archive === 'active' && !state.archived) && sample.id.includes(search);
+      });
+    }
+    function renderBoard() {
+      const mode = $('board-scenario').value;
+      const filtered = mode === 'sample' ? filteredSamples() : [];
+      $('board-count').textContent = mode === 'loading' ? 'Loading preview · no request is running' : `${filtered.length} fictional ${filtered.length === 1 ? 'visit' : 'visits'} shown`;
+      const resume = filtered.find(sample=>sample.id === 'DEMO-002') || filtered.find(sample=>!snapshots[sample.snapshot].archived);
+      $('daily-card').hidden = !resume;
+      if (resume) {
+        const state = snapshots[resume.snapshot];
+        $('daily-card').innerHTML = `<div><p class="eyebrow">Pick up where you left off</p><div class="daily-title"><h2>${escapeText(resume.id)} · your next sample</h2>${tag(state.blocked ? 'Missing facts' : state.initial && !state.initialApproval || state.wellness && !state.wellnessApproval ? 'Approval pending' : 'Review sample','amber')}</div><p>${escapeText(resume.task)}</p></div><button id="resume-sample" type="button" data-open="${resume.id}">Resume sample visit <span aria-hidden="true">→</span></button>`;
+      }
+      $('board-state').hidden = mode !== 'loading' && filtered.length > 0;
+      if (mode === 'loading') {
+        $('board-state').innerHTML = `<div class="state-panel" role="status"><div class="state-symbol" aria-hidden="true">···</div><h2>Loading sample board</h2><p>This is a static loading preview. No data request is running. Select “Sample board” to return.</p></div>`;
+      } else if (!filtered.length) {
+        const emptyMode = mode === 'empty';
+        $('board-state').innerHTML = `<div class="state-panel"><div class="state-symbol" aria-hidden="true">+</div><h2>${emptyMode ? 'A clear place to begin' : 'No samples match these filters'}</h2><p>${emptyMode ? 'An empty board keeps the starting action easy to find. Use “Start sample visit” above to explore a fictional first view.' : 'Adjust the synthetic clinic, demo staff, attention, archive or encounter filters. All six stage meanings remain below.'}</p>${emptyMode ? '' : '<button type="button" id="empty-reset">Reset filters</button>'}</div>`;
+      }
+      $('board').innerHTML = stages.map((stage,index) => {
+        const laneSamples = filtered.filter(sample=>snapshots[sample.snapshot].stage === index);
+        return `<section class="lane" aria-labelledby="stage-${index}"><div class="lane-head"><div class="lane-top"><span class="stage-dot" aria-hidden="true"></span><h3 id="stage-${index}">${stage.title}</h3><span class="count" aria-label="${laneSamples.length} sample visits">${laneSamples.length}</span></div><p>${stage.meaning}</p></div>${mode === 'loading' ? '<div class="skeleton-card" aria-hidden="true"><div class="skeleton"></div><div class="skeleton short"></div><div class="skeleton"></div></div>' : laneSamples.length ? laneSamples.map(sample=>{
+          const state = snapshots[sample.snapshot];
+          return `<button class="visit-card" type="button" id="open-${sample.id}" data-open="${sample.id}" aria-label="Open sample visit ${sample.id}, Synthetic clinic ${sample.clinic}, Demo staff ${sample.staff}"><strong>${sample.id}</strong><span class="card-meta">Synthetic clinic ${sample.clinic}</span><span class="card-meta">Demo staff ${sample.staff}</span><span class="card-meta">10 Oct 2026 · ${sample.time} (sample)</span><span class="card-task">${sample.task}</span><span class="card-tags">${state.archived ? tag('Archived','outline') + tag('Unresolved TBD','amber') : state.overdue ? tag('Overdue outcome','amber') : ''}${state.initial && !state.initialApproval || state.wellness && !state.wellnessApproval ? tag('Not approved','violet') : ''}</span><span class="card-open">Open sample <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>`;
+        }).join('') : '<div class="lane-empty">No sample visits</div>'}</section>`;
+      }).join('');
+      const emptyReset = $('empty-reset');
+      if (emptyReset) emptyReset.addEventListener('click',resetFilters);
+    }
+    function resetFilters() {
+      $('clinic-filter').value='A'; $('staff-filter').value='all'; $('attention-filter').value='all'; $('archive-filter').value='active'; $('encounter-search').value='';
+      renderBoard();
+      $('clinic-filter').focus();
+    }
+    function openVisit(sample,control) {
+      currentSample=sample; currentStep=sample.step; returnControl=control; boardScroll=window.scrollY;
+      $('visit-scenario').value='saved'; $('board-screen').hidden=true; $('visit-screen').hidden=false; $('crumb').textContent=sample.id;
+      $('board-nav').removeAttribute('aria-current');
+      $('visit-title').textContent=sample.id;
+      $('visit-meta').innerHTML=`<span>Synthetic clinic ${sample.clinic}</span><span>Demo staff ${sample.staff} · neutral label</span><span>${sample.id === 'DEMO-NEW' ? 'Not created · not on the board' : `10 Oct 2026 · ${sample.time} (sample date)`}</span>`;
+      renderVisit(); window.scrollTo(0,0); $('visit-title').focus();
+      $('navigation-status').textContent=`Opened ${sample.id}. Fictional view only.`;
+    }
+    function backToBoard() {
+      if ($('visit-screen').hidden) { $('board-title').focus(); return; }
+      $('visit-screen').hidden=true; $('board-screen').hidden=false; $('crumb').textContent='Consultations'; $('board-nav').setAttribute('aria-current','page');
+      window.scrollTo(0,boardScroll);
+      if (returnControl && returnControl.isConnected && !returnControl.closest('[hidden]')) returnControl.focus({preventScroll:true}); else $('board-title').focus();
+      $('navigation-status').textContent='Returned to the board. Your filters and all sample facts are unchanged.';
+    }
+    function renderVisit() {
+      const state=viewSnapshot();
+      const scenarioLabel=$('visit-scenario').selectedOptions[0].textContent;
+      $('stage-banner').innerHTML=`<div><strong>Displayed stage · ${stages[state.stage].title}</strong><p>${stages[state.stage].meaning}</p></div>${tag(state.archived ? 'Archived flag · separate from stage' : 'Fictional saved-state snapshot',state.archived ? 'amber' : 'outline')}`;
+      $('steps').innerHTML=stepNames.map((name,index)=>`<li><button id="step-${index}" type="button" data-step="${index}"${currentStep === index ? ' aria-current="step"' : ''}><span class="step-num">${index+1} / 5</span>${name}</button></li>`).join('');
+      const approvalLabel=(revision,approval)=>revision ? approval === revision ? `Approved for ${revision} (fictional)` : state.changed ? `Invalidated · current ${revision}` : `Not approved · ${revision}` : 'No saved output';
+      $('visit-summary').innerHTML=`<p class="eyebrow">${escapeText(scenarioLabel)}</p><h2>Independent visit facts</h2><dl class="detail-list">${row('Initial revision',state.initial || 'Not produced')}${row('Initial approval',approvalLabel(state.initial,state.initialApproval))}${row('Actual care',state.care)}${row('Wellness revision',state.wellness || 'Not produced')}${row('Wellness approval',approvalLabel(state.wellness,state.wellnessApproval))}${row('Client decision',state.decision)}${row('Membership enrollment',state.enrollment)}${row('Service purchase',state.purchase)}${row('Collected payment',state.payment)}</dl><p>Accepting a wellness plan does not record care, enrollment, a purchase or collected payment.</p><hr><h2>Archive & reminders</h2><dl class="detail-list">${row('Archive flag',state.archived ? 'Archived (sample)' : 'Active (sample)')}${row('Outcome marker',state.overdue ? 'Unresolved / overdue (sample)' : 'No overdue marker (sample)')}${row('Active reminders',state.archived ? 'Suppressed while archived' : state.overdue ? 'Due in fictional snapshot' : 'None due in this snapshot')}</dl><p>${state.archived ? 'Archive preserves the saved stage and unresolved TBD. Restoring would reconcile reminders. No restore runs here.' : 'Reminder timing and delivery are not connected in this preview.'}</p>${operations('archive-reason',[state.archived ? 'Restore visit' : 'Archive visit'],'Disabled in this preview. No archive, restore, deletion or reminder operation is connected.')}<div class="record-context"><p>Clinic catalog, prices, clinical rules and authorized reviewer identity are not supplied.</p></div>`;
+      const panelStart=(title,description)=>`<section class="panel" aria-labelledby="panel-title"><div class="panel-head"><div><p class="eyebrow">View ${currentStep+1} of 5</p><h2 id="panel-title" tabindex="-1">${title}</h2><p>${description}</p></div>${tag('View only','outline')}</div>`;
+      let content='';
+      if(currentStep === 0) {
+        content=panelStart('Consent & capture','Obtain consent before capture, or use manual intake.')+notice('No consent or recording is collected here','Explore the layout only. No microphone, camera, upload or transcription is connected.')+`<dl class="detail-list">${row('Consent','Not collected in this preview')}${row('Capture','Inactive · no audio')}${row('Transcript','Not supplied')}${row('Manual intake','No answers supplied')}</dl>`+operations('consent-reason',['Record consent','Use manual intake'],'Disabled: this presentation cannot save consent or intake.')+operations('capture-reason',['Start recording','Pause','Resume','Stop'],'Disabled: no capture permission, microphone, audio or transcription service is used.')+'</section>';
+      } else if(currentStep === 1) {
+        content=panelStart('Facts & questions','Review reported facts and unresolved information before approval.')+`<div class="facts-grid"><div class="fact-block"><span>Reviewed facts</span><strong>No clinical facts supplied</strong><p>No answers, speakers or findings are invented.</p></div><div class="fact-block"><span>Required questions</span><strong>Clinic rules not supplied</strong><p>Missing information is not a negative answer.</p></div></div>`+notice(state.blocked ? 'Approval is blocked by unresolved required facts' : 'Fictional status, clinical evidence not supplied',state.blocked ? 'A real visit would require confirmed answers under the selected clinic rules. This preview provides no question bank or clinical authority.' : 'This snapshot illustrates workflow labels only. It does not validate suitability, screening or staff review.')+`<div class="outline-box"><h3>One place for the next question</h3><p>Clinic-defined questions, evidence and confirmation indicators would appear here after approved configuration and consented intake.</p></div>`+operations('facts-reason',['Save corrections','Confirm answers'],'Disabled: no clinical facts, clinic question configuration or saving service is connected.')+'</section>';
+      } else if(currentStep === 2) {
+        content=panelStart('Recommendation & approval','Review the exact initial revision before client-facing treatment guidance.')+`<dl class="detail-list">${row('Saved initial output',state.initial ? `Revision ${state.initial} (fictional)` : 'Not produced')}${row('Approval binding',approvalLabel(state.initial,state.initialApproval))}${row('Authorized approver','Identity and authority not supplied')}${row('Recommendation content','No clinic catalog or clinical content supplied')}</dl>`+(state.changed ? notice('Edits invalidate approval of the exact revision','Previously approved I2 is historical. Current I3 is unapproved. No approval is inherited from an older revision.') : state.blocked ? notice('Resolve required information before approval','No treatment recommendation or approval can be granted by this preview.') : state.initialApproval ? notice(`Fictional approval is bound to ${state.initialApproval}`,'This display does not prove clinical authority or start care. Actual care is recorded separately.',true) : notice('Produced is not approved','A saved initial output marks its milestone. It still needs authorized review and explicit exact-revision approval.'))+`<div class="outline-box"><h3>Review content</h3><p>Approved clinic items, evidence, suitability, official prices and adjustment history would be shown here. None are fabricated for this concept.</p></div>`+operations('recommendation-reason',['Produce initial output','Edit recommendation','Approve exact revision'],'Disabled: catalog, validated clinical rules, confirmed facts, authorized approval identity and application services are not connected.')+'</section>';
+      } else if(currentStep === 3) {
+        content=panelStart('Actual care','Record what actually happened separately from recommendation and acceptance.')+`<div class="facts-grid"><div class="fact-block"><span>Actual care status · fictional</span><strong>${escapeText(state.care)}</strong><p>This status is independent of the viewed step.</p></div><div class="fact-block"><span>Initial revision approval</span><strong>${escapeText(approvalLabel(state.initial,state.initialApproval))}</strong><p>Approval alone does not record treatment.</p></div></div><dl class="detail-list">${row('Actual items / substitutions','Not supplied')}${row('Observations / reason','Not supplied')}${row('Membership enrollment',state.enrollment)}${row('Service purchase',state.purchase)}${row('Collected payment',state.payment)}</dl>`+(state.changed ? notice('Current approval is invalidated','Any fictional care already recorded remains history. Navigation or a later revision cannot rewrite what actually happened.') : notice('Complete documentation without a sale','No membership result is required. Care, purchase/enrollment and collected payment stay separate.',true))+operations('care-reason',['Record care started','Record not started','Save actual care'],'Disabled: this preview cannot record treatment, observations, purchases or payment. Clinical approval and real application services are unavailable.')+'</section>';
+      } else {
+        content=panelStart('Wellness & sharing','Review the post-care takeaway, its exact revision and the client decision.')+`<dl class="detail-list">${row('Saved wellness output',state.wellness ? `Revision ${state.wellness} (fictional)` : 'Not produced')}${row('Wellness approval',approvalLabel(state.wellness,state.wellnessApproval))}${row('Client decision',state.decision)}${row('Share / download','Not sent · no document delivered')}</dl>`+(state.changed ? notice('Current W3 needs fresh review and reconsideration','Approval and acceptance of W2 are historical only. Current W3 is unapproved and undecided. The prior acceptance is not inherited.') : state.wellnessApproval ? notice(`Fictional decision is tied to approved ${state.wellnessApproval}`,'Acceptance, rejection and TBD require a produced, approved wellness revision and a separate explicit staff action. No action runs here.',true) : notice('Production, approval and decision are separate','Produce and save the wellness output, approve its exact revision, then explicitly record the client decision. Viewing this step performs none of those actions.'))+`<div class="outline-box"><h3>Client takeaway</h3><p>No clinical suggestions, membership terms, prices or treatment cadence are supplied. Future suggestions must remain separate from care received.</p></div>`+operations('wellness-reason',['Produce wellness output','Edit takeaway','Approve wellness revision'],'Disabled: no post-care clinical content, official catalog, prices, authorized reviewer or document service is connected.')+operations('decision-reason',['Record accepted','Record rejected','Record TBD'],'Disabled: decisions cannot be recorded here. A real decision requires a produced, approved exact wellness revision and explicit authorized staff action.')+operations('sharing-reason',['Share approved takeaway','Download PDF'],'Disabled: recipient verification, approved documents, email, secure sharing and PDF services are not connected.')+`<p class="footnote">Contains private health information. Share only with the intended recipient using your clinic's HIPAA-compliant process. Downloaded copies cannot be remotely revoked. This preview generates no document.</p>`+'</section>';
+      }
+      $('visit-panel').innerHTML=content;
+      $('next-view').textContent=currentStep === 4 ? 'Return to board' : `View next: ${stepNames[currentStep+1]} →`;
+    }
+    function changeStep(step) {
+      currentStep=step; renderVisit(); $('panel-title').focus();
+      $('navigation-status').textContent=`Viewing ${stepNames[step]}. Sample stage and outcomes unchanged.`;
+    }
+    $('board').addEventListener('click',event=>{ const control=event.target.closest('[data-open]'); if(control) openVisit(samples.find(sample=>sample.id === control.dataset.open),control); });
+    $('daily-card').addEventListener('click',event=>{ const control=event.target.closest('[data-open]'); if(control) openVisit(samples.find(sample=>sample.id === control.dataset.open),control); });
+    $('start-sample').addEventListener('click',()=>openVisit(Object.freeze({...startSample,clinic:$('clinic-filter').value === 'B' ? 'B' : 'A'}),$('start-sample')));
+    $('back-board').addEventListener('click',backToBoard);
+    $('board-nav').addEventListener('click',backToBoard);
+    $('steps').addEventListener('click',event=>{ const control=event.target.closest('[data-step]'); if(control) changeStep(Number(control.dataset.step)); });
+    $('next-view').addEventListener('click',()=>currentStep === 4 ? backToBoard() : changeStep(currentStep+1));
+    $('visit-scenario').addEventListener('change',()=>{ renderVisit(); $('navigation-status').textContent='Fictional preview snapshot changed. No sample record was changed.'; });
+    ['clinic-filter','staff-filter','attention-filter','archive-filter','board-scenario'].forEach(id=>$(id).addEventListener('change',renderBoard));
+    $('encounter-search').addEventListener('input',renderBoard);
+    $('clear-filters').addEventListener('click',resetFilters);
+    renderBoard();
+  </script>
+</body>
+</html>
