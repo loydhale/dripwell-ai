@@ -1,0 +1,191 @@
+{
+  "schema": "TASK062_PUBLIC_SCOPED_REMINDER_OWNERSHIP_EVIDENCE_V1",
+  "status": "SCOPED_ACTUAL_ACCEPTED_DOCUMENTARY_CLOSURE_REQUIRED_AT_CAPTURE",
+  "source": {
+    "commit": "1907a02ff693a4ca9a5a89c39a7bd900b151ee8e",
+    "tree": "a41bc0a9b8fbe8696eafe157a2f071724aeee4f0",
+    "parent": "2d5430e95da7caa90abf7046bb0e47de3b3478f4",
+    "path": "apps/web/lib/reminder-ownership.integration.test.ts",
+    "lines": 442,
+    "sha256": "ea3c2f5d2935084ee76b4cba016a9555edbd55fcbef2891590a05ef8ad68fc32",
+    "heldPriorLeaves": 438
+  },
+  "independentReviewSHA256": "7ad64447c2aa94a9db09d791c60fe076e1d4302c09a7711e82303ef0aa17e130",
+  "typedRootActualAdoptionSHA256": "09bb45a64f9b8bb3cb47956b987f0f67eabc4b5c40f37438596fe0960391f9c6",
+  "learning": {
+    "disposition": "NO_NEW_LEARNING",
+    "sha256": "5ef6217a2ba2f2b6f641c747920aa83f7fdc8fad803d372b73f39074c2e4f731",
+    "phaseFragmentBytes": [
+      220,
+      153,
+      230
+    ],
+    "phaseFragmentsAppliedOnceByReviewedCheckpoint": true,
+    "V2ExtraFragment": null,
+    "Seen": 5,
+    "newEntries": 0
+  },
+  "CI": {
+    "runId": 37597360617,
+    "runNumber": 41,
+    "runNumberIsRunAttempt": false,
+    "jobId": 112713145427,
+    "status": "completed",
+    "conclusion": "success",
+    "listedSteps": 22,
+    "allListedStepsCompletedSuccess": true,
+    "stepNames": [
+      "Set up job",
+      "Initialize containers",
+      "Run actions/checkout@v4",
+      "Run pnpm/action-setup@v4",
+      "Run actions/setup-node@v4",
+      "Run pnpm install --frozen-lockfile",
+      "Run pnpm db:generate",
+      "Run pnpm db:validate",
+      "Run pnpm db:deploy",
+      "Build the Vercel agent service with its shared dependencies",
+      "Build the Vercel web entrypoint from a fresh install",
+      "Run pnpm typecheck",
+      "Verify deterministic consultation domain",
+      "Verify authentication against isolated PostgreSQL",
+      "Verify consultation lifecycle against isolated PostgreSQL",
+      "Verify transcript extraction boundaries",
+      "Verify billing and sharing boundaries",
+      "Post Run actions/setup-node@v4",
+      "Post Run pnpm/action-setup@v4",
+      "Post Run actions/checkout@v4",
+      "Stop containers",
+      "Complete job"
+    ],
+    "originalRun": {
+      "bytes": 580,
+      "mode": "0600",
+      "sha256": "2e58d66380bd5921bcfe0a2507a7100efc23b6c252907ec20a21eee1ecc3c792"
+    },
+    "originalJobs": {
+      "bytes": 4243,
+      "mode": "0600",
+      "sha256": "a3854eb4021d0f50389400428feeabe7b1ad7353c44442010342c849e86e27c4"
+    },
+    "logWrapper": {
+      "bytes": 226061,
+      "mode": "0600",
+      "sha256": "af896a7c6e92c6eab87d302c85620ec072222a93a5d74ae0e6b3f7140442330d"
+    },
+    "completeRawLog": {
+      "bytes": 207585,
+      "mode": "0600",
+      "sha256": "b83d192a2b3ca4cd38baff99762ff71f4403baeeaffd8138c5575e20ee46302a"
+    },
+    "decodedWrapperRawByteEquality": true,
+    "jobLogOriginalRetrievals": 1,
+    "logRetriesOrRefetchByAuditor": 0,
+    "checkout": {
+      "rawLines": [
+        193,
+        211,
+        214
+      ],
+      "ref": "refs/remotes/pull/2/merge",
+      "mergeCommit": "0220479efd0bbd50f3481462b83902eac87d3473",
+      "sourceParent": "1907a02ff693a4ca9a5a89c39a7bd900b151ee8e",
+      "mainParent": "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+      "APIEventHeadRunAttempt": "UNRETAINED in normalized run/job envelopes; actual raw checkout binds the reviewed source and held main."
+    },
+    "target": {
+      "node": "24.21.0",
+      "postgres": "17.11",
+      "isolatedDatabase": "dripwell_verification",
+      "literalFalse": "Raw selected test stage env ALLOW_REAL_CLIENT_DATA=false; current TASK062 guards continuously admit only literalfalse and exact disposable target. No whole-CI globalflag immutability claim for other established isolated tests."
+    },
+    "newCase": {
+      "rawLines": [
+        839,
+        840,
+        841,
+        842
+      ],
+      "count": 1,
+      "outcome": "PASS",
+      "caseMs": 1100,
+      "fileMs": 1102
+    },
+    "vitest": {
+      "rawLines": [
+        939,
+        940
+      ],
+      "passedTests": 241,
+      "totalTests": 241,
+      "passedFiles": 22,
+      "totalFiles": 22,
+      "explicitSkipCount": "UNRETAINED in this Vitest summary; no skip total inferred"
+    },
+    "separateCurrentClinicNode": {
+      "rawLines": [
+        743,
+        755,
+        757,
+        774,
+        776,
+        777,
+        779
+      ],
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "distinctPopulation": "Separate clinic Node suite, not added to Vitest as a whole-CI total."
+    }
+  },
+  "safeProof": {
+    "safeRecordRawLine": 839,
+    "safeRecord": {
+      "task": "TASK062",
+      "outcome": "CLOSURE_CANDIDATE",
+      "first": null,
+      "phase": "CLEANUP",
+      "service": 19,
+      "reconciles": 5,
+      "dashboards": 8,
+      "mutations": 6,
+      "returned": 4,
+      "denied": 2,
+      "additionalOrm": 266,
+      "cleanupOrm": 98,
+      "blockedStart": 1,
+      "deleted": 18,
+      "pending": 0,
+      "unknown": false,
+      "resolved": true,
+      "closed": true,
+      "restored": true,
+      "elapsedMs": 1095
+    },
+    "frameScope": "Exactly one fixed TASK062 candidate frame,20 fields/bounded2048. It precedes final write/join/clock check; its tag alone is not acceptance.",
+    "corroboration": "Later named case/file PASS and completed successful job corroborate source436-440 final callback-write completion, pending0, original-clock postcheck and no retained first error. Frame1095ms is pre-final-write rounded elapsed, not an exact final completion timestamp or clinical latency result.",
+    "topLevelCounts": "19 services =5 explicit reconciles+8 dashboards+6 mutations;4 returned+2 exact404 denials. Source-internal archive/restore reconciles/getConsultation queries and retry attempts are not included in this top-level ledger.",
+    "additionalOrm": "Measured frame266 total,98 cleanup and derived168 scenario within288/100/188. Not a total of all internal service SQL statements or transaction retries.",
+    "oracles": "The passing current source asserts old/new/foreign reminder visibility separately from notification.read404 authority and exact current A/B scalar preservation; stable original reminder ID/due-key and carried isRead=true through exact fixture CAS/archive/restore; exact dismissal/reactivation/no replacement and ordered owned events/version/actor/time/reason; one exact lazy blocked Workflow-start rejection.",
+    "ownedClosure": "Source-enforced45-model/five-boundary census and bounded native lineage/ID controls preceded18 exact FK-ordered deletions, empty postcensus, true joins, owned disconnect and original global descriptor restoration. Safe framepending0/unknownfalse/resolvedtrue/closedtrue/restoredtrue plus terminal named-case PASS support this scoped closure.",
+    "rawPayloadLimit": "Complete RAM DB rows/UUIDs, each individual service response/transaction result/retry count and a separate post-write timestamp are not retained in the safe log. This is source-correlated executed assertion evidence, not independent raw-row reconstruction.",
+    "privacy": "TASK062 safe frame contains no identifiers, rows, tokens, hashes, URLs, raw errors or traces. No claim that every unrelated whole-CI log line shares that schema."
+  },
+  "scopeLimits": [
+    "Executed direct-service/PostgreSQL synthetic STAFF/session actors, DRAFT configs and fictional isTest=false metadata with literalfalse are the adopted boundary. No normal signup/MFA/cookie/HTTP/browser or clinical generation/approval/model/artifact evidence.",
+    "Fixture CAS is not a product reassignment route. Carried isRead is not renewed-unread attention. Mocked blocked start is not native scheduling, durable provider/world delivery, hosted/protection/runtimefalse or whole criterion5 proof.",
+    "All12 features/nine PRD8 criteria, paid/clinical/data/service/protection/retention/production and complete pilot remain required. Last protected807 source is historical; effective hostedfalse remains UNVERIFIED/encrypted defaultsUNKNOWN/default-disabled.",
+    "TASK057 permanent A/B/C parks/exhausted budgets and13 logical native commands remain held. Native Git administration is not a Vercel command refill.",
+    "Historical CI37574789977 remains its recorded FAILURE with original kind/causeUNKNOWN; this passing current run is not a causal repair or flakiness inference."
+  ],
+  "count": {
+    "before": 37,
+    "afterReviewedActualClosing": 38,
+    "delta": 1,
+    "noPlanningStaticCorrectionIncrement": true
+  },
+  "next": "TASK063_READ_ONLY_EXISTING_CRITERION9_AFTER_ACTUAL_DOCUMENTARY_CLOSURE",
+  "all12FeaturesNinePRD8AndProductionRequired": true,
+  "sourceOrCIReplayAuthorized": false
+}

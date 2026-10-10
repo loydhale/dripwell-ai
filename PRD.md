@@ -1,276 +1,328 @@
 # PRD: DripWell.ai
 
-**Version:** 1.0 (APPROVED)
-**Owner:** Loyd Hale
-**Managed by:** Jeff (CTO)
-**Last updated:** 2026-04-22
+**Version:** 2.0, consultation workflow  
+**Status:** Owner-authorized v2 source implemented; release verification and live service status are recorded in [verification evidence](docs/VERIFICATION_REPORT.md)\
+**Owner:** Loyd Hale  
+**Updated:** 2026-10-07\
+**Plan:** [Implementation plan](docs/IMPLEMENTATION_PLAN.md)  
+**Previous scope:** [Archived v1 PRD](docs/archive/PRD-v1.md)
 
----
+## 1. Product and purpose
 
-## 1. One-liner
-DripWell is an AI-powered, in-room wellness assessment tool for IV therapy clinics that observes visual wellness signals through computer vision, conducts adaptive follow-up questioning, and generates provider-approved recommendations drawn from the clinic's actual drip catalog.
+DripWell is a multi-tenant PWA for IV clinics. It records a consented new-client consultation, guides staff through necessary questions, prepares recommendations from that location's approved catalog, captures staff review and actual treatment, and produces an attractive wellness takeaway. Owners can standardize consultations, understand staff adjustments, track care starts and client decisions, and improve recommendation configuration through owner-controlled review.
 
-## 2. Why it exists
-IV therapy clinics today rely on brief anecdotal intake conversations ("How are you feeling?") to determine what a patient needs. This produces subjective, inconsistent recommendations and leaves clinics competing on price. There is no in-room assessment tool purpose-built for IV therapy that bridges the gap between a 30-second intake chat and full diagnostic blood work. DripWell fills this gap with a clinically-grounded, 5-minute assessment that standardizes care quality across every provider and every visit.
+The primary commercial goal is to help an IV spa present and sell a suitable clinic membership or program during its new-client workflow, while improving client satisfaction. Connect reviewed goals/preferences to approved benefits, official prices and terms so staff can explain the offer clearly. Track care starts, client decisions and confirmed enrollment/purchase separately, with consultation-visit denominators, missing outcomes and suitability context. Accepting a wellness plan does not establish enrollment or collected payment; ordinary visit documentation requires no membership result. Client satisfaction remains an intended outcome; a post-visit rating stays a separate scope proposal. [Reviewed membership-conversion research](docs/MEMBERSHIP_CONVERSION_RESEARCH.md) supports the queued reporting and offer-presentation improvements without claiming measured sales lift.
 
-## 3. Target users
+Use OpenScribe as the reference for recording, transcription, and reviewed documentation. Use Vercel, AI SDK, Workflow, and eve for application and agent infrastructure. Preserve existing project instructions/context/memory conventions and use eve's documented filesystem layout. The owner's separate ICM/eve example has not yet been identified; do not claim an exact template match until verified.
 
-| Role | Who they are | What they need |
-|------|-------------|----------------|
-| **Super User** | Clinic owner or lead provider | Configure catalog, manage providers, view analytics, control settings |
-| **Provider** | RN or licensed provider running the assessment | Run assessments, review AI recommendations, approve/overrides, capture patient data |
-| **Patient** | Person receiving IV therapy | Understand why they're getting a specific drip, see progress over time |
-| **System Admin** | Growlocals/vendor team | Platform-wide support, pattern library updates, multi-tenant oversight |
+This replaces v1's photo-first assessment. Patient photo signal extraction is not required; catalog/menu photos remain part of setup.
 
-## 4. Core user outcomes
-When this product is complete:
-- A provider can run a full wellness assessment in under 5 minutes, from photo capture to provider-approved recommendation
-- A clinic owner can onboard their clinic and configure their full catalog in under 10 minutes
-- Every patient receives a consistent, clinically-grounded recommendation regardless of which provider is on shift
-- A returning patient can see their progress compared to baseline signals at reassessment
-- The clinic operates with standardized assessment quality that stops revenue from depending on who's working
+## 2. Users and authority
 
-## 5. In-scope features
+| Role | Responsibility |
+| --- | --- |
+| Clinic owner | Configure products, prices, memberships, services, staff, questions, and policies; test setup; review adjustments; approve/reject improvements; view reporting, billing, trials, referrals |
+| Staff/provider | Initiate consultations, record with consent, correct summaries/answers, adjust recommendations within authority, obtain clinical approval, record actual care and decisions, approve/share takeaways |
+| Client | Receive a clear explanation and approved document through controlled sharing or download |
+| Platform admin | Manage clinics, subscriptions, trials, credits, operational metrics and support; no routine access to client conversations or clinic clinical-policy approval |
 
-### Feature F-1: Conversational Clinic Onboarding & Catalog Ingestion
-- **Description:** Super user creates account and configures their clinic through a conversational AI interface. Two paths: (1) conversational walkthrough capturing drips, add-ons, injections with ingredients, or (2) photograph existing menu and AI extracts structured catalog.
-- **Acceptance criteria:**
-  - Super user can complete full catalog setup in under 10 minutes
-  - System captures drip names, active ingredients, add-ons, injections, peptides
-  - AI verifies extracted items with super user through short back-and-forth
-  - System asks capability questions (appointment length, out-of-stock items, state restrictions, refer-out protocol)
-  - Super user can review and edit assembled catalog inline before going live
-- **Priority:** P0
+A location is a tenant with its own catalog, prices, policies, and consultation records. Verify tenant membership and role server-side. Clinical authorization may be narrower than ordinary staff access. Only the owner login can interact with the improvement workbench and publish configuration changes.
 
-### Feature F-2: Digital Patient Intake (Photo or Digital Form)
-- **Description:** Patient intake can be completed two ways: (1) digital form on tablet, or (2) patient fills a paper intake form and provider photographs it for AI OCR extraction. No patient names stored in the app.
-- **Acceptance criteria:**
-  - Digital form captures: medications, conditions, allergies, menstrual status, recent illness, current supplements, visit goals
-  - Photo intake mode: provider photographs paper form, AI extracts text fields via OCR, provider verifies/corrects
-  - Visit goals: 1-3 selections from energy, recovery, immunity, beauty, hangover, athletic, stress, hydration, other
-  - No patient name, DOB, or other PII stored. Patient identified by anonymous assessment ID + timestamp only
-  - Data stored per-tenant with strict isolation
-  - Provider can review and confirm with patient before proceeding
-- **Priority:** P0
+## 3. End-to-end workflow
 
-### Feature F-3: Standardized Photo Capture with Direct Upload
-- **Description:** Provider captures standardized wellness photos with AR guidance. Photos upload directly to the app — no local storage on device. Required angles: face, under-eyes, back of hand/forearm, optional tongue.
-- **Acceptance criteria:**
-  - AR overlay shows correct positioning, lighting checks, and capture confirmation
-  - Photos captured in under 90 seconds total
-  - **Photos upload immediately to app — never stored on device camera roll or local storage**
-  - Images encrypted in transit (TLS 1.3) and at rest (AES-256)
-  - Offline capture with deferred sync if network unavailable (still not stored locally after sync)
-  - Provider confirms upload success before proceeding
-- **Priority:** P0
+1. Owner uses text, recorded voice messages, and catalog photos/files to set up the clinic.
+2. Assistant asks about gaps and organizes draft products, prices, memberships, services, questions, and recommendation rules into editable settings.
+3. Owner reviews, tests synthetic consultations, and activates a versioned configuration.
+4. Staff initiate a consultation; its board card appears immediately.
+5. Staff obtain and record consent before recording, with visible start/pause/resume/stop controls.
+6. The app shows required questions and follow-ups. Transcription helps identify answers; staff verify/correct clinically relevant facts.
+7. Software produces initial recommendations. Staff review, adjust, and approve the exact revision, then convey its explanation.
+8. Staff record what care actually started and was provided.
+9. After treatment, software produces a wellness plan and branded takeaway using the reviewed conversation, actual treatment, and approved services/memberships/prices. Staff review and approve client-facing output.
+10. Staff manually record acceptance, rejection, or TBD. Reminders address missing outcomes. Archive removes cards from the active board while preserving history.
 
-### Feature F-4: Vision AI Signal Extraction
-- **Description:** Vision AI extracts discrete wellness signals from photos with calibrated confidence scores. Structured JSON output only — no free-form prose.
-- **Acceptance criteria:**
-  - Signals include: conjunctival pallor, under-eye darkness/puffiness, sclera tint, lip dryness/pallor, angular cheilitis, tongue color/surface, facial dullness/redness, skin texture, nail bed color/ridging/spooning, hair quality, posture/affect
-  - Each signal returned with confidence score
-  - Extraction completes in under 15 seconds per photo
-  - Model contract: structured JSON only, no hallucinated signals
-- **Priority:** P0
+Initial recommendation, care start/treatment, wellness acceptance, membership enrollment, and collected payment are separate facts. Accepting a plan does not automatically mean care started or a membership was sold.
 
-### Feature F-5: Adaptive AI Questioning
-- **Description:** After vision signals, system enters adaptive questioning loop. AI selects highest information-gain questions to disambiguate between candidate patterns. Bayesian-style confidence updating after each answer.
-- **Acceptance criteria:**
-  - Question bank covers: energy/sleep, hydration, stress/recovery, women's health, diet pattern, medical history/medications, specific symptoms
-  - System selects next-best question based on current pattern confidences
-  - Termination when: pattern confidence ≥ 0.75, max 5 questions reached, provider ends questioning, or no meaningful information gain remains
-  - Provider asks questions in conversation; provider taps/captures patient response
-- **Priority:** P0
+## 4. Feature requirements
 
-### Feature F-6: Clinical Pattern Library & Recommendation Engine
-- **Description:** Three-layer recommendation system. Layer 1 (universal clinical patterns) → Layer 2 (location catalog mapping) → Layer 3 (universal clinical defaults).
-- **Acceptance criteria:**
-  - Pattern library includes: iron deficiency cluster, B12/folate cluster, dehydration, stress/magnesium depletion, inflammatory/recovery state, etc.
-  - Each pattern has supporting signals, question answers, conflicting signals, generic recommendation intent, safety flags, clinical rationale
-  - Location layer maps generic intents to actual catalog items (e.g., "B-complex IV support" → "Myers' Cocktail" at this clinic)
-  - Universal defaults: hydration bias, ambiguity default (conservative broad-spectrum), first-visit consistency
-  - No commercial weighting, pricing, packages, or seasonal logic
-- **Priority:** P0
+All listed features are P0 for the complete v2 pilot unless explicitly optional.
 
-### Feature F-7: Three-Tier Safety Flag System
-- **Description:** AI identifies and categorizes concerns into Tier 1 (Informational), Tier 2 (Recommend Follow-up), Tier 3 (Urgent/Contraindication).
-- **Acceptance criteria:**
-  - Tier 1: Surfaces to provider, provider chooses whether to mention to patient
-  - Tier 2: Surfaces with suggested script language, provider chooses whether to share
-  - Tier 3: Hard stop. Recommendation locked. Provider must acknowledge and follow medical director protocol. Cannot generate standard recommendation without explicit override + reason capture
-  - All flags logged in audit trail regardless of provider handling
-- **Priority:** P0
+### F-01. Conversational setup and editable settings
 
-### Feature F-12: Photo Intake Form OCR (Paper-to-Digital)
-- **Description:** Provider photographs a paper intake form and AI extracts structured data via OCR. Provider verifies extracted fields before proceeding.
-- **Acceptance criteria:**
-  - Camera captures paper form, OCR extracts: medications, conditions, allergies, supplements, goals
-  - Provider reviews extracted data and corrects any OCR errors inline
-  - Extracted data fed directly into assessment workflow (same as digital form)
-  - Paper form image discarded after extraction (not retained)
-- **Priority:** P1
+- Support chat, typed input, recorded voice with editable transcription, and catalog/menu image/file uploads. A continuous live voice agent is unnecessary.
+- Capture products/types, ingredients/quantities where relevant, compatibility, availability, suitability/exclusions, prices/currency, services, and membership benefits/terms/pricing.
+- Ask about missing ingredients, unclear OCR, conflicting prices, clinic capabilities, protocols, and approval requirements. Never invent official pricing or medical rules.
+- Organize drafts into clinic, products/add-ons, services, memberships, prices, questions, and recommendation-policy settings. Owners can manually edit these later.
+- Show proposed changes before saving; distinguish draft from active configuration. Setup conversation cannot silently replace active settings.
+- Activation records source, version, approver, and time; support version review and rollback.
 
-### Feature F-8: Provider Approval Gate & Override Capture
-- **Description:** Every recommendation surfaced to provider for review before any patient-facing output. Provider can approve, adjust, or override. Override reasons captured for model learning.
-- **Acceptance criteria:**
-  - Pre-recommendation summary shows: primary recommendation, alternatives, confidence, rationale, safety flags
-  - Provider can approve, modify, or reject with reason code
-  - Override reasons captured and logged for quarterly clinical review
-  - No patient-facing output generated without explicit provider approval
-- **Priority:** P0
+### F-02. Stable recommendation configuration and setup testing
 
-### Feature F-9: Patient-Facing Recommendation Output
-- **Description:** Provider-approved recommendation displayed on tablet. Optional PDF generation (provider handles delivery). Plain language, non-alarming, no pricing or promotional content.
-- **Acceptance criteria:**
-  - Output shows on tablet: what's in the drip and why, what assessment identified, what to track next time, any shared flags, required disclaimers
-  - Optional PDF generation for provider to print/email manually
-  - No pricing, membership references, or promotional content
-  - Required medical/legal disclaimers present
-  - Pre-approved language library only — no LLM freeform prose in patient output
-- **Priority:** P0
+- Prepare structured configuration from the approved catalog and validated clinical protocols. Owner approval of commercial data is not clinical validation of invented rules.
+- Separate clinical suitability, contraindications, required questions, and compatible options from post-treatment membership/service matching.
+- Validated rules determine eligibility and safety gates. AI structures facts and explains eligible choices; it cannot bypass rules.
+- Recommendations use only available location items and approved prices/terms, with evidence and rule rationale.
+- Pin configuration/catalog/price snapshot, prompt, and model versions per output. Historical visits keep their versions.
+- Same structured inputs and configuration yield the same eligibility/rule results; new facts or approved configuration changes explain different results.
+- Owners can test multiple synthetic consultations, inspect missing questions/rationale/prices, revise, and activate. Tests do not consume trial consultations or enter client/staff reporting.
 
-### Feature F-10: Longitudinal Assessment History & Reassessment
-- **Description:** Returning patients get fresh assessment with baseline comparison. Progress visualization shows signal changes over time. No patient names stored — provider identifies returning patient by anonymous assessment ID.
-- **Acceptance criteria:**
-  - System stores baseline signals from first assessment
-  - Reassessment reuses relevant prior answers where appropriate (shorter workflow)
-  - Progress view shows: signals improved, signals persistent, new signals
-  - Optional provider-visible progress (controlled by super user setting)
-  - Non-alarming framing throughout
-- **Priority:** P1
+### F-03. Consented recording and structured summary
 
-### Feature F-11: Super User Admin Panel
-- **Description:** Admin interface for catalog management, location settings, user management, dashboard, audit logs. Includes notification system, login-as provider feature, and catalog AI enhancement tools.
-- **Acceptance criteria:**
-  - Catalog: view/edit all items, add new (conversational, manual, CSV upload, or image), toggle in/out of stock, soft delete
-  - AI catalog enhancement: upload menu image or CSV, AI extracts structured catalog with descriptions
-  - Location settings: state, medical director, default capture preferences, intake form length
-  - User management: invite providers, manage permissions, deactivate, login-as provider
-  - Notifications: notification icon with recent activity alerts
-  - Dashboard: assessment counts, recommendation acceptance rate, override distribution, flag distribution
-  - Audit log: exportable record of all actions
-- **Priority:** P1
+- Create a tenant-scoped encounter ID, assigned staff, and timestamps when initiated.
+- Record consent before audio capture; offer manual structured intake if recording is declined.
+- Show recording duration, pause/resume/stop, permission errors, upload progress, and processing state.
+- Transcribe ordered segments with visible errors and retry handling; preserve original transcript and staff-corrected revisions.
+- Structure goals, symptoms, relevant history, medications, allergies, and preferences with evidence. Distinguish missing/uncertain information, reported facts, and staff observations.
+- Do not invent answers or speakers. Staff verify relevant information before treatment approval.
+- Persist progress server-side; reconnect/retry does not duplicate visits or trial units.
+- Default to a neutral encounter identifier. Recordings/transcripts may contain identifiers and health information even without a name field.
 
-### Feature F-11a: Admin Notifications
-- **Description:** Notification bell icon in admin header showing recent system events (new assessments, provider activity, safety flags).
-- **Acceptance criteria:**
-  - Bell icon with unread count badge
-  - Dropdown showing recent notifications
-  - Mark as read functionality
-- **Priority:** P1
+### F-04. Questions staff can easily see
 
-### Feature F-11b: Login-As Provider
-- **Description:** Super user can temporarily impersonate a provider to see exactly what they see in the PWA.
-- **Acceptance criteria:**
-  - Admin can select any provider and "login as" them
-  - Opens PWA in provider context (same JWT, provider permissions)
-  - Clear indicator that admin is in impersonation mode
-  - Can exit impersonation and return to admin
-- **Priority:** P1
+- Show concise prioritized required questions, optional follow-ups, and why they matter.
+- Update answered/missing/needs-confirmation indicators as transcript segments arrive; support direct entry/correction.
+- Low-confidence extraction requires confirmation. An omitted answer is not a negative answer.
+- Derive requirements from active clinic rules and relevant suitability/safety concerns.
+- Block final treatment approval while required information is unresolved; permit documentation or referral without a treatment recommendation.
+- Audit answer corrections and preserve provenance.
 
-### Feature F-11c: Catalog Upload & AI Enhancement
-- **Description:** Super user uploads spa menu via CSV or photograph. AI extracts structured catalog and generates clinical descriptions for assessment mapping.
-- **Acceptance criteria:**
-  - CSV upload: map columns to catalog fields, preview before import
-  - Image upload: photograph menu, AI OCR extracts items and prices
-  - AI description generation: for each catalog item, AI generates clinical description (ingredients, benefits, when to recommend)
-  - Manual review: admin verifies AI-generated content before saving
-- **Priority:** P1
+### F-05. Initial recommendations and tracked staff review
 
-### Feature F-13: Landing Page (Marketing Site)
-- **Description:** Single-page marketing site at dripwell.ai. Positions product, explains methodology, shows pricing, drives early access requests.
-- **Acceptance criteria:**
-  - Sections: Hero, Spectrum (3-option comparison), How It Works (5 steps), Consistency, Outcomes, Science, Pricing, Final CTA
-  - Design follows brand system (teal primary, amber accent, Fraunces + Inter typography)
-  - Responsive, WCAG 2.2 AA, respects prefers-reduced-motion
-  - Performance: < 3s LCP on 4G
-- **Priority:** P1
+- Produce a draft IV/add-on recommendation, relevant alternatives, explanation, unresolved questions, and safety flags.
+- Staff can correct the summary, change/remove eligible products, and edit the explanation easily.
+- Preserve original AI draft and final staff recommendation as separate revisions.
+- Capture meaningful before/after changes, fields/items, staff identity, timestamp, reason category, and optional note. Require a reason for material changes.
+- Reasons include client choice/budget, availability, contraindication, missing information, unsuitable AI suggestion, and staff judgment.
+- Require an authorized provider's explicit approval of the exact revision before client-facing treatment guidance. Later edits invalidate approval.
+- Apply clinic medical-director protocols. Chat cannot bypass contraindications; any permitted override requires the authorized clinical process and an audit record.
+- Provide an explanation staff can convey: what is recommended today, relevant stated goals, why it is suitable, and its limitations.
 
-## 6. Explicitly out of scope
-- EHR, PMS, scheduling, CRM, or any external system integration
-- Pricing data, package/bundle/membership tier recommendations, or commercial weighting
-- Frequency/cadence prescriptions (telling patients how often to come in)
-- Diagnosis, treatment, cure, or medical device claims
-- Automated patient outreach (no 24/48h outcome check, no SMS, no email automation)
-- Patient names, DOB, or any PII stored in the app (anonymous assessment IDs only)
-- Patient-visible progress toggle (removed per owner feedback — we handle intake forms)
-- Standalone Analytics page (merged into Dashboard per owner feedback)
-- Multi-provider workflow routing or complex scheduling
-- Dark mode (brand is light/bright by design)
-- iPhone version (v1 is tablet-only; iPhone deferred)
-- Native mobile app (v1 is PWA; native in v1.5 if needed)
+### F-06. Actual care and commercial outcomes
 
-## 7. Stack and architecture decisions
+- Record care started, not started, or pending separately from the wellness decision.
+- Capture actual IV/add-ons/services provided, substitutions, relevant observations, and optional reasons for not starting.
+- Optional fields capture confirmed membership enrollment or service purchase and known amount.
+- Keep recommended, accepted, administered, enrolled, and paid distinct. Staff confirmation is not proof of payment collection.
+- Corrections preserve audit history; no membership result is required to complete visit documentation.
 
-| Layer | Decision | Rationale |
-|-------|----------|-----------|
-| **Frontend** | Progressive Web App (PWA), tablet-optimized | Fastest v1 delivery, works on iPad, responsive desktop for admin |
-| **Backend** | Node.js + TypeScript + Fastify | Performance, type safety, fast iteration |
-| **Database** | PostgreSQL + Prisma ORM | Multi-tenant data isolation, relational data model, HIPAA-friendly |
-| **Auth** | email/password + MFA minimum, SSO optional | HIPAA requirement, role-based access |
-| **Vision AI** | Gemini 2.5 Pro via API (v1), abstracted interface | Best-in-class vision capability; swappable to self-hosted Gemma/MedGemma later |
-| **Hosting** | Vercel or Netlify (frontend), AWS/GCP (backend, HIPAA-compliant) | Speed + compliance |
-| **SMS/Email** | Twilio + SendGrid | Industry standard, HIPAA BAA available |
-| **File Storage** | S3 with AES-256 encryption + presigned URLs | Photo storage, HIPAA-compliant |
-| **Repo Structure** | Monorepo: `apps/web` (PWA), `apps/admin` (desktop admin), `packages/shared` | Clean separation, shared types/utils |
+### F-07. Post-treatment wellness plan and polished takeaway
 
-## 8. Constraints
+- After actual treatment is recorded, generate a client-friendly summary and draft wellness recommendations based on reviewed facts and actual care.
+- Include suitable services/memberships with approved benefits, official prices, and terms in easy-to-convey language.
+- Clinical selection remains independent of sales targets, pricing, and referral incentives. Commercial matching respects suitability and client preferences.
+- Staff can edit/approve the wellness plan; log changes and bind approval to its revision.
+- Distinguish future suggestions from care received. Do not invent medical claims, guaranteed results, or treatment cadence.
+- Render an attractive, branded, responsive, accessible document and downloadable PDF.
+- Secure share links expose only the approved takeaway, require appropriate recipient verification, expire, and can be revoked. Internal transcripts/adjustments stay private.
+- Show a brief sharing/download reminder: “Contains private health information. Share only with the intended recipient using your clinic's HIPAA-compliant process.”
+- The reminder accompanies actual access controls. Explain that downloaded copies cannot be remotely revoked.
 
-### Performance targets
-- End-to-end assessment: under 5 minutes (photo capture to approved recommendation)
-- Photo capture + signal extraction: under 15 seconds per photo
-- Recommendation generation after last answer: under 3 seconds
-- Landing page LCP: under 3 seconds on 4G
+### F-08. Kanban, manual decisions, and archive
 
-### Compliance / regulatory
-- HIPAA full technical and administrative safeguards
-- BAA capability required for every tenant
-- AES-256 encryption at rest, TLS 1.3 in transit
-- Complete audit log, tamper-evident, exportable
-- Data processor agreements with all sub-processors
-- Product is a screening tool only — explicit disclaimers everywhere
+Labels may be polished; these meanings and triggers are required.
 
-### Budget
-- v1 MVP target: 8-12 weeks build
-- Pilot: 8-12 weeks with one clinic
-- No explicit budget cap stated — optimize for speed-to-pilot
+| Stage | Stored value | Trigger |
+| --- | --- | --- |
+| Consultation started | CONSULTATION_STARTED | Automatically when a consultation is successfully initiated in software |
+| Initial recommendations given | INITIAL_RECOMMENDATIONS_GIVEN | Automatically when initial recommendations are produced and persisted |
+| Wellness recommendations produced | WELLNESS_RECOMMENDATIONS_PRODUCED | Automatically when a wellness plan is produced and persisted |
+| Wellness recommendations accepted | WELLNESS_RECOMMENDATIONS_ACCEPTED | Staff manually indicate client acceptance |
+| Wellness recommendations rejected | WELLNESS_RECOMMENDATIONS_REJECTED | Staff manually indicate client rejection |
+| Wellness recommendation TBD | WELLNESS_RECOMMENDATION_TBD | Staff manually indicate a pending decision |
 
-## 9. Open questions
-- **Q1 — Platform confirmation:** PWA for v1, native iPad in v1.5 if camera API demands it. ✅ CONFIRMED
-- **Q2 — Vision model provider:** Gemini 2.5 Pro via API for v1. Research task added to evaluate medical-specific models as they mature. ✅ CONFIRMED
-- **Q3 — Pilot clinic:** None yet — find before pilot phase. ⏳ OPEN
-- **Q4 — Clinical advisor:** Using RD diagnostic literature directly. No human advisor for v1. ✅ CONFIRMED
-- **Q5 — Pricing model:** TBD after understanding LLM/COGS. ⏳ OPEN
-- **Q6 — Patient data model:** Anonymous assessment IDs, no names/DOB/PII. Photo intake form via OCR. ✅ CONFIRMED
-- **Q7 — Email/SMS:** Skip for v1. Tablet display + optional PDF generation only. ✅ CONFIRMED
-- **Q8 — Legal counsel:** Skip for v1. ✅ CONFIRMED
+- Cards show encounter identifier, assigned staff, dates, stage, and outstanding actions.
+- Failed generation does not advance a card. Background retries cannot duplicate milestones or regress a manual decision.
+- “Produced” means a saved artifact, not clinical approval. Approval/share readiness are separate metadata.
+- Accepted/rejected/TBD requires a produced, approved wellness revision and explicit staff action.
+- Staff can resolve TBD or correct a decision with audit history. A materially changed approved plan requires explicit reconsideration; acceptance is not inherited silently.
+- Archive is a reversible actor/time/reason flag independent of stage. Preserve recommendations, adjustments, outcomes, and audit history; support search/restore.
+- Archive suppresses active reminders and retains unresolved-decision markers. It is not rejection, completion, or deletion. Restore returns the saved stage and reconciles reminders.
+- Log actor/system event, before/after stage, time, and artifact revision.
 
-## 10. PRD change protocol
-- **Minor updates** (clarifications, completion marks, typos): Jeff edits inline, Auditor co-signs
-- **Major changes** (new features, scope changes, stack changes): Jeff drafts in `<!-- PENDING_OWNER_APPROVAL: <id> -->` block, workaround in the meantime, Loyd approves before commit
+### F-09. Reminders and encouraging animations
 
-## 11. Glossary
+- Persistent in-app notifications remind staff about missing care outcomes and absent/pending wellness decisions. Owners see overdue records.
+- Owners configure timing; reconcile/cancel on decisions, archive, or reassignment. Delivery is deduplicated and rechecks current state.
+- Reminders survive page closure/server restarts. Browser push is optional where supported; in-app notifications suffice. Patient SMS/email is unnecessary.
+- Brief celebrations mark setup completion, complete documentation, actual care starts, and optionally confirmed enrollment.
+- Respect reduced motion, dismissibility, and no repeat confetti on retries. Encourage accurate recording of every outcome.
 
-| Term | Definition |
-|------|------------|
-| **NFPE** | Nutrition-Focused Physical Examination — systematic head-to-toe examination to identify nutritional deficits through visual/tactile observation |
-| **Signal** | A discrete visual wellness indicator extracted by AI (e.g., conjunctival pallor, nail ridging) |
-| **Pattern** | A named wellness state (e.g., "Iron deficiency cluster") mapped from multiple signals and question answers |
-| **Super User** | Clinic owner or lead provider with full admin access |
-| **Provider** | Licensed clinician (RN, etc.) who runs assessments |
-| **Tenant** | One clinic location in the multi-tenant architecture. Data strictly isolated per tenant |
-| **BAA** | Business Associate Agreement — HIPAA-required contract for data handling |
-| **Tier 1/2/3 Flag** | Safety classification: Informational, Follow-up recommended, Urgent/Contraindication |
+### F-10. Owner-only human review and improvement
 
----
+- Owners see adjustment patterns and concrete examples, client decisions, care starts, and optional enrollments.
+- Interpret changes against suitability, exclusions, stock, client choice, and budget. Lower spending alone is not under-recommending.
+- Owners classify appropriate staff corrections, inappropriate AI suggestions, missed suitable options, and catalog/question/policy problems.
+- Propose evidence-backed configuration changes; test against synthetic cases before activation.
+- Only owner-authorized actions review, approve/reject, publish, and roll back improvements. Clinical changes also require appropriate clinical validation.
+- Preserve proposal evidence, review decisions, evaluation results, approver, and configuration versions.
+- Staff corrections are evidence, not permission for automatic model retraining or policy rewriting.
+- Enforce owner authority in APIs/tools/background work, not just hidden UI controls.
 
-## Pending approvals
+### F-11. Referrals, trials, and account credits
 
-<!-- PENDING_OWNER_APPROVAL: prd-v1 -->
-**PRD v1.0 Draft**
-Drafted: 2026-04-22
-Summary: Complete PRD drafted from Owner's provided design brief and product requirements document
-Blocking tasks: All v1 features depend on this approval
-Workaround active: No — waiting for approval before dispatching tasks
-<!-- END PENDING_OWNER_APPROVAL: prd-v1 -->
+- Clinics get a link/code to refer other IV spa owners, containing no client data.
+- Referred clinics receive a **14-day trial including 10 initial consultations**; show days remaining and used/remaining consultations.
+- Use that allowance for ordinary trials too as a proposed default unless a separate offer is approved.
+- Count a unique initial consultation once; exclude setup tests, retries, reopened records, and regeneration. Proposed start/count policies are in section 9.
+- Stop new starts when time/allowance expires; already-started visits can finish. Exhaustion must not unexpectedly hide existing records.
+- Award a referring clinic account credit on a qualifying paid platform subscription conversion, the working interpretation of “signs.”
+- Record attribution, dates/usage, conversion, earned/applied/reversed credits, amounts, and policy version.
+- Prevent self-referrals, duplicates, replayed billing events, and duplicate awards; handle refunds and admin corrections with ledger history.
+- On2026-10-03 the Owner delegated initial commercial pricing. Starter platform subscription is USD199 per clinic account per month, using the existing tenant subscription without location metering. Starter referral credit is USD50 once after the first qualifying paid platform subscription, with30-day attribution, reversal on refund and no expiry. Keep credit restricted to future platform invoices with no cash payout. Publish changes through versioned platform authority, preserve historical snapshots and allow later edits. The 14-day/10-consultation trial never auto-enrolls into paid billing.
 
+### F-12. Clinic and platform dashboards
+
+- Clinic reporting covers new consultations, care started/not-started/pending, wellness accepted/rejected/TBD, unresolved outcomes, optional memberships/services, adjustments, and completion time.
+- Make confirmed client membership enrollment visible, with enrolled/did-not-enroll/not-recorded distinct. Show the selected-period consultation-visit denominator and missing-data count; visits are not deduplicated first-time clients, and a service purchase is not automatically a program sale.
+- Make denominators/date filters explicit; exclude test sessions. Archived visits remain in historical metrics unless explicitly filtered.
+- Platform reporting covers clinics, subscriptions, trial utilization, referral funnel, credit liability/application, consultations, failures, latency, model/transcription costs, and support activity.
+- Every generation has an addressable ID, tenant/encounter/run, versions, status, and cost. Restrict health-bearing traces separately from operational metrics.
+- Sensitive support access is exceptional, time-limited, authorized, and audited.
+- Platform subscription billing is separate from products/memberships clinics offer clients.
+
+## 5. Architecture and ICM/eve conventions
+
+| Layer | Direction |
+| --- | --- |
+| App | Next.js App Router PWA on Vercel; reuse a suitable B2B SaaS shell for account/team/billing/dashboard patterns |
+| Agents | eve filesystem instructions/skills/typed tools/channels with authenticated tenant context; AI SDK structured generation and streaming |
+| Durable work | eve owns agent conversations; Workflow owns transcription/document/reminder/billing processes; database owns business state |
+| Business records | PostgreSQL and one ORM/migration system; audit/reuse existing Prisma contracts where suitable |
+| Artifacts | Private scoped audio/upload/document storage, with verified service suitability and retention |
+| Integrations | Discover/provision real auth, database, storage, subscription, transcription, and inference services during implementation |
+
+Preserve root AGENTS.md, PRD.md, personas/, memory/, tasks/, templates/, and development workflows/. They contain development context, never client records.
+
+Use apps/web/agent/ for authored eve configuration beside application code, and apps/web/evals/ beside agent/. Follow the pinned framework's instructions/, skills/, tools/, channels/, and memory/ slots. Generated .eve/ is not authored policy or business storage.
+
+Load owner-approved immutable clinic context from the database under verified tenant/version scope. Agent memory cannot replace active policies or authorize changes. The implemented v2 runtime is Next.js with the authored eve agent and Workflow processes. Legacy Vite/Fastify sources remain references; deploying v2 requires the linked services and reviewed migrations in the plan.
+
+**Coding requirement:** Use the open-source [Vercel Plugin](https://github.com/vercel/vercel-plugin) with the development team's coding assistant. Apply its relevant skills and current framework documentation during implementation and review. The plugin is development guidance; eve remains the application's agent runtime. Hosted Vercel Agent is not required for this workflow. Infrastructure and model usage costs remain separate.
+
+## 6. Data handling and clinical safeguards
+
+- Treat audio, transcripts, summaries, recommendations, and documents as sensitive health data; neutral IDs do not de-identify conversations.
+- Before real client data, verify required agreements and configuration for every relevant service, including Workflow persistence, eve sessions, AI/transcription routes, storage, and traces.
+- Use encryption, least privilege, owner MFA/session controls, tenant isolation, audit history, retention, and deletion.
+- Cache only the public PWA shell. Do not cache client documents/API results/audio/transcripts in service workers or ordinary browser localStorage.
+- Require a foreground recording gesture; handle iPad permissions/interruptions and visible upload gaps.
+- Treat transcripts/uploads/memory as data, not instructions that can change roles, official prices, or policies.
+- Keep health content out of general analytics, push payloads, billing metadata, URLs, and repository memory.
+- Define audio/document/transcript retention, backup lifecycle, deletion, and access review. Archive does not delete.
+- Recommendations are authorized-provider decision support under clinic protocols, not autonomous diagnosis or prescribing.
+
+## 7. Non-goals
+
+- Required patient photos, NFPE signal extraction, or photo diagnosis.
+- Continuous live voice agent, telephone bot, or autonomous patient consultation.
+- Automatic fine-tuning/self-modification of active clinic policies or staff publishing improvements.
+- EHR/scheduling/CRM integration or automated patient SMS/email.
+- Native mobile app or complete practice management.
+- Collecting clinic treatment/membership payments in the platform subscription checkout.
+
+## 8. Pilot definition of done
+
+Verify the full story with synthetic data before real-client rollout:
+
+1. Two isolated clinics set up different catalogs/prices, test cases, and activate versions.
+2. Consented capture yields reviewed facts, visible required questions, and valid location-specific recommendations.
+3. Adjustments/reasons are retained, exact-revision clinical approval gates output, and actual care is separately recorded.
+4. Approved post-treatment wellness output shares/downloads securely with accurate prices.
+5. All six stage triggers, decisions/corrections, reminders, archive, and restore work.
+6. Owner-only proposals can be tested, activated, and rolled back without changing historical visits.
+7. Trial lasts 14 days with 10 initial consultations; concurrent starts/retries cannot exceed or double-count allowance.
+8. One qualifying paid referral earns one configured credit; replay cannot duplicate it.
+9. Roles, services, retention/deletion, retries, and tenant boundaries pass end-to-end verification.
+
+Pilot targets: immediate recording controls; question updates within 10 seconds of receiving a segment; initial recommendations within 15 seconds of reviewed-summary submission; wellness document within 30 seconds. Measure representative devices/providers before public promises.
+
+Fresh setup conversation checkpoint, October8,2026: [TASK068](tasks/TASK-068.md) and [its audit](docs/AUDIT_SETUP_CONVERSATION_RESTART.md) record explicit guarded recovery after setup failure, preserving typed input and old saved history, clearing the next request identity and preventing late responses from restoring the old conversation. Reviewed source6f0ac9d1 passed first ordinary CI37797971073, both builds/types and256/256 Vitest across25files, including four real-component DOM cases and11 handler/PG cases. Independent actual-result PASS and distinct NO_NEW_LEARNING were adopted. jsdom/intercepted provider leaves do not prove live fresh-session recovery, clinical activation or a full numbered criterion. All twelve features, nine criteria, prices/roles and real-data/production gates remain unchanged.
+
+Setup retry checkpoint, October8,2026: [TASK067](tasks/TASK-067.md) and [its audit](docs/AUDIT_SETUP_MESSAGE_RETRY.md) record an in-scope F01 repair: the same failed owner message can claim its authorized durable job for another attempt, with overlapping retries sharing one running operation. Source b4aef87a passed its first ordinary fresh-service CI37791656066, both builds/types and251/251 Vitest tests across24files, including four new setup regressions within the10-case handler module. Provider leaves are intercepted; live fresh-session recovery, actual clinical/provider/browser story and every numbered criterion remain separately required. No clinical activation, commercial terms, permission or completion-definition change.
+
+Verification checkpoint, October4,2026: [the two-clinic setup audit](docs/AUDIT_TWO_CLINIC_SETUP.md) independently verifies ordinary fictional-owner inactive drafts, saved eligible/missing-answer tests, visible questions, two explicit tenant denials and exact cleanup. Its identical USD100 synthetic fixtures and inactive versions do not satisfy criterion1's different catalogs/prices and activation or the remaining full-story criteria above.
+
+The [normal-owner MFA audit](docs/AUDIT_NORMAL_OWNER_MFA.md) additionally verifies protected fictional enrollment, one-use recovery/challenge denials, session revocation, unchanged ordinary authority and secret-free enabled UI with exact cleanup. This is a scoped security portion of criterion9, not complete roles/services/retention or pilot verification. The next maintenance work is split into bounded default-disabled DB source, actual compiled recurrence and separately reviewed Blob-intent compatibility. Every acceptance criterion and real-data gate remains unchanged.
+
+The [bounded maintenance audit](docs/AUDIT_BOUNDED_MAINTENANCE.md) records independently reviewed default-disabled coordinator/effect fencing,17 unit checks,14 distinct composite PostgreSQL behaviors, typecheck, explicit isolated Webpack build and original-owned-target cleanup. Native starts are mocked in source tests; actual compiled recurrence TASK048, hosted enablement and deferred Blob families remain separate. This scoped checkpoint does not satisfy the full service/retention criterion or change any pilot criterion above.
+
+The [compiled recurrence audit](docs/AUDIT_COMPILED_MAINTENANCE_RECURRENCE.md) additionally verifies local native timer recurrence, first-item recovery/current-state reminder effects, stop fencing and exact owned terminal cleanup on source3203f614. Three waits/two natural successors and full shared-data preservation are scoped service evidence; hosted cadence, deferred Blob/provider families and the complete pilot remain separate. All nine acceptance criteria above are unchanged.
+
+The [client membership reporting audit](docs/AUDIT_MEMBERSHIP_REPORTING.md) records the complete-cohort true/false/unknown partition, explicit consultation and recorded-outcome denominators, both primary displays and scoped source/check/build evidence. Twelve distinct affected cases use retained11 plus corrected1, with eleven deliberate focused exclusions and the original assertion failure preserved. Mocked SQL transport and static markup do not establish live enrollment, payment, browser/device or full-pilot evidence. All nine acceptance criteria above remain unchanged.
+
+The [approved wellness offers audit](docs/AUDIT_APPROVED_WELLNESS_OFFERS.md) records approved immutable benefits/matched reviewed goals in wellness v2.2/public takeaway2, truthful generation provenance, unchanged initial/care v2.1 and historical v1 raw hashes, tracked edits/reapproval and matching staff/share/PDF facts. Eighteen distinct affected identities use retained15 plus separately passed legacy and valid-eligibility cases and one shared-domain case; original failures and deliberate focused exclusions remain preserved. Three saved synthetic PDF text checks, types and explicit-production Webpack packaging passed. Mocked transport/static/text evidence does not establish live approval/delivery/browser/device/paid behavior or complete the pilot. All nine acceptance criteria above remain unchanged.
+
+The [recording consumer audit](docs/AUDIT_RECORDING_CONSUMER_SAFETY.md) records scoped immutable private-read/post-provider publication guards, dedicated non-AI setup settlement and queue-only cleanup, with DB-only known-P2034 bounded publication retries. Actual reviewed source1d32 and ordinary fresh-PG17 CI37376530466 passed both builds/types and all25 consumer cases within212 tests. Passing source-bound owned hooks and injected provider controls do not prove live inference, physical conditional deletion, hosted retention or full-pilot readiness. Both complete Blob families are now integrated in scoped TASK053 source/CI below; the [count30 scope check](docs/PRD_DRIFT_CHECK_030.md) preserves all nine criteria above.
+
+The [recording cleanup pages audit](docs/AUDIT_RECORDING_CLEANUP_PAGES.md) records accepted immutable-provenance fixed5+5 upload/retention pages, original full-URL/exact-ETag conditional adapter, current-token/deadline and atomic non-AI progress fencing, and complete eight-page iteration evidence. Reviewed sourcefa4 and its first ordinary fresh-PG17 PR CI37390452897 passed both builds/types/migrations and230 tests in18 files, including all18 new cleanup identities and17 retained context controls as subsets. Source-bound owned hooks and injected I/O support scoped source/CI completion/count31; physical conditional deletion/uncached absence, hosted migration/explicit enablement/cadence and the full two-clinic story remain gates. SDK internal retries/cooperative abort and the nonisolated provenance-index duplicate assertion remain explicit limits. Maintenance stays default-disabled and all nine criteria above remain unchanged.
+
+The [trusted-store binding audit](docs/AUDIT_RECORDING_STORE_BINDING.md) records accepted source58b and first ordinary fresh-PG17 PR CI37397578008, with all22 stages and236 tests in18 files passing. Six new and20 retained consumer/delete identities are subsets in two13-test passing files. ASCII-before-fold comparison preserves original opaque credentials, immutable URL/ETag and existing authority/deadline fences. Scoped source/CI completion advances count32 once; injected I/O does not establish current real SDK authorization, physical deletion/uncached absence, hosted enablement or the full pilot. TASK055 plans the separately owned compiled/live storage proof; maintenance remains default-disabled and all nine criteria above remain unchanged.
+
+The [compiled private Blob proof](docs/AUDIT_COMPILED_BLOB_PROOF.md) records TASK055 actual default selected SDK verification at source58b, independently PASS03b6ba41 and accepted1706f03b. Wrong-ETag original preservation, original conditional deletion/private uncached subject absence with control intact before compensation, and original-only control cleanup/absence were observed in15 logical calls with pending0/obligations0/dispatcherclosed. Scopedcount33/Seen5 does not complete hosted maintenance, clinical ownership, whole retention or criterion9. Source CI was not replayed; maintenance stays default-disabled, protected807/literalfalse and all nine criteria remain held. Isolated provenance-index attribution is separately resolved by TASK056 below.
+
+The [isolated provenance-index test](docs/AUDIT_RECORDING_PROVENANCE_INDEX.md) records TASK056 independent actual PASS631f471b/Root4f1c408c at reviewed source834329e8. First ordinary fresh-PG17 PR CI37416931444 passed all22 stages and237tests/18files, including old8+new1 cleanup cases. Exact real-P2002 provenance columns, the distinct-provenance positive control and tracked hooks passed. Scoped count34/Seen5 does not establish shared/hosted/physical/clinical cleanup or whole retention. All12 feature requirements and nine pilot criteria remain unchanged. Current protected Preview readiness/update is the next justified verification task; no deployment or schema effect is authorized by this checkpoint.
+
+The [current protected Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) records accepted source/config checks, the failed original whole-metadata phase and a separately reviewed exact-old-origin component. Its original4-control fake passed; the distinct once read and independent actual review6a9037c6/Root0db75483 admit present target:null and READY at capture with timely owned closure. Thirteen logical native commands are closed, without old-phase replay or source-budget refill. That component does not establish complete metadata/composite freshness/new-deployment acknowledgement/runtime/protection or authorize staging/deployment/schema changes. Read-only structural planning and a factual documentary checkpoint continue; all12 features/nine numbered pilot criteria/count34/Seen5 remain unchanged.
+
+
+Protected Preview preparation update, October6,2026: the [current Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) preserves original4PASS/source rejection and attempt2 failed evidence separately. The final500-line diagnostic derivative received independent source/applied CHANGES_REQUIRED: its original invocation exited1 without a normal result, diagnostic frame or any of the five internal records. Counts/cause/child activity/clock/closure remain UNKNOWN. A separately identified static P05 partial-known-count validation gap does not establish the actual failure cause. FINAL3 is PARKED; remaining0/automatic0, no fourth/reset/retry/repair or acceptance substitute. NO_NEW_LEARNING leaves count34/Seen5 unchanged. Only a separately assigned read-only B plan may follow the independently co-signed documentary publication/rebind; B raw-byte/physical-map evidence cannot replace parked A canonical acceptance. B source/physical reads, C preparation and remote new-ID acknowledgement remain mandatory, NONE_UNALLOCATED, with C blocked on A. All12 features/nine numbered pilot criteria/defaults remain unchanged.
+
+### Historical protected release checkpoint, superseded by trial evidence below
+
+The [current Preview audit](docs/AUDIT_CURRENT_PROTECTED_PREVIEW.md) records genuine factual-only review995cbd63/Rootce24ea99 of the incomplete three-module source packet430/439/472 lines. FD generations/default mutation denial, full required edge/control coverage and safe frame/first-failure retention remain gaps. The original four controls and216 authored partial-count variants were never run; no source correctness or runtime PASS is accepted. Source is integrity-only, never import or execute; its single applied gate remains unused. NO_NEW_LEARNING06834b60 leaves count34/Seen5 unchanged. A FINAL3 remains permanently parked, C blocked and real B/C/remote unallocated. The release lane is internally parked without another automatic authoring loop; it is not all-external waiting. [TASK058](tasks/TASK-058.md) next plans independent actual trial-concurrency verification already required by criterion7, after reviewed checkpoint publication/context binding. It grants no source/test/effect authority and cannot substitute for release acceptance. All12 features/nine numbered pilot criteria and production/data/protection/defaults remain unchanged. No new app check or deployment occurred.
+
+
+### Actual trial rollback and same-key concurrency evidence
+
+The [trial concurrency audit](docs/AUDIT_TRIAL_CONCURRENCY.md) and [retained evidence projection](docs/evidence/TASK058_TRIAL_CONCURRENCY.json) record independent actual PASS95db53dc/Root27094b92 for published test38adf324/tree370f52d5 and its first ordinary fresh-PG17 CI37554713501. All22 listed stages passed; the new named case is within Vitest238 tests/19 files, with clinic Node15/15 separate. Four genuine write witnesses rolled back to seeded9/control0. Two distinct same-key callbacks overlapped behind one owned blocker, then joined to one new consultation/usage/event and final used10. Quiescent owned cleanup, pending0 and initial test-process false restoration were observed in1536ms. Raw full DB rows/PIDs/retry counts are unretained; source-enforced assertions and the four original proof records are the evidence. Disclosed seeded units, STAFF/nonclinical direct-service fixtures and a throwing Workflow-start leaf do not establish normal-owner activation, HTTP/browser/clinical/provider/full-story behavior, a14-day wall-clock trial, complete criterion7 or pilot completion. The isolated positive process exception does not change hosted guards. NO_NEW_LEARNING/Seen5 remain held; scopedcount35 is applied once with the reviewed outcome checkpoint. TASK057 remains internally parked. After exact closing publication/readback, [TASK059](tasks/TASK-059.md) assesses the existing different-catalog/price and owner activation/history/rollback gaps read-only. All12 feature requirements/nine numbered criteria, production/data/protection/service/default-disabled maintenance gates remain unchanged; no new deployment or shared migration occurred.
+
+### Actual ordinary-owner different-catalog and price isolation evidence
+
+The [ordinary owner isolation audit](docs/AUDIT_OWNER_CONFIGURATION_ISOLATION.md) and [evidence projection](docs/evidence/TASK059_OWNER_CONFIGURATION_ISOLATION.json) record independent actual PASS fdab032b/Root059d465c for reviewed source7a6e0bdf and its first ordinary fresh-PG17.11 CI37565425519. All22 listed stages passed, with the named new case within Vitest239 tests/20 files and separate clinic Node15/15. Normal signup/MFA/current handlers and real Prisma exercised different disclosed SERVICE prices, saved blocked evaluations, tenant-denial/configuration preservation and an A edit preserving B. Original closure18 returned handlers/46 additional ORM/pending0/cleaned2/unresolved0 is corroborated by final named-case PASS. Explicit Next cookie-context simulation, throwing provider/Workflow leaves and unretained raw full DB/result bodies limit this to in-process handler/DB evidence. Successful activation, active history and positive rollback remain dependent on valid clinical configuration/authority. This is partial criteria1/9, not complete criteria1/6/9 or pilot/browser/hosted/model evidence. NO_NEW_LEARNING leaves Seen5/all learning counts held; scopedcount36 is applied once through the reviewed outcome checkpoint. TASK057 remains internally parked. [TASK060](tasks/TASK-060.md) next assesses the existing qualifying paid-platform-referral requirement read-only after exact closing publication/rebind. All12 features/nine numbered criteria and production/data/protection/default-disabled maintenance gates remain unchanged.
+
+### Actual current clinic authority and recording retry evidence
+
+The [current clinic authority audit](docs/AUDIT_CURRENT_CLINIC_AUTHORITY.md) and [evidence projection](docs/evidence/TASK061_CURRENT_CLINIC_AUTHORITY.json) record independent actual PASS4de44e78/Root96babd4a for the selected nonclinical request-token/direct-PostgreSQL transaction proof and reviewed recording diagnostic source5624632f. First ordinary CI37581836016 passed all22 listed stages, Vitest240/21 and separate current clinic Node15/15/0skips. Valid write, current role-demotion403, session-revocation401, exact two-clinic preservation and source-enforced owned cleanup passed. The original first-source CI37574789977 remains whole FAILURE239/1/240 with historical recording kind/causeUNKNOWN; new green supplies no causal repair. Current bounded retry/original mapper-control records, named-case/file PASS and receipt limits are retained. Synthetic nonclinical actors, direct transactions and mocked provider leaves do not establish normal signup/MFA, HTTP/browser, clinical/provider/hosted or complete criterion9. NO_NEW_LEARNING/Seen5 remain held; scoped count37 applies once through reviewed documentary closure, with no separate TASK060 planning/R1 increment. [TASK060](tasks/TASK-060.md) parks actual paid prerequisites individually. [TASK062](tasks/TASK-062.md) next assesses exact board/outcome/reminder evidence already required by criterion5 after closing publication/current binding. All12 features, nine numbered criteria and production/data/protection/default-disabled maintenance gates remain unchanged.
+
+### Actual current-assignee reminder ownership and archive/restore evidence
+
+The [reminder ownership audit](docs/AUDIT_REMINDER_OWNERSHIP.md) and [evidence projection](docs/evidence/TASK062_REMINDER_OWNERSHIP.json) record actual independent PASS7ad64447/typedRoot09bb45a6 at1907. First ordinary fresh-PG17.11 CI37597360617 passed22 stages, Vitest241/22 and separate Node15/15 with0skips. New real-PG/direct-service source assertions verify current reminder recipient through fixture CAS/archive/restore, old/foreign acknowledgment404, exact A/B preservation and stable key/ID/carriedisRead. Final case/filePASS corroborates source-enforced bounded cleanup and the safe candidate19services/266additionalORM(98cleanup)/18deleted/pending0/firstnull/unknownfalse/resolvedclosedrestoredtrue. Full raw rows/service bodies/retries/post-write timestamp are unretained. Fictional STAFF/session/DRAFT/isTest=false underliteralfalse, fixture CAS and one exact blocked Workflow-start leaf do not prove a product reassignment route, renewed unread attention, HTTP/browser/native hosted delivery/model/clinical/approval/artifact or full criterion5/pilot. Three genuine historic phase fragments once; NO_NEW_LEARNING/Seen5 held. Scopedcount37->38 applies once with reviewed documentary publication/actual closing. [TASK063](tasks/TASK-063.md) next assesses remaining roles/services/recording-retention gaps under existing criterion9 read-only, reusing passed proofs. All12features/nine numbered criteria and production/data/protection/default-disabled maintenance gates remain unchanged.
+
+### Actual PostgreSQL enrollment reporting and separate recording regression
+
+[The enrollment audit](docs/AUDIT_NATIVE_ENROLLMENT_REPORTING.md) records scoped actualPASSe22ba427/Root3ef5c68e on1aa61f19: cohort6=1confirmed enrollment+1declined+4unknown, recorded denominator2/rate0.5, exact tenant/location/date/archive/setup-test/search/paging boundaries and bounded owned cleanup. Newcase1324ms/file1327ms. This is consultations, not deduplicated new clients, live collected payment or sales-lift proof.
+
+WholeCI37656684044 remains FAILURE/CHANGES_REQUIRED in the unchanged recording mapped-exhaustion case1322:31,12expected bodies versus11/remaining1. OWNED_JOB_UPDATE/P2034/mapper identity is observed, underlying causeUNKNOWN. TASK065 queues saved-source/log-only TASK061R1 diagnosis, not new correction capacity, a fourthTASK064 or TASK057 substitute. [Count40 drift](docs/PRD_DRIFT_CHECK_040.md) preserves all12features/exact nine numbered criteria/architecture/prices/data gates. Full pilot/production remain incomplete.
+
+### TASK065 readiness disposition,2026-10-07
+
+[The reviewed gap matrix](docs/AUDIT_PILOT_READINESS_GAPS.md) records independent factualPASS c3501d0c/distinct NO_NEW_LEARNING ad8f9906/Root83854fd3 for retained recording-source/log diagnosis and nine-criterion coverage comparison. No necessary unblocked nonredundant source candidate was justified within the traced scope. Existing distinct-key trial starts and TASK058 same-key overlap/rollback already cover the proposed extra fixture; configured14-day expiry remains, without a new14-literal-day waiting requirement. Production P2034 attempts and fixture selected-completion counters differ; actual recording SQL cause stays UNKNOWN and originalCI37656684044 remains failed. No new source/runtime evidence or count/Seen event.
+
+STATE retains WAITING_ON_DEPENDENCIES for the actual full-story prerequisites with separate consumed TASK052/TASK061R1 recording and permanent TASK057 release parks/native13closed, without budget reset or acceptance substitute. Actual clinic/clinical configuration, selected provider/capture/device, Resend intended-recipient sharing and selected-admin/policy/current-callback/authentic sandbox payment evidence remain required. All twelve features, nine unchanged numbered criteria and production/protectedfalse/default-disabled gates stay authoritative. Standing until-done/hourly continuation remain until actual cancellation or genuinely verified completion; changed independent evidence resumes after actual prerequisite/worker/admissibility reconciliation and separate reviewed authority.
+
+## 9. Explicit defaults and open decisions
+
+| Topic | Default or decision needed |
+| --- | --- |
+| Exact ICM example | Preserve observed root context/memory conventions and verified eve layout; compare the owner's separate example before scaffolding |
+| Trial activation/counting | Implemented default: owner registration activates the 14-day trial; reserve/count a successfully initiated unique initial consultation transactionally; failed initiation is not charged; tests/retries never count |
+| Trial exhaustion | Implemented default: whichever occurs first, 14 days or 10 initial consultations; finish already-started visits |
+| Platform subscription | Owner-delegated starter: USD199 per clinic account/month, existing quantity1; canonical editable configuration and a matching real Stripe recurring price are required. No real customer charge is authorized by starter configuration |
+| Referral credit | Owner-delegated starter: USD50 once after first qualifying paid platform subscription,30-day attribution, refund reverses credit, no expiry, future platform invoice credit/no cash payout; explicit versioned activation preserves prior snapshots |
+| Catalog/clinical configuration | Owner supplies actual prices/terms/protocols; missing data stays incomplete; clinical rules need appropriate validation |
+| Services/framework versions | Pinned Next.js 16.3.8, eve 0.69.0, AI SDK 7.0.127, Workflow 5.0.1 and Prisma 6.19.3; database-backed opaque sessions/MFA, private Blob, Gateway transcription/inference, Stripe and Resend. Actual service provisioning remains required |
+| Reminders/retention/sharing | Owner configuration controls timing/retention; sharing uses intended-recipient email verification, bounded expiry and revocation. Confirm clinic settings and service eligibility before real-data sharing |
+
+The Owner's2026-10-03 delegation authorizes the starter commercial choices above. Clinic catalog prices and clinical protocols remain actual owner/provider data; this delegation does not authorize inventing those facts, buying services or changing clinical authority.
+
+## 10. Scope governance
+
+The owner explicitly requested this consultation-centered rewrite, Vercel infrastructure, ICM/eve structure, exact Kanban triggers, and 14-day/10-consultation trial, then authorized finishing the software and delegated initial commercial pricing. Implementation follows that scope. The verification report distinguishes implemented source, synthetic checks and live deployment; publishing starter configuration does not establish actual billing, referral conversion or full-pilot evidence.
+
+Record minor clarifications with review. New scope and active clinic-rule changes require owner decisions/version history. Keep development memory separate from the product's owner-controlled improvement process.
+
+### Actual recording metadata and retry authority evidence
+
+[The recording route authority audit](docs/AUDIT_RECORDING_ROUTE_AUTHORITY.md) and [evidence projection](docs/evidence/TASK063_RECORDING_ROUTE_AUTHORITY.json) record genuine actualPASS97fb730b/Root9e80a10a at3c745201. Ordinary changed-source CI37622006306 passed all22 stages, named case/file and Vitest242/23; separate clinic Node15/15/0skips remains distinct, aggregate Vitest skips unlisted. Twelve real current handlers with explicit synthetic Next-cookie context/Prisma verify private tenant metadata projections, expired/foreign/nonowner/current-demotion/revocation denials and exact A/B preservation. Named-case/file/job success corroborates bounded20-row owned compensation/restoration and safe frame367additionalORM(269scenario+98cleanup),pending0,unknownfalse,forbidden0. Raw rows/response/delete/internal-retry receipts are unretained. Nonclinical fictional DRAFT/isTest:true metadata, simulated cookie context and untouched provider leaves do not prove actual recording/transcription/model/clinical approval/HTTP/browser/sharingPDF/hosted/full criterion9 or pilot.
+
+Original firstCI37615527361 failed TS2345/TS18048 before tests; the two-line reviewed correction and earlier static misses/failures stay preserved. One actual L035 recurrence Seen5->6 and four distinct phase fragments are applied once; scopedcount38->39 only through reviewed publication/actual closure. TASK063's mistaken section7 access/retention citation is corrected to sections2/6 and section8criterion9, without changing approved intent. [TASK064](tasks/TASK-064.md) conditionally assesses the existing F06/F12 real-PG enrollment-reporting gap read-only after actual closure, without next source/effect authority. [Membership research follow-through](docs/MEMBERSHIP_CONVERSION_RESEARCH.md) records implemented049/050 source features. All12 features/nine numbered criteria, production/protectedfalse/default-disabled/paid/provider/clinical gates and TASK057 permanent internal park/native13closed remain unchanged.

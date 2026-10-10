@@ -1,51 +1,45 @@
 # PROJECT_CONTEXT.md
 
-Facts about the project this team is working on. The CTO fills this out on first run by inspecting the codebase and asking Owner any missing fundamentals. After that, it only changes when the project fundamentally changes.
+## Current project and evidence
 
-## Project name
-(auto-detect on first run or ask Owner)
+DripWell.ai, owned by Loyd Hale, helps an IV spa explain and sell suitable approved memberships/programs during a new-client consultation. Clinical suitability, actual care, membership enrollment, service purchases, collected amounts and platform billing remain separate facts. Accepting a wellness plan is not enrollment. Conversion and client satisfaction are business goals; no measured sales lift or satisfaction survey feature is claimed.
 
-## Purpose
-(one to three sentences on what this project does)
+PRD.md and STATE's current queue are authoritative. All twelve features and nine section8 criteria remain required. Current disposition is WAITING_ON_DEPENDENCIES for the full story with distinct consumed recording and permanent release parks, not pilot/production completion. See [current gap matrix](../docs/AUDIT_PILOT_READINESS_GAPS.md). TASK065 saved-source/log assessment has genuine factualPASS c3501d0c, distinct NO_NEW_LEARNING ad8f9906 and Root adoption83854fd3, without new source/runtime effects or count/Seen changes.
 
-## Stack
-- Language(s):
-- Framework(s):
-- Runtime:
-- Package manager:
-- Test framework:
-- Deployment target:
+TASK049 implements enrollment/decline/unknown reporting with explicit complete-cohort denominators. TASK050 carries approved goals/benefits/official prices/terms across staff presentation, approved takeaway and synthetic PDF text, preserving revision/approval history. TASK064 adds genuine real-PG reporting/owned cleanup proof: source1aa61f19, originalCI37656684044/newcase1324ms/file1327ms; its scoped publication/documentary closure is accepted at710ffd78/treece45d7e7. That historical CI failed in recording exhaustion; the new source383 CI below passes. Production known-P2034 attempts and fixture completed-body/owned-injection counters differ; the historical SQL cause is UNKNOWN. TASK0523/TASK061R1one diagnostic capacities are consumed. Existing distinct-key trial concurrency and TASK058 same-key overlap/rollback already cover the proposed extra fixture. Source success is not ordinary browser/provider/clinical/paid story evidence.
 
-## Repo conventions
-- Folder structure:
-- Naming conventions:
-- Commit message style:
-- Branching model:
+TASK066's reviewed test-only first-operation diagnostic is published at38353a962a16e29ade2f5439b3ae8346408761d0/tree9581863a. First ordinary CI37723246077/attempt1/job113135489455 checked merge2518f3da with the same tree and passed22steps/builds/types,247Vitest/24files, all19recording cases (14751ms/exhaustion2076ms) and separate clinicNode15/15/zero skips. Current exhaustion meets12bodies/12injections/12rollbacks/zero commits/rem0, exact provider/mapper identity and firstUnexpectedError:null. Source-validation component is complete; the original SQL cause and whole TASK066 goal are not. See [current diagnostic evidence](../docs/AUDIT_RECORDING_FIRST_OPERATION_DIAGNOSTIC.md); counts40/Seen7 unchanged.
 
-## External services
-- Databases:
-- APIs:
-- Auth providers:
-- Hosting:
+Exact ten-file publication28cd0415 followed final documentary1818712a/later550a0f8f/adoptionbbf729ad and Root Git GO969c047c. Actual publication/CI/local Git metadata reviewe80924a8 and distinct later NO_NEW_LEARNING7f5fdde3 were genuinely adopted9a77bbf3, no corpus change. HEAD/origin/index/worktree metadata reconciled to383; raw166a remains private/untracked. Supplemental local report still records four observer passes/one early blobObject fixture failure/fourteen excluded skips, matching the proven stale generated client. Blocked localTSC7091 remains unexecuted. Fresh CI generation validates its separate target, not retained b127/local process/SQL restoration or historical cause. Current green CI justifies the short actual-result documentary closure and dependency wait, no new source candidate/check/local effect or permanent TASK057 reopening.
 
-## Known constraints
-- Performance targets:
-- Compliance / regulatory:
-- Budget limits:
+## Architecture, versions and conventions
 
-## Non-goals
-(things this project will NOT do, so we don't drift into them)
+V2 entry point is the Next.js PWA in apps/web on Vercel, same-origin handlers and database-backed opaque cookie sessions/MFA. Keep one Prisma identity/ORM/schema. Target Node24; committed lockfile is authoritative. Current pinned versions: Next16.3.8, React19.3.0, AI SDK7.0.127, eve0.69.0, Workflow5.0.1, Prisma6.19.3, TypeScript5.9.3 and Vitest5.0.3. Use npx --yes pnpm@10.32.1 where the bare shim attempts an unintended install. Read current installed framework documentation before API choices. Historical Webpack success does not erase a failed default Turbopack path or justify replaying builds.
 
----
+Legacy Vite PWA/admin/Fastify source and shared PostgreSQL/Prisma contracts remain references; v2 is the deployment entry point. Do not change main or the older production deployment. Work is published only as independently reviewed changes to feat/dripwell-consultation-v2, open PR2. Database configuration/version history is authoritative; development memory cannot publish clinic policies. Derive tenant/current role/session authority from verified identity. Test consultations never consume trial allowance or conversion denominators. Clinic prices are integer minor units in immutable visit snapshots and actual owner/provider facts, separate from delegated platform prices.
 
-## How to populate this file
+ICM root folders AGENTS.md/personas/memory/tasks/templates/workflows are preserved. Authored eve code belongs in apps/web/agent with instructions/channels/skills/tools/read-only approved-context memory; application workflows belong in apps/web/workflows, separate from root development workflows; evals belong in apps/web/evals. Owner's separate ICM example remains unconfirmed. Mandatory downloadable Vercel Plugin reference is available at /workspace/dripwell-vercel-plugin-reference,0.53.0/3b472643cbb1a42479d99b0c9a1d27b8bc84aaa7. Load applicable guidance for implementation/review. This does not claim hosted Vercel Agent or installed hooks. Preserve CTO planning, Coder implementation and independent Auditor review/learning/co-sign.
 
-On first run, CTO should:
-1. List files at repo root
-2. Read package.json / pubspec.yaml / requirements.txt / Cargo.toml / go.mod (whichever exists)
-3. Read README if present
-4. Read top-level folders to infer structure
-5. Fill in everything that's obvious from the code
-6. For anything not inferable, ask Owner ONE batched question covering all gaps
+## Services, credentials and hosted limits
 
-After first run, update this file only when the stack genuinely changes (framework migration, new service added, etc.)
+Codex is signed in with ChatGPT for supported coding. Current supported Sign in with ChatGPT eligibility/terms remain authoritative; local app-server authentication is not hosted commercial permission, commercial integration is eligible per-user and excludes audio/video transcription. One personal subscription cannot be pooled for other users. Healthcare/regulated permissions/BAA cannot be inferred from coding login. See [route review](../docs/CHATGPT_CLI_ROUTE_REVIEW.md) and [provider access](../docs/AUDIT_PROVIDER_ACCESS.md). No new login/provider switch/partner application/purchase is authorized.
+
+Initial/wellness product matching is deterministic; selected blocked Gateway model supplies setup extraction/assistant and structured consultation summaries. Historical HTTP403/no_providers_available/zero attempts is incomplete inference and is not retried unchanged. Historical setup voice/browser capture/transcription proofs retain inaccurate/partial transcription, UNKNOWN speaker, needsReview and null provider telemetry; they do not complete a two-clinic consultation story or clinical latency targets.
+
+Stripe sandbox account terms and selected resource ir_WKeIBgBxmVampeYA are complete. Retain actual product prod_VNJvkxq3tEki23 and recurring price price_1UMZHUECTnhgX9UT9BTCFALy,USD199 per clinic account/month,quantity1, Preview/Development only. No new resources, price invention, real charge or automatic paid trial conversion. Owner-delegated referral draftUSD50 once after first qualifying paid subscription,30-day attribution/refund reversal/no expiry/future platform invoice credit/no cash. Selected tenantless MFA administrator/versioned policy/attribution/current protected callback/authentic payment-ledger-replay correlation remain unverified and individually parked. Earlier real-PG/intercepted-Stripe award proofs do not supply authentic payment.
+
+Resend is selected; historical free integration HTTP400 billing-disabled is retained without retry or paid fallback. Existing one-time direct account/key-to-Vercel handoff, candidate dripwell.hudley.ai provider-issued DNS at authoritative Cloudflare, sender verification and authorized owned recipient remain pending. Current selected CLI service reads succeed; neither shared Preview/Development metadata set contains RESEND_API_KEY or EMAIL_FROM. Branch overrides are empty, which alone would not establish absence of defaults. Credentials belong in linked service settings, not chat or repository. A direct Resend plugin was suggested once but installation/connection is unconfirmed. No repeated question or outbound message/email. The authored global15-minute recovery/retention cadence exceeds the current supported Hobby-plan limit; no upgrade is authorized. Earlier actual per-visit hosted wait/inbox and compiled maintenance boundaries remain distinct from production global cadence.
+
+October8 Owner clarification/TASK069, published39eb89a: spa catalogs/prices/reviewers are onboarding inputs, not prerequisites for application-source completion. Normal synthetic full-story and real-clinic clinical validation remain distinct. Its selected-team connector403 was real and route-specific. TASK070 recovered existing cached CLI62.1.0 access as loyd-1222 and resolved the exact selected DripWell project from proven repo-root cwd; empty managed secret listings and missing bare CLI PATH did not imply all authorized access was unavailable. Actual selected Resend installations are empty; hudley.ai is third-party registered with Cloudflare NS and a separate hudley.ai-site project, which must be preserved. Current shared Preview/Development metadata also lacks STRIPE_WEBHOOK_SECRET, a callback/signing setup boundary rather than incomplete Stripe account setup. Independent TASK070 actual-result/documentary PASS was genuinely read/adopted in natived9b0b7, with distinct L-045Seen1 learning read/adopted in872a9b. Final exact-document co-sign/publication is separate; current queue waits on actual account/key/DNS/admin/model prerequisites. No value inspection/decryption, service write, inference, callback creation or email occurred. Public Gateway metadata confirms GPT-4o Transcribe/GPT-6 Luna defaults; recommendation is not new provider selection or working inference. Exact platform-admin identity/MFA and authentic paid-referral proof remain separate.
+
+Last verified protected Preview80729f2f/dpl_AsLremfTJcQ5ew7Cukxn3Ed7n9dJ is historical. Current deployed Git source UNKNOWN. Projectprj_fF0yFggYVFN9pI5dQN33glG2wPyW/team_ATVYA30szlVoy5XxAIiaf2OD and protected alias https://dripwell-ai-preview-loyd-1222s-projects.vercel.app are retained; no new deployment is inferred from Git publication. Keep requested runtime/build ALLOW_REAL_CLIENT_DATA=false, effective hostedfalseUNVERIFIED, encrypted defaultsUNKNOWN and maintenanceDEFAULT_DISABLED. Ten reviewed shared migrations were already applied; four later pending shared migrations have not been replayed. Fresh disposable CI fourteen-migration evidence is separate. Repository memory contains no client data; service/data/retention/backups/security/clinical and representative-device gates precede real data.
+
+Saved notes contain no verified Owner DripWell email/password. Temporary fictional accounts were compensated. The sign-in question is not selection or creation of a platform administrator.
+
+## Resume and history
+
+TASK057 stays permanently internally parked: final3, no fourth/reset/retry/repair/reimplementation/substitute, native13closed, incompleteB/C/remote release acceptance. TASK065 creates no source or effect allocation and does not revive TASK064's three spent candidates. Resume changed independent approved work after actual worker/context/prerequisite reconciliation and separate reviewed authority, otherwise retain STATE's dependency resume with separate internal parks. Do not rerun passing checks, reviewed migrations, unchanged provider probes or historical CI/log calls to fill the queue.
+
+Standing until-done authorization/hourly automation remain until actual cancellation or genuinely verified authorized completion. Scheduled wake-ups are not an uninterrupted worker. Video learning must inspect visuals/actions/screens/on-screen text alongside audio/timestamps; existing scope clarification remains pending once. No new upload feature or unviewed video claim.
+
+Previous PROJECT_CONTEXT is preserved verbatim in [PROJECT_CONTEXT-2026-10-07-pre-dependency-resume.md](PROJECT_CONTEXT-2026-10-07-pre-dependency-resume.md),133183bytes/SHA25653a64730dc3a6f28e39d7852934849bbc07aee9e63c03ffa0606bb815e25988e. Use this current context/STATE for next work; archived future instructions are historical. Original failures/source checks/service proofs and learning are retained, count40/L035Seen7 held. References: [implementation plan](../docs/IMPLEMENTATION_PLAN.md), OpenScribe dddf1c30fcf8313e4452915ddd9189baa5a3762b, eve source ac77188ad0bd16edd20a590ec93e2d26306b9bd0, inspected nextjs/saas-starter6e33e58b1e553a41fe22e6b941a7229a002de361 and vercel/platforms.

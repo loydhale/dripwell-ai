@@ -28,6 +28,22 @@ Model assignments live in `models.yaml`. Swap models there, not here.
 6. Your own persona file
 7. Then start work
 
+## Vercel Plugin requirement for v2 coding
+
+Owner instruction: use the open-source [Vercel Plugin](https://github.com/vercel/vercel-plugin) for DripWell coding.
+
+- Confirm the plugin's guidance is available in the coding environment before v2 implementation. Existing connector-provided skills satisfy this when present; record the actual plugin/version or available skill source in the task brief.
+- For a supported local coding assistant where it is missing, use the plugin's documented installation command: `npx plugins add vercel/vercel-plugin`. Keep this as development tooling.
+- Load relevant plugin skills before coding and during review: eve, AI SDK, Workflow, bootstrap, auth, storage, deployment, performance, and verification as applicable. Read version-matched installed framework documentation before choosing APIs.
+- Use the plugin's specialist guidance for deployment, performance, and AI architecture when relevant and available. Keep the existing CTO/Coder/Auditor responsibility split.
+- Auditor verifies that framework-specific decisions follow the applicable plugin guidance and current documentation; task validation records the skills used and relevant checks.
+- This workflow uses the downloadable plugin with the existing coding assistant. It does not require the hosted Vercel Agent service. Model access, hosting, databases, and Sandbox usage retain their normal separate costs.
+- If required plugin guidance is unavailable, record the setup gap before framework coding; do not claim the plugin was installed or used without checking.
+
+## Video workflow references
+
+Owner instruction: when learning a workflow from videos, the AI must inspect the actual visual content alongside audio. Review the relevant screens, actions, sequence and on-screen text with timestamps. Preserve uncertainty and identify portions that were not inspected; a transcript alone does not establish that a video was watched. Keep reference material separate from approved clinic configuration and clinical authority. The Owner's clarification about clinic setup uploads, development references or both is recorded in STATE; this guidance does not claim a video-upload feature or completed visual-provider verification.
+
 ## Routing rules (CTO uses these)
 
 - Request modifies code AND is in-scope per PRD → CTO plans, Coder executes, Auditor reviews

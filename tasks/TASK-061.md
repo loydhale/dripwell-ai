@@ -1,0 +1,17 @@
+# TASK-061: Current clinic role and session authority at the transaction boundary
+
+Status: SCOPED_ACTUAL_PASS, DONE only through exact reviewed documentary publication/closure/current binding. One task-count36->37 increment; no full criterion9/pilot completion.
+
+Goal: Verify current persisted owner role and session authority before clinic location writes, preserving exact two-clinic data, original error and owned cleanup. This was the next independent approved role/tenant gap selected after TASK060's paid feasibility parks.
+
+The Coder authored one323-line real-PostgreSQL case in apps/web/lib/clinic-authority.integration.test.ts. A real request-cookie parser returns a disclosed synthetic SUPER_USER actor with MFAfalse and canApproveClinicalfalse. The same unchanged actor enters three direct location transactions: valid write; persisted STAFF demotion denied403OWNER_REQUIRED; restored fixture role with persisted session revocation denied401SESSION_EXPIRED. Complete bounded scalar/child census, legitimate control, first-failure poison, finite ownership/call bounds, joins and exact audit-first owned compensation preserve A/B and close the owned client.
+
+First reviewed sourcee5323256/CI37574789977/job112641135607 passed the named case754ms/closure748ms but FAILED whole239passed/1failed240. The existing recording publication retry receivedAI_PROCESSING_FAILED instead ofok:true; original failing kind/causeUNKNOWN. Original actual reviewf611bb87 and learning419071dd were adopted; failure is retained, without flakiness/production defect/provider-credential inference.
+
+[TASK061 R1](TASK-061-R1.md) adds only independently reviewed bounded test-local observability using the already-existing real mapper exhaustion control. Reviewed source5624632f/firstCI37581836016/job112663054161 passed all22 stages, Vitest240/21 and separate current clinic Node15/15/0skips. Current clinic case743ms/file746ms corroborates closure738ms, auth1/domain3/returned3/additionalORM64/deleted10/pending0/unresolvedfalse. Genuine independent actual PASS4de44e78 and NO_NEW_LEARNING9ab1ab7c were adopted by Root96babd4a.
+
+The [audit](../docs/AUDIT_CURRENT_CLINIC_AUTHORITY.md) and [safe evidence projection](../docs/evidence/TASK061_CURRENT_CLINIC_AUTHORITY.json) retain exact records and limits. Raw complete DB/result/delete bodies are unretained. This proves the selected in-process cookie actor/direct-PG transaction boundary, without normal signup/MFA, HTTP/browser, clinical/SystemAdmin, post-snapshot concurrency, real providers, current hosted source or whole roles/retention/pilot acceptance. Protected previews/dualrequestedfalse/effectivehostedfalseUNVERIFIED/default-disabled maintenance/all12features/ninecriteria/production gates and TASK057/native13 parks remain.
+
+Plugin0.53.0 auth/storage/verification and actual installed Vitest5.0.3/Prisma6.19.3/Next16.3.8/Node24.19 guidance informed coding and independent review; ICM roots and authored agent/workflow services remain held. No local app/check, manual old-CI rerun, shared migration or direct deployment was used in this R1 outcome checkpoint. Five genuine after-verdict fragments are incorporated once in SESSION, with no new LPG/Seen increment.
+
+Next: exact closing documentary co-sign, normal once publication/readback/independent closure/current binding, then sole Coder TASK062 READ_ONLY. No next source/effect authority or additional passing check is granted here.

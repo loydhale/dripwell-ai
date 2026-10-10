@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -12,6 +13,8 @@ enum NotificationType {
   PROVIDER_INVITED
   SAFETY_FLAG
   LOW_STOCK
+  CARE_OUTCOME_NEEDED
+  WELLNESS_DECISION_NEEDED
 }
 
 // ---------------------------------------------------------------------------
@@ -22,6 +25,7 @@ enum UserRole {
   SUPER_USER
   PROVIDER
   SYSTEM_ADMIN
+  STAFF
 }
 
 enum ItemType {
@@ -139,6 +143,7 @@ model Tenant {
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  referralCode    String?  @unique
 
   locations            Location[]
   users                User[]
@@ -159,6 +164,24 @@ model Tenant {
   notifications        Notification[]
   changeLogs           AssessmentChangeLog[]
   feedbacks            Feedback[]
+  configurationVersions      ClinicConfigurationVersion[]
+  consultations              Consultation[]
+  consultationRevisions      ConsultationRevision[]
+  consultationEvents         ConsultationEvent[]
+  consultationAdjustments    ConsultationAdjustment[]
+  subscription               Subscription?
+  trialUsage                 TrialUsage[]
+  referralsSent              Referral[]                   @relation("ReferrerTenant")
+  referralReceived           Referral?                    @relation("ReferredTenant")
+  credits                    CreditLedger[]
+  takeaways                  Takeaway[]
+  shareLinks                 ShareLink[]
+  invites                    UserInvite[]
+  setupConversations         SetupConversation[]
+  generationJobs             GenerationJob[]
+  recordingSegments          RecordingSegment[]
+  improvementProposals       ImprovementProposal[]
+  agentContextSnapshots      AgentContextSnapshot[]
 
   @@index([slug])
   @@index([isActive])
@@ -176,7 +199,11 @@ model Location {
   updatedAt DateTime @updatedAt
 
   assessmentSessions AssessmentSession[]
+  configurationVersions ClinicConfigurationVersion[]
+  consultations         Consultation[]
+  setupConversations    SetupConversation[]
 
+  @@unique([id, tenantId])
   @@index([tenantId])
   @@index([isActive])
 }
@@ -196,6 +223,12 @@ model User {
   role          UserRole
   isActive      Boolean   @default(true)
   mfaEnabled    Boolean   @default(false)
+  canApproveClinical        Boolean   @default(false)
+  mfaSecretEncrypted        String?
+  mfaRecoveryHashes         Json?     @default("[]")
+  mfaPendingSecretEncrypted String?
+  mfaPendingExpiresAt       DateTime?
+  mfaLastUsedStep           Int?
   lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -207,7 +240,12 @@ model User {
   auditLogs                AuditLog[]
   changeLogs               AssessmentChangeLog[]
   feedbacksSubmitted       Feedback[]
+  authSessions            AuthSession[]
+  authChallenges          AuthChallenge[]
+  agentContextSnapshots   AgentContextSnapshot[] @relation("AgentContextUser")
+  consultations           Consultation[]         @relation("ConsultationProvider")
 
+  @@unique([id, tenantId])
   @@index([tenantId])
   @@index([email])
   @@index([role])
@@ -545,6 +583,8 @@ model CatalogItem {
   isActive              Boolean  @default(true)
   isInStock             Boolean  @default(true)
   outOfStockReason      String?
+  priceCents             Int?
+  currency               String   @default("USD")
   stateRestrictions     Json?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
@@ -666,6 +706,12 @@ model Notification {
   isRead    Boolean  @default(false)
   entityId  String?  @db.Uuid
   createdAt DateTime @default(now())
+  userId         String?          @db.Uuid
+  consultationId String?          @db.Uuid
+  consultation   Consultation?    @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  idempotencyKey String?          @unique
+  dueAt          DateTime?
+  dismissedAt    DateTime?
 
   @@index([tenantId])
   @@index([isRead])
@@ -755,4 +801,592 @@ model Feedback {
   @@index([category])
   @@index([priority])
   @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// V2 consultation workflow. All clinical records stay tenant scoped.
+// ---------------------------------------------------------------------------
+
+enum ConfigurationStatus {
+  DRAFT
+  TESTED
+  ACTIVE
+  RETIRED
+}
+
+enum ConsultationStage {
+  CONSULTATION_STARTED
+  INITIAL_RECOMMENDATIONS_GIVEN
+  WELLNESS_RECOMMENDATIONS_PRODUCED
+  WELLNESS_RECOMMENDATIONS_ACCEPTED
+  WELLNESS_RECOMMENDATIONS_REJECTED
+  WELLNESS_RECOMMENDATION_TBD
+}
+
+enum CareOutcome {
+  PENDING
+  STARTED
+  NOT_STARTED
+}
+
+enum WellnessDecision {
+  ACCEPTED
+  REJECTED
+  TBD
+}
+
+model ClinicConfigurationVersion {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  tenantId              String                 @db.Uuid
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locationId            String                 @db.Uuid
+  location              Location               @relation(fields: [locationId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  version               Int
+  revision              Int                    @default(1)
+  status                ConfigurationStatus    @default(DRAFT)
+  payload               Json
+  source                String
+  userId                String                 @db.Uuid
+  clinicalValidatedById String?                @db.Uuid
+  tests                 Json                   @default("[]")
+  activatedAt           DateTime?
+  activatedById         String?                @db.Uuid
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  consultations         Consultation[]
+  improvements          ImprovementProposal[]
+  agentContextSnapshots AgentContextSnapshot[]
+
+  @@unique([id, tenantId])
+  @@unique([id, tenantId, locationId])
+  @@unique([tenantId, locationId, version])
+  @@index([tenantId, locationId, status])
+}
+
+model Consultation {
+  id                       String                     @id @default(uuid()) @db.Uuid
+  tenantId                 String                     @db.Uuid
+  tenant                   Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locationId               String                     @db.Uuid
+  location                 Location                   @relation(fields: [locationId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  providerId               String                     @db.Uuid
+  provider                 User                       @relation("ConsultationProvider", fields: [providerId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  configurationVersionId   String                     @db.Uuid
+  configurationVersion     ClinicConfigurationVersion @relation(fields: [configurationVersionId, tenantId, locationId], references: [id, tenantId, locationId], onDelete: Restrict)
+  reference                String
+  idempotencyKey           String
+  isTest                   Boolean                    @default(false)
+  stage                    ConsultationStage          @default(CONSULTATION_STARTED)
+  version                  Int                        @default(1)
+  consentAt                DateTime?
+  consentDeclined          Boolean                    @default(false)
+  transcript               Json                       @default("[]")
+  summary                  Json                       @default("{}")
+  summaryRevision          Int                        @default(1)
+  initialRecommendation    Json?
+  initialRevision          Int                        @default(0)
+  initialSummaryRevision   Int?
+  clinicalApprovedVersion  Int?
+  clinicalApprovedById     String?                    @db.Uuid
+  clinicalApprovedAt       DateTime?
+  actualCare               Json?
+  careRevision             Int                        @default(0)
+  careOutcome              CareOutcome                @default(PENDING)
+  wellnessPlan             Json?
+  wellnessRevision         Int                        @default(0)
+  wellnessSummaryRevision  Int?
+  wellnessCareRevision     Int?
+  wellnessApprovedVersion  Int?
+  wellnessApprovedById     String?                    @db.Uuid
+  wellnessApprovedAt       DateTime?
+  wellnessDecision         WellnessDecision?
+  wellnessDecisionRevision Int?
+  archivedAt               DateTime?
+  archivedById             String?                    @db.Uuid
+  archiveReason            String?
+  completedAt              DateTime?
+  careOutcomeDueAt         DateTime?
+  wellnessDecisionDueAt    DateTime?
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+
+  revisions     ConsultationRevision[]
+  events        ConsultationEvent[]
+  adjustments   ConsultationAdjustment[]
+  trialUsage    TrialUsage?
+  takeaways     Takeaway[]
+  jobs          GenerationJob[]
+  recordings    RecordingSegment[]
+  notifications Notification[]
+
+  @@unique([id, tenantId])
+  @@unique([tenantId, idempotencyKey])
+  @@unique([tenantId, reference])
+  @@index([tenantId, stage, archivedAt])
+  @@index([tenantId, providerId, createdAt])
+  @@index([tenantId, careOutcomeDueAt])
+  @@index([tenantId, wellnessDecisionDueAt])
+}
+
+model ConsultationRevision {
+  id             String       @id @default(uuid()) @db.Uuid
+  tenantId       String       @db.Uuid
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId String       @db.Uuid
+  consultation   Consultation @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  kind           String
+  revision       Int
+  payload        Json
+  original       Boolean      @default(false)
+  userId         String?      @db.Uuid
+  reason         String?
+  promptVersion  String?
+  model          String?
+  createdAt      DateTime     @default(now())
+
+  @@unique([consultationId, kind, revision])
+  @@index([tenantId, consultationId, createdAt])
+}
+
+model ConsultationEvent {
+  id               String       @id @default(uuid()) @db.Uuid
+  tenantId         String       @db.Uuid
+  tenant           Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId   String       @db.Uuid
+  consultation     Consultation @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  userId           String?      @db.Uuid
+  action           String
+  before           Json?
+  after            Json?
+  reason           String?
+  artifactRevision Int?
+  idempotencyKey   String?      @unique
+  createdAt        DateTime     @default(now())
+
+  @@index([tenantId, consultationId, createdAt])
+  @@index([tenantId, action, createdAt])
+}
+
+model ConsultationAdjustment {
+  id                  String       @id @default(uuid()) @db.Uuid
+  tenantId            String       @db.Uuid
+  tenant              Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId      String       @db.Uuid
+  consultation        Consultation @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  userId              String       @db.Uuid
+  kind                String
+  revision            Int
+  before              Json
+  after               Json
+  changedFields       Json
+  reason              String
+  note                String?
+  ownerClassification String?
+  ownerReviewedById   String?      @db.Uuid
+  ownerReviewedAt     DateTime?
+  createdAt           DateTime     @default(now())
+
+  @@index([tenantId, consultationId, createdAt])
+  @@index([tenantId, ownerClassification, createdAt])
+}
+
+model Subscription {
+  id                   String    @id @default(uuid()) @db.Uuid
+  tenantId             String    @unique @db.Uuid
+  tenant               Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  status               String    @default("NOT_STARTED")
+  trialActivatedAt     DateTime?
+  trialEndsAt          DateTime?
+  trialLimit           Int       @default(10)
+  trialUsed            Int       @default(0)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  currentPeriodEnd     DateTime?
+  lastStripeEventAt    DateTime?
+  stripeStatus         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
+
+model TrialUsage {
+  id             String       @id @default(uuid()) @db.Uuid
+  tenantId       String       @db.Uuid
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId String       @unique @db.Uuid
+  consultation   Consultation @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  idempotencyKey String
+  createdAt      DateTime     @default(now())
+
+  @@unique([tenantId, idempotencyKey])
+  @@unique([consultationId, tenantId])
+}
+
+model Referral {
+  id                  String         @id @default(uuid()) @db.Uuid
+  referrerTenantId    String         @db.Uuid
+  referrerTenant      Tenant         @relation("ReferrerTenant", fields: [referrerTenantId], references: [id], onDelete: Restrict)
+  referredTenantId    String         @unique @db.Uuid
+  referredTenant      Tenant         @relation("ReferredTenant", fields: [referredTenantId], references: [id], onDelete: Restrict)
+  code                String
+  policyVersion       Int?
+  policySnapshot      Json?
+  qualifyingInvoiceId String?        @unique
+  attributedAt        DateTime       @default(now())
+  convertedAt         DateTime?
+  status              String         @default("ATTRIBUTED")
+  createdAt           DateTime       @default(now())
+  credits             CreditLedger[]
+}
+
+model CreditLedger {
+  id                  String    @id @default(uuid()) @db.Uuid
+  tenantId            String    @db.Uuid
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  referralId          String?   @db.Uuid
+  referral            Referral? @relation(fields: [referralId], references: [id], onDelete: Restrict)
+  kind                String
+  amountCents         Int
+  currency            String
+  policyVersion       Int
+  sourceEventId       String    @unique
+  stripeTransactionId String?   @unique
+  reversesId          String?   @db.Uuid
+  createdAt           DateTime  @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([referralId, kind])
+}
+
+model PlatformPolicy {
+  id             String   @id @default("global")
+  name           String?
+  referralPolicy Json?
+  updatedById    String?  @db.Uuid
+  updatedAt      DateTime @updatedAt
+}
+
+model BillingEvent {
+  id           String    @id @default(uuid()) @db.Uuid
+  eventId      String    @unique
+  eventType    String
+  eventCreated DateTime
+  payload      Json?
+  processedAt  DateTime?
+  status       String    @default("RECEIVED")
+  errorCode    String?
+  createdAt    DateTime  @default(now())
+}
+
+model Takeaway {
+  id               String       @id @default(uuid()) @db.Uuid
+  tenantId         String       @db.Uuid
+  tenant           Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId   String       @db.Uuid
+  consultation     Consultation @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  wellnessRevision Int
+  payload          Json
+  contentHash      String
+  createdById      String       @db.Uuid
+  createdAt        DateTime     @default(now())
+  revokedAt        DateTime?
+  expiresAt        DateTime?
+  shares           ShareLink[]
+
+  @@unique([id, tenantId])
+  @@unique([consultationId, wellnessRevision])
+}
+
+model ShareLink {
+  id                  String              @id @default(uuid()) @db.Uuid
+  tenantId            String              @db.Uuid
+  tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  takeawayId          String              @db.Uuid
+  takeaway            Takeaway            @relation(fields: [takeawayId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  tokenHash           String              @unique
+  recipientEmail      String
+  createdById         String              @db.Uuid
+  expiresAt           DateTime
+  revokedAt           DateTime?
+  lastCodeSentAt      DateTime?
+  codeSendWindowStart DateTime?
+  codeSendCount       Int                 @default(0)
+  createdAt           DateTime            @default(now())
+  verifications       ShareVerification[]
+  sessions            ShareSession[]
+
+  @@index([tenantId, takeawayId])
+}
+
+model ShareVerification {
+  id            String    @id @default(uuid()) @db.Uuid
+  shareLinkId   String    @db.Uuid
+  shareLink     ShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Cascade)
+  codeHash      String
+  challengeHash String?   @unique
+  expiresAt     DateTime
+  attempts      Int       @default(0)
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([shareLinkId, createdAt])
+}
+
+model ShareSession {
+  id          String    @id @default(uuid()) @db.Uuid
+  shareLinkId String    @db.Uuid
+  shareLink   ShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Cascade)
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model AuthSession {
+  id            String    @id @default(uuid()) @db.Uuid
+  tokenHash     String    @unique
+  userId        String    @db.Uuid
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  mfaVerifiedAt DateTime?
+}
+
+model AuthChallenge {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  purpose    String    @default("LOGIN")
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime
+  consumedAt DateTime?
+}
+
+model UserInvite {
+  id                 String    @id @default(uuid()) @db.Uuid
+  tenantId           String    @db.Uuid
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email              String
+  role               UserRole  @default(STAFF)
+  canApproveClinical Boolean   @default(false)
+  tokenHash          String    @unique
+  invitedById        String    @db.Uuid
+  expiresAt          DateTime
+  acceptedAt         DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime  @default(now())
+
+  @@index([tenantId, email])
+}
+
+model RateLimitBucket {
+  key         String   @id
+  windowStart DateTime
+  count       Int      @default(0)
+}
+
+// No automatic insertion, backfill or start. One trusted environment scope owns
+// manual and scheduled database maintenance, independently of client tenants.
+model MaintenanceCoordinator {
+  key                 String   @id
+  projectId           String
+  environment         String
+  branch              String
+  deploymentId        String?
+  enabled             Boolean  @default(false)
+  mode                String   @default("DISABLED")
+  phase               String   @default("IDLE")
+  generation          BigInt   @default(0)
+  ordinal             BigInt   @default(0)
+  claimToken          String?  @db.Uuid
+  ownerRunId          String?
+  dispatchedRunId     String?
+  dispatchAttemptedAt DateTime?
+  claimedAt           DateTime?
+  leaseUntil          DateTime?
+  anchorAt            DateTime?
+  nextDueAt           DateTime?
+  cadenceMs           Int      @default(900000)
+  cursors             Json     @default("{}")
+  progress            Json     @default("{}")
+  continuation        Json?
+  lastCompletedAt     DateTime?
+  lastErrorCode       String?
+  skippedSlots        BigInt   @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model SetupConversation {
+  id           String             @id @default(uuid()) @db.Uuid
+  tenantId     String             @db.Uuid
+  tenant       Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locationId   String?            @db.Uuid
+  location     Location?          @relation(fields: [locationId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  userId       String             @db.Uuid
+  messages     Json               @default("[]")
+  eveSessionId String?
+  draft        Json?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  recordings   RecordingSegment[]
+
+  @@unique([id, tenantId])
+  @@index([tenantId, userId, createdAt])
+  @@index([tenantId, userId, locationId, updatedAt])
+}
+
+model GenerationJob {
+  id             String        @id @default(uuid()) @db.Uuid
+  tenantId       String        @db.Uuid
+  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId String?       @db.Uuid
+  consultation   Consultation? @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  userId         String        @db.Uuid
+  kind           String
+  status         String        @default("PENDING")
+  runId          String?
+  idempotencyKey String
+  model          String
+  promptVersion  String
+  result         Json?
+  usage          Json?
+  errorCode      String?
+  expiresAt      DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, status, createdAt])
+}
+
+model RecordingSegment {
+  id                  String             @id @default(uuid()) @db.Uuid
+  tenantId            String             @db.Uuid
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  consultationId      String?            @db.Uuid
+  consultation        Consultation?      @relation(fields: [consultationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  setupConversationId String?            @db.Uuid
+  setupConversation   SetupConversation? @relation(fields: [setupConversationId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  userId              String             @db.Uuid
+  segmentKey          String
+  sequence            Int
+  blobPath            String
+  blobObject          Json?
+  mimeType            String
+  bytes               Int
+  durationSeconds     Float?
+  consentAt           DateTime
+  status              String             @default("UPLOADED")
+  transcript          String?
+  staffTranscript     String?
+  expiresAt           DateTime
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@unique([tenantId, segmentKey])
+  @@unique([consultationId, sequence])
+  @@index([tenantId, expiresAt])
+}
+
+// Durable non-AI tombstones survive deletion of their original source rows.
+model SetupRecordingUpload {
+  id                  String   @id @db.Uuid
+  tenantId            String   @db.Uuid
+  userId              String   @db.Uuid
+  locationId          String   @db.Uuid
+  setupConversationId String   @db.Uuid
+  blobPath            String
+  purpose             String
+  mimeType            String
+  bytes               Int
+  consentAt           DateTime
+  expiresAt           DateTime
+  state               String   @default("IN_FLIGHT")
+  uploadSettled       Boolean  @default(false)
+  blobObject          Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([tenantId, blobPath])
+  @@index([state, createdAt, id])
+}
+
+model RecordingDeletionIntent {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tenantId            String   @db.Uuid
+  recordingId         String   @db.Uuid
+  consultationId      String?  @db.Uuid
+  setupConversationId String?  @db.Uuid
+  uploadAttemptId     String?  @db.Uuid
+  reason              String
+  blobPath            String
+  objectUrl           String
+  storeId             String
+  etag                String
+  creatorScope        String
+  creatorGeneration   BigInt
+  creatorOrdinal      BigInt
+  creatorRunId        String
+  sourceKind          String?
+  sourceId            String?  @db.Uuid
+  sourceCreatedAt     DateTime?
+  status              String   @default("PENDING")
+  executionScope      String?
+  executionGeneration BigInt?
+  executionOrdinal    BigInt?
+  executionRunId      String?
+  executionToken      String?  @db.Uuid
+  leaseUntil          DateTime?
+  attempts            Int      @default(0)
+  lastError           String?
+  lastDurationMs      Int?
+  deletedAt           DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([tenantId, blobPath])
+  @@index([status, createdAt, id])
+  @@unique([reason, sourceKind, sourceId], map: "RecordingDeletionIntent_source_key")
+  @@index([reason, sourceKind, sourceCreatedAt, sourceId, id], map: "RecordingDeletionIntent_source_page_idx")
+}
+
+model ImprovementProposal {
+  id                     String                     @id @default(uuid()) @db.Uuid
+  tenantId               String                     @db.Uuid
+  tenant                 Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  configurationVersionId String                     @db.Uuid
+  configurationVersion   ClinicConfigurationVersion @relation(fields: [configurationVersionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  title                  String
+  classification         String
+  evidence               Json
+  proposedPayload        Json
+  tests                  Json                       @default("[]")
+  status                 String                     @default("PROPOSED")
+  userId                 String                     @db.Uuid
+  reviewedById           String?                    @db.Uuid
+  reviewedAt             DateTime?
+  reviewNote             String?
+  activatedVersionId     String?                    @db.Uuid
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+
+  @@index([tenantId, status, createdAt])
+}
+
+model AgentContextSnapshot {
+  scopeKey        String                      @id
+  tenantId        String                      @db.Uuid
+  tenant          Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId          String                      @db.Uuid
+  user            User                        @relation("AgentContextUser", fields: [userId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  configVersionId String?                     @db.Uuid
+  configVersion   ClinicConfigurationVersion? @relation(fields: [configVersionId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  context         Json
+  updatedAt       DateTime                    @updatedAt
+
+  @@index([tenantId, userId])
 }

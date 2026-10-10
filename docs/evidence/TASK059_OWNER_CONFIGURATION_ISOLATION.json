@@ -1,0 +1,125 @@
+{
+  "schema": "TASK059_RETAINED_OWNER_CONFIGURATION_ISOLATION_EVIDENCE_V1",
+  "capturedAtUtc": "2026-10-07T03:15:08.486020+00:00",
+  "sourceCommit": "7a6e0bdfde494d0e2ba35d1cf285b9251d16a90e",
+  "sourceTree": "258e72bada9f8912531c70dfb6304e159da746cd",
+  "sourceParent": "a2062c597a567a5de0fe396bd8d4edbf7359aff0",
+  "checkoutMerge": "b92b3bdb171df969c7b74fcdeee868792d69c883",
+  "checkoutBase": "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+  "sourceCorrelation": "Original pull-request-filtered source query and original checkout fetch/gitlog/merge line. Direct event/head_sha/run_attempt API fields unretained.",
+  "runId": 37565425519,
+  "runNumber": 38,
+  "runAttempt": "UNRETAINED",
+  "runConclusion": "success",
+  "jobId": 112611907998,
+  "jobConclusion": "success",
+  "allListedStagesPassed": 22,
+  "postgresVersion": "17.11",
+  "population": {
+    "vitest": {
+      "passedTests": 239,
+      "passedFiles": 20
+    },
+    "separateClinicNode": {
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "newCase": {
+    "identity": "keeps ordinary owners' different nonclinical catalogs and saved evaluations isolated",
+    "passed": true,
+    "caseMs": 2600,
+    "fileMs": 2601
+  },
+  "originalRecord": {
+    "schema": "TASK059_OWNER_HANDLER_PG_V1",
+    "phase": "CLOSURE",
+    "firstBoundary": null,
+    "startedHandlers": 18,
+    "returnedHandlers": 18,
+    "ormCalls": 46,
+    "pending": 0,
+    "cleanedLineages": 2,
+    "status": "CANDIDATE",
+    "unresolvedLineages": 0,
+    "elapsedMs": 2597,
+    "scope": "IN_PROCESS_HANDLER_DB_ONLY"
+  },
+  "guards": "CI stdout shows literal ALLOW_REAL_CLIENT_DATA:false; source guard assertions evaluated by the independent Auditor. No inherited TASK058 positive process exception.",
+  "originalTerminalOnly": true,
+  "logFetches": 1,
+  "manualCIDispatch": 0,
+  "manualRerun": 0,
+  "localApplicationTests": 0,
+  "localSQL": 0,
+  "sharedMigrations": 0,
+  "limits": [
+    "In-process current route-handler/real Prisma disposable-PG proof with explicit AsyncLocalStorage Next cookie-context shim, throwing provider/Workflow leaves",
+    "CANDIDATE record is supported by named outer Vitest PASS and terminal complete job/run; never independent PASS",
+    "Raw complete PostgreSQL rows and per-handler result bodies unretained; source assertions plus original closure/outer result are evidence",
+    "Clinical activation/history/positive rollback, provider model/audio, browser HTTP/device, hosted current-source/service/retention and whole pilot remain open",
+    "App58b and historical hosted807 stay distinct; no measured conversion/satisfaction or clinical timing-target achievement"
+  ],
+  "staticReview": {
+    "path": "/workspace/dripwell-task059-audit-private/TASK059_APPLIED_STATIC_SOURCE_AND_PROSPECTIVE_SOURCE_PUBLICATION_INDEPENDENT_REVIEW.json",
+    "bytes": 30113,
+    "mode": "0600",
+    "sha256": "b1e6f5287e15a5d47787baedf75e898a9d0e0f2585ab6d7acecb123cf0c3aa1c"
+  },
+  "actualReview": {
+    "path": "/workspace/dripwell-task059-audit-private/TASK059_ACTUAL_SOURCE_PUBLICATION_AND_FIRST_NORMAL_CI_INDEPENDENT_REVIEW.json",
+    "bytes": 24681,
+    "mode": "0600",
+    "sha256": "fdab032b320e0a7bc006a4ad28e5a2108d3cc7d9890fd7cd82cb947c66eaa348"
+  },
+  "actualLearning": {
+    "path": "/workspace/dripwell-task059-audit-private/TASK059_ACTUAL_SOURCE_PUBLICATION_AND_FIRST_NORMAL_CI_AFTER_VERDICT_LEARNING.json",
+    "bytes": 5989,
+    "mode": "0600",
+    "sha256": "75b6b91cf4ce6f2dd795017e1c92395b3a913cae38de43e406f73f8011d01425"
+  },
+  "rootAdoption": {
+    "path": "/workspace/dripwell-task059-root-private/ACTUAL_SOURCE_CI_AND_LEARNING_ADOPTION.json",
+    "bytes": 14515,
+    "mode": "0600",
+    "sha256": "059d465c192a492cac94aa12b92722a32e314e6e8dc8aac5cd25720a7e4d8d76"
+  },
+  "originalLog": {
+    "path": "/workspace/dripwell-task059-root-private/ORIGINAL_TERMINAL_JOB.log",
+    "bytes": 206909,
+    "mode": "0600",
+    "sha256": "9802f3bb8903b18c8557966686253d7fd7a364595396a2544ae9259360baee47"
+  },
+  "originalLogEnvelope": {
+    "path": "/workspace/dripwell-task059-root-private/ORIGINAL_TERMINAL_JOB_LOGS_RAW.json",
+    "bytes": 224981,
+    "mode": "0600",
+    "sha256": "fc8dda8c2ecc3145af5418a3f948b2df1f03438c8e7729884ce8c08e3f43dea0"
+  },
+  "sourceBytes": 29656,
+  "sourceSha256": "34ad1aab80851badddf7b456b366690dbab8b9dbc192b703d951ecf9375964e9",
+  "sourceBlob": "344f80cb156ea5180c5a029fb41bad64badc3499",
+  "fixturePricesUsdCents": {
+    "A": 5000,
+    "B": 8500,
+    "AEdited": 5500
+  },
+  "fixturesAreNotOfficialClinicPrices": true,
+  "ordinaryClinicalAuthority": false,
+  "positiveActivationHistoryRollback": "NOT_ESTABLISHED",
+  "counter": {
+    "before": 35,
+    "reviewedOutcomeProposal": 36,
+    "increment": 1,
+    "SeenHeld": 5
+  },
+  "pilotDone": false,
+  "lastSourceVerifiedHostedPreview": "80729f2f2352fa55b1e0ba911082ab52eeca8032",
+  "effectiveHostedFalse": "UNVERIFIED",
+  "maintenance": "DEFAULT_DISABLED",
+  "noMeasuredConversionOrSatisfactionLift": true,
+  "nextTask": "TASK060_READ_ONLY_PAID_REFERRAL_FEASIBILITY_AFTER_CLOSURE",
+  "all12FeaturesAndNineCriteriaHeld": true
+}

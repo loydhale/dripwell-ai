@@ -1,82 +1,100 @@
 # STATE.md
 
-Single source of truth for where the team is. Any agent can read this and know what to do next.
+CONTINUOUS_MODE: ON
+Tasks completed this run: 42
+Execution status: WAITING_ON_DEPENDENCIES after TASK070's scoped existing-CLI access/runbook recovery, actually published in58e671dd53e181dd9b2a49410ae0c3743f355c78. Independent actual-result/documentary PASS and distinct L-045Seen1 learning were fully read/adopted; existing CLI access works, but current scoped account/key/DNS inputs supply no executable service write. TASK071 records the Owner's one-hour work budgets, not application execution. TASK067 and TASK068 remain scoped DONE; count42, full-story criteria and old internal restoration/permanent release holds are unchanged. Captured prospective publication wording does not authorize repeating an already-published action.
 
-## Current status
-TASK-008 under Auditor review. Coder implemented three-layer recommendation engine. Auditor found one blocking issue: first-visit consistency bias missing (coder implemented returning-patient consistency instead).
+## Current resume, authoritative
 
-## Active task
-TASK-008 — Recommendation engine (IN_REVIEW)
+Owner references, October10: the Owner supplied eighteen unique Vercel/AI/eve/browser/template resources and explicitly wants the eve Software Factory for coding, separate from the clinic service. [Reference assessment](../docs/VERCEL_REFERENCE_ASSESSMENT.md) compares every resource with the current stack. AI SDK/eve/Workflow are already selected; agent-browser has prior pinned verification evidence. Once UI and the Linear-style tracker are proposed GUI candidates, with admin/B2B navigation and Liftoff capture/review patterns as secondary references. These links are candidate references, not a selected final layout or a rendered prototype. The earlier optional design question is not repeated.
 
-## Tasks completed since last drift check
-1. TASK-004: Fastify backend with auth, tenants, catalog, providers, assessments
-2. TASK-005: Camera capture component with AR guidance
-3. TASK-006: Photo upload pipeline with S3 storage
-4. TASK-007: Adaptive questioning engine
+The factory's pinned6bc5febab source uses API models via Gateway and its normal pipeline pushes a new branch before review. Its development-only adoption preflight must preserve the existing queue, local independent review before same-branch PR2 publication, ICM/Coder/Auditor learning, current subscription/access choices, old held operations and accepted checks. No factory runtime, adapter, provider connection, branch bot, prototype, purchase or service mutation was activated. Full factory setup does not inherit Codex's ChatGPT sign-in. Independent [documentary PASS](../docs/AUDIT_VERCEL_REFERENCE_ASSESSMENT.md) was fully read/adopted in70408a, with hashes reconciled0ef5b6. Distinct later NO_NEW_LEARNING, the preserved initial report and actual SESSION_LOG/CHANGELOG edits were fully read/adopted174b4b/86b3ec and verified58286c. Final exact-document co-sign and same-review-branch publication remain separate; verify the actual latest head/private reference publication receipt before any repeat publication. Count42, seven clocks, corpus/Seen values, full-story criteria and permanent release/retained local holds remain unchanged. This new Owner reference review is independent of the parked application service lanes; presentation work can be planned from these supplied candidates without requiring every service prerequisite to be met, while final visual selection/prototype execution remain unverified.
 
-## Last action
-2026-04-22: Coder built pattern matching service, recommendation service, generate-recommendation endpoint, and RecommendationPreview frontend component.
+Owner GUI question, October9: the current frontend looks confusing and the Owner asks how to convert the desired GUI. [GUI conversion direction](../docs/GUI_CONVERSION_PLAN.md) recommends an annotated reference or sketch, a clickable prototype of the board and one consultation, then a bounded presentation change in the existing Next.js/React app. Source inspection identifies reporting before active work, four numbered visit tabs alongside five numbered workflow labels, and approval/care grouped in one tab as prototype review points. Owner-only setup/insights navigation already exists. This is advice and a proposed direction, not an implemented or Owner-selected layout, a hosted visual inspection or a new architecture. One optional design-reference question is pending; do not repeat it. On receiving a reference or a preference for design help, inspect the reference and plan the two-screen prototype before choosing UI implementation. The existing approved queue, all six stage triggers, exact-revision approvals, recording guards, count42, seven budget clocks and separate release/local holds remain unchanged. GUI planning does not require unblocking every external service and does not establish pilot completion.
 
-## Next step
-Coder to fix blocking issue: add first-visit consistency bias for isReturning === false in generateRecommendation. Then Auditor will re-review.
+Independent [GUI guidance audit](../docs/AUDIT_GUI_CONVERSION_PLAN.md) PASS was fully read/adopted in nativec64e76. Distinct later NO_NEW_LEARNING, the preserved initial review and actual SESSION_LOG diff were fully read/adopted in245c1f; no corpus/Seen/count change. The current proposal includes tablet and empty/loading/blocked-state review points. Final exact-document co-sign and same-review-branch publication remain separate; verify the actual latest head/private GUI publication receipt before any repeat publication. Application source6f0 and its accepted CI, prototype/hosted evidence limits and the existing WAITING_ON_DEPENDENCIES lanes remain unchanged.
 
----
+Owner time budget, October9: [TASK071](../tasks/TASK-071.md) and [blocker work budgets](../docs/BLOCKER_TIME_BUDGETS.md) allocate60 active minutes each to email/DNS, usable AI, selected administrator/MFA, Stripe callback/authentic referral, protected-preview release recovery, full synthetic pilot and production readiness. Total seven active hours, not a seven-hour elapsed completion promise. The first five are blocked lanes; the last two are remaining verification gates. The preview release failure is an internal engineering blocker owned by the CTO, not an Owner credential issue. Clinic inputs belong to spa onboarding and Stripe account/terms setup is complete. These allocations record initial work limits only; no lane clock has started, no prerequisite changed, no exhausted/permanent hold reset, and no acceptance criterion or safeguard is removed. Independent [documentary PASS](../docs/AUDIT_BLOCKER_TIME_BUDGETS.md) was fully read/adopted in native365a1e; distinct later NO_NEW_LEARNING and actual memory edits were fully read/adopted in4dad93. Count42 and all corpus/Seen counters remain unchanged. Exact closing co-sign/publication remains separate and prospective; actual head/private receipt supersedes this captured phase without authorizing a replay.
 
-### TASK-008 — Recommendation engine
-Status: IN_REVIEW
-Assigned: AUDITOR
-Attempt: 1
-Brief: /tasks/TASK-008.md
-PRD refs: F-6
-Last update: 2026-04-22 — Auditor review complete. FAIL on attempt 1. One blocking finding: first-visit consistency bias not implemented (coder built returning-patient consistency instead). Three suggested fixes also noted.
-Next step: Coder fixes blocking issue, Auditor re-reviews.
+TASK070 publication is actually complete: commit58e671dd/tree723e2deb, open PR2 head/local HEAD/origin and clean status were verified. Private PUBLICATION_RECEIPT.json136509bytes/SHA256dca63b6411ddd36633677c3eccdcec4b102fe03ac7964c4b24ca98c1a3ba506a is retained0600 in/workspace/dripwell-task070-private0700. It binds the eight reviewed documentary paths and actual publication/native readback. No deployment or service mutation follows; do not repeat TASK070 publication because older task paragraphs are future-tense.
 
-### TASK-004 — Build backend API skeleton
-Status: DONE
-Assigned: CODER
-Attempt: 1
-Brief: /tasks/TASK-004.md
-PRD refs: F-1, F-5, F-6, F-7, F-8, F-11
-Last update: 2026-04-22 — Coder implemented all routes, plugins, auth, validation. 22-point curl smoke test passed. Committed to main.
-Next step: Complete.
+TASK070 current access: Root found the already-installed cached Vercel62.1.0 entrypoint, outside PATH, and existing normal CLI credentials without printing values. Actual whoami e54f77/exit0 identifies loyd-1222; actual project inspect7abc25/exit0 from/workspace/dripwell-build resolves loyd-1222s-projects/dripwell-ai, projectprj_fF0yFggYVFN9pI5dQN33glG2wPyW, remote rootapps/web. This supplies an authorized route for the selected service setup. Corrected ROOT_ACCESS_SERIALIZED.json is5276bytes/SHA256f6c7b33ca533732036b0a3330829c43ec16b0c251036aae3149e083898af16e1,0600 in/workspace/dripwell-task070-private0700; Auditor independently verified it. The original4791byte/hash5b0224 invalid JSON serialization remains unchanged, with a separately validated derivative and no request replay. Individual Root request times are not retained. Coder completed thirteen genuine help/service/presence receipts and the corrected [operational runbook](../docs/OWNER_SETUP_ACTIONS.md); independent [actual-result audit](../docs/AUDIT_SELECTED_SERVICE_ACCESS_RECOVERY.md) and L-045Seen1 are genuinely adopted. No model, sender, platform-admin, deployment or pilot result follows from access recovery. Final exact-document co-sign/publication closes these notes; inspect actual head/private receipt before any retry. Do not replay accepted metadata/application checks or reopen internal held lanes.
 
----
+Owner clarification, October8: each spa supplies its catalog, prices and clinical reviewers during setup. These are per-spa onboarding inputs, not prerequisites for finishing application source. Full-story verification still needs the normal setup/test/activation/approval controls with disclosed synthetic inputs; real clinic protocols and authorized clinical validation remain required before actual clinical use. No criterion or safeguard is removed. [TASK069](../tasks/TASK-069.md) records the reconciliation, independently reviewed with distinct L-044Seen1 adoption and published once in39eb89a. Its earlier publication-pending paragraphs are captured phase history; do not replay publication. Count42 and old allocations remain unchanged.
 
-## Format reference (do not delete)
+TASK069's Vercel connector403 is route-specific historical evidence. TASK070's actual existing-CLI selected-scope reads now succeed. No selected-team Resend installations or branch Preview overrides are returned;26 shared Preview plus26 Development environment metadata records each omit RESEND_API_KEY, EMAIL_FROM and STRIPE_WEBHOOK_SECRET. Branch emptiness alone is not absence of defaults. Domain inspection reports hudley.ai with a third-party registrar, braden.ns.cloudflare.com/love.ns.cloudflare.com and a separate existing hudley.ai-site project. Authorized Cloudflare control and provider-issued sender records remain needed; do not move nameservers, reassign the domain or change the website. Raw metadata is private and no value was inspected/decrypted. The actual-result/documentary PASS and distinct L-045 learning are genuinely read/adopted. No integration retry, DNS/environment mutation or email occurred. Latest registry evidence still reports Resend installed:false with exactly one suggestion, not account absence elsewhere. Cloudflare plugin discovery and bounded standard Wrangler presence found no available route in that inspected surface, not global integration/credential absence. Account changes belong in linked service settings, not plaintext chat/repository; no repeated pending question or plugin suggestion without changed input.
 
-Each task entry:
+AI recommendation is the existing stack, GPT-4o Transcribe for speech and GPT-6 Luna for structured setup/summary drafts, with clinic rules and authorized staff controlling clinical decisions. The current public Gateway catalog returned200/413 models and contains both exact defaults. Catalog presence is not account inference permission, healthcare eligibility or a new provider selection. The historical text-model403 was not replayed, no paid access purchased and no personal subscription pooled.
 
-```
-### TASK-001 — <short title>
-Status: QUEUED | IN_PROGRESS | IN_REVIEW | BLOCKED | DONE
-Assigned: CTO | CODER | AUDITOR
-Attempt: 1 | 2 | 3
-Brief: <link to brief or inline summary>
-PRD refs: <F-numbers from PRD this task fulfills>
-Last update: <timestamp> — <what happened>
-Next step: <concrete next action>
-```
+Stripe account/terms and selected USD199 sandbox resources remain complete. The remaining platform-admin issue is the exact DripWell account to receive tenantless SYSTEM_ADMIN authority and its normal MFA, then actual versioned referral policy and authentic payment/callback/credit/replay proof. TASK070 also reports no STRIPE_WEBHOOK_SECRET in current shared Preview/Development metadata; authentic callback/signing configuration is a separate remaining technical boundary. No Owner login email or administrator selection was supplied by "Fix it for me"; no bootstrap, webhook creation or credential generation occurred. Do not repeat Stripe account setup as an unfinished task.
 
-Escalation block:
+TASK068 scoped DONE: reviewed source6f0ac9d17723d994160f81c16ce2d54144385e0f/tree94bd08645f665594b2c85b8b0dc38156dd08684f, first ordinary CI37797971073/attempt1/run48/job113382291194, checked merge80c72a33 with the same tree. All22 stages/builds/types and256/256 Vitest across25files passed, including actual Setup DOM4/4(file358ms), setup handler/PG11/11(file1271ms) and recording19/19(file15053ms); modules are subsets. Separate Node domain23/auth8/clinic15/transcript11 each fail0/skipped0, not additive. CTO fully read and genuinely adopted independent source/documentary PASS, actual-result PASS and distinct later NO_NEW_LEARNING. Count41to42 applies once; no corpus/Seen change, L043Seen1/L042Seen1/L035Seen7 retained. [Task](../tasks/TASK-068.md) and [audit](../docs/AUDIT_SETUP_CONVERSATION_RESTART.md) preserve actual evidence and limits. Explicit restart preserves typed input and old saved history, changes the next request identity and fences late old GET success/failure; it does not revive a terminal ID or prove live provider/browser recovery.
 
-```
-ESCALATION: TASK-001
-(see workflows/ESCALATION.md for format)
-```
+TASK067 scoped DONE: reviewed source b4aef87ac2d7db2a2f36a2abae87c1f5e251f434, first ordinary CI37791656066/attempt1/job113360340309, checked mergea3cc5982 with the same tree0090fb09. All22 stages/builds/types,251/251 Vitest across24files and the setup handler module10/10 including four new retry regressions passed; separate clinic Node15/15/zero skips. CTO fully read and genuinely adopted independent source PASS, actual-result PASS and the distinct later L-043 learning. Scoped count40to41 applies once through this reviewed closing checkpoint; L-043Seen1 is new, L-035Seen7 and old allocations are unchanged. [Task](../tasks/TASK-067.md) and [audit](../docs/AUDIT_SETUP_MESSAGE_RETRY.md) preserve synthetic/provider/terminal-session/full-story limits.
 
-PRD approval block:
+TASK068 closes the distinct F01 terminal-session UI trap within its five reviewed source paths, with one exact dev-only jsdom27.4.0 pin and matching lockfile. Its sole local dependency resolution was direct pinned pnpm10.32.1, scripts-disabled/lockfile-only, native0/downloaded0/added0. No local application import/test/build/typecheck, generation, SQL, retained target/process inventory or disposal was performed. First ordinary changed-source CI is accepted and must not be rerun without a relevant change.
 
-```
-PRD_APPROVAL_PENDING: <id>
-Drafted: <timestamp>
-Summary: <one line>
-Blocking tasks: <task IDs that depend on this>
-Workaround active: <yes/no, description>
-```
+The same Coder's bounded source-only remaining-work assessment considered PR discussion4161485541 against current F08. A schema-valid blocked/no-IV artifact is produced and saved; the initial milestone records that fact, while clinical approval and started care independently recompute eligibility. Actual generation/persistence exceptions roll back. Current board/review warnings and existing meaningful test source cover those separate controls. No necessary new production defect or nonredundant fixture was justified; absence of a dedicated blocked-artifact-plus-stage assertion alone is not a defect. This is a scoped disposition, not proof that every possible future source issue is absent. That bounded source assessment created no next source task or old capacity reset. TASK069 is the later Owner clarification and read-only access reconciliation described above.
 
-Continuous mode report (written when mode turns OFF):
+The owner authorized work until genuine completion. DripWell's purpose is to help an IV spa present suitable approved memberships/programs during the new-client offer and record actual enrollment, decline and unknown outcomes. All twelve PRD features, all nine exact section8 criteria and production gates remain required. Neither pilot nor production is done. [Readiness matrix](../docs/AUDIT_PILOT_READINESS_GAPS.md), [TASK066 evidence](../docs/AUDIT_RECORDING_FIRST_OPERATION_DIAGNOSTIC.md) and [task](../tasks/TASK-066.md) are the current resume references.
 
-```
-CONTINUOUS_MODE_REPORT
-(see workflows/CONTINUOUS_MODE.md for full format)
-```
+TASK066 adds one test-only first-original-operation diagnostic, source116497/fddffd33/diff01207480, independently accepted91c9299d. All fifteen old case bodies are byte-equal; four new observer controls preserve real receiver/arguments/one lazy completion/error identity. Closed maximum1019UTF8 stays under1024. No production/mapper/schema/package/CI/Workflow source changed. One application candidate/review and final private correction are consumed, automatic0; old TASK052/TASK061R1/TASK064 allocations and permanent TASK057 are not reset.
+
+Published diagnostic source38353a962a16e29ade2f5439b3ae8346408761d0/parent740b9da1/tree9581863a is now green in its first ordinary PR CI37723246077, attempt1/job113135489455. Checked-out merge2518f3da has the same tree. All22 steps/builds/types passed,247/247 Vitest tests across24files, recording19/19 (14751ms; exhaustion2076ms), separate clinicNode15/15/zero skips. Actual independent reviewe80924a8 and distinct later NO_NEW_LEARNING7f5fdde3 were fully read/genuinely adopted9a77bbf3; no corpus/count advance. Current successful exhaustion is12completed/12rollbacks/12ownedinjections/0commits/0remaining, callbacks15returned15, providerget1/transcribe1 with other calls0, pending0, firstUnexpectedError:null, mapper once realP2034/owned+lasttrue. Current green CI supplies no historical SQL cause or whole pilot evidence.
+
+## Concrete current findings
+
+The once local runner entry retained receiptfc116c28: focusednative1/FAILED, actual mainreaped/pipeEOF/localdescriptorsclosed but owned descendant closureUNKNOWN, checks[]/83stdoutbytes/0stderr. Full19/typecheck and successorSQL stopped. Original canonical receipt stays immutable.
+
+Root discovered the locally written native report12037/166a1b3c after that failure. Its times/mtime lie within the original entry and exact one approved file/nineteen names match. Independent supplemental review9a6f9dbd and distinct later learning9b2ac8e7 were fully read/genuinely adopted122c3958. The report records four new observer controls PASSED, exhaustionFAILED37.129165ms, fourteen excluded originalsSKIPPED. This is supplemental report evidence, not an independent executed-module hash or database/process cleanup proof. No test was rerun to recover it.
+
+The current reported failure is PrismaClientValidationError/unknown blobObject at the first fixture RecordingSegment.create679/test1479, before publication retry/provider/mapper. Checked-in schemaf15f9c11 includes the field; resolved cached generated schemaaa67b4c8/runtimebda3a62e/types9e1a8db9 omit it. This is a current local generated-client mismatch, not the historical eleven-of-twelve SQL cause or a hosted-runtime defect. No approved retry record was retained in the native JSON. A cached standaloneTSC would use stale generated types; its source-only plan7c2772a3 is BLOCKED/unexecuted. No compiler, generator or controller ran in that lane.
+
+The final private recordercf227ade has applied source/planPASSb707b187 and distinct learning05e8e0e genuinely adoptedb729da09. Once purecontrols receipt d706e1d4 records fourgroupsPASS/native0/firstnull/internal0.014515s. Independent actualPASSb72e0d8d/distinct learningeebac200 were genuinely adoptedc1acf3e0. These private pure controls are separate from the four Vitest controls and establish no recording, current process/SQL or pilot result. No further private correction/replay is admitted.
+
+## Retained target and local effect hold
+
+Initial fresh-target preparation receipt95545cf8 applied all fourteen pinned migrations once, from zero to52publictables; all76CLI stages closed and foreign55432 metadata stayed unchanged. Owned target b127525d87c2b5971c5d7cd23b890dfb9610dee26c9ee46588280dead965f439, name dripwell-task066-a41fc2ade78d, nonce a41fc2ade78d450481e82ae57a2953bd, local127.0.0.1:5432, remains retained. The initial52empty baseline1b7f2b3d is known; post-failure clientcount/contents/baseline restoration/fixture compensation are unproved. Do not replay preparation/migrations, reset or remove it.
+
+First fresh metadata264466f4 hit its256globalstatcap. Once changed numeric inventory13f1f3f3 used1289numericrows/19identityreads/0.129436s/native0 and observed exact old467546/start55951438 as terminalZ/ppid1/original467533group+session, executionterminated but OSunreaped; other old main/client groups absent at snapshot. New ps post-snapshot descendant creation remainsunproved, closureUNKNOWN. Independent factual limitsfa9ce47e/laterda94fe29 were fully read/adopted23314a67. No active unseen child is asserted. No second inventory, SQL, application retry or disposal is admitted; the spent private main directory/fc116 remain unchanged.
+
+## Actual publication and accepted fresh validation
+
+The dc9f8045/d1af6cf3 path was consumed after exact final documentary co-sign1818712a, distinct later learning550a0f8f/genuine adoptionbbf729ad and fresh-lease Root Git GO969c047c. Actual publication receipt28cd0415 binds ten total reviewed paths, one test source/nine documents, same feat/dripwell-consultation-v2/open PR2. No main merge or release occurred. The Auditor accepted actual publication and CI in e80924a8; its exact actual-result CHANGELOG line is preserved. Local HEAD/origin/index matched38353a96/tree9581863a and Git status was clean after narrowly authorized metadata reconciliation7b77fa08. Raw local12037/166a remains private/untracked, with only one anchored /apps/web/.vitest/ local exclude append. Git cleanliness does not imply process/database cleanup.
+
+Actual metadata7bca69ae and exact log207119/12cd00aa bind the first ordinary CI to383source/2518merge/tree958. Unchanged v2-checks.yml generated current Prisma6.19.3 and applied fourteen migrations on its new isolated synthetic service before successful builds/types/unfiltered full tests. This is separate from retained b127's consumed migrations/stale cache; no local compiler/generator/PG retry or historical run/log replay occurred. All application/schema/package/CI blobs remain unchanged during this actual-result documentary closure. Do not rerun accepted checks without a relevant change. TASK066's original unexpected-rejection identification goal remains unfulfilled; count40/L035Seen7 stay unchanged.
+
+## Historical components and unresolved regression
+
+Original CI37656684044/job112913395064 remains FAILURE/CHANGES_REQUIRED:20successful steps/1failed/1skipped,242Vitestpass/1fail across24files and separateNode15/15/zero skips. The old exhaustion saw11completed bodies/11rollbacks/remaining1 versus12/12/0, commits0; mapperonce/ownedInjectedtrue/lastInjectedfalse. OWNED_JOB_UPDATE is a successful wrapper milestone, not the failing SQL. Production P2034 rejection counts differ from fixture completed-body/injection counters; actual SQLcause remainsUNKNOWN. Do not weaken twelve-attempt/no-commit/provider/tenant/cleanup assertions or infer a repair from the local cache failure.
+
+TASK064's real-PG enrollment reporting component and reviewed documentary closure are DONE: source1aa61f19, case1324ms/file1327ms, cohort6=1enrolled/1declined/4unknown, known2/rate0.5,271trackedORM/23owneddeletes/5restoredcensuses. Count39to40/L0356to7 happened once. TASK065's saved-source/log nine-criterion factual reviewc3501d0c/distinct learningad8f9906/adoption83854fd3 selected no necessary nonredundant candidate within its traced scope; it did not prove future independent work absent or create new capacity. Existing eleven-distinct-key trial10success/one402/idempotentresume and TASK058 same-key overlap/four-write rollback/oneunit remain accepted; no duplicate fixture or fourteen-literal-day waiting requirement.
+
+## Parked lanes and exact resume conditions
+
+| Lane | Missing condition before separately reviewed execution |
+| --- | --- |
+| Clinic configuration and clinical review | Spa catalogs/prices/reviewers are supplied during onboarding, not needed to finish source. Verify the normal synthetic two-clinic setup/test/activation/rollback flow under existing safeguards; real clinic clinical validation remains required before actual clinical use. Blocked synthetic drafts do not establish activation. |
+| Capture, transcription, model and devices | Usable selected service eligibility/access and approved facts, actual consented representative capture, reviewed transcript/facts/questions and valid location-specific model output. Historical Gateway403 is not completed inference. |
+| Approved sharing/PDF | Use the recovered existing selected CLI route. Complete the direct Resend account/key and provider-issued sender records at authoritative Cloudflare, bind selected Preview/Development settings, then separately authorized intended-recipient verification/delivery/download from an approved source-correlated artifact. Current key/sender-name absence comes from TASK070 default metadata, not historical403 or empty branch overrides. No DNS authority/recipient authorization is inferred. |
+| Paid referral | Selected tenantless MFA-verified administrator, published versioned policy/attribution, current protected callback/signing-secret configuration and authentic selected sandbox payment/invoice/credit/replay correlation. Existing Stripe account terms and selected USD199 resources are retained, not recreated. |
+| Recording/local restoration, internal | TASK066 current source validation is green and complete; historical SQLcauseUNKNOWN and local fc116/13f/b127 process/database restoration remain held separately. No new failing source check or necessary candidate is established. Consumed TASK052/TASK061R1/TASK064/TASK066 scopes unchanged; no check/inventory/SQL/disposal replay. |
+| Release, internal | TASK057 permanently parked after final3. No fourth/reset/retry/repair/reimplementation/acceptance substitute; native13 closed. Hosted retention/cadence/security/data and production evidence remain unverified separately. |
+
+Next continuation: read current branch governance/STATE/PRD8 and reconcile the actual managed shell, head and worker. Resume a parked lane only when its selected prerequisite changes and its specific operation is separately reviewable within existing authority, or resume a genuinely changed necessary independent approved source defect. Do not overlap an active worker or rerun accepted CI/checks. If prerequisites are unchanged, retain this clean WAITING_ON_DEPENDENCIES resume without a busy loop or repeated question; notify only for changed blockers or genuinely needed action. Retained stale generation/SQL/process inventory/disposal and permanent TASK057 remain held. Publication is not deployment evidence.
+
+## Standing choices and safeguards
+
+Owner's until-done authorization remains. Finish DripWell automation6abf9f5e25c08191b939bb96222f1f13 is last recorded hourly/enabled. This is a scheduled continuation, not an uninterrupted background coding worker. Disable only on actual cancellation or genuinely verified authorized completion.
+
+Keep protected previews and requested runtime/build ALLOW_REAL_CLIENT_DATA=false. Effective hostedfalse remains UNVERIFIED, encrypted defaults UNKNOWN and maintenance DEFAULT_DISABLED. Last verified protected preview source80729f2f is historical; current deployed Git source UNKNOWN. Historical90b0565/79source checks/Gateway403 is incomplete. Shared reviewed migrations are not replayed; disposable CI migration evidence is separate.
+
+Codex's ChatGPT coding login is not hosted commercial or healthcare/transcription eligibility and cannot pool one personal subscription across users. No credits purchase, provider swap, upgrade, partner application, outbound message/email, unselected platform-admin bootstrap or real client data. Resend is selected; hudley.ai/candidate dripwell.hudley.ai authority/sender/key/authorized-recipient handoff remains pending once. Platform starter is Owner-delegated USD199/account/month, referral draftUSD50 firstpaidonce/30-day attribution/refund reversal/no expiry/future invoice credit/no cash. No invented clinic prices or new charges.
+
+Saved notes do not contain a verified DripWell email/password for the Owner. Temporary fictional accounts were compensated; the login question did not select a platform administrator or authorize bootstrap. The historical protected sign-in address is https://dripwell-ai-preview-loyd-1222s-projects.vercel.app/login; current deployment verification is still open.
+
+Mandatory open-source Vercel Plugin0.53.0/3b472643 guidance and installed docs remain required. Preserve ICM root folders and authored apps/web/agent and apps/web/workflows. Video references require actual visual/audio/timestamp inspection; the existing setup/development/both clarification and ICM example remain pending without a repeated question.
+
+## Preserved history
+
+Previous STATE is retained byte-for-byte in [STATE-2026-10-07-pre-dependency-resume.md](STATE-2026-10-07-pre-dependency-resume.md),129360bytes/SHA2564069c51b695cb84f57cbc8e3e6754a65d2e2cd8e220fff48fd1b96303e1df7bc. Historical future-tense instructions and earlier counters are superseded by this current resume; original failures, attempts, receipts and learning remain immutable. Latest prescribed drift check remains [count40](../docs/PRD_DRIFT_CHECK_040.md). Exact same-task L035 refinements were applied once; PATTERNS/GOTCHAS and L035Seen7/count40 are unchanged.
