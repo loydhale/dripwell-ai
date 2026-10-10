@@ -735,6 +735,18 @@ function CareOutcome({
     setIds(visit.actualCare?.items.map((item) => item.productId) || []);
     setObservations(visit.actualCare?.observations || '');
     setReason(visit.actualCare?.reason || '');
+    setMembership(visit.actualCare?.membershipProductId || '');
+    setMembershipEnrolled(
+      visit.actualCare?.membershipEnrolled == null ? '' : String(visit.actualCare.membershipEnrolled),
+    );
+    setServicePurchased(
+      visit.actualCare?.servicePurchased == null ? '' : String(visit.actualCare.servicePurchased),
+    );
+    setPaid(
+      visit.actualCare?.confirmedCollectedCents == null
+        ? ''
+        : decimalPrice(visit.actualCare.confirmedCollectedCents, visit.actualCare.currency),
+    );
   }, [JSON.stringify(visit.actualCare)]);
   const approved =
     visit.initialRecommendation && visit.clinicalApprovedVersion === visit.initialRevision;
