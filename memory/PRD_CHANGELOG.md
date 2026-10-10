@@ -1,5 +1,14 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-10 — v2.0 — MINOR, TASK073 CARE-FORM REFRESH AND CURRENT CI FAILURE
+
+Section changed: Section8 evidence checkpoint only; all twelve feature requirements and nine numbered criteria are unchanged.
+Summary: Records the existing F06 form refresh repair and qualified5/5 real-Consultation DOM evidence, builds/types PASS and whole first changed-source CI38080612363 FAILURE in the recording-exhaustion case. No task count or pilot/production gate advances.
+Task trigger: TASK073, standing until-done authorization and a newly confirmed current-version stale commercial-field overwrite.
+CTO: Fully read and genuinely adopted independent source/documentary PASS and actual-publication/module PASS with wholeCI CHANGES_REQUIRED, native7bf65f/374f8a/a1fd69/77500e. Distinct later L-016Seen2to3 learning and exact memory diff were fully read/adopted72b256/163915. Required wholeCI/task completion/count42 remain held.
+Auditor co-sign: Required for this exact MINOR checkpoint before publication; the separately appended final documentary verdict in [TASK073 audit](../docs/AUDIT_CARE_COMMERCIAL_REFRESH.md) binds the reviewed bytes. This checkpoint grants no new source/effect authority or wholeCI PASS.
+Owner authorization: Standing existing-scope work. No new feature, provider, commercial, clinical, real-data authority or old allocation reset.
+
 ## 2026-10-08 — v2.0 — MINOR, TASK068 FRESH SETUP CONVERSATION
 
 Section changed: Section8 evidence checkpoint only; all twelve feature requirements and nine numbered criteria are unchanged.

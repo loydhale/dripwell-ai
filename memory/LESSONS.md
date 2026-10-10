@@ -152,7 +152,8 @@ What went wrong: The pattern edit form hardcoded `escapeHtml('')` for the `clini
 Root cause: The Coder wrote a conditional render expression but passed an empty string literal instead of the pattern property.
 Avoid by: When wiring an edit form, copy every field from the fetched record into its corresponding form control. Do a visual spot check: open edit, verify every field shows current data, save without changing anything, verify nothing changed.
 Recurrence: TASK040,2026-10-03. A disabled referral policy retains immutable publication history while its current active JSON becomes null. The form must reset enabled state and every editable value on reload; the next version must use current and historical publications rather than recreate a disabled version. Focused actual-PG checks and the actual compiled custom-load/starter-draft/publication/disable/full-reload/re-enable/max-version checks pass. Earlier failed private fixture and browser phases are retained and excluded from successful proof; final cleanup/audit is separately recorded.
-Seen N times: 2
+Recurrence: TASK073,2026-10-10. CareOutcome initialized all optional commercial fields but omitted four buffers when refreshing fetched actualCare. After VERSION_CONFLICT and the visible retry/reload, the same mounted form used the current visit version with stale hidden commercial values. Mirror every saved-care initializer in the existing refresh effect, preserving its serialized dependency, nullable/false/zero values and currency conversion. Independent source/publication review and the five real Consultation/request-helper DOM cases pass at9bd84b46; the first full CI fails a separate recording exhaustion oracle, so TASK073 remains incomplete. This is one field-completeness recurrence, not one per field or test.
+Seen N times: 3
 
 ## L-017 — Prisma relation `take` limit breaks `.length` count semantics
 Date: 2026-04-23

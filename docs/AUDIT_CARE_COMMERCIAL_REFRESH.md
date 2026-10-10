@@ -195,3 +195,157 @@ Native 01d5a1 independently recomputed every descriptor below and matched the Co
 
 The final whole-report descriptor, including this appendix, is supplied in the independent handoff after the append; a report cannot contain its own exact hash. Its original prefix remains the retained admission snapshot. There are no required fixes for this captured source/publication phase. Runtime PASS, remote branch adoption, publication, actual CI and learning are not asserted by this phase.
 
+## Phase 3: ACTUAL_PUBLICATION and FIRST_CHANGED_SOURCE_CI review
+
+AUDIT: TASK-073
+VERDICT: CHANGES_REQUIRED for whole required CI and task completion.
+SCOPED_RESULTS: Actual reviewed source publication PASS. New care commercial refresh module PASS, five of five. Both builds and type checks PASS.
+REQUIRED_TASK073_SOURCE_FIXES: None justified by the captured source and actual module evidence.
+
+Reviewer: /root/care_refresh_auditor. Date: 2026-10-10 UTC. This is an independent review of Root's complete retained first-run handoff. Root fully read the Phase 2 report in native7bf65f and genuinely adopted its exact five-path set in ROOT_SOURCE_ADOPTION.json/native374f8a before publication. This review edits this audit only; learning and final documentary closure are separate later phases.
+
+### Actual publication and log provenance
+
+The accepted publication pre-read and native7bcc95 independently bind source9bd84b463405fa57d755c9929a826751902319b5, parent6e9eb0ccf22d5d9517cbb1252923484f0310fd98 and tree2cd6cfa9e0f56e81b8342d718e9ed53ed536a393 to exactly the five reviewed paths and their Phase 2 hashes. The normal branch and open PR2 readbacks match. Native0db8a6 records a guarded Git metadata-only reconciliation with all477 tracked worktree byte identities preserved. The original admission and source reports remain separately retained and byte equal to their captured versions.
+
+The publication receipt preserves the extra local assertion failure when create_commit returned only structuredContent.sha. Normal reads verified the one already-created commit and unchanged prior lease before the successful ref update. There was no repeated creation or unverified ref movement, and this was not an application test failure.
+
+The complete actual CI handoff binds repository loydhale/dripwell-ai, PR2, published source9bd84b46, run38080612363/run49/attempt1 and verify job114296575673. Run and job metadata both say completed/failure. The checked-out PR merge41b0d4ce9742233b06e6f680a2db8c07cec7af7c has the same tree as the reviewed source; raw log lines183-213 confirm the checkout and exact merge hash. Identity alone is not a successful result.
+
+| Retained evidence in /workspace/dripwell-task073-private | Bytes | SHA256 |
+| --- | ---: | --- |
+| SOURCE_PUBLICATION_RECEIPT.json | 57064 | b9262381e39a7fbd683fbdcf9a63495ff3f0710cf69df59b59224d5838a8ea14 |
+| FIRST_CI_RECEIPT.json | 23305 | af1a27ea23ed851e7053d3de619176ce54017967e18d4a20bb9acd29d330c4c4 |
+| FIRST_CI_JOB.log | 220313 | 8664fc6d720e30f018179eb04ac14c252f2254488b5c4a865b5cd2f22ad05e6d |
+| FIRST_CI_TOOL_RESPONSE.json | 240848 | 4fabe395a56fb682d7913d62521dc528bddd1c2587b0e06a54dbf3e7b2cb8b87 |
+
+Native72bfb1 independently verifies these first-CI pins and that the exact raw log bytes equal the normal connector response's structuredContent.content encoded as UTF-8. The earlier formatted derivative is retained separately: FIRST_CI_JOB.formatted.log,220314bytes/SHA256d3130b66ec88782a1c41855d82f2f2f08e76784a6ac6aafee5a8e9bb2b4c01a4, exactly raw plus one terminal newline. Root corrected the extraction from retained JSON without requesting the logs again; this review uses the exact220313-byte raw log. Its219118 JavaScript UTF-16 units correspond to219117 Unicode code points, verified by nativee3341a; no one-character provenance discrepancy is implied.
+
+This Auditor issued no CI fetch, poll, rerun or application operation. Actual results come from the retained normal service response and run/job records. Mandatory Vercel Plugin React/verification guidance remains applied; deployments-cicd/SKILL.md was also read from the same connector skill root. Its distinction between inspection, tested source and deployment/release approval is preserved.
+
+### Actual passing checks and scoped module evidence
+
+The unchanged workflow creates a fresh disposable PostgreSQL17-alpine service for this ordinary source-triggered PR run. The raw log records frozen-lockfile installation, current Prisma6.19.3 generation/validation and fourteen migrations on that new isolated service. These remote CI operations are separate from the retained local b127 target and its consumed preparation/restoration holds. CI requests ALLOW_REAL_CLIENT_DATA=false.
+
+| Required check | Actual result |
+| --- | --- |
+| Vercel agent build with shared dependencies | PASS, including the Prisma runtime-bundle verification. |
+| Vercel web build | PASS, Next16.3.8 compile, TypeScript and static page generation completed. |
+| Shared and web type checks | PASS. |
+| Shared Node domain tests | 23/23 PASS, fail0, skipped0. |
+| Authentication Node tests | 8/8 PASS, fail0, skipped0. |
+| Clinic Node integration tests | 15/15 PASS, fail0, skipped0. |
+| Extraction Node tests | 11/11 PASS, fail0, skipped0. |
+| New lib/care-outcome-refresh.test.ts | 5/5 PASS, file767ms. |
+| Full Vitest stage | FAILURE,260passed/1failed/261total;25passed/1failed/26files. |
+
+Raw log lines916-919 identify the actual care refresh module and its five-test suite, including the named USD interaction case. Those five cases correspond to the exact reviewed module's USD/KWD retry/save, explicit decline/zero, unknown/null and unchanged-serialization negative. The complete module passed within the unfiltered normal Vitest run; its real exported Consultation/request-helper and intercepted-context/transport limits remain as reviewed in Phase 2. This proves the synthetic DOM boundary exercised by those tests, not live capture, actual inference, hosted roles or a completed two-clinic story.
+
+The job contains22 recorded stages:20success,1failure and1skipped. The failed stage is Verify billing and sharing boundaries, which runs the complete Vitest suite; its title does not confine the failed test to billing. The skipped post-setup-node cache stage is not a passed stage. Successful post-checkout and container removal are separately recorded.
+
+### Blocking full-suite finding
+
+Blocking: apps/web/lib/recording-consumer-safety.integration.test.ts:1525:31, case exhausts bounded publication conflicts without committing partial effects. The required mapped faults are12 completed publication bodies,12 rollbacks,0 commits and0 remaining. Actual faults are11 completed bodies,11 rollbacks,0 commits and1 remaining. The complete assertion diff and exit1 are present at raw log lines962-1023. The recording module is18passed/1failed/19total, including its four observer controls. This failure prevents TASK073 acceptance6, which requires the full mandatory checks to pass, even though the new module is green.
+
+The MAPPED_EXHAUSTION_SENTINEL frame at raw line922 records TRANSCRIPTION/FAILED, completedKinds0, OUTCOME_ASSERTION, callbacks entered15/returned14, injectedErrors11 and pendingCount0. Provider fixture counters are get1/transcribe1/summary0/catalog0/start0. Its firstUnexpectedError is OWNED_JOB_UPDATE, PRISMA_KNOWN/P2034, operation CONSULTATION_WRITE, location DELEGATE_ASYNC, last successful operation REVISION_WRITE, enteredtrue/returnedfalse, usageSeentrue and selectedfalse. The mapper frame reports seen/calls1, P2034, ownedInjectedErrortrue and lastInjectedErrorfalse.
+
+OWNED_JOB_UPDATE is a wrapper milestone; it does not identify the failing SQL statement as a job update. The operation classifier narrows this original rejection to the consultation-write delegate after a revision write. The production P2034 rejection budget and the fixture's completed-body/owned-injection counters are distinct. The current mismatch does not justify raising a production cap, counting a rejected partial body as completed, weakening twelve-attempt assertions, or discarding the first original error.
+
+The frame's sqlState and constraintMention remain UNKNOWN. PostgreSQL service output also contains serialization and intentional constraint failures across the suite, including a19:41:14.014 consultation serialization statement. The closed frame provides no matching native PID or query-parameter identity; temporal proximity and operation type alone do not prove the exact causal SQL/fixture attribution. Historical SQL cause, production defect and required correction remain unproved by this actual review. A single previously green run or this narrow module pass cannot relabel the new full-suite failure benign or flaky.
+
+The first failed assertion precedes later mapped-outcome and publication-state equality assertions in the captured failure excerpt. Those later assertions and failing-fixture compensation are not accepted as passes. Zero commits/pending0 in the frame and successful remote container/network removal at raw lines1299-1304 do not restore the retained local target, prove all fixture state equality or close old process/database UNKNOWN facts.
+
+### Safe disposition and limits
+
+Actual source publication and new care-refresh module evidence are accepted within their scope. Whole first CI remains FAILURE/CHANGES_REQUIRED. TASK073 is not DONE, count42 does not advance, and no independent care-refresh production/test correction is justified.
+
+The controlling final dispositions of TASK065/TASK066 and STATE permit separately reviewed consideration of genuinely changed necessary source evidence. This fresh failed first run supersedes the earlier current-no-new-failing-source statement; it does not refill TASK052/TASK061R1/TASK064/TASK066 capacities. Root's separately bounded one read-only trace of the new frame/current production path is consistent with that limit when its only output is an evidence-backed independent PRODUCT candidate/allocation distinction or a no-candidate disposition. It grants no source/test/diagnostic/fixture/cap/oracle/package/CI change, automatic correction, new check, replay or effect. A later necessary repair must receive its own concrete admissibility decision; this review pre-co-signs no hypothetical fix and does not wait on that assessment.
+
+Root must genuinely read/adopt this entire actual report before the distinct learning phase, then reconcile task/STATE/CHANGELOG and any final PR wording through separate documentary review. This actual review writes no learning, recurrence, count or Root-owned status entry. All seven clocks, consumed internal holds, permanent TASK057 park, protected previews, requestedfalse/effective-hostedfalse-UNVERIFIED/default-disabled posture and full-story/production gates remain unchanged. No local import/test/build/typecheck/generation/SQL/process/provider/browser, CI rerun, migration replay or release operation occurred in this review.
+
+## Phase 4, distinct later learning, 2026-10-10
+
+Reviewer: /root/care_refresh_auditor. Verdict: JUSTIFIED_EXISTING_LESSON_RECURRENCE, L-016Seen2to3 exactly once. No new lesson, pattern or gotcha. This learning verdict grants no task completion, required-CI PASS or new effect.
+
+### Actual review adoption before learning
+
+Root read the complete Phase3 appendix in nativea1fd69 and verified its previously fully read29586-byte source/admission prefix unchanged. Root then genuinely adopted the full actual review through private ROOT_ACTUAL_ADOPTION.json/native77500e,1116bytes/SHA2563ead96bf8cdedf533bad3a52b61d7613e0855403a9790f129f7c336ac33c40a6. Its verdict is CHANGES_REQUIRED_FOR_WHOLE_CI_AND_TASK_COMPLETION, with scoped source publication/new5/5 module/builds/types PASS, no justified TASK073-specific source fix, count42 and all clocks/capacities/holds unchanged. The independently read adoption retains source9bd84b463405fa57d755c9929a826751902319b5/tree2cd6cfa9e0f56e81b8342d718e9ed53ed536a393, run38080612363/attempt1/job114296575673 and wholeCI FAILURE.
+
+The preserved pre-learning actual report is40071bytes/SHA25656e31c27fcdc5c66d7aab5e3ac552fc92b2e1a697d2a2a550ccc0d0479f5d248, retained privately as ACTUAL_AUDIT.md. Native3d83bb read the adoption in this distinct phase; nativeb1111e verified the report's exact retained identity and both unchanged authored source pins. Phase4 appends only after that original report; it does not revise the actual failure verdict.
+
+### Lesson, pattern and gotcha decisions
+
+LESSON: L-016 already requires every editable field to populate from a fetched record. Its original TASK015 clinicalRationale omission and TASK040 disabled-policy reload recurrence establish Seen2 before this phase. The admitted independent TASK073 defect is the same completeness mistake in a different real form: all four optional commercial fields had saved-care initializers, but their refresh setters were omitted while observations refreshed. The ordinary VERSION_CONFLICT, visible retry/reload, still-mounted form and current visit version make those stale hidden values eligible to overwrite a coworker's saved commercial facts on the next observation save. This warrants exactly one recurrence and Seen2to3, not four recurrences, five test recurrences or a new duplicate lesson. The actual five-case Consultation/request-helper module at9bd84b46 supports the repaired synthetic DOM boundary, including null/false/zero, currency conversion and unchanged serialized dependency; full-suite acceptance still failed independently.
+
+PATTERN: no new pattern. Extending the existing editable saved-care refresh is an ordinary application of the existing field-completeness rule. Saved commercial facts remain distinct from current clinic catalog inputs under P-027. No new abstraction or implemented factory/layout mechanism is established.
+
+GOTCHA: no new gotcha in this phase. The actual LESSONS.md rule says a3+ lesson is promoted on the next weekly review; that review is not this task's bounded learning phase. Existing typed-evidence and scope guidance covers the preserved initial result-shape assertion and raw-log formatting derivative. The old recording diagnostic fragments remain the same old cause and consumed capacity, with no L-035 duplicate recurrence, automatic reset or unsupported flaky designation.
+
+### Applied learning scope and remaining disposition
+
+memory/LESSONS.md receives one dated L-016 recurrence and the sole Seen2to3 change. memory/SESSION_LOG.md answers all three learning questions and records the genuine prior adoption, scoped evidence and failure limits. memory/CHANGELOG.md receives one factual dated line for the four-buffer authored fix/new5/5 DOM/both builds/types evidence, whole first CI FAILURE and no TASK073 DONE/count42 advance. memory/PATTERNS.md and memory/GOTCHAS.md remain unchanged. These three memory paths and this audit appendix are the only learning edits.
+
+WholeCI38080612363/attempt1 is still260passed/1failed, with the existing recording exhaustion oracle expecting12 completed bodies/12rollbacks/remaining0 and observing11/11/remaining1/commits0. No care-refresh source correction is independently justified. This lesson does not establish the remaining two-clinic live full story, provider eligibility, hosted effective false, compensation restoration or production rollout gates. Count42, seven clocks, consumed old allocations, permanent TASK057 park, protected previews and all prior internal/external/pilot/production holds remain unchanged.
+
+Root must genuinely read/adopt the complete learning diff and this distinct appendix before the separate final source-assessment/documentary/PR co-sign. That later review must reconcile the newly completed read-only Coder assessment as its own evidence; no assessment or hypothetical correction is preapproved here. No application import/test/build/typecheck/generation/SQL/process/provider/browser/CI request/replay, source/package/RootSTATE/task/PRD edit, publication or cleanup occurred in this phase.
+
+## Phase 5, FINAL_DOCUMENTARY_AND_READ_ONLY_ASSESSMENT, 2026-10-10
+
+Reviewer: /root/care_refresh_auditor. Verdict: PASS for the bounded read-only no-candidate disposition, the exact nine-path documentary set, Section8 MINOR evidence checkpoint and whole pinned PR body. No required whole-CI, TASK073, pilot or production PASS is granted. Required first CI remains FAILURE/CHANGES_REQUIRED; TASK073 is not DONE and count42 is unchanged.
+
+### Separate prior adoption and scope
+
+Root genuinely read the complete5042-byte Phase4 appendix, exact three memory diffs and all four pins in native72b256, then adopted that distinct learning in ROOT_LEARNING_ADOPTION.json/native163915,1888bytes/SHA25667a4f97f311f06ed3909df5e42f2ea141109799f15c6137c19980c06963b45f2. Native86ba72 independently read the actual adoption and exact whole PR body/read-only handoff. Nativece5294 verifies the45113-byte adopted LEARNING_AUDIT.md/SHA256533d56c3680ef11c9864d6b728b3d4e71488f4bc7261ae5df7d171db60a47875 equals this audit before Phase5. This phase preserves that complete prefix and appends only its own final review.
+
+Native68f7d5 retains the complete current nine-path status/diff scope; its Root-owned diff portions were read separately from the retained response when combined output was clipped. Native6c7b65 reads current task acceptance/header, Section8's nine unchanged numbered criteria and the exact STATE parked table. Prior three memory edits were fully read in native089538 and genuinely adopted, and their current hashes still match. Earlier publication/running/review-pending entries are explicitly retained phase history under the current authoritative resume, not current success claims. No Root-owned documentary correction is required.
+
+### Independent read-only Coder disposition assessment
+
+The private CODER_READ_ONLY_HANDOFF.md is3361bytes/SHA2565a0769202f6ddf3c83386253f0c5080edf5a4dac9f05d1637e6c2571a029e3ce. Its final paragraph correctly labels it Root's factual summary of the Coder's handoff, not a newly executed Root source/runtime audit. This independent phase does not accept that summary as runtime proof: native6e2814/e5409c read the actual production callback, retry loop, workflow, database helper and safe mapper; nativec2dcda reads the real injector, failed assertion ordering and preserved original raw frame. Nativece5294 independently verifies all six source hashes and byte equality to source38353a96.
+
+The fresh MAPPED_EXHAUSTION_SENTINEL frame remains TRANSCRIPTION/FAILED with firstUnexpected PRISMA_KNOWN/P2034, CONSULTATION_WRITE/DELEGATE_ASYNC after REVISION_WRITE, callback enteredtrue/returnedfalse and sqlState/constraintMention UNKNOWN. This is consistent with appendReceivedTranscript's consultation update at clinic.ts1049 after its revision writes. OWNED_JOB_UPDATE is the successful earlier wrapper milestone; it is not the failing SQL identity.
+
+publishRecordingProcessing at recording-processing.ts177-183 attempts at most twelve real transactions, continuing for known Prisma P2034 on attempts0through10 and throwing on attempt11. The test injector at recording-consumer-safety.integration.test.ts1268 selects its injection only after the real callback completes, increments completedPublicationBodies then, and increments owned rollbacks only when rejection identity equals its own injected error. An earlier real known rejection can therefore consume a production attempt without consuming an owned injection or completed selected body. Eleven owned injections plus the saved earlier unexpected rejection are consistent with the observed counters; this distinction establishes neither exact SQL attribution/cause, flakiness, an incorrect production cap nor a safe product remedy.
+
+The workflow keeps transcription and summary provider calls outside the publication retry loop. Its final original error crosses actual safeAIError/RetryableError; the raw mapper frame is ownedInjectedtrue/lastInjectedfalse, with providerget1/transcribe1/others0, selected commits0 and pending0. The failed assertion at test1525 precedes later outcome, publication equality, failure cleanup, provider equality and last-injection assertions in that mapped invocation. These subsequent assertions and failing-fixture compensation are unaccepted, even though a separate earlier low-level invocation and observer controls passed. No new replay is used to turn them green.
+
+Assessment disposition: NO_INDEPENDENTLY_ACTIONABLE_PRODUCT_CANDIDATE within this exact new-frame/current-path review. The Coder's no-fix disposition is factually justified, not proof that all future source defects are absent. No new diagnostic, test workaround, fixture/cap/oracle/CI change, cache generation, scope refill or hypothetical correction is co-signed. The six unchanged trace pins are:
+
+| Traced path | SHA256 |
+| --- | --- |
+| apps/web/lib/recording-consumer-safety.integration.test.ts | fddffd33cad9392b2c7097cb90b78a7d0a345d1bc87db9bacae777d6feb610ba |
+| apps/web/workflows/recordings.ts | 80e78fd3b65eacd055737beff0cb6d0607be855278b3bccc9f9dbc93468c652a |
+| apps/web/lib/recording-processing.ts | 00bcce943fd0d4b230913e24b5ae5003166c1c822c89252d5f6ab6674c5ed44b |
+| apps/web/lib/clinic.ts | 041953475192e4a88ddee11abd6c227466ca8512113ebf279d838d42709c62ef |
+| apps/web/lib/db.ts | 3c3cb5880533598f710055b71f191e7bded72c36ce1654c3b54ba7fa987dc93b |
+| apps/web/lib/ai.ts | 6e716a8fbf582c7cfd3702b4c53abc9becc303740b4bb2aeabe416c4def08bae |
+
+### Exact documentary, MINOR PRD and whole PR-body co-sign
+
+PASS: task/STATE now retain WAITING_ON_DEPENDENCIES with current required recording-CI failure, retained local fc116/13f/b127 restoration, consumed TASK052/TASK061R1/TASK064/TASK066 and permanent TASK057 release holds stated separately from external service/clinical/administrator/payment prerequisites. They preserve the genuinely adopted scoped source/publication/new5/5 DOM evidence, wholeCI FAILURE and prospective documentary publication. The gaps audit correctly marks older green6f0/383 results historical and updates criterion9's current failed check without completing any criterion. Section8 MINOR and its PRD_CHANGELOG change only the evidence checkpoint; all twelve features, nine numbered criteria, existing commercial/clinical authority and safeguards remain unchanged. The prior L-016Seen2to3 recurrence remains the sole learning change, and no new learning phase is opened here.
+
+The entire private FINAL_PR_BODY.md is3231bytes/SHA256273287a94b445f0d70e18ddf2487c39c68477b56ccb936cc29391173034c9f22, exactly read in native86ba72. PASS co-sign applies to that whole body. It describes the real stale-form trigger and preserved values, qualified setup repairs, first required CI FAILED with260of261 Vitest/new5of5 DOM/both builds/types and separate Node suites, unproved exact database cause/remedy and open TASK073 completion. It keeps the GUI prototype unselected, eve factory coding-only/unactivated, spa facts as onboarding, Stripe account setup complete with separate authentic paid prerequisites, protected previews/requestedfalse and deployed-source/effective hosted-guard UNKNOWN. It does not claim full pilot, real inference, production release or an uninterrupted background worker. PR2 remains open on the same review branch with title unchanged under Root's retained normal readback; no new remote PR lookup or body mutation occurs in this audit.
+
+The exact eight non-self documentary pins below are nativece5294. The ninth path is this append-only audit: its final complete bytes/SHA256/Git blob are computed after this appendix and returned in the independent final handoff with all nine paths. That external full-file identity binds both the exact45113-byte adopted prefix and this complete Phase5 appendix without a self-hash inside the file. No edits follow that final capture.
+
+| Documentary path | Bytes | SHA256 |
+| --- | ---: | --- |
+| PRD.md | 50300 | 8910c87f6c8fe2988239336cfa69ce08b6a75a3b57dfc4fb755b37c557ec25bd |
+| docs/AUDIT_PILOT_READINESS_GAPS.md | 21109 | 49492e8a980e2e70fa629115160015d3ec609c039dce27e56a334fca75e9a19b |
+| memory/CHANGELOG.md | 62806 | ff9fb21c5ca4274e7c0e445ac0d6c0396e277363008c8cbc94ff510c0fd34058 |
+| memory/LESSONS.md | 69765 | 0efd4134035ad1f1b15a8d32ff7014dad8a321106b1c77d4de231bca10579960 |
+| memory/PRD_CHANGELOG.md | 26613 | 0f709dfd60d8b0132768094294210bb5a071fcba70b252f61cd5597b6572e850 |
+| memory/SESSION_LOG.md | 20732 | e4a01ffe91279e5ab03fdedda803841e5e207474636a39265649b50a32871fb8 |
+| memory/STATE.md | 40523 | de7294f1253b3a8a6eb8f3de52d11093b51c363fea35b28eb8fb5ca5f18ba8e6 |
+| tasks/TASK-073.md | 16990 | a5c68620f9294cf82262f4b32ecc049096716b3652ff0eb4eca15141c4a88c14 |
+
+The unchanged authored sources remain consultation.tsx66504bytes/SHA256b96dd31a979697a84a6bbe2bbcae4875ac58986e6a0cb2feacad486d57cc6900/blob a8c6c10cc73cb1eb0d8e207e4ef96dc625d77876 and care-outcome-refresh.test.ts16091bytes/SHA256c9c1216e1aacea4048d8aa269dbf9780768f4f0e4ad059f4bb6d494f405762a8/blob bf849ccba192c4c2f2a2c33ba01317b4f609a30a. Local HEAD is9bd84b463405fa57d755c9929a826751902319b5/tree2cd6cfa9e0f56e81b8342d718e9ed53ed536a393 on feat/dripwell-consultation-v2. Git identity, source pins and exact nine changed documentary paths are independently captured, not inferred from green submodules.
+
+### Final disposition and limits
+
+First required run38080612363/attempt1/job114296575673 remains FAILURE,260passed/1failed/261 Vitest across25passed/1failed/26files. New5/5 DOM/file767ms, both builds/types and Node23/8/15/11 fail0/skips0 remain accepted within their actual scope. TASK073 acceptance6 remains unmet; no DONE/count42 advance or whole-story acceptance follows from this documentary PASS. All seven clocks, consumed old allocations, permanent release/local restoration and external/pilot/production holds remain unchanged. No actual two-clinic capture/model/approval/sharing/PDF/board/reminder/payment/roles/retention gate is closed.
+
+After genuinely reading/adopting this entire independent appendix and final exact pins, Root may publish only this reviewed nine-path documentary set with [skip ci] to the existing branch/open PR2 and apply only the exact pinned whole PR body. This grants no source publication repeat, application check, CI rerun, deployment, effective hostedfalse claim, provider/account/DNS/email/payment operation or old capacity reset. Capture wording that describes final co-sign/publication as prospective is a truthful pre-publication state; actual Git/PR publication receipts must later be reconciled before any repeat mutation.
+
+This phase appends only this audit. No learning, source, RootSTATE/task/PRD/prototype/package edit, application import/test/build/typecheck/generation/SQL/process/provider/browser/CI request/replay, publication or cleanup occurred. Root's genuine final adoption and actual documentary/PR publication remain separate prospective actions. Editing stops after the final full-file pin/diff-hygiene capture.
+
