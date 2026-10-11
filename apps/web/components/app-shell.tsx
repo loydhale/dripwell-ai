@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { ClinicProvider, isOwner, locationHref, postJson, useClinic } from './clinic-context';
 import { Badge, ErrorBanner, Icon, friendlyDate } from './ui';
 
@@ -14,6 +14,8 @@ function Shell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutError, setLogoutError] = useState('');
   const [today, setToday] = useState('Today');
+  const navigationId = useId();
+  const remindersId = useId();
   useEffect(
     () =>
       setToday(
@@ -58,9 +60,69 @@ function Shell({ children }: { children: ReactNode }) {
     }
   }
   return (
-    <div className="workspace">
-      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
-        <Link className="wordmark" href="/dashboard" onClick={guardNavigation}>
+    <div className="workspace clinic-workspace">
+      <header className="topbar">
+        <div className="topbar-location">
+          <button
+            className="icon-button workspace-panel-toggle"
+            onClick={() => {
+              setMenuOpen((current) => !current);
+              setShowNotifications(false);
+            }}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-controls={navigationId}
+            aria-expanded={menuOpen}
+          >
+            <Icon name="grid" />
+          </button>
+          <span className="location-dot" />
+          {data && data.locations.length > 1 ? (
+            <select
+              className="location-select"
+              aria-label="Clinic location"
+              disabled={captureBusy}
+              value={locationId}
+              onChange={(event) => void selectLocation(event.target.value)}
+            >
+              {data.locations.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            data?.locations[0]?.name || 'Clinic workspace'
+          )}
+          <span className="topbar-divider" />
+          <span className="muted">{today}</span>
+        </div>
+        <div className="topbar-actions">
+          <span className="private-label">
+            <Icon name="shield" size={14} />
+            Private workspace
+          </span>
+          <button
+            className="icon-button notification-button workspace-panel-toggle"
+            aria-label={data ? `Reminders, ${unread} unread` : error ? 'Reminders, unavailable' : 'Reminders, loading'}
+            aria-controls={remindersId}
+            aria-expanded={showNotifications}
+            onClick={() => {
+              setShowNotifications((current) => !current);
+              setMenuOpen(false);
+            }}
+          >
+            <Icon name="bell" />
+            {unread ? <span className="notification-dot" /> : null}
+          </button>
+        </div>
+      </header>
+
+      <aside
+        id={navigationId}
+        className={`sidebar clinic-navigation ${menuOpen ? 'sidebar-open' : ''}`}
+        aria-label="Clinic navigation"
+      >
+        <Link className="wordmark" href={locationHref('/dashboard', locationId)} onClick={guardNavigation}>
           <span className="brand-symbol">
             <Icon name="pulse" size={22} />
           </span>
@@ -75,7 +137,7 @@ function Shell({ children }: { children: ReactNode }) {
           <Badge tone="teal">{owner ? 'Owner' : 'Team'}</Badge>
         </div>
         <div className="nav-label">WORKSPACE</div>
-        <nav>
+        <nav aria-label="Clinic workspace navigation">
           {links.map((link) => (
             <Link
               key={link.href}
@@ -120,129 +182,80 @@ function Shell({ children }: { children: ReactNode }) {
           {logoutError ? <p className="error-text">{logoutError}</p> : null}
         </div>
       </aside>
-      {menuOpen ? (
-        <button
-          className="sidebar-scrim"
-          onClick={(event) => {
-            if (captureBusy) {
-              event.preventDefault();
-              setLogoutError(
-                'Stop recording and finish or retry unsaved audio before leaving this page.',
-              );
-            } else setMenuOpen(false);
-          }}
-          aria-label="Close menu"
-        />
-      ) : null}
-      <div className="main-workspace">
-        <header className="topbar">
-          <div className="topbar-location">
-            <button
-              className="icon-button mobile-menu"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Open menu"
+
+      <aside
+        id={remindersId}
+        className={`clinic-reminders ${showNotifications ? 'reminders-open' : ''}`}
+        aria-label="Visit reminders"
+      >
+        <div className="section-heading">
+          <h2>Reminders</h2>
+          {data && unread > 0 ? <Badge>{unread} unread</Badge> : null}
+          <button
+            className="icon-button workspace-panel-toggle"
+            aria-label="Close reminders"
+            aria-controls={remindersId}
+            aria-expanded={showNotifications}
+            onClick={() => setShowNotifications(false)}
+          >
+            <Icon name="close" />
+          </button>
+        </div>
+        {!data ? (
+          <p className="muted" role="status">
+            {error ? 'Reminders are unavailable until your workspace reloads.' : 'Loading reminders…'}
+          </p>
+        ) : data.notifications.length ? (
+          data.notifications.map((item) => (
+            <div
+              className={`notification-row ${item.isRead || item.readAt ? 'read' : ''}`}
+              key={item.id}
             >
-              <Icon name="grid" />
-            </button>
-            <span className="location-dot" />
-            {data && data.locations.length > 1 ? (
-              <select
-                className="location-select"
-                aria-label="Clinic location"
-                disabled={captureBusy}
-                value={locationId}
-                onChange={(event) => void selectLocation(event.target.value)}
-              >
-                {data.locations.map((location) => (
-                  <option key={location.id} value={location.id}>
-                    {location.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              data?.locations[0]?.name || 'Clinic workspace'
-            )}
-            <span className="topbar-divider" />
-            <span className="muted">{today}</span>
-          </div>
-          <div className="topbar-actions">
-            <span className="private-label">
-              <Icon name="shield" size={14} />
-              Private workspace
-            </span>
-            <button
-              className="icon-button notification-button"
-              aria-label={`Notifications, ${unread} unread`}
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              <Icon name="bell" />
-              {unread ? <span className="notification-dot" /> : null}
-            </button>
-          </div>
-        </header>
-        {showNotifications ? (
-          <div className="notification-panel">
-            <div className="section-heading">
-              <h3>Reminders</h3>
-              <button
-                className="icon-button"
-                aria-label="Close reminders"
-                onClick={() => setShowNotifications(false)}
-              >
-                <Icon name="close" />
-              </button>
-            </div>
-            {data?.notifications.length ? (
-              data.notifications.map((item) => (
-                <div
-                  className={`notification-row ${item.isRead || item.readAt ? 'read' : ''}`}
-                  key={item.id}
+              <Icon name="clock" />
+              <div>
+                <strong>
+                  {item.title ||
+                    (item.type.includes('CARE')
+                      ? 'Record care outcome'
+                      : 'Record wellness decision')}
+                </strong>
+                <p>{item.message || 'An outstanding visit needs an update.'}</p>
+                {item.consultationId ? (
+                  <Link
+                    href={locationHref(`/consultations/${item.consultationId}`, locationId)}
+                    onClick={guardNavigation}
+                  >
+                    Open consultation
+                  </Link>
+                ) : null}
+                <span className="small muted">{friendlyDate(item.createdAt)}</span>
+              </div>
+              {!item.isRead && !item.readAt ? (
+                <button
+                  className="icon-button"
+                  aria-label="Mark reminder read"
+                  onClick={() =>
+                    void mutate('notification.read', { notificationId: item.id }).catch(
+                      (cause) =>
+                        setLogoutError(
+                          cause instanceof Error ? cause.message : 'Unable to update reminder.',
+                        ),
+                    )
+                  }
                 >
-                  <Icon name="clock" />
-                  <div>
-                    <strong>
-                      {item.title ||
-                        (item.type.includes('CARE')
-                          ? 'Record care outcome'
-                          : 'Record wellness decision')}
-                    </strong>
-                    <p>{item.message || 'An outstanding visit needs an update.'}</p>
-                    {item.consultationId ? (
-                      <Link
-                        href={locationHref(`/consultations/${item.consultationId}`, locationId)}
-                        onClick={guardNavigation}
-                      >
-                        Open consultation
-                      </Link>
-                    ) : null}
-                    <span className="small muted">{friendlyDate(item.createdAt)}</span>
-                  </div>
-                  {!item.isRead && !item.readAt ? (
-                    <button
-                      className="icon-button"
-                      aria-label="Mark reminder read"
-                      onClick={() =>
-                        void mutate('notification.read', { notificationId: item.id }).catch(
-                          (cause) =>
-                            setLogoutError(
-                              cause instanceof Error ? cause.message : 'Unable to update reminder.',
-                            ),
-                        )
-                      }
-                    >
-                      <Icon name="check" />
-                    </button>
-                  ) : null}
-                </div>
-              ))
-            ) : (
-              <p className="muted">
-                You&apos;re up to date. Outstanding outcomes will appear here.
-              </p>
-            )}
-          </div>
-        ) : null}
-        <main className="page-content">
+                  <Icon name="check" />
+                </button>
+              ) : null}
+            </div>
+          ))
+        ) : (
+          <p className="muted">
+            You&apos;re up to date. Outstanding outcomes will appear here.
+          </p>
+        )}
+      </aside>
+      <div className="main-workspace">
+        <main className="page-content" aria-label="Clinic workspace">
           {logoutError ? <ErrorBanner message={logoutError} /> : null}
           {loading && !data ? (
             <div className="loading-state" role="status">

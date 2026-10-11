@@ -3065,3 +3065,151 @@ td strong {
 .saved-segment .decision-buttons {
   margin-top: 10px;
 }
+
+/* Clinic workspace only. Shared platform and document styles keep their defaults. */
+.clinic-workspace.workspace {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 280px;
+  grid-template-rows: 72px minmax(0, 1fr);
+  background: #f6f5f8;
+}
+.clinic-workspace > .clinic-navigation {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: sticky;
+  inset: auto;
+  top: 0;
+  width: auto;
+  height: 100dvh;
+  min-width: 0;
+  overflow: auto;
+  background: #f6f5f8;
+  border-color: #e8e6ed;
+  padding: 24px 14px 16px;
+}
+.clinic-workspace .wordmark {
+  font-size: 24px;
+}
+.clinic-workspace .brand-symbol,
+.clinic-workspace .wordmark-period {
+  color: #7963ae;
+}
+.clinic-workspace .clinic-switch,
+.clinic-workspace .calm-card {
+  background: #efedf3;
+  border-color: #e5e1eb;
+}
+.clinic-workspace .clinic-avatar,
+.clinic-workspace .nav-count {
+  background: #e8e1f2;
+  color: #705497;
+}
+.clinic-workspace .nav-link.active {
+  background: #e9e3f1;
+  color: #705497;
+}
+.clinic-workspace .nav-link:hover {
+  background: #efebf4;
+}
+.clinic-workspace > .topbar {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  background: #fff;
+  border-color: #eeecf1;
+  padding: 0 24px;
+}
+.clinic-workspace > .main-workspace {
+  grid-column: 2;
+  grid-row: 2;
+  margin-left: 0;
+  min-width: 0;
+  background: #fff;
+}
+.clinic-workspace .page-content {
+  padding: 30px 24px;
+}
+.clinic-workspace > .clinic-reminders {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  min-width: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: auto;
+  background: #faf9fb;
+  border-left: 1px solid #e8e6ed;
+  padding: 24px 18px;
+}
+.clinic-workspace .clinic-reminders .section-heading {
+  align-items: center;
+  gap: 8px;
+}
+.clinic-workspace .clinic-reminders h2 {
+  font-size: 15px;
+  margin: 0;
+}
+.clinic-workspace .notification-row {
+  border-color: #e8e6ed;
+}
+.clinic-workspace .notification-row > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.clinic-workspace .workspace-panel-toggle {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .clinic-workspace.workspace {
+    display: flex;
+    flex-direction: column;
+  }
+  .clinic-workspace > .topbar {
+    min-height: 64px;
+    height: auto;
+    padding: 12px 18px;
+    gap: 10px;
+  }
+  .clinic-workspace .topbar-location {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .clinic-workspace .topbar .location-select {
+    max-width: min(190px, 45vw);
+  }
+  .clinic-workspace .workspace-panel-toggle {
+    display: inline-flex;
+  }
+  .clinic-workspace > .clinic-navigation,
+  .clinic-workspace > .clinic-reminders {
+    display: none;
+    position: static;
+    inset: auto;
+    transform: none;
+    width: auto;
+    height: auto;
+    max-height: none;
+    border: 0;
+    border-bottom: 1px solid #e8e6ed;
+  }
+  .clinic-workspace > .clinic-navigation.sidebar-open {
+    display: flex;
+  }
+  .clinic-workspace > .clinic-reminders.reminders-open {
+    display: block;
+  }
+  .clinic-workspace .sidebar-bottom {
+    padding-top: 20px;
+  }
+  .clinic-workspace .calm-card {
+    display: none;
+  }
+  .clinic-workspace > .main-workspace {
+    margin: 0;
+  }
+  .clinic-workspace .page-content {
+    padding: 24px 18px;
+  }
+}

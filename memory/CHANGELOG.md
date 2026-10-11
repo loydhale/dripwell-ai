@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK084: author screenshot-inspired clinic-only shell with left navigation, focused center and one actual reminders rail/in-flow mobile panels; eleven real-AppShell cases authored. Independent source/firstCI/result/learning/closure pending, no local execution or pilot/count advance.
+
 - 2026-10-11 TASK083: complete independently reviewed work-first dashboard and named reporting disclosure; first natural CI38157961587 passes268/268 Vitest/27files/new7 and all22 stages; distinct NO_NEW_LEARNING, scoped count43 and unchanged pilot/hosted/old holds.
 
 - 2026-10-11 TASK083: independently source-review the daily dashboard work-first hierarchy, named reporting disclosure and seven real-component DOM cases; correct only prospective callback-clock expectations within original ceilings. Actual first changed-source CI, result adoption, distinct learning and reviewed closure remain pending; count42 and all pilot/internal/service holds preserved.
