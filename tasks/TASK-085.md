@@ -1,5 +1,14 @@
 # TASK-085: Simplify visit navigation without changing clinical workflows
 
+## Factual disposition carried by TASK086, not original completion
+
+Original TASK085 source/first natural CI/distinct learning are accepted, but original final documentary closure exhausted and is PARKED. No further TASK085 retry, final PASS/co-sign/closing publication or count45 exists. This newly reviewed factual disposition does not reopen its originaltotal19:05:55.851238Z or replace its failed closing phases. All earlier prospective final/DONE language below is dated phase history. Count44 is held.
+
+Actual reviewed source5a9c8dea/tree09494424/507leaves/openPR2 was published after independent source audit and genuine Root adoption. First natural CI38165113327/attempt1/job114545954140 passed all22 stages/builds/types,291/291 Vitest across28 modules (care/navigation17=old5+new12), separate Node23/8/15/11 without failures/skips, identical merge tree03553af. [Original actual-result report](../docs/AUDIT_VISIT_NAVIGATION.md) is copied byte-exact8128/SHA2565703085799d9bd225a2fe7af5903d8dbdca9abf2e5acfe0505bb2732e0a963b8 and remains historically scoped. Root fully read/genuinely adopted18:53:43Z before DISTINCT NO_NEW_LEARNING6460/3b193422, fully read with exact194-byte diff and genuinely adopted18:57:08Z; required38-byte session appendix is now truthfully recorded once under new reviewed TASK086 factual metadata authority. No second085learning or original085final approval/completion follows.
+
+Original finalco-sign exhausted19:02:17.959443Z after its newlineprojection metadata assertion, correctedR1 stopped at the expired19:05:06.434445Z entry guard. Neither created a PASS/co-sign/map or published final metadata. All seven private final candidates remain unapproved/pending. Root's CLEAN_RESUME_STOP.json1470/7f6ae5f6 at19:09:21.797075Z records actual clean5a and held44. Fresh TASK086 verifies actual current-source rendered UI, with separately reviewed factual metadata; it cannot satisfy original085DOD or substitute permanent release acceptance. All actual pilot/production/hosted-effectivefalse/physicaldevice/provider and oldcause/restoration/release gates remain open.
+
+
 STATUS: SOURCE_REVIEW_PENDING
 OWNER BASIS: Standing until-done authorization, confusing-frontend request and explicitly selected supplied screenshot direction. Latest saved queue and unchanged nine PRD8 criteria authorize this next presentation follow-up. No repeated design question.
 BASE: feat/dripwell-consultation-v2 / PR2 /35fa81f92a65d377491508c46a54ac1838436cd6/tree81627176899ad75e7f554ebf878cab8aba00a0fa. Accepted application source296410df, first naturalCI38161762159/all22steps/279tests/28modules/new11; scopedcount44. Root is CTO only.

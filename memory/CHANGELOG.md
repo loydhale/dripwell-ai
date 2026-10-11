@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK086 factual checkpoint: accept existing visit source firstCI291/28modules/all22 stages; preserve original085final PARKED/count44. Independent rendered-UI harness source CHANGES_REQUIRED prevents execution; exact isolation/deadline/read failures and missing browser evidence retained, with distinct learning and reviewed factual closure required.
+
 - 2026-10-11 TASK085: author five named unnumbered visit tabs with separate actual care, manual focus and fixed empty inactive panels; preserve5 care regressions and add12 real-component cases. Independent source/firstCI/actualresult/learning/closure pending, no local application checks or count/pilot advance.
 
 - 2026-10-11 TASK084: complete reviewed screenshot workspace source and first natural CI38161762159, all22 steps/279of279/28modules/new11; DISTINCT learning and conditional scoped count44 through reviewed closure, with hosted/fullpilot/old holds preserved.

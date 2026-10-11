@@ -1,5 +1,14 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-11, v2.0, MINOR TASK086 FACTUAL PREDECESSOR AND RENDERED UI
+
+Section changed: Section8 factual evidence only. All twelve feature requirements, nine numbered criteria, stack and completion safeguards unchanged.
+Summary at admission: TASK085 reviewed source5a9c8dea/first natural CI38165113327/all22/builds/types/291of291/28modules/current17 and separate23/8/15/11 zero failures/skips are accepted. Genuine actual-result adoption18:53:43Z precedes DISTINCT NO_NEW_LEARNING adoption18:57:08Z. Its original final documentary closure and correctedR1 exhausted, original completion PARKED/count44 held/no further retry. TASK086 separately plans necessary current-source rendered browser/native-key evidence, no passing evidence claimed at admission and never original085 completion or permanent release acceptance.
+Owner basis: Existing confusing-frontend/until-done request and explicitly supplied screenshot direction. No new library/architecture/provider/clinical/price/admin/data/spend/outbound authority.
+CTO: Current clean5a/openPR2/env924/idle workers and latest nine boot identities reconciled before read-only plan. Exact predecessor report8128/57030857 and genuine adoption receipts are retained; all unapproved85 final candidates remain private/pending. Requested protectedfalse/defaultdisabled/hostedsource-effectiveguardUNVERIFIED and all actual pilot/production/oldcause/restoration/permanent parks unchanged.
+Actual disposition: TASK086 static source review CHANGES_REQUIRED8204/1e66641b genuinely adopted19:53:02Z; no runtime/screenshots, source phase closed, count44 held. Cleanup/deadline/first-failure/input authorization findings support only a separately reviewed necessary source correction.
+Auditor co-sign TASK086: DA, 2026-10-11 20:00:12Z, PASS exact factual Section8/documentary checkpoint only; source CHANGES_REQUIRED/no execution/count44 held. This is new TASK086 metadata authority, no original085 final approval/count or oldscope reset.
+
 ## 2026-10-11, v2.0, MINOR TASK084 WORKSPACE PRESENTATION SOURCE/CI
 
 Section changed: Section8 factual checkpoint only. All twelve feature requirements, nine numbered criteria, stack and completion safeguards unchanged.
@@ -249,3 +258,5 @@ CTO: Count39to40 once only after reviewed documentary publication/actualclosure;
 Auditor co-sign: Exact frozen documentary/MINOR/fullbody/publication interface requires independentPASS before publication; source actualreview/learning genuinely adopted.
 Owner authorization: Standing until-done/existingPRD, no new feature/provider/price/Owner decision.
 
+
+TASK086 DISTINCT learning: independent5340/8964531d and exact6356diff/6f41a8d5 fully read0de07d/66669b, genuinely adopted2026-10-11T19:55:59.930689+00:00. Exact append-only L046/G025 now applied; existing prefixes/Seen/PATTERNS/count44 unchanged. Prior independently accepted08538-byte no-new appendix recorded once under this factual metadata authority; original085/086completion and runtime remain held. Final documentary/PRD co-sign and actual same-branch publication/readback pending.
