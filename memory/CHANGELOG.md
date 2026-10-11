@@ -335,3 +335,13 @@ TASK052 source authoring authorized after genuine independent planPASSaf49da5c/a
 - 2026-10-11 TASK090: independently review fresh compact owned browser paths and actual startup past socket failure; retain first CSP script-src FAILED/causeUNKNOWN/zero readyDOM/PNG/cases and accepted ownedcleanup. Genuine actual adoption precedes DISTINCT NO_NEW_LEARNING/session38; no source-once retry/CSPweakening/count/pilot completion.
 
 2026-10-11 TASK090 original final documentary phase late/unapproved; preserved actual report and original closed hour, count44, with truthful custody review separate and no completion proxy.
+
+- 2026-10-11, TASK091: preserve late CHANGES_REQUIRED source review and first-CSP transaction-latch defect; source is unexecuted, count44 held; fresh narrow correction is prospective within the unchanged hour.
+
+- 2026-10-11, TASK092: reviewed first-CSP latch correction passed40 synthetic controls and retained the actual immutable seven-field eval receipt/source position; native appearance still FAILED/cases0/DOM0/PNGabsent, scoped closure accepted, count44 held.
+
+
+2026-10-11 TASK091/TASK092 final documentary phase: original5408/260d4515 CHANGES_REQUIRED was fully read/adopted before the two-token correction. Actual R1 firstclock23:23:13.949393Z exceeded unchanged23:23:03.175001Z;3214/ee2a571f LATE_UNAPPROVED was fully read454659 and adopted23:24:44.596939Z. No timely R1 co-sign or original completion. Separate necessary factual custody review only, original hour23:29:18.204716Z/source-once/count44/all gates held.
+
+
+Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins1311/d9684b4d were fully readd78a1e and genuinely adopted23:26:34.378403Z through335/dbc08593 before the exact66-byte session suffix. Corpus/Seen/count44 unchanged; this does not complete the expired original phase.

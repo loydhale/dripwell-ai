@@ -125,3 +125,9 @@ Bounded Coder source-only remaining-work assessment selected no necessary new ta
 
 2026-10-11 documentary custody TASK088/TASK089/TASK090: no new learning.
 
+2026-10-11 TASK091: extracted L-047 from a static rejected-first CSP transaction latch defect after genuine failure adoption; source review was LATE_UNAPPROVED / CHANGES_REQUIRED, source unexecuted and count44 held. No new pattern/gotcha or existing Seen increment.
+
+2026-10-11 TASK092: no new learning.
+
+2026-10-11 documentary custody TASK091/TASK092: no new learning.
+
