@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK078: one admitted fresh diagnostic stopped at duplicate containment receipt after native compatibility/generation0; independent CHANGES_REQUIRED preserves the static PASS miss, verifies59waited/reaped children and3owned CID removals, zero case/migration/identity proof. G-018 refined; no app/SQL repair, retry, count or pilot advance.
+
+- 2026-10-11 — TASK077: prepared and independently source-reviewed one private unexecuted fresh recording diagnostic driver, preserving complete076 schema contract, original case oracles and disclosed discovery deviation; no effects/recording fix/pilot/count advance. Source PASS and distinct NO_NEW_LEARNING genuinely adopted before original ceiling; exact documentary co-sign/publication remain separate.
+
 2026-10-11 TASK076 corrects only the private retained-schema checker named-relation contract; original34 tests unchanged plus6focused, actual40/40/0skips/native0/ownedwait-reap. Independent source/result PASS and distinct NO_NEW_LEARNING genuinely adopted within the separate20minute ceiling. Reviewed documentary closure pending same branch/PR2; original074/075 failures/attempts closed, application recording/wholeCI/pilot/count42/L035Seen8 and all old/service holds unchanged.
 
 2026-10-10 OWNER_HELP_RECONCILIATION docs/{RECORDING_RECOVERY_PROPOSAL,AUDIT_OWNER_HELP_RECONCILIATION}.md, memory/{STATE,SESSION_LOG,CHANGELOG}.md, record independent limited F05/F07 static PASS, reviewed fresh-target60-active-minute proposal waiting narrow Owner reopening and distinct NO_NEW_LEARNING; no application/check/service execution, allocation start, count42/Seen/gate change or old-hold reset.
