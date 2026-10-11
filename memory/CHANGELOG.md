@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK084: complete reviewed screenshot workspace source and first natural CI38161762159, all22 steps/279of279/28modules/new11; DISTINCT learning and conditional scoped count44 through reviewed closure, with hosted/fullpilot/old holds preserved.
+
 - 2026-10-11 TASK084: author screenshot-inspired clinic-only shell with left navigation, focused center and one actual reminders rail/in-flow mobile panels; eleven real-AppShell cases authored. Independent source/firstCI/result/learning/closure pending, no local execution or pilot/count advance.
 
 - 2026-10-11 TASK083: complete independently reviewed work-first dashboard and named reporting disclosure; first natural CI38157961587 passes268/268 Vitest/27files/new7 and all22 stages; distinct NO_NEW_LEARNING, scoped count43 and unchanged pilot/hosted/old holds.

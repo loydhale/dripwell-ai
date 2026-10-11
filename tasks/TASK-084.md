@@ -1,6 +1,6 @@
 # TASK-084: Apply the selected screenshot workspace shell
 
-STATUS: IMPLEMENTED_SOURCE_REVIEW_PENDING
+STATUS: DONE_SCOPED_SOURCE_CI
 OWNER BASIS: Explicit “Just use use grok bot design and layout” with four visually inspected supplied images, the confusing-frontend request and standing until-done authority. This is the next approved presentation task after completed TASK083, not new architecture or another design question.
 BASE: feat/dripwell-consultation-v2 / PR2 / bf924474b8611ba877cf97cf0fd6e42859f4d66b, unchanged reviewed app source8910001. Root is CTO only.
 
@@ -28,10 +28,22 @@ TASK083 first CI38157961587/new268/27files is accepted, count43, actual closing 
 
 All nine actual PRD8 pilot and production gates remain open. Protected previews/requested ALLOW_REAL_CLIENT_DATA=false, hosted effectivefalse/current deployment UNVERIFIED and maintenance DEFAULT_DISABLED remain. Park selected AI/transcription/Resend/DNS/recipient/explicit synthetic-email authority and selected tenantless administrator/MFA/authentic paid-referral dependencies individually. Stripe sandbox account setup is complete; spa catalogs/prices/reviewers are onboarding inputs. No spend/credits/provider swap/personal subscription pool, paid asset, upgrade, partner application, unselected administrator, outbound message/email or real data. Until-done continuation remains enabled; no whole-GUI/software/pilot/production or uninterrupted-worker claim. Subsequent visit presentation is separately scoped after this task’s accepted closure.
 
-## Implemented source checkpoint
+## Implemented source checkpoint, historical capture
+
+Original pending-at-capture statements below are retained; the subsequent accepted actual/learning checkpoint supersedes current status.
 
 Independent plan PASS5734/79aacf3b froze17:35:46.661414Z before the original plan-review ceiling. Root completely read5e9d1e and genuinely adopted17:36:32.783933Z before the separate later source GO; the review ceiling was not reset. Source ceiling17:51:32.783933Z remains. Coder froze17:45:13.175570Z: AppShell10507/d54e9f88, prefix-preserving clinic-scoped CSS55665/0839d25a, collected real-AppShell test16645/6a69b978 with eleven authored cases. Complete4977-byte handoff was read1a462e; exact1097/872985f2 pins were reconciled.
 
 The original screenshot composition uses a210/minmax0/280 desktop grid and one in-flow stack at1100px and below. Header controllers precede the panes, use unique IDs/accurate state, and are hidden on desktop where the single actual reminders pane persists. No-data loading/error avoids fake all-clear; roles/location/capture/read updates, original main error/Retry/children and actual data remain. See frozen handoff for exact cases/limits; this is Coder description pending independent applied-source verification. No local application test/build/typecheck/import/generation/browser/SQL/cache/process or provider effect occurred, and no test PASS or rendered fidelity is claimed.
 
 Independent source/test/exact initial seven-path metadata and PR-body/message review GO 2026-10-11T17:46:44.573642+00:00, original ceiling 2026-10-11T17:53:44.573642+00:00; all source corrections still require original Coder ceiling, never reset. Only independent PASS/full Root adoption precedes same-branch reviewed-source publication and first natural CI. Actual results, distinct learning, final closure/count and hosted/full pilot evidence remain separate. Count43/corpus/Seen and all old holds stay unchanged.
+
+## Independently accepted actual source and first CI
+
+Source/exact initial-publication PASS8847/acc92808 froze17:52:11Z within original17:53:44Z. Root fully read84adfc and genuinely adopted17:56:03.406467Z before publication; later adoption is not backdated. Actual source296410dfba014b257e611dd90561a536b235657e/tree54fc53b62b8e422b241d1e628ad3bd689819a01a/soleparentbf924474, exact505leaves/498preservedbaseline and openPR2/exact2804body are independently verified. Native dualrefs/index/worktree match cleanly; index-only read-tree had no-u.
+
+First natural CI38161762159/attempt1/job114535976760 completed success17:59:22Z. All22 steps, both builds/types,279/279 Vitest across28modules including11new AppShell and7existing Dashboard cases, separate Node23/8/15/11 with failures0/skips0 passed. Observed merge56cf069 has identical54fc53b6tree and expectedmain/sourceparents. Fresh GitHub postgres:17-alpine synthetic service/literalfalse migrations are ordinary new-run checks, not retained-target replay. Completed log fetched once,209947bytes/16d4df9d. [Actual audit](../docs/AUDIT_WORKSPACE_LAYOUT.md)7492/7a659244 was fully read d536d4 and genuinely adopted18:03:46.782048Z, private803/e60c7ecc.
+
+Distinct later NO_NEW_LEARNING5647/39162dc3 and exact760/21f1b56a proposed diff plus38-byte append34353e9a were fully read70f7f4/54c424, then genuinely adopted18:06:12.122458Z, private621/ff43b070. Exact learning append applied only to the final session candidate; all corpus/Seen remain unchanged. No second learning or source/check effect. Conditional scoped count44 applies once through independently reviewed documentary closure and actual publication acceptance.
+
+This is scoped presentation source/CI completion only; full GUI/software/pilot/production, physical keyboard/CSS-rendered/mobile/device/screen-reader fidelity, actual services and current hosted source/effectivefalse remain unverified. All nine numbered pilot criteria, original failedCI/TASK073 cause UNKNOWN/restoration/permanentTASK057 and closed scopes remain. Selected service/admin/paid prerequisites are individually parked, not blockers to independent visit presentation. Final seven documentary paths/MINOR PRD8/exact PR body must be independently co-signed before docs-only samebranch [skip ci] publication and actual readback/adoption. Original total18:21:12.209084Z unchanged. No new app effect/testreplay. Next visit navigation plan remains separately admitted only after genuine closing acceptance.

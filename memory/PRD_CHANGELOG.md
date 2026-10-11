@@ -1,5 +1,14 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-11, v2.0, MINOR TASK084 WORKSPACE PRESENTATION SOURCE/CI
+
+Section changed: Section8 factual checkpoint only. All twelve feature requirements, nine numbered criteria, stack and completion safeguards unchanged.
+Summary: Owner-selected original screenshot shell, reviewed source296410df/tree54fc53b6 and first natural CI38161762159/attempt1 all22 steps/builds/types/279of279/28modules/new11 and separate23/8/15/11 failures0/skips0. Actual-result review genuinely adopted18:03:46Z before DISTINCT later learning; conditional scoped count44 through reviewed closure. No rendered-device/hosted/provider/payment or whole pilot/production completion. Historical failedCI/TASK073 cause/restoration/permanent release holds remain separate.
+Owner basis: Existing confusing-frontend/until-done request and explicit supplied screenshot direction. No new library/architecture/clinical/price/provider/admin/data/spend/outbound authority.
+CTO: Full actual audit7492/7a659244 read d536d4 and adopted private803/e60c7ecc at18:03:46.782048Z. Distinct later learning5647/39162dc3 and exact760diff/38-byte append fully read70f7f4/54c424 and genuinely adopted18:06:12.122458Z private621/ff43b070, NO_NEW_LEARNING/corpus/Seen unchanged. Exact final documentary co-sign/publication/readback remain separate; original total18:21:12.209084Z unchanged.
+Auditor co-sign: DA, 2026-10-11. PASS exact factual Section8 and closing packet, preserving original source/CI/learning and all acceptance holds.
+
+
 ## 2026-10-11, v2.0, MINOR TASK083 DASHBOARD PRESENTATION SOURCE/CI
 
 Section changed: Section8 factual checkpoint only. All twelve feature requirements, nine numbered criteria, stack and completion safeguards unchanged.
