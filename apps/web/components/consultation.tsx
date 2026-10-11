@@ -1431,6 +1431,15 @@ function TakeawaySharing({
   );
 }
 
+const visitSections = [
+  { id: 'intake', label: 'Conversation & facts' },
+  { id: 'recommendation', label: 'Review & approve' },
+  { id: 'care', label: 'Actual care' },
+  { id: 'wellness', label: 'Wellness & sharing' },
+  { id: 'history', label: 'Change history' },
+] as const;
+type VisitSection = (typeof visitSections)[number]['id'];
+
 export function Consultation({ id }: { id: string }) {
   const { data, mutate, refresh, locationId, captureBusy } = useClinic();
   const [visit, setVisit] = useState<ConsultationView | null>(null);
@@ -1438,7 +1447,9 @@ export function Consultation({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [tab, setTab] = useState('intake');
+  const [tab, setTab] = useState<VisitSection>('intake');
+  const [focusedTab, setFocusedTab] = useState<VisitSection>('intake');
+  const tabButtons = useRef<Partial<Record<VisitSection, HTMLButtonElement | null>>>({});
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiveReason, setArchiveReason] = useState('');
   const [celebrate, setCelebrate] = useState(false);
@@ -1632,117 +1643,144 @@ export function Consultation({ id }: { id: string }) {
         </div>
       ) : null}
       <div className="visit-tabs" role="tablist" aria-label="Visit sections">
-        {[
-          { id: 'intake', label: 'Conversation & intake', number: '01' },
-          { id: 'recommendation', label: 'Recommendation & care', number: '02' },
-          { id: 'wellness', label: 'Wellness & takeaway', number: '03' },
-          { id: 'history', label: 'Change history', number: '04' },
-        ].map((item) => (
+        {visitSections.map((item, index) => (
           <button
+            type="button"
             id={`tab-${item.id}`}
             className={tab === item.id ? 'selected' : ''}
             role="tab"
             aria-selected={tab === item.id}
             aria-controls={`panel-${item.id}`}
+            tabIndex={!captureBusy && focusedTab === item.id ? 0 : -1}
+            ref={(element) => { tabButtons.current[item.id] = element; }}
             key={item.id}
             disabled={captureBusy}
-            onClick={() => setTab(item.id)}
+            onFocus={() => { if (!captureBusy) setFocusedTab(item.id); }}
+            onKeyDown={(event) => {
+              if (captureBusy) {
+                event.preventDefault();
+                return;
+              }
+              let next: number;
+              switch (event.key) {
+                case 'ArrowRight': next = (index + 1) % visitSections.length; break;
+                case 'ArrowLeft': next = (index + visitSections.length - 1) % visitSections.length; break;
+                case 'Home': next = 0; break;
+                case 'End': next = visitSections.length - 1; break;
+                default: return;
+              }
+              event.preventDefault();
+              const target = visitSections[next]!;
+              setFocusedTab(target.id);
+              tabButtons.current[target.id]?.focus();
+            }}
+            onClick={() => {
+              if (captureBusy) return;
+              setFocusedTab(item.id);
+              setTab(item.id);
+            }}
           >
-            <span>{item.number}</span>
             {item.label}
           </button>
         ))}
       </div>
-      <div
-        className="visit-section"
-        role="tabpanel"
-        id={`panel-${tab}`}
-        aria-labelledby={`tab-${tab}`}
-      >
-        {tab === 'intake' ? (
-          <Intake
-            visit={visit}
-            configuration={configuration}
-            action={action}
-            busy={busy}
-            onRecorded={recorded}
-            onReload={async () => {
-              await load();
-              await refresh();
-            }}
-            proposedSummary={proposedSummary}
-          />
-        ) : tab === 'recommendation' ? (
-          <>
-            <InitialReview
-              visit={visit}
-              configuration={configuration}
-              action={action}
-              busy={busy}
-              canApprove={Boolean(data?.user.canApproveClinical)}
-            />
-            <CareOutcome visit={visit} configuration={configuration} action={action} busy={busy} />
-          </>
-        ) : tab === 'wellness' ? (
-          <>
-            <Wellness visit={visit} configuration={configuration} action={action} busy={busy} />
-            <TakeawaySharing visit={visit} configuration={configuration} />
-          </>
-        ) : (
-          <section className="panel">
-            <div className="section-heading">
-              <div>
-                <h2>Every adjustment, in context</h2>
-                <p>
-                  Original and revised values stay separate. Edits invalidate the previous approval.
-                </p>
-              </div>
-              <Badge>{visit.adjustments?.length || 0} changes</Badge>
-            </div>
-            {visit.adjustments?.length ? (
-              <div className="audit-list">
-                {visit.adjustments.map((change) => (
-                  <div key={change.id}>
+      {visitSections.map((item) => (
+        <div
+          className="visit-section"
+          role="tabpanel"
+          id={`panel-${item.id}`}
+          aria-labelledby={`tab-${item.id}`}
+          hidden={tab !== item.id}
+          key={item.id}
+        >
+          {tab === item.id ? (
+            <>
+              {tab === 'intake' ? (
+                <Intake
+                  visit={visit}
+                  configuration={configuration}
+                  action={action}
+                  busy={busy}
+                  onRecorded={recorded}
+                  onReload={async () => {
+                    await load();
+                    await refresh();
+                  }}
+                  proposedSummary={proposedSummary}
+                />
+              ) : tab === 'recommendation' ? (
+                <InitialReview
+                  visit={visit}
+                  configuration={configuration}
+                  action={action}
+                  busy={busy}
+                  canApprove={Boolean(data?.user.canApproveClinical)}
+                />
+              ) : tab === 'care' ? (
+                <CareOutcome visit={visit} configuration={configuration} action={action} busy={busy} />
+              ) : tab === 'wellness' ? (
+                <>
+                  <Wellness visit={visit} configuration={configuration} action={action} busy={busy} />
+                  <TakeawaySharing visit={visit} configuration={configuration} />
+                </>
+              ) : (
+                <section className="panel">
+                  <div className="section-heading">
                     <div>
-                      <strong>
-                        {change.actorName ||
-                          data?.staff.find(
-                            (person) => person.id === (change.userId || change.actorId),
-                          )?.name ||
-                          'Clinic team'}
-                      </strong>
-                      <Badge>{reasonLabels[change.reason] || change.reason}</Badge>
-                      <span className="small muted">{friendlyDate(change.createdAt)}</span>
+                      <h2>Every adjustment, in context</h2>
+                      <p>
+                        Original and revised values stay separate. Edits invalidate the previous approval.
+                      </p>
                     </div>
-                    <p>
-                      {change.reasonNote ||
-                        change.note ||
-                        'Reason recorded without an additional note.'}
-                    </p>
-                    <details>
-                      <summary>Compare original and revised values</summary>
-                      <div className="audit-comparison">
-                        <div>
-                          <span>Before</span>
-                          <pre>{JSON.stringify(change.before, null, 2)}</pre>
-                        </div>
-                        <div>
-                          <span>After</span>
-                          <pre>{JSON.stringify(change.after, null, 2)}</pre>
-                        </div>
-                      </div>
-                    </details>
+                    <Badge>{visit.adjustments?.length || 0} changes</Badge>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState icon="file" title="No adjustments yet">
-                Staff edits and correction reasons will be preserved here as the visit progresses.
-              </EmptyState>
-            )}
-          </section>
-        )}
-      </div>
+                  {visit.adjustments?.length ? (
+                    <div className="audit-list">
+                      {visit.adjustments.map((change) => (
+                        <div key={change.id}>
+                          <div>
+                            <strong>
+                              {change.actorName ||
+                                data?.staff.find(
+                                  (person) => person.id === (change.userId || change.actorId),
+                                )?.name ||
+                                'Clinic team'}
+                            </strong>
+                            <Badge>{reasonLabels[change.reason] || change.reason}</Badge>
+                            <span className="small muted">{friendlyDate(change.createdAt)}</span>
+                          </div>
+                          <p>
+                            {change.reasonNote ||
+                              change.note ||
+                              'Reason recorded without an additional note.'}
+                          </p>
+                          <details>
+                            <summary>Compare original and revised values</summary>
+                            <div className="audit-comparison">
+                              <div>
+                                <span>Before</span>
+                                <pre>{JSON.stringify(change.before, null, 2)}</pre>
+                              </div>
+                              <div>
+                                <span>After</span>
+                                <pre>{JSON.stringify(change.after, null, 2)}</pre>
+                              </div>
+                            </div>
+                          </details>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState icon="file" title="No adjustments yet">
+                      Staff edits and correction reasons will be preserved here as the visit progresses.
+                    </EmptyState>
+                  )}
+                </section>
+              )}
+            </>
+          ) : null}
+        </div>
+      ))}
       <Modal
         open={archiveOpen}
         onClose={() => setArchiveOpen(false)}

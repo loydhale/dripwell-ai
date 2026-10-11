@@ -6,7 +6,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { emptyConsultationSummary, type ActualCare, type ClinicConfiguration } from '@dripwell/shared/v2';
 import type { ConsultationView, useClinic } from '../components/clinic-context';
 
-const boundary = vi.hoisted(() => ({ context: null as ReturnType<typeof useClinic> | null }));
+const boundary = vi.hoisted(() => ({
+  context: null as ReturnType<typeof useClinic> | null, navigationCase: false,
+}));
 vi.mock('../components/clinic-context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../components/clinic-context')>();
   return {
@@ -17,8 +19,13 @@ vi.mock('../components/clinic-context', async (importOriginal) => {
     },
   };
 });
-// Capture and segment-list leaves are outside this care-form story.
-vi.mock('../components/audio-recorder', () => ({ AudioRecorder: () => null }));
+// Original care cases retain null recording leaves. New composition cases use an inert marker,
+// which proves parent placement only, not physical recording or transcription.
+vi.mock('../components/audio-recorder', () => ({
+  AudioRecorder: () => boundary.navigationCase
+    ? createElement('div', { 'data-testid': 'inert-recorder' }, 'Synthetic recorder boundary')
+    : null,
+}));
 vi.mock('../components/recording-segments', () => ({ RecordingSegments: () => null }));
 
 import { postJson } from '../components/clinic-context';
@@ -107,7 +114,8 @@ beforeEach(() => {
     const method = init?.method || 'GET';
     const allowed = (method === 'GET' && [
       `/api/clinic?id=${visitId}`, `/api/recordings?consultationId=${visitId}`,
-    ].includes(path)) || (method === 'POST' && path === '/api/clinic');
+    ].includes(path)) || (method === 'POST' && path === '/api/clinic')
+      || (boundary.navigationCase && method === 'GET' && path === `/api/share?consultationId=${visitId}`);
     if (!allowed || requests.length >= 16) {
       unexpectedRequests.push(`${method} ${path}`);
       throw new Error('Unexpected or excessive synthetic care-form request.');
@@ -213,8 +221,8 @@ async function openCare(root: Root, container: HTMLElement, saved: ConsultationV
   await act(async () => { root.render(createElement(Consultation, { id: visitId })); });
   expect(requests).toHaveLength(2);
   await respondLoad(0, saved);
-  const tab = container.querySelector<HTMLButtonElement>('#tab-recommendation');
-  if (!tab) throw new Error('Missing actual Recommendation & care tab.');
+  const tab = container.querySelector<HTMLButtonElement>('#tab-care');
+  if (!tab) throw new Error('Missing actual care tab.');
   await act(async () => { tab.click(); });
   return careForm(container);
 }
@@ -339,5 +347,307 @@ describe('saved care commercial form refresh', () => {
     } finally {
       await close(root, container);
     }
+  });
+});
+
+// These cases render the real Consultation and shared UI. DOM focus and explicit clicks are
+// jsdom evidence only; jsdom does not simulate native Enter/Space activation or CSS/device layout.
+const namedViews = [
+  ['intake', 'Conversation & facts'],
+  ['recommendation', 'Review & approve'],
+  ['care', 'Actual care'],
+  ['wellness', 'Wellness & sharing'],
+  ['history', 'Change history'],
+] as const;
+function viewTab(container: HTMLElement, id: string) {
+  const element = container.querySelector<HTMLButtonElement>(`#tab-${id}`);
+  if (!element) throw new Error(`Missing named visit tab: ${id}`);
+  return element;
+}
+function assertPanels(container: HTMLElement, selected: string) {
+  expect(container.querySelectorAll('[role="tabpanel"]')).toHaveLength(5);
+  for (const [id, name] of namedViews) {
+    const tab = viewTab(container, id);
+    const panel = container.querySelector<HTMLElement>(`#panel-${id}`)!;
+    expect(tab.textContent?.trim()).toBe(name);
+    expect(tab.getAttribute('aria-controls')).toBe(panel.id);
+    expect(panel.getAttribute('aria-labelledby')).toBe(tab.id);
+    expect(tab.getAttribute('aria-selected')).toBe(String(id === selected));
+    expect(panel.hidden).toBe(id !== selected);
+    if (id !== selected) expect(panel.childNodes).toHaveLength(0);
+    else expect(panel.children.length).toBeGreaterThan(0);
+  }
+}
+function assertReadOnlyNavigation(expectedReads: number) {
+  expect(requests).toHaveLength(expectedReads);
+  expect(requests.every((request) => !request.init?.method || request.init.method === 'GET')).toBe(true);
+  expect(mutations).toEqual([]);
+}
+async function key(element: HTMLElement, value: string) {
+  const event = new KeyboardEvent('keydown', { key: value, bubbles: true, cancelable: true });
+  await act(async () => { element.dispatchEvent(event); });
+  return event;
+}
+async function openNavigation(root: Root, container: HTMLElement, saved = visit(1, care())) {
+  boundary.navigationCase = true;
+  await act(async () => { root.render(createElement(Consultation, { id: visitId })); });
+  expect(requests).toHaveLength(2);
+  const config = configuration('USD');
+  config.questions = [{
+    id: 'synthetic-question', text: 'Fictional required question?', why: 'Synthetic question context.',
+    type: 'TEXT', options: [], required: true, safetyRelevant: true, activeWhen: [], priority: 1,
+  }];
+  await respond(0, { consultation: saved, configuration: config });
+  await respond(1, { recordings: [] });
+  return container.querySelector<HTMLFormElement>('#panel-intake form')!;
+}
+async function closeNavigation(root: Root, container: HTMLElement) {
+  try { await close(root, container); } finally { boundary.navigationCase = false; }
+}
+function draftRecommendation(saved: ConsultationView) {
+  saved.initialRevision = 3;
+  saved.clinicalApprovedVersion = 2;
+  saved.initialRecommendation = {
+    configurationVersionId: configurationId, engineVersion: 'dripwell-rules-v2.1',
+    items: [{ productId: membershipId, name: 'Synthetic nonclinical option', type: 'MEMBERSHIP',
+      priceCents: 10000, currency: 'USD', quantity: 1, rationale: 'Fictional fixture only',
+      evidence: [], terms: 'Synthetic only' }],
+    alternatives: [], explanation: 'Synthetic draft, not clinical guidance.',
+    unresolvedQuestions: [], safetyFlags: [], eligibleProductIds: [membershipId], blocked: false,
+  };
+  return saved;
+}
+function approvedWellness(saved: ConsultationView) {
+  saved.wellnessRevision = 4;
+  saved.wellnessApprovedVersion = 4;
+  saved.wellnessPlan = {
+    configurationVersionId: configurationId, engineVersion: 'dripwell-rules-v2.2',
+    visitSummary: 'Synthetic approved takeaway.', careReceived: saved.actualCare!, offers: [],
+    explanation: 'Fictional wellness fixture only.', safetyFlags: [],
+  };
+  return saved;
+}
+
+describe('named consultation views', () => {
+  test('keeps recorder, required questions and all reviewed facts together under five unnumbered names', async () => {
+    const { root, container } = page();
+    try {
+      const form = await openNavigation(root, container);
+      expect(Array.from(container.querySelectorAll('[role="tab"]')).map((tab) => tab.textContent?.trim()))
+        .toEqual(namedViews.map(([, name]) => name));
+      assertPanels(container, 'intake');
+      expect(container.querySelectorAll('[role="tab"][tabindex="0"]')).toHaveLength(1);
+      expect(viewTab(container, 'intake').tabIndex).toBe(0);
+      expect(container.querySelector('#panel-intake [data-testid="inert-recorder"]')).not.toBeNull();
+      expect(form.textContent).toContain('Fictional required question?');
+      expect(form.textContent).toContain('Required');
+      for (const label of ['Client goals', 'Reported symptoms', 'Relevant history',
+        'Medications', 'Allergies', 'Preferences', 'Unclear or unconfirmed information']) {
+        expect(control<HTMLTextAreaElement>(form, label, 'textarea')).not.toBeNull();
+      }
+      expect(container.querySelector('#panel-intake')?.textContent).toContain('01 · LISTEN');
+      expect(container.querySelector('#panel-intake')?.textContent).toContain('02 · UNDERSTAND');
+      expect(container.querySelector('#panel-intake')?.textContent).toContain('Save reviewed summary');
+      assertReadOnlyNavigation(2);
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test('arrows wrap and Home/End move only focus while facts and the selected child retain their state', async () => {
+    const { root, container } = page();
+    try {
+      const form = await openNavigation(root, container);
+      const goals = control<HTMLTextAreaElement>(form, 'Client goals', 'textarea');
+      await typeValue(goals, 'Unsaved synthetic fact.');
+      await act(async () => { viewTab(container, 'intake').focus(); });
+      const moves = [
+        ['ArrowLeft', 'history'], ['ArrowRight', 'intake'], ['End', 'history'],
+        ['Home', 'intake'], ['ArrowRight', 'recommendation'], ['ArrowRight', 'care'],
+      ];
+      for (const [pressed, expected] of moves) {
+        expect((await key(document.activeElement as HTMLElement, pressed!)).defaultPrevented).toBe(true);
+        expect(document.activeElement).toBe(viewTab(container, expected!));
+        expect(container.querySelectorAll('[role="tab"][tabindex="0"]')).toHaveLength(1);
+        expect(viewTab(container, expected!).tabIndex).toBe(0);
+        assertPanels(container, 'intake');
+        expect(container.querySelector('#panel-intake form')).toBe(form);
+        expect(goals.value).toBe('Unsaved synthetic fact.');
+        assertReadOnlyNavigation(2);
+      }
+      for (const pressed of ['Enter', ' ', 'Tab', 'ArrowDown']) {
+        expect((await key(viewTab(container, 'care'), pressed)).defaultPrevented).toBe(false);
+        assertPanels(container, 'intake');
+      }
+      // Explicit activation is a real button click, not a claim about jsdom keyboard defaults.
+      await click(container, 'Actual care');
+      assertPanels(container, 'care');
+      expect(container.querySelector('#panel-care form')).toBe(careForm(container));
+      assertReadOnlyNavigation(2);
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test.each([
+    { id: 'intake', name: 'Conversation & facts', heading: 'The consultation' },
+    { id: 'recommendation', name: 'Review & approve', heading: "Today's initial recommendation" },
+    { id: 'care', name: 'Actual care', heading: 'What actually happened?' },
+    { id: 'wellness', name: 'Wellness & sharing', heading: 'A wellness plan worth keeping' },
+    { id: 'history', name: 'Change history', heading: 'Every adjustment, in context' },
+  ])('explicitly selects $name and mounts only its original composition', async ({ id, name, heading }) => {
+    const { root, container } = page();
+    try {
+      await openNavigation(root, container);
+      await click(container, name);
+      assertPanels(container, id);
+      expect(container.querySelector(`#panel-${id}`)?.textContent).toContain(heading);
+      expect(viewTab(container, id).tabIndex).toBe(0);
+      if (id === 'recommendation') expect(container.querySelector('#panel-recommendation form')).toBeNull();
+      if (id === 'care') expect(container.textContent).not.toContain("Today's initial recommendation");
+      if (id === 'wellness') {
+        expect(container.textContent).toContain('Share the approved takeaway');
+        expect(button(container, 'Download PDF').disabled).toBe(true);
+        expect(container.querySelector('.share-form')).toBeNull();
+      }
+      if (id === 'history') expect(container.textContent).toContain('No adjustments yet');
+      assertReadOnlyNavigation(2);
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test('keeps clinical permission and exact-revision STARTED-care guards separate in their named views', async () => {
+    const { root, container } = page();
+    try {
+      await openNavigation(root, container, draftRecommendation(visit(1, care())));
+      await click(container, 'Review & approve');
+      expect(button(container, 'Approve exact revision').disabled).toBe(true);
+      expect(container.textContent).toContain('An authorized provider must approve this revision');
+      expect(container.textContent).toContain('03 · RECOMMEND');
+      expect(container.textContent).not.toContain('What actually happened?');
+      await click(container, 'Actual care');
+      const started = container.querySelector<HTMLInputElement>('input[name="careOutcome"][value="STARTED"]')!;
+      await act(async () => { started.click(); });
+      expect(started.checked).toBe(true);
+      expect(container.textContent).toContain('04 · DOCUMENT');
+      expect(container.textContent).toContain('Clinical approval is required before recording care started.');
+      expect(button(container, 'Save actual outcome').disabled).toBe(true);
+      expect(container.textContent).not.toContain('Approve exact revision');
+      assertReadOnlyNavigation(2);
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test('preserves approved sharing mount reads and remount reads, without navigation sending or mutating', async () => {
+    const { root, container } = page();
+    try {
+      await openNavigation(root, container, approvedWellness(visit(1, care())));
+      await act(async () => { viewTab(container, 'wellness').focus(); });
+      assertPanels(container, 'intake');
+      assertReadOnlyNavigation(2);
+      await click(container, 'Wellness & sharing');
+      expect(requests[2]!.path).toBe(`/api/share?consultationId=${visitId}`);
+      await respond(2, { shares: [] });
+      expect(container.textContent).toContain('05 · FOLLOW THROUGH');
+      expect(container.textContent).toContain('Synthetic approved takeaway.');
+      expect(button(container, 'Download PDF').disabled).toBe(false);
+      expect(container.querySelector('.share-form input[type="email"]')).not.toBeNull();
+      await click(container, 'Change history');
+      assertPanels(container, 'history');
+      assertReadOnlyNavigation(3);
+      await click(container, 'Wellness & sharing');
+      expect(requests[3]!.path).toBe(`/api/share?consultationId=${visitId}`);
+      await respond(3, { shares: [] });
+      assertPanels(container, 'wellness');
+      assertReadOnlyNavigation(4);
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test('keeps history authors, reasons and original/revised comparison in its real disclosure', async () => {
+    const { root, container } = page();
+    try {
+      const saved = visit(1, care());
+      saved.adjustments = [{ id: 'synthetic-adjustment', consultationId: visitId,
+        actorName: 'Fictional reviewer', reason: 'STAFF_JUDGMENT', reasonNote: 'Synthetic correction.',
+        before: { observations: 'Before synthetic correction' }, after: { observations: 'After synthetic correction' },
+        createdAt: '2026-10-10T00:00:00.000Z' }];
+      await openNavigation(root, container, saved);
+      await click(container, 'Change history');
+      expect(container.textContent).toContain('Fictional reviewer');
+      expect(container.textContent).toContain('Staff judgment');
+      expect(container.textContent).toContain('Synthetic correction.');
+      const details = container.querySelector<HTMLDetailsElement>('#panel-history details')!;
+      expect(details.firstElementChild?.tagName).toBe('SUMMARY');
+      expect(details.firstElementChild?.textContent).toBe('Compare original and revised values');
+      expect(Array.from(details.querySelectorAll('pre')).map((item) => item.textContent)).toEqual([
+        JSON.stringify(saved.adjustments[0]!.before, null, 2), JSON.stringify(saved.adjustments[0]!.after, null, 2),
+      ]);
+      expect(details.open).toBe(false);
+      await act(async () => { (details.firstElementChild as HTMLElement).click(); });
+      expect(details.open).toBe(true);
+      assertReadOnlyNavigation(2);
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test('capture denies synthetic keyboard/click navigation and leaving while the full facts editor stays mounted', async () => {
+    const { root, container } = page();
+    try {
+      const form = await openNavigation(root, container);
+      const goals = control<HTMLTextAreaElement>(form, 'Client goals', 'textarea');
+      await typeValue(goals, 'Unsaved synthetic capture fact.');
+      boundary.context!.captureBusy = true;
+      await act(async () => { root.render(createElement(Consultation, { id: visitId })); });
+      for (const [id] of namedViews) {
+        const tab = viewTab(container, id);
+        expect(tab.disabled).toBe(true);
+        expect(tab.tabIndex).toBe(-1);
+        expect((await key(tab, 'ArrowRight')).defaultPrevented).toBe(true);
+        await act(async () => { tab.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true })); });
+        assertPanels(container, 'intake');
+      }
+      expect(container.querySelectorAll('[role="tab"][tabindex="0"]')).toHaveLength(0);
+      expect(container.querySelector('#panel-intake form')).toBe(form);
+      expect(container.querySelector('[data-testid="inert-recorder"]')).not.toBeNull();
+      expect(goals.disabled).toBe(false);
+      expect(goals.value).toBe('Unsaved synthetic capture fact.');
+      await typeValue(goals, 'Updated fact while capture is busy.');
+      expect(goals.value).toBe('Updated fact while capture is busy.');
+      const back = container.querySelector<HTMLAnchorElement>('a.back-link')!;
+      expect(back.getAttribute('href')).toBe(`/dashboard?locationId=${locationId}`);
+      const leave = new MouseEvent('click', { bubbles: true, cancelable: true });
+      await act(async () => { back.dispatchEvent(leave); });
+      expect(leave.defaultPrevented).toBe(true);
+      expect(container.querySelector('[role="alert"]')?.textContent)
+        .toContain('Save or deliberately discard unsaved audio before leaving this consultation.');
+      assertPanels(container, 'intake');
+      assertReadOnlyNavigation(2);
+      boundary.context!.captureBusy = false;
+      await act(async () => { root.render(createElement(Consultation, { id: visitId })); });
+      expect(viewTab(container, 'intake').disabled).toBe(false);
+      expect(viewTab(container, 'intake').tabIndex).toBe(0);
+      await click(container, 'Actual care');
+      assertPanels(container, 'care');
+    } finally { await closeNavigation(root, container); }
+  });
+
+  test('retains initial loading, server error, retry and archived visit restrictions', async () => {
+    const { root, container } = page();
+    try {
+      boundary.navigationCase = true;
+      await act(async () => { root.render(createElement(Consultation, { id: visitId })); });
+      expect(container.querySelector('[role="status"]')?.textContent).toContain('Opening consultation');
+      expect(container.querySelector('[role="tablist"]')).toBeNull();
+      await respond(0, { error: 'Synthetic load failure.' }, 503);
+      await respond(1, { recordings: [] });
+      expect(container.querySelector('[role="alert"]')?.textContent).toContain('Synthetic load failure.');
+      expect(container.querySelector('[role="tablist"]')).toBeNull();
+      await click(container, 'Try again');
+      const saved = visit(1, care());
+      saved.archivedAt = '2026-10-10T01:00:00.000Z';
+      saved.archiveReason = 'Fictional archived fixture.';
+      await respondLoad(2, saved);
+      expect(container.textContent).toContain('This visit is archived.');
+      expect(container.textContent).toContain('Fictional archived fixture.');
+      expect(button(container, 'Restore visit')).not.toBeNull();
+      await click(container, 'Actual care');
+      expect(button(container, 'Save actual outcome').disabled).toBe(true);
+      await click(container, 'Review & approve');
+      expect(button(container, 'Produce initial recommendations').disabled).toBe(true);
+      assertReadOnlyNavigation(4);
+    } finally { await closeNavigation(root, container); }
   });
 });

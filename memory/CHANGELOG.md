@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK085: author five named unnumbered visit tabs with separate actual care, manual focus and fixed empty inactive panels; preserve5 care regressions and add12 real-component cases. Independent source/firstCI/actualresult/learning/closure pending, no local application checks or count/pilot advance.
+
 - 2026-10-11 TASK084: complete reviewed screenshot workspace source and first natural CI38161762159, all22 steps/279of279/28modules/new11; DISTINCT learning and conditional scoped count44 through reviewed closure, with hosted/fullpilot/old holds preserved.
 
 - 2026-10-11 TASK084: author screenshot-inspired clinic-only shell with left navigation, focused center and one actual reminders rail/in-flow mobile panels; eleven real-AppShell cases authored. Independent source/firstCI/result/learning/closure pending, no local execution or pilot/count advance.
