@@ -1,6 +1,6 @@
 # TASK080: Fresh recording diagnostic — isolated pass, historical failure unreproduced
 
-STATUS: SCOPED_ACTUAL_RESULT_AND_LATER_LEARNING_ACCEPTED; NEW final documentary co-sign/publication/readback pending. Once consumed, no retry or CI/case successor.
+STATUS: SCOPED_ACTUAL_RESULT_LEARNING_AND_DOCUMENTARY_PUBLICATION_ACCEPTED. UNREPRODUCED_STOP, historical CI/SQL cause unresolved, once closed.
 
 ## Current outcome
 
@@ -8,7 +8,7 @@ The unchanged original selected recording exhaustion case passed once. The full 
 
 Actual independent report14135/SHA25625e8dde8 was fully read06301d and genuinely adopted2d9b21 at2026-10-11T08:34:51.211664Z; ROOT_EFFECT_ACTUAL_RESULT_ADOPTION.json996/SHA2565d877288. PASS_ACTUAL_EFFECT_RESULT is scoped to this operation; logical result UNREPRODUCED_STOP. Original SQL causeUNKNOWN, historical wholeCI38080612363FAILED260/261/application9bd84b46 and TASK073 incomplete remain. Count42/L035Seen8 and all actual pilot/production/service/data/old-resource gates stay held. [Readable actual audit](../docs/AUDIT_FRESH_RECORDING_DIAGNOSTIC.md).
 
-Distinct later NO_NEW_LEARNING5075/c70becf3 plus exact2715diff/c3ff8692 were fully readb2e89d and genuinely adoptedc4ce55 at2026-10-11T08:38:18.899553Z, preserving corpus/count42/Seen8. Next is NEW exact final documentary co-sign and reviewed-only samebranchPR2 publication/readback. No automatic source correction, diagnostic successor, passing check replay, CI rerun or old capacity refill follows. Earlier prospective/GO/pending statements below are preserved phase history, superseded by this current outcome.
+Distinct later NO_NEW_LEARNING5075/c70becf3 plus exact2715diff/c3ff8692 were fully readb2e89d and genuinely adoptedc4ce55 at2026-10-11T08:38:18.899553Z, preserving corpus/count42/Seen8. Final exact documentary co-sign and actual93dc4741 publication/readback independently PASS13900/0c14e645, fully read20f928/genuinely adopted0570fd at08:56:38.739152Z. TASK081 received its own separate admission/allocation; its read-only comparison, independent review and learning are now accepted. TASK080 grants no successor authority. No automatic source correction, diagnostic successor, passing check replay, CI rerun or old capacity refill follows. Earlier prospective/GO/pending statements below are preserved phase history, superseded by this current outcome.
 
 ## Preserved admission and phase history
 
@@ -35,3 +35,5 @@ Count42/L035Seen8/all nine actual pilot and production gates remain. Keep protec
 Independent effect PASS16938/357a68c4 fully readce442d and genuinely adopted2026-10-11T08:23:00.498055+00:00. Actual local/remotePR2head9e56 and unchangedsource, workersbothcompleted, managedcurrentrunningconnected/spec853 and trustpolicyafb21f reconciled. New canonical effect starts2026-10-11T08:23:00.499252+00:00, harddeadline2026-10-11T08:43:00.499252+00:00, nonclosingcutoff2026-10-11T08:40:00.499252+00:00. Exclusive0600 allocation/RootGO bind exactdriver/handoff/source/effectaudit and genuine prioradoptions. Sole Coder exactcommand may now enter ONCE and stop for independent actual review; no retry/sourceedit/CI/provider/oldresource effect. AllGit/localHEAD publication expressly deferred.
 
 Actual once entry08:24:31.778388Z–finish08:25:36.333084Z, natived7f3b0/session9207/finalb04e12/outer0. RESULT under newexecution-f89858d2a47f483bbdb52babcd7325fb/outputs SHAcd079190: logicalUNREPRODUCED_STOP,1selectedPASS/19collected/18excluded, fixtureOBSERVED_EQUAL_EMPTY_BASELINE,6created/6removed/newPGDATAretained/closureerrors[]. Rootfullresult+intent read1f2dde; originalSQLcauseUNKNOWN/noerrornomination, independentclosure/result proofstillpending. Intent consumed and no newexecution permitted by unused original effect time. Coder only final retained-artifact handoff before stop; allGitHEADpublicationdeferred.
+
+Actual final seven-document publication93dc4741/tree4628f0ca/parent9e56 independently accepted13900/0c14e645; complete Root read20f928/genuine adoption0570fd at2026-10-11T08:56:38.739152Z. Current clean checkout/PR2head93dc reconciled db88db before the separately proposed TASK081 brief. Source/count42/Seen8 and all historical CI/pilot/production/old scopes remain held. Earlier publication-pending paragraphs are phase history.

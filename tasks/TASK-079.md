@@ -1,7 +1,7 @@
 # TASK-079: Correct containment receipt identity and validate its boundary
 
 PARENT_REQUEST: Owner standing continuous until-done scope, PRD F-03 plus unchanged section8 criterion9.
-STATUS: SCOPED_SOURCE_AND_PURE_RESULT_ACCEPTED; distinct later NO_NEW_LEARNING adopted, final combined documentary publication pending. Original allocation and pure once are closed.
+STATUS: SCOPED_SOURCE_PURE_LEARNING_AND_DOCUMENTARY_PUBLICATION_ACCEPTED. Original allocation/once closed; no runtime successor or count advance.
 
 Goal: correct the deterministic internal diagnostic receipt collision and prove same-serial, exclusive-file and path-containment behavior with focused pure regressions.
 
@@ -28,3 +28,5 @@ Implemented-source/control PASS9821/13c07051 fully read a9ecc7 and genuinely ado
 Actual once pure entry08:04:08.207483Z–08:04:08.392180Z/native34640d/childPID5297060/reaped,7PASS0skips and owned synthetic closure. Exact receipt3119/d947990c. Independent actual-result PASS6531/8b44b9d3 fully readba550e and genuinely adoptedad96fb08:06:25.550508Z; ROOT_ACTUAL_RESULT_ADOPTION.json689/b1a556ea. Distinct later learning now active; no runtime/recording/SQL/CI effect. Once consumed, original hard ceiling held. [Readable scoped evidence](../docs/AUDIT_CONTAINMENT_RECEIPT_CORRECTION.md).
 
 Distinct later NO_NEW_LEARNING3533/2940d50e and exact3385diff/23bebba4 completely readc15f21 and genuinely adoptedae05bd2026-10-11T08:08:04.923003Z, before original08:08:10.176149Z. Rootadoption590/a9c82d9c closes source/check/learning phase, pure once consumed. ExistingG018 applied; only SESSION/CHANGELOG documentary learning delta, allcorpus/count42/L035Seen8 unchanged. Exact documentary co-sign next; any future effect remains separately unadmitted at9e56baseline under explicit publication deferral or unexecutable choice.
+
+Actual final seven-document publication93dc4741/tree4628f0ca/parent9e56 independently accepted13900/0c14e645; complete Root read20f928/genuine adoption0570fd at2026-10-11T08:56:38.739152Z. Current clean checkout/PR2head93dc reconciled db88db before the separately proposed TASK081 brief. Source/count42/Seen8 and all historical CI/pilot/production/old scopes remain held. Earlier publication-pending paragraphs are phase history.
