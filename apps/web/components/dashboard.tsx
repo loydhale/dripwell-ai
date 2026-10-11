@@ -134,44 +134,6 @@ export function Dashboard() {
           </Link>
         </div>
       ) : null}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span>New consultations</span>
-          <strong>{data.metrics.denominator}</strong>
-          <small>Consultation visits in selected period</small>
-          <Icon name="people" />
-        </div>
-        <div className="stat-card">
-          <span>Care started</span>
-          <strong>
-            {started}
-            <em>/{data.metrics.denominator}</em>
-          </strong>
-          <small>Staff-recorded actual care</small>
-          <Icon name="pulse" />
-        </div>
-        <div className="stat-card">
-          <span>Wellness accepted</span>
-          <strong>
-            {accepted}
-            <em>
-              /
-              {data.metrics.wellnessAccepted +
-                data.metrics.wellnessRejected +
-                data.metrics.wellnessTbd}
-            </em>
-          </strong>
-          <small>Of recorded wellness decisions</small>
-          <Icon name="check" />
-        </div>
-        <div className="stat-card stat-warm">
-          <span>Follow-through needed</span>
-          <strong>{missing}</strong>
-          <small>Active visits with overdue outcomes</small>
-          <Icon name="clock" />
-        </div>
-      </div>
-      <MembershipOutcomes metrics={data.metrics} />
       <div className="board-toolbar">
         <div className="segmented">
           <button className={!archiveView ? 'selected' : ''} onClick={() => setArchiveView(false)}>
@@ -330,6 +292,51 @@ export function Dashboard() {
           notes directly.
         </EmptyState>
       ) : null}
+      <details className="dashboard-reporting">
+        <summary tabIndex={0}>
+          <h2>Consultation reporting</h2>
+        </summary>
+        <div className="dashboard-reporting-content">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <span>New consultations</span>
+              <strong>{data.metrics.denominator}</strong>
+              <small>Consultation visits in selected period</small>
+              <Icon name="people" />
+            </div>
+            <div className="stat-card">
+              <span>Care started</span>
+              <strong>
+                {started}
+                <em>/{data.metrics.denominator}</em>
+              </strong>
+              <small>Staff-recorded actual care</small>
+              <Icon name="pulse" />
+            </div>
+            <div className="stat-card">
+              <span>Wellness accepted</span>
+              <strong>
+                {accepted}
+                <em>
+                  /
+                  {data.metrics.wellnessAccepted +
+                    data.metrics.wellnessRejected +
+                    data.metrics.wellnessTbd}
+                </em>
+              </strong>
+              <small>Of recorded wellness decisions</small>
+              <Icon name="check" />
+            </div>
+            <div className="stat-card stat-warm">
+              <span>Follow-through needed</span>
+              <strong>{missing}</strong>
+              <small>Active visits with overdue outcomes</small>
+              <Icon name="clock" />
+            </div>
+          </div>
+          <MembershipOutcomes metrics={data.metrics} />
+        </div>
+      </details>
       <Modal
         open={open}
         onClose={() => {

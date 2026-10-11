@@ -633,6 +633,26 @@ small,
   border-color: #efdfc3;
   color: #8c7047;
 }
+.dashboard-reporting {
+  margin-top: 26px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: #fff;
+}
+.dashboard-reporting > summary {
+  cursor: pointer;
+  color: var(--navy);
+}
+.dashboard-reporting > summary h2 {
+  display: inline;
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+.dashboard-reporting-content {
+  padding-top: 24px;
+}
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
