@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK082 tasks/{TASK-082,TASK-073}.md, docs/AUDIT_CURRENT_CI.md, PRD section8 and memory/{STATE,PRD_CHANGELOG,SESSION_LOG,CHANGELOG}.md: record genuinely adopted current full CI261/26files/all22 stages and DISTINCT later NO_NEW_LEARNING; preserve original failed first CI/acceptance6/causeUNKNOWN and all pilot/internal/service holds, update the clean dependency resume. Exact final documentary/PR-body co-sign and reviewed [skip ci] publication/readback are separate; no application edit or check replay.
+
+- 2026-10-11 TASK082 memory/{SESSION_LOG,CHANGELOG}.md — Independently accepted the existing current-head CI38129097635/attempt1: all22 stages, both builds/types, Vitest261/26files including unchanged recording19 and care5. Distinct later NO_NEW_LEARNING follows genuine Root adoption; original failed CI38080612363/TASK073 acceptance6, count42/L035Seen8 and all actual pilot/production/internal holds remain unchanged; no source correction or check replay.
+
 - 2026-10-11 TASK080: independently accepted one fresh recording diagnostic case with18 exclusions, fresh-client gate and exact owned closure; outcome UNREPRODUCED_STOP preserves historical CI failure/UNKNOWN SQL cause. Distinct later learning found no new corpus change, count42/L035Seen8 held; no runtime repeat or pilot completion.
 
 - 2026-10-11 TASK079: corrected only the new private containment observation identity; seven focused genuine-method regressions actually passed with0skips/native0/owned child and fixture closure, independently reviewed/adopted. NO_NEW_LEARNING applies existing G-018; no recording/SQL/app/CI/pilot/count advance or runtime retry authority.
