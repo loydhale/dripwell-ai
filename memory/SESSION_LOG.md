@@ -114,3 +114,7 @@ Bounded Coder source-only remaining-work assessment selected no necessary new ta
 2026-10-11 TASK085: no new learning.
 
 2026-10-11 TASK086: implemented-source CHANGES_REQUIRED8204/1e66641b fully read51bda2 and genuinely adopted19:53:02.301650Z before DISTINCT learning5340/8964531d and exact6356diff/6f41a8d5 read0de07d/66669b and genuinely adopted2026-10-11T19:55:59.930689+00:00. Apply only exact append-only L046/G025; existing Seen/count44/PATTERNS unchanged. No compiler/browser/screenshot/runtime or original85/86completion. The prior accepted08538-byte appendix is truthfully recorded under this new factual metadata authority, not a second learning or old closure. Exact final co-sign/publication/readback remain separate.
+
+2026-10-11 TASK087: refined L-046 for signal-safe child registration; no execution.
+
+2026-10-11 TASK087 source7646/a07589db CHANGES_REQUIRED fully read57341a/genuinely adopted20:42:21.337300Z before DISTINCT learning4817/93669a71 + exact2716diff/4955ee83 fully read83a243/genuinely adopted20:44:24.411365Z. Three rejected0400 sources remain unexecuted; count44 and original clocks/parks/gates held. Exact factual closure review/publication/readback pending.

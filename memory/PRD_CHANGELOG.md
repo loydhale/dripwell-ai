@@ -260,3 +260,5 @@ Owner authorization: Standing until-done/existingPRD, no new feature/provider/pr
 
 
 TASK086 DISTINCT learning: independent5340/8964531d and exact6356diff/6f41a8d5 fully read0de07d/66669b, genuinely adopted2026-10-11T19:55:59.930689+00:00. Exact append-only L046/G025 now applied; existing prefixes/Seen/PATTERNS/count44 unchanged. Prior independently accepted08538-byte no-new appendix recorded once under this factual metadata authority; original085/086completion and runtime remain held. Final documentary/PRD co-sign and actual same-branch publication/readback pending.
+
+2026-10-11 TASK087 MINOR: record static UI-capture ownership rejection and distinct L046 refinement, no numbered pilot criterion or scope/stack/price/data/completion change. Auditor co-sign: DA,2026-10-11, exact documentary review only; no source/runtime/completion approval.

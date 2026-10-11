@@ -325,3 +325,5 @@ TASK052 source authoring authorized after genuine independent planPASSaf49da5c/a
 2026-10-11 TASK075 distinct later learning4170bytes/239cba3a and exact2826-byte diff/5fd9d65f were fully read in nativeaee4dd and genuinely adopted after actual CHANGES_REQUIRED. It refines L-035 with the named-relation omission and limited32/2 outcome; Seen8/count42 held, no new lesson/pattern/gotcha. No correction or new test is admitted; only factual closure remains.
 
 2026-10-11 TASK081: independently accepted bounded retained CI-versus-isolated comparison, NO_ACTIONABLE_SOURCE_FINDING with explicit production-symbol documentary erratum; original CI/SQL cause unresolved, no new learning or source/runtime/CI effect, count42/L035Seen8/pilot gates held.
+
+2026-10-11 TASK087: independently reviewed capture-tool ownership-registration defect retained before execution; exact L046 refinement applied without counters, minimal fresh correction saved, source/CI/pilot/completion holds unchanged.
