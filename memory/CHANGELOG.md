@@ -327,3 +327,11 @@ TASK052 source authoring authorized after genuine independent planPASSaf49da5c/a
 2026-10-11 TASK081: independently accepted bounded retained CI-versus-isolated comparison, NO_ACTIONABLE_SOURCE_FINDING with explicit production-symbol documentary erratum; original CI/SQL cause unresolved, no new learning or source/runtime/CI effect, count42/L035Seen8/pilot gates held.
 
 2026-10-11 TASK087: independently reviewed capture-tool ownership-registration defect retained before execution; exact L046 refinement applied without counters, minimal fresh correction saved, source/CI/pilot/completion holds unchanged.
+
+2026-10-11 TASK088: reviewed signal-safe ownership fix; first actual compiler generated assets then failed unreferenced close await, owned cleanup observed, no browser; G026 recorded and fresh narrow correction queued.
+
+- 2026-10-11 TASK089: independently verify referenced compilerclose0/mandatoryservice receipt, preserve actual browser FAILED129-byte socket/zero requests/cases/PNG and accepted owned cleanup; distinctly refine existing G014 after genuine actual adoption. No old retry/count/pilot completion; TASK090 short-owned-path proposal separately prospective.
+
+- 2026-10-11 TASK090: independently review fresh compact owned browser paths and actual startup past socket failure; retain first CSP script-src FAILED/causeUNKNOWN/zero readyDOM/PNG/cases and accepted ownedcleanup. Genuine actual adoption precedes DISTINCT NO_NEW_LEARNING/session38; no source-once retry/CSPweakening/count/pilot completion.
+
+2026-10-11 TASK090 original final documentary phase late/unapproved; preserved actual report and original closed hour, count44, with truthful custody review separate and no completion proxy.

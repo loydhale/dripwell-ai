@@ -118,3 +118,10 @@ Bounded Coder source-only remaining-work assessment selected no necessary new ta
 2026-10-11 TASK087: refined L-046 for signal-safe child registration; no execution.
 
 2026-10-11 TASK087 source7646/a07589db CHANGES_REQUIRED fully read57341a/genuinely adopted20:42:21.337300Z before DISTINCT learning4817/93669a71 + exact2716diff/4955ee83 fully read83a243/genuinely adopted20:44:24.411365Z. Three rejected0400 sources remain unexecuted; count44 and original clocks/parks/gates held. Exact factual closure review/publication/readback pending.
+
+2026-10-11 TASK088: added G-026 for compiler close-wait keepalive; failed attempt retained, no browser.
+2026-10-11 TASK089: refined G-014 for native Chromium TMPDIR socket-path budgeting; compiler close observed, browser FAILED/no PNG; count44/Seen unchanged.
+2026-10-11 TASK090: no new learning.
+
+2026-10-11 documentary custody TASK088/TASK089/TASK090: no new learning.
+
