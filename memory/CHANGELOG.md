@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK080: independently accepted one fresh recording diagnostic case with18 exclusions, fresh-client gate and exact owned closure; outcome UNREPRODUCED_STOP preserves historical CI failure/UNKNOWN SQL cause. Distinct later learning found no new corpus change, count42/L035Seen8 held; no runtime repeat or pilot completion.
+
+- 2026-10-11 TASK079: corrected only the new private containment observation identity; seven focused genuine-method regressions actually passed with0skips/native0/owned child and fixture closure, independently reviewed/adopted. NO_NEW_LEARNING applies existing G-018; no recording/SQL/app/CI/pilot/count advance or runtime retry authority.
+
 - 2026-10-11 TASK078: one admitted fresh diagnostic stopped at duplicate containment receipt after native compatibility/generation0; independent CHANGES_REQUIRED preserves the static PASS miss, verifies59waited/reaped children and3owned CID removals, zero case/migration/identity proof. G-018 refined; no app/SQL repair, retry, count or pilot advance.
 
 - 2026-10-11 — TASK077: prepared and independently source-reviewed one private unexecuted fresh recording diagnostic driver, preserving complete076 schema contract, original case oracles and disclosed discovery deviation; no effects/recording fix/pilot/count advance. Source PASS and distinct NO_NEW_LEARNING genuinely adopted before original ceiling; exact documentary co-sign/publication remain separate.
