@@ -1,0 +1,43 @@
+# TASK074: Fresh-target recording investigation
+
+STATUS: PARKED_SETUP_GATE; independently accepted truthful setup stop and owned closure. Recording-case entries0; TASK074 is incomplete.
+
+The Owner directly instructed "Finish it" on October11 after the reviewed recording-recovery decision. Root reopened only [TASK074](../tasks/TASK-074.md), a fresh isolated synthetic investigation bounded by one conservative elapsed hour, 04:40:38Z–05:40:38Z. Actual managed shell access, clean branch/open PR2 at99e371b42a676ee001e18364f2b7638818f59fa1 and worker reconciliation were confirmed before dispatch. Old allocations, retained targets/processes/cache and the permanent release hold remain closed.
+
+The current application source9bd84b46 has first CI38080612363 FAILURE. Five care-refresh DOM cases, builds/types and separate Node suites pass; existing recording exhaustion observes11 completed publication bodies/rollbacks versus12, with one uncorrelated original P2034. The historical SQL cause remains unknown. The new investigation must preserve twelve attempts, no commits, provider counts, tenant isolation and cleanup assertions.
+
+## Independent admission
+
+The sole Coder produced the immutable20627-byte private preflight, SHA256778c77ac41f9c656b8f75f4cfd53508b929503bf7fb3976ade18fcacb395a08a. Independent Auditor attempt1 returned CHANGES_REQUIRED,12441bytes/SHA2569f4d37747ea9581e156e22f4002a0fcb882d8390a8080161e75f2854144c000f. Root fully read and genuinely adopted that actual report before any correction.
+
+Admission attempt1 required two corrections before effects: explicit ownership/private extraction for the fresh PostgreSQL CSV log, and an unexecuted concrete driver binding copied tool/output containment and exact new-container lifetime checks. The proposed anchored Vitest selector, fresh namespace and stop-on-compatibility-failure direction pass static review. They are not execution results. A passing reproduction, setup/closure failure, absent useful cause or time ceiling stops the lane without a preferred-result repeat.
+
+All nine PRD section8 criteria and production gates remain required. Protected previews, requested ALLOW_REAL_CLIENT_DATA=false and default-disabled maintenance remain. Current deployed source/effective hosted guard are unverified. No account/provider choice, administrator, spending, external message or real-data authorization is added; Stripe sandbox account setup is complete and spa catalogs/prices/reviewers belong to onboarding.
+
+At corrected-source freeze, private driver37939bytes/SHA256106233a8 and immutable amendment12688bytes/SHA25699ad76b6 were0400 and unexecuted. Original allocation, preflight and attempt1 audit remain unchanged. Root fully read the amendment before independent corrected-source review. Current source metadata shows52 application tables, plus the migration ledger =53; this corrects only the inherited new-target prerequisite. That historical capture preceded the actual admission/intent/result recorded below.
+
+## Actual result
+
+Root fully read and genuinely adopted corrected-source PASS10796bytes/SHA2569abe7a45 before the one native driver entry. The driver ran05:18:22Z–05:18:50Z and stopped at GENERATED_SCHEMA_NOT_CURRENT after generation exited0. Independent actual-result review11108bytes/SHA256c527995f was fully read/adopted in native8dbbc9; it accepts the truthful stopped disposition and exact owned closure, not investigation completion.
+
+Retained evidence verifies58 native CLI children reaped,23 matching owned-CID inspections, three exited/PID0/native-wait observations and three exact new-container removals. Initial new PostgreSQL17.11 public table set was empty; copied Node24.19/native library/schema-engine compatibility passed. All481 copied source files and2630 dependency links retain confined identities. No shared emit, migration deployment or recording case ran; reproduction_entries0, no REPRO_INTENT or Vitest report. Fixture restoration remains UNVERIFIED. Privately retained PGDATA is separate from actual container shutdown/removal. Original CSV has19 LOG/00000 records and no ERROR.
+
+The actual generated schema51502bytes/SHA256c4ebce38 differs from source49939bytes/f15f9c11 in whitespace and ordering of intact @@unique/@@index declarations in three models. Independent comparison verifies all74 named blocks, ordinary declarations, full model-attribute multisets and outside tokens match. Runtime inlineSchema exactly matches the generated schema; generated types/schema contain blobObject. The internal raw-byte equality check rejected normalized output. This is no stale-client/product defect or original recording-cause finding; actual application import remains untested. Historical CI38080612363 FAILURE/P2034 cause remains UNKNOWN.
+
+The driver/attempt is closed without retry. [TASK075](../tasks/TASK-075.md) separately admits two private source-only checker/regression files after its independent5035-byte plan PASS/SHA256e9c23cf3 and genuine Root adoption. It binds these retained artifacts and permits only harmless formatting/intact model-attribute ordering while rejecting semantic changes and incomplete coverage. Source review precedes one pure focused regression; no runtime successor, original-case substitute or clock reset follows. Original deadline05:40:38Z applies to remaining work.
+
+## TASK075 source-only correction
+
+Independent implemented-source PASS7095bytes/SHA2567f284fd8 was fully read in natived84ceb and genuinely adopted05:35:40Z before the exclusive once-check intent. Frozen private schema_identity.py10344bytes/762ae04c and test_schema_identity.py7745bytes/31549038 remain separate from repository application source. The supported comparator covers complete declarations while preserving ordinary order/literal escapes/index members and permits intact model-attribute permutation. It binds all four retained byte identities, exact generated inlineSchema and blobObject type evidence. It is a fixed-artifact structural identity check, narrower than a Prisma semantic validator. Thirty-four authored cases exercise actual normalized artifacts and meaningful comparator mutations. The single pinned Python3.12.14 -E -S -B check is admitted with30s/8MiB caps and owned-child closure; its actual result remains unverified at this capture. No application check, recording-case substitute or runtime successor is authorized.
+
+## TASK075 actual result
+
+The sole pure check ran05:36:59.292933Z–05:36:59.434877Z, native exit1 with34 cases:32passed/2ERROR/0skips. Child waited/reaped; no timeout or cap. Independent actual audit4893bytes/SHA256a0d22462 and receipt5910/ef51a41b were fully read in02cbf4 and genuinely adopted9dbf49. Both real retained positives error before complete-schema/runtime/type acceptance because the allowlist omits current valid @relation(name: ...) at schema683/687. Original source PASS is preserved as a static review miss. The32 fixture controls establish only their paths, not current artifact identity. This is an internal supported-syntax omission, not application, recording SQL or Owner credential evidence.
+
+[TASK075](../tasks/TASK-075.md) saves a relation-scoped string-name correction and focused normalization/changed/duplicate/malformed-name regressions, with original34 cases and failure retained. No correction/retry is admitted. The original hour closed05:40:38Z without any new code/check after its ceiling. Only necessary factual adoption, learning and independently reviewed documentary publication closure follow. No runtime successor, old allocation reset or application/pilot completion is claimed.
+
+## Learning and remaining gates
+
+TASK074 distinct later learning is complete after genuine actual-result adoption. Independent5076-byte report/SHA2564dc1448c and exact2957-byte learning diff/b163f1b8 were fully read in nativec5c8cd and genuinely adopted05:32:23Z. One L-035 normalization-contract recurrence changes Seen7to8; no new pattern/gotcha, unrelated counter or duplicate TASK075 recurrence follows. TASK075 actual CHANGES_REQUIRED and distinct later learning are genuinely adopted. No pure test PASS is claimed. Count42, TASK073/current whole CI, all nine pilot and production criteria remain incomplete. All old allocations/permanent release hold and selected account/data/spending restrictions are unchanged.
+
+TASK075 distinct later learning4170bytes/239cba3a and exact2826-byte diff/5fd9d65f were fully read in nativeaee4dd and genuinely adopted after actual CHANGES_REQUIRED. It refines L-035 with the named-relation omission and limited32/2 outcome; Seen8/count42 held, no new lesson/pattern/gotcha. No correction or new test is admitted; only factual closure remains.
