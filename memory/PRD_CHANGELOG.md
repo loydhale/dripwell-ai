@@ -1,5 +1,13 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-11, v2.0, MINOR TASK083 DASHBOARD PRESENTATION SOURCE/CI
+
+Section changed: Section8 factual checkpoint only. All twelve feature requirements, nine numbered criteria, stack and completion safeguards unchanged.
+Summary: Work-first Dashboard/named reporting disclosure, reviewed source8910001 and first natural CI38157961587/attempt1 all22 stages, builds/types,268/268 Vitest/27files/new7 and separate23/8/15/11 pass. Genuine actual-result adoption precedes distinct NO_NEW_LEARNING and conditional scoped count43. No rendered-browser/hosted/provider/payment or whole pilot/production completion. Historical original failure/cause, TASK073 original completion, restoration and permanent TASK057 hold remain separate.
+Owner basis: Existing confusing-frontend/until-done request and now explicitly selected screenshot composition. No new library, architecture, clinical/price/provider/admin/data/spend/outbound authority.
+CTO: Actual report8042/df429b4d fully read85c8ec/adopted17:13:46Z; distinct learning5021/cce7ee7e/exact1430diff fully read ef7c83/96b8ac/adopted17:17:50Z. Exact closing publication remains separately reviewed; original total ceiling17:33:09Z unchanged.
+Auditor co-sign: DA, 2026-10-11. PASS, exact factual Section8 checkpoint and documentary closing packet; all twelve features, nine criteria and guards unchanged.
+
 ## 2026-10-11 — v2.0 — MINOR, TASK082 CURRENT FULL CI EVIDENCE
 
 Section changed: Section8 factual checkpoint only. All twelve feature requirements, nine numbered criteria and completion safeguards are unchanged.

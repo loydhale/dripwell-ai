@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-11 TASK083: complete independently reviewed work-first dashboard and named reporting disclosure; first natural CI38157961587 passes268/268 Vitest/27files/new7 and all22 stages; distinct NO_NEW_LEARNING, scoped count43 and unchanged pilot/hosted/old holds.
+
 - 2026-10-11 TASK083: independently source-review the daily dashboard work-first hierarchy, named reporting disclosure and seven real-component DOM cases; correct only prospective callback-clock expectations within original ceilings. Actual first changed-source CI, result adoption, distinct learning and reviewed closure remain pending; count42 and all pilot/internal/service holds preserved.
 
 - 2026-10-11 OWNER_UI_REFERENCE_ASSESSMENT: independently review the proposed Once UI Core/AI Elements board/visit/setup map, correct Pro licensing and original404/later200 evidence, genuinely adopt corrected PASS and distinct G024 learning. Preserve existing corpus entries/Seen/count42 and all application/pilot/internal/service holds; no installation, prototype, PRD, dependency or source change. Exact final co-sign and same-branch reviewed publication/readback are separate at capture.
