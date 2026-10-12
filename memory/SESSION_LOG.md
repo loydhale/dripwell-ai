@@ -171,3 +171,5 @@ Learning extracted: NO_NEW_LEARNING.
 Learning extracted: NO_NEW_LEARNING.
 
 Learning extracted: L-048 (primary SDK error fidelity).
+
+Learning extracted: L-049 (native text-node boundaries).

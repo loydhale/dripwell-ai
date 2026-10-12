@@ -291,3 +291,8 @@ Section8 factual checkpoint only. One1.771431-second source-approved native run 
 ## 2026-10-12, v2.0, MINOR TASK101/TASK102 CURRENT NATIVE VISIT EVIDENCE
 
 Section8 factual checkpoint only: original101 actual report LATE_UNAPPROVED, distinct current retained-evidence acceptance of18controls/23native projections/applicable checkflags/scoped closure/two actual1280x800 images. Full RAW/proof/readiness payloads not retained, synthetic recorder/source-enforced limits and all nine criteria preserved. Updated factual document date and one missing space; no feature, acceptance, architecture, provider, pricing or guard change. Auditor co-sign: DA,2026-10-12, factual MINOR only.
+
+
+### 2026-10-12 TASK103 failed native layout evidence, factual MINOR
+Record the current failed sole local shell/board/mobile run,23 actual focused-control passes, known-owned cleanup and one actual desktop diagnostic image. Preserve zero accepted states/raw phases/mobile SDK story, unknown native badge count/text/subtree/cause and originalUIgoal/count47 holds. Record distinct L049/Seen1 exact application and save conditional TASK104 native-text/failure-evidence proposal; no scope, architecture, provider, clinical authority or acceptance criterion changes. All12features/9numberedcriteria and production/external/protection/oldscope safeguards remain unchanged.
+Auditor co-sign: DA, 2026-10-12, factual MINOR only.
