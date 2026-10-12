@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-12 TASK106: review nativeCSSOM tooling/29affectedcontrols and actual3desktopstates/2images/35nativegroupACKs; overallUIFAILED at Reporting-hit ancestry/zerocases/mobileunreached/unknownhitdata. DistinctNO_NEW/exactfactualMINORco-sign appliedonce, count48/allnineheld; inactive source/safeDERIVATIVE/image checkpoint and conditionalTASK107 awaitexactfinalpublication/currentreadback.
+
 - 2026-10-12 TASK095: author/review maintained-SDK browser harness and run one synthetic visit check; actual DOMAX readiness FAILED, native states/screenshots0, causeUNKNOWN. Four gate/compiler/runtime/cleanup receipts retained; actual review LATE_UNAPPROVED, distinct learning adopted/applied; original-hour final factual closure LATE_UNFINISHED, separate necessary documentary custody required. App291CI/old scopes/count44/all pilot gates unchanged.
 
 - 2026-10-12 TASK093 factual checkpoint: independent source/actual review accept32 new receipt assertions,12 real-schema/public ordered bootstrap and compiler/owned closure; actual native appearance remains FAILED at25second child boundary with no rendered cases/DOM/PNG. Distinct later learning and exact documentary/publication custody are required; count44/all pilot/production/old scopes held.
