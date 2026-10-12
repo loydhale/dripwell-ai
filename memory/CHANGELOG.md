@@ -371,3 +371,7 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-12 TASK099: actual reviewed R1 source ran exactly once;31affected controls PASS, nativeFAILED Viewport mismatch with0states0images, independent actual evidence review pending; no replay or completion.
 
 2026-10-12 TASK099 current custody: preserve original actual-review LATE_UNAPPROVED/nativeFAILED, exact source/31reported controls/stable1to2/safe receipt; genuinely adopted/appended38-byte NO_NEW learning and DA factualMINOR co-sign, count45/all9held; same-branch final review/publication/readback pending, separateTASK100viewportproposal saved.
+
+2026-10-12 TASK100: adopted original099 late readback, accepted distinct current publication admission and opened bounded viewport proposal; no source/runtime or pilot completion.
+
+2026-10-12 TASK100: reviewed bounded same-response viewport receipt and32focused controls, actual1265x800/nativeFAILED; distinctNO_NEW learning and factualMINOR co-sign accepted, scopeddiagnostic count45to46, exactfinalpublication/readback pending before conditional viewport correctionTASK101; no application/older-check/provider effect.
