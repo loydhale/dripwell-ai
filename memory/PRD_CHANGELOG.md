@@ -287,3 +287,7 @@ TASK086 DISTINCT learning: independent5340/8964531d and exact6356diff/6f41a8d5 f
 ## 2026-10-12, v2.0, MINOR TASK100 ACTUAL VIEWPORT OBSERVATION
 
 Section8 factual checkpoint only. One1.771431-second source-approved native run remainsFAILED, strict244-byte CSS layout receipt1265x800 against1280x800. Cause/repair unknown, all32focused controls timely independently accepted as diagnostic-only, nativeFAILED preserved. All twelve requirements/nine numbered criteria, architecture/prices/safeguards/olderclosed scopes retained. Next TASK101 is conditional read-only viewport configuration proposal, no execution grant. Auditor co-sign: DA,2026-10-12, factual MINOR only.
+
+## 2026-10-12, v2.0, MINOR TASK101/TASK102 CURRENT NATIVE VISIT EVIDENCE
+
+Section8 factual checkpoint only: original101 actual report LATE_UNAPPROVED, distinct current retained-evidence acceptance of18controls/23native projections/applicable checkflags/scoped closure/two actual1280x800 images. Full RAW/proof/readiness payloads not retained, synthetic recorder/source-enforced limits and all nine criteria preserved. Updated factual document date and one missing space; no feature, acceptance, architecture, provider, pricing or guard change. Auditor co-sign: DA,2026-10-12, factual MINOR only.

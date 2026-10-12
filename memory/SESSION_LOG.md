@@ -169,3 +169,5 @@ Learning extracted: G-027 sparse fixed-label vectors require dense own DATA slot
 Learning extracted: NO_NEW_LEARNING.
 
 Learning extracted: NO_NEW_LEARNING.
+
+Learning extracted: L-048 (primary SDK error fidelity).
