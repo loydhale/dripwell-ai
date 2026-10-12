@@ -1,0 +1,232 @@
+"""TASK099 source-only authored supervisor; run only after distinct reviewed once GO."""
+import ctypes
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import secrets
+import signal
+import socket
+import subprocess
+import time
+
+BASE = Path('/workspace/pw99r1')
+NODE = '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+CHROME = '/usr/lib/chromium/chromium'
+LIBC = '/usr/lib/x86_64-linux-gnu/libc.so.6'
+ESBUILD = '/workspace/dripwell-build/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild'
+ENV = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1'}
+OUTER = datetime.fromisoformat('2026-10-12T10:51:47.322110+00:00')
+INPUT_SHA = '74c3f0e3ca702dd3c98926dd7127301e49e0fbfa63b4bbf1749e4986fd1a5609'
+
+def need(ok, reason):
+    if not ok: raise AssertionError(reason)
+
+def sha(body): return hashlib.sha256(body).hexdigest()
+def utc(text): return datetime.fromisoformat(text.replace('Z', '+00:00'))
+def frozen(path):
+    path = Path(path)
+    need(path.resolve() == path and path.stat().st_mode & 0o777 == 0o400, 'Nonfrozen canonical descriptor')
+    return path.read_bytes()
+
+def pin(item, private=False):
+    path = Path(item['path']); canonical = path.resolve()
+    need((path.parent == BASE and canonical == path) if private else str(canonical) == item['canonical'], 'Input authorization')
+    body = frozen(path) if private else canonical.read_bytes()
+    need(len(body) == item['bytes'] and sha(body) == item['sha256'], 'Input changed')
+
+def identity(pid):
+    try:
+        body = Path('/proc/' + str(pid) + '/stat').read_text(); f = body[body.rfind(')') + 2:].split()
+        return {'pid': pid, 'ppid': int(f[1]), 'pgid': int(f[2]), 'birth': f[19]}
+    except FileNotFoundError: return None
+
+def children(pid):
+    try:
+        tasks = list(Path('/proc/' + str(pid) + '/task').iterdir()); need(len(tasks) <= 256, 'Owned thread bound')
+        result = set()
+        for task in tasks:
+            try: result.update(int(v) for v in (task / 'children').read_text().split())
+            except FileNotFoundError: pass
+        return sorted(result)
+    except FileNotFoundError: return []
+
+def absent(group):
+    try: os.killpg(group, 0); return False
+    except ProcessLookupError: return True
+
+def exclusive(path, value):
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o400)
+    with os.fdopen(fd, 'w') as file: json.dump(value, file, indent=2)
+
+def main():
+    need(dict(os.environ) == ENV, 'Exact literal env-i required')
+    go_path = BASE / 'EXCLUSIVE_ROOT_EXECUTION_GO.json'; go = json.loads(frozen(go_path))
+    need(set(go) == {'source_review_disposition', 'source_review', 'source_adoption', 'source_pins_sha256', 'input_pins_sha256', 'opened_utc', 'execution_ceiling_utc', 'original_total_ceiling_utc'}, 'Exact eight-key once GO required')
+    need(go['source_review_disposition'] == 'PASS', 'Independent source/command PASS required')
+    pin(go['source_review'], True); pin(go['source_adoption'], True)
+    adoption = json.loads(frozen(go['source_adoption']['path']))
+    need(adoption['disposition'] == 'PASS' and adoption['source_review'] == go['source_review'] and
+         adoption['source_pins_sha256'] == go['source_pins_sha256'] and adoption['input_pins_sha256'] == go['input_pins_sha256'] and
+         utc(adoption['genuinely_adopted_utc']) < utc(go['opened_utc']), 'Actual source adoption binding')
+    input_body, source_body = frozen(BASE / 'INPUTS.json'), frozen(BASE / 'SOURCE_PINS.json')
+    need(sha(input_body) == go['input_pins_sha256'] == INPUT_SHA, 'Fresh input manifest binding')
+    need(sha(source_body) == go['source_pins_sha256'], 'Fresh source manifest binding')
+    inputs, sources = json.loads(input_body), json.loads(source_body)
+    need([x['path'] for x in sources['files']] == [str(BASE / n) for n in ['fixture.tsx', 'adapter.mjs', 'supervisor.py']], 'Source surface changed')
+    for item in sources['files']: pin(item, True)
+    for group in ['compiled_application_inputs', 'explicit_tool_docs_binary_inputs']:
+        for path, item in inputs[group].items(): need(path == item['path'], 'Input key mismatch'); pin(item)
+    for root, item in inputs['declared_readonly_package_roots'].items():
+        need(str(Path(root).resolve()) == item['canonical'], 'Package root mismatch'); pin(item['package_json'])
+    sdk = inputs['SDK_prospective_readonly_root']; need(str(Path(sdk['path']).resolve()) == sdk['canonical'], 'SDK root mismatch')
+    for item in inputs['sdk_entry_descriptors']: pin(item)
+    mono = time.monotonic(); now = datetime.now(timezone.utc)
+    need(go['original_total_ceiling_utc'] == OUTER.isoformat(), 'Original task total changed')
+    ceiling = utc(go['execution_ceiling_utc']); need(utc(go['opened_utc']) <= now < ceiling <= OUTER, 'Outside actual once admission')
+    span = min(240, (ceiling - now).total_seconds()); need(span > 100, 'Insufficient work/90s cleanup budget')
+    end, work = mono + span, mono + span - 90
+    exclusive(BASE / 'EXECUTED_ONCE.json', {'started_utc': now.isoformat(), 'go_sha256': sha(frozen(go_path))})
+    run = BASE / ('run-' + now.strftime('%Y%m%dT%H%M%S') + '-' + str(os.getpid())); run.mkdir(mode=0o700)
+    for name in ['sdk', 'p', 'cache', 'tmp', 'xc', 'xd', 'xf']: (run / name).mkdir(mode=0o700)
+    token = secrets.token_hex(16); processes = []; known = {}; streams = []; listeners = []
+    record = {'status': 'FAILED', 'source_sha': go['source_pins_sha256'], 'input_sha': sha(input_body), 'started_utc': now.isoformat(), 'cleanup': [], 'lineage': [], 'scope': 'One synthetic idle native Consultation, not hosted/physical/backend/provider/pilot proof'}
+    acquisition = {'active': False, 'pending': False, 'cleanup': False}; first = None
+    def fail(reason):
+        nonlocal first
+        if first is None: first = str(reason).replace(token, '[REDACTED]'); record['first_failure'] = first
+    def guard():
+        need(first is None and not acquisition['pending'], 'Sticky failure/deferred signal')
+        need(time.monotonic() < work and datetime.now(timezone.utc) < ceiling, 'Work boundary expired')
+    def interrupted(_signal, _frame):
+        acquisition['pending'] = True
+        if not acquisition['active'] and not acquisition['cleanup']: raise TimeoutError('Owned phase interrupted/expired')
+    previous = {s: signal.signal(s, interrupted) for s in [signal.SIGALRM, signal.SIGTERM, signal.SIGINT]}
+    def observe():
+        pending = [os.getpid()]; seen = set()
+        while pending:
+            parent = pending.pop(); need(parent not in seen and len(seen) < 32, 'Owned lineage bound'); seen.add(parent)
+            for pid in children(parent):
+                item = identity(pid)
+                if item is None: continue
+                if pid not in known: known[pid] = item; record['lineage'].append(item)
+                need(known[pid]['birth'] == item['birth'], 'Owned PID reused')
+                need(item['pgid'] in [v['pgid'] for v in processes], 'Unexpected detached owned group')
+                pending.append(pid)
+    def launch(name, args, env):
+        guard(); log = open(run / (name + '.log'), 'xb'); streams.append(log)
+        acquisition['active'] = True
+        try:
+            process = subprocess.Popen(args, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            item = {'name': name, 'process': process, 'pgid': process.pid, 'closed': False}
+            processes.append(item)
+        finally: acquisition['active'] = False
+        guard(); current = identity(process.pid); need(current and current['pgid'] == process.pid, 'Owned acquisition identity unknown')
+        known[process.pid] = current; record['lineage'].append(current); item['identity'] = current
+        return item
+    def wait_file(path, seconds, owner):
+        stop = min(work, time.monotonic() + seconds)
+        while not path.exists():
+            guard(); observe(); need(owner['process'].poll() is None, 'Owned producer exited before descriptor')
+            need(time.monotonic() < stop, 'Descriptor readiness boundary'); time.sleep(0.02)
+        guard(); need(path.resolve() == path and path.stat().st_mode & 0o777 == 0o400, 'Producer descriptor not frozen')
+        body = path.read_bytes(); need(len(body) <= 4194304, 'Producer descriptor bound'); return json.loads(body)
+    def reap_group(item):
+        item['process'].poll()
+        if item['process'].returncode is None: return False
+        while True:
+            try:
+                pid, status = os.waitpid(-item['pgid'], os.WNOHANG)
+                if pid == 0: return False
+                record['cleanup'].append({'operation': 'adopted reap', 'pid': pid, 'wait_status': status, 'status': 'observed'})
+            except ChildProcessError: return True
+    try:
+        signal.setitimer(signal.ITIMER_REAL, work - time.monotonic())
+        need(not children(os.getpid()), 'Fresh supervisor has undeclared children')
+        libc = ctypes.CDLL(LIBC, use_errno=True); need(libc.prctl(36, 1, 0, 0, 0) == 0, 'Subreaper set failed')
+        observed = ctypes.c_int(); need(libc.prctl(37, ctypes.byref(observed), 0, 0, 0) == 0 and observed.value == 1, 'Subreaper not observed')
+        work_utc = datetime.fromtimestamp(now.timestamp() + span - 90, timezone.utc).isoformat()
+        context = {'source_sha': go['source_pins_sha256'], 'input_sha': sha(input_body), 'token': token, 'work_end_utc': work_utc, 'supervisor': identity(os.getpid())}
+        exclusive(run / 'context.json', context)
+        env = {'PATH': ENV['PATH'], 'LANG': ENV['LANG'], 'TMPDIR': str(run / 'tmp'), 'XDG_CACHE_HOME': str(run / 'xc'), 'XDG_CONFIG_HOME': str(run / 'xf'), 'XDG_DATA_HOME': str(run / 'xd'), 'ESBUILD_BINARY_PATH': ESBUILD}
+        need(len(env['TMPDIR'].encode()) <= 60, 'Native TMPDIR socket prefix bound')
+        node = launch('adapter', [NODE, str(BASE / 'adapter.mjs'), str(run)], env)
+        listener = wait_file(run / 'listener.json', 40, node)
+        need(listener['token'] == token and listener['source_sha'] == context['source_sha'] and listener['adapter'] == node['identity'], 'Owned listener descriptor binding')
+        origin = listener['origin']; from urllib.parse import urlsplit
+        address = urlsplit(origin); need(address.scheme == 'http' and address.hostname == '127.0.0.1' and address.port and not address.path and not address.query and not address.fragment and not address.username, 'Foreign fixture origin')
+        target = origin + '/?case=native-visit'; need(listener['url'] == target, 'Fixture URL binding'); listeners.append(address.port)
+        args = [CHROME, '--headless=new', '--no-sandbox', '--no-zygote', '--single-process', '--disable-crashpad-for-testing', '--disable-dev-shm-usage', '--disable-gpu', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--no-first-run', '--no-default-browser-check', '--metrics-recording-only', '--force-device-scale-factor=1', '--run-all-compositor-stages-before-draw', '--window-size=1280,800', '--user-data-dir=' + str(run / 'p'), '--disk-cache-dir=' + str(run / 'cache'), '--proxy-server=http://127.0.0.1:9', '--proxy-bypass-list=127.0.0.1;localhost', '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1', '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', '--remote-allow-origins=' + origin, target]
+        browser = launch('native', args, {k: v for k, v in env.items() if k != 'ESBUILD_BINARY_PATH'})
+        port_file = run / 'p' / 'DevToolsActivePort'; stop = min(work, time.monotonic() + 10)
+        while not port_file.exists(): guard(); observe(); need(browser['process'].poll() is None and time.monotonic() < stop, 'Native endpoint readiness'); time.sleep(0.02)
+        need(port_file.resolve() == port_file and port_file.stat().st_mtime >= now.timestamp(), 'Native endpoint custody')
+        lines = port_file.read_text().splitlines(); need(len(lines) == 2 and lines[0].isdigit() and lines[1].startswith('/devtools/browser/'), 'Native endpoint shape')
+        port = int(lines[0]); need(0 < port < 65536, 'Native port bound'); listeners.append(port)
+        exclusive(run / 'browser.json', {'source_sha': context['source_sha'], 'token': token, 'native': browser['identity'], 'origin': origin, 'url': target, 'port': port, 'ws': 'ws://127.0.0.1:' + str(port) + lines[1]})
+        result = wait_file(run / 'ADAPTER_RESULT.json', 110, node)
+        need(result['source_sha'] == context['source_sha'], 'Adapter result source binding')
+        record['adapter_result'] = {'path': str(run / 'ADAPTER_RESULT.json'), 'bytes': len(frozen(run / 'ADAPTER_RESULT.json')), 'sha256': sha(frozen(run / 'ADAPTER_RESULT.json'))}
+        diagnostic = result.get('readiness_diagnostic')
+        if diagnostic is not None:
+            need(diagnostic.get('status') in ['PERSISTED', 'FAILED'], 'Diagnostic status rejected')
+            if diagnostic['status'] == 'PERSISTED':
+                item = diagnostic['receipt']; need(item['path'] == str(run / 'readiness-last.json'), 'Foreign diagnostic path')
+                body = frozen(item['path']); need(len(body) <= 8192 and len(body) == item['bytes'] and sha(body) == item['sha256'] and token.encode() not in body, 'Diagnostic receipt binding')
+                record['readiness_diagnostic'] = {'status': 'PERSISTED', 'receipt': item}
+            else:
+                need(diagnostic.get('code') in ['DIAGNOSTIC_REJECTED', 'DIAGNOSTIC_WRITE_FAILED', 'DIAGNOSTIC_UNEXPECTED'], 'Diagnostic error rejected'); record['readiness_diagnostic'] = {'status': 'FAILED', 'code': diagnostic['code']}
+        need(result['status'] == 'PASS_PENDING_SUPERVISOR_CLOSURE' and not result['first_failure'] and result.get('listener_closed') is True and len(result['images']) == 2, 'Adapter story/closure not complete')
+        record['status'] = 'PASS_PENDING_CLEANUP'
+    except BaseException as error: fail(type(error).__name__ + ': ' + str(error))
+    finally:
+        acquisition['cleanup'] = True
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        for item in processes:
+            try: os.killpg(item['pgid'], signal.SIGTERM)
+            except ProcessLookupError: pass
+            except BaseException: record['cleanup'].append({'operation': 'TERM dispatch', 'status': 'UNKNOWN'})
+        for item in processes:
+            try:
+                for sig in [signal.SIGTERM, signal.SIGKILL]:
+                    if not absent(item['pgid']): os.killpg(item['pgid'], sig)
+                    stop = min(end - 15, time.monotonic() + 3)
+                    while time.monotonic() < stop:
+                        if reap_group(item) and absent(item['pgid']): break
+                        time.sleep(0.02)
+                item['closed'] = reap_group(item) and absent(item['pgid']) and item['process'].returncode is not None
+                record['cleanup'].append({'operation': item['name'], 'pid': item['process'].pid, 'pgid': item['pgid'], 'returncode': item['process'].returncode, 'group_absent': absent(item['pgid']), 'status': 'observed' if item['closed'] else 'UNKNOWN'})
+            except BaseException: record['cleanup'].append({'operation': item['name'], 'status': 'UNKNOWN'})
+        try: observe()
+        except BaseException: record['cleanup'].append({'operation': 'owned lineage', 'status': 'UNKNOWN'})
+        for pid, original in known.items():
+            current = identity(pid)
+            if current is not None and current['birth'] == original['birth']:
+                try: os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError: pass
+        for pid in known:
+            stop = min(end - 10, time.monotonic() + 3)
+            while identity(pid) is not None and time.monotonic() < stop:
+                try:
+                    waited, _status = os.waitpid(pid, os.WNOHANG)
+                    if waited == pid: break
+                except ChildProcessError: break
+                time.sleep(0.02)
+            record['cleanup'].append({'operation': 'owned birth absence', 'pid': pid, 'status': 'observed' if identity(pid) is None else 'UNKNOWN'})
+        for port in listeners:
+            try:
+                with socket.socket() as connection:
+                    connection.settimeout(0.2); connected = connection.connect_ex(('127.0.0.1', port)) == 0
+                record['cleanup'].append({'operation': 'owned listener nonconnectable', 'port': port, 'status': 'UNKNOWN' if connected else 'observed'})
+            except BaseException: record['cleanup'].append({'operation': 'owned listener nonconnectable', 'status': 'UNKNOWN'})
+        remaining = children(os.getpid()); record['cleanup'].append({'operation': 'final owned-child absence', 'remaining': remaining, 'status': 'observed' if not remaining else 'UNKNOWN'})
+        for stream in streams: stream.close()
+        for sig, handler in previous.items(): signal.signal(sig, handler)
+        clean = all(v['closed'] for v in processes) and all(v['status'] == 'observed' for v in record['cleanup'])
+        record['status'] = 'PASS' if record['status'] == 'PASS_PENDING_CLEANUP' and clean and first is None else 'FAILED'
+        record['finished_utc'] = datetime.now(timezone.utc).isoformat(); exclusive(run / 'RESULT.json', record)
+        print(json.dumps({'status': record['status'], 'result': str(run / 'RESULT.json'), 'first_failure': record.get('first_failure')}))
+    need(record['status'] == 'PASS', 'Sole once failed; no retry/fallback')
+
+if __name__ == '__main__': main()

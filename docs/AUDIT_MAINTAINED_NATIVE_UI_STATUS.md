@@ -1,5 +1,9 @@
 # Maintained native UI verification status
 
+Current TASK099: timely independent corrected-source PASS is retained. Exactly one1.646100-second run reports31affected synthetic controlsPASS and a complete stable initial pair1to2 with the original37 predicates/full RAW/all65 members/12orders equal. It remainsFAILED at cssLayoutViewport1280x800, before states, screenshots or native keyboard/default-action evidence. Actual dimensions/cause areUNKNOWN. The6173-byte actual-result report froze10:26:17 after10:24:25 and is permanently LATE_UNAPPROVED; no timely actual acceptance, originaltask completion or countadvance follows. Read [source audit](AUDIT_BOUND_DOCUMENT_ACQUISITION_SOURCE.md), [actual late report](AUDIT_BOUND_DOCUMENT_ACQUISITION_NATIVE.md) and [inactive source/safe receipt](evidence/task099/README.md). All9pilot/production/hosted/external/olderholds remain. A separately reviewed bounded viewport proposal is the next internal task after current factual custody, preserving the exact oracle and closedonce.
+
+## Historical TASK095 checkpoint
+
 TASK095 is FAILED, with no accepted native keyboard states or screenshots. This factual checkpoint changes no application source, dependency, migration or passing check.
 
 The three private maintained-SDK files were independently source-reviewed. Timely R1 report2102/00428177 and genuine Root450/8b4cddef adoption precede separate768/3142209c once. The original source-review oversized/late handoff, failure adoption and distinct learning remain preserved.
