@@ -131,3 +131,13 @@ Bounded Coder source-only remaining-work assessment selected no necessary new ta
 
 2026-10-11 documentary custody TASK091/TASK092: no new learning.
 
+2026-10-12 TASK093: refined L-020/G-019 current READY authority and sticky callback composition after adopted static rejection; no new counters or runtime.
+
+
+Learning extracted: NO_NEW_LEARNING.
+
+Learning extracted: NO_NEW_LEARNING.
+
+2026-10-12 TASK093 actual-result checkpoint: third actual source review PASS adopted00:27:04 before separate once00:27:15; runtimeEXIT1/25second child boundary, cases0/DOM0/PNGabsent. Independent actual7502/5d6432fa fullreadba7bfd genuinely adopted00:32:00; scoped32receipt/12real-schema/init/122input/compiler/ownedclosure accepted, unknown native capture cause held. Distinct later2784/9a931449 NO_NEW fullread912419/adoption00:33:57 before exact38-byte application00:34:11. Prefixes/count44/Seen held. Exact final documentary/PRD/fullbody and actual same-branch publication/readback remain separate. No new hour/source/once or provider/data effect.
+
+Learning extracted: NO_NEW_LEARNING.

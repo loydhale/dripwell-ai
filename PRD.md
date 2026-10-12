@@ -322,6 +322,12 @@ STATE retains WAITING_ON_DEPENDENCIES for the actual full-story prerequisites wi
 
 2026-10-11 TASK091/TASK092 final documentary phase: original5408/260d4515 CHANGES_REQUIRED was fully read/adopted before the two-token correction. Actual R1 firstclock23:23:13.949393Z exceeded unchanged23:23:03.175001Z;3214/ee2a571f LATE_UNAPPROVED was fully read454659 and adopted23:24:44.596939Z. No timely R1 co-sign or original completion. Separate necessary factual custody review only, original hour23:29:18.204716Z/source-once/count44/all gates held.
 
+### TASK093 supported private bootstrap verification checkpoint
+
+Original final documentary phase LATE_UNAPPROVED, unchanged00:39:30.451842Z. Separate necessary truthful custody may co-sign this factual checkpoint only; no original task/runtime/hour/completion advance.
+
+The independently reviewed private public-Zod jitless bootstrap now has actual scoped evidence:32 synthetic receipt protocol assertions,12 genuine answer/currency controls and emitted ordered initialization for dashboard-desktop,122 physical compiled-input identities and compiler/owned closure. The once run remains FAILED at the25-second native child boundary, cases0/DOM0/PNGabsent; other3 targets are unrun and cause remains unproved. No physical/native-key/current-deployment/two-clinic/pilot result is inferred. [Exact actual audit](docs/AUDIT_CSP_ATTRIBUTION.md) was fully read and genuinely adopted before distinct later learning. Count44/all nine numbered acceptance criteria/all production gates and prior failed/late/closed scopes remain unchanged. This is an in-scope technical verification clarification, not feature completion or a stack/policy/price change. Native keyboard/default-action mechanism remains separate internal work after reviewed closure; no new hour/source/runtime authority is conferred here.
+
 ## 9. Explicit defaults and open decisions
 
 | Topic | Default or decision needed |
