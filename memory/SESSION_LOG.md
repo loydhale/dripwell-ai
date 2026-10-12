@@ -163,3 +163,5 @@ Learning extracted: NO_NEW_LEARNING.
 Learning extracted: NO_NEW_LEARNING.
 
 Learning extracted: NO_NEW_LEARNING.
+
+Learning extracted: G-027 sparse fixed-label vectors require dense own DATA slots.
