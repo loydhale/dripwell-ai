@@ -1,5 +1,10 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-12, v2.0, MINOR TASK095 MAINTAINED NATIVE UI FACTS
+
+Section8 factual checkpoint only, all12features/nine numbered criteria/architecture/prices/safeguards unchanged. Three-source maintained harness/sourceR1 review and one actual run are retained; native readinessFAILED/states0/PNGs0/causeUNKNOWN. Four gate/compiler/runtime/closure receipts have explicit source-enforced/raw limits; actual review LATE_UNAPPROVED/no timely acceptance. Count44 and all original closed scopes held. TASK096 next plans missing bounded token-free candidate/predicate diagnosis after exact factual closure/readback, no source/hour/runtime grant.
+Auditor co-sign TASK095: DA,2026-10-12, separate factual MINOR custody only; original task/runtime/hour and all pilot completion remain unapproved.
+
 ## 2026-10-11, v2.0, MINOR TASK086 FACTUAL PREDECESSOR AND RENDERED UI
 
 Section changed: Section8 factual evidence only. All twelve feature requirements, nine numbered criteria, stack and completion safeguards unchanged.

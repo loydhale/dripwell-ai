@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-12 TASK095: author/review maintained-SDK browser harness and run one synthetic visit check; actual DOMAX readiness FAILED, native states/screenshots0, causeUNKNOWN. Four gate/compiler/runtime/cleanup receipts retained; actual review LATE_UNAPPROVED, distinct learning adopted/applied; original-hour final factual closure LATE_UNFINISHED, separate necessary documentary custody required. App291CI/old scopes/count44/all pilot gates unchanged.
+
 - 2026-10-12 TASK093 factual checkpoint: independent source/actual review accept32 new receipt assertions,12 real-schema/public ordered bootstrap and compiler/owned closure; actual native appearance remains FAILED at25second child boundary with no rendered cases/DOM/PNG. Distinct later learning and exact documentary/publication custody are required; count44/all pilot/production/old scopes held.
 
 - 2026-10-11 TASK086 factual checkpoint: accept existing visit source firstCI291/28modules/all22 stages; preserve original085final PARKED/count44. Independent rendered-UI harness source CHANGES_REQUIRED prevents execution; exact isolation/deadline/read failures and missing browser evidence retained, with distinct learning and reviewed factual closure required.
@@ -351,3 +353,5 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 - 2026-10-12 TASK093 original final documentary phase LATE_UNAPPROVED, exact late learning applied; only separately reviewed truthful custody may publish factual checkpoint, no original completion/hour/source/once/count advance.
 
 - 2026-10-12 TASK094: record four authored but unfrozen sources and late unfinished failure review; no native run or screenshot, internal structural resume and original ceiling retained, count44/pilot/security gates unchanged.
+
+2026-10-12 TASK095: independent maintained-driver plan5621/fd330ad7 genuinely adopted; new source-only three-file scope opens2026-10-12T03:14:47.662403+00:00 with fixed source/one-hour ceilings, no runtime/import or pilot proof. Prior actual b6f documentary custody and distinct learning accepted.
