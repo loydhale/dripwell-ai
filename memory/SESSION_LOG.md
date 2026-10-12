@@ -179,3 +179,5 @@ Learning extracted: L-050 (optional diagnostic bounds).
 Learning extracted: NO_NEW_LEARNING.
 
 Learning extracted: NO_NEW_LEARNING.
+
+Learning extracted: L-047 caller-admission refinement.
