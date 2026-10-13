@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+- 2026-10-13 TASK110 reviewed checkpoint: eight real-recorder SYNTHETIC pending-media controls/15states/3scoped warning projections pass; native UI fails at uncorrelated document invalidation,0nativecases/images. Independent source/actual/learning and factualMINOR accepted; L030 refined withoutSeen/count change. Inactive sources/safe evidence/current memory and conditionalTASK111 awaitexactfinalreview/publication/readback; app291CI/migrations unrerun, count51/pilot open.
+
+- 2026-10-13 TASK110: freeze real recorder/visit verification code and narrow reviewed fixture worker policy; source packet14.62s late, originalwindow held. Current independent source-command review active; native denial/two views/eight synthetic controls unrun, app unchanged/count51/pilot open.
+
 - 2026-10-12 TASK106: review nativeCSSOM tooling/29affectedcontrols and actual3desktopstates/2images/35nativegroupACKs; overallUIFAILED at Reporting-hit ancestry/zerocases/mobileunreached/unknownhitdata. DistinctNO_NEW/exactfactualMINORco-sign appliedonce, count48/allnineheld; inactive source/safeDERIVATIVE/image checkpoint and conditionalTASK107 awaitexactfinalpublication/currentreadback.
 
 - 2026-10-12 TASK095: author/review maintained-SDK browser harness and run one synthetic visit check; actual DOMAX readiness FAILED, native states/screenshots0, causeUNKNOWN. Four gate/compiler/runtime/cleanup receipts retained; actual review LATE_UNAPPROVED, distinct learning adopted/applied; original-hour final factual closure LATE_UNFINISHED, separate necessary documentary custody required. App291CI/old scopes/count44/all pilot gates unchanged.
@@ -401,3 +405,5 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-13 TASK109: independently reviewed passive component-role classification passed20affectedNode1sameparent in one native run; safe859 receipt identifies prior-tree BOARD/nearest ORIGINALPAGE_CONTENTstep1, UI stillFAILED/3desktopstates/0cases/input0/causeUNKNOWN. Independent actual review and learning/publication pending; retained passing checks and migrations not replayed.
 
 2026-10-13 TASK109 current closure preparation: independent4049 retained diagnosticPASS and distinct2960NO_NEW result/co-sign genuinelyadopted; exactly36SESSION suffix/corpus-Seen-count50 unchanged. Finalexactreview/samebranchpublication/currentreadback remain required, UIFAILED/allnineOPEN/Reportingrepair unknown; TASK110 realRecorder denial/appearance queued independently.
+
+2026-10-13 TASK109 checkpoint closure: reviewedaa22/tree67109e/656files16payloads640preserved and4529currentindependentreadback genuinelyadopted03:55:19; count50to51 boundedrole-evidence only. NativeReportingUI stillFAILED/unknowncause/allnineOPEN; TASK110 freshreadonly realAudioRecorder/otherVisit capture-denial plan admitted without prior-effect/check/migration replay.

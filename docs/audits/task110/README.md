@@ -1,0 +1,9 @@
+# TASK110 recorder verification checkpoint
+
+The [actual review](../../AUDIT_NATIVE_RECORDER_COMPOSITION.md) accepts eight synthetic real-component checks, fifteen saved states, three independently validated warning presentations, and scoped cleanup custody. Native UI remains failed with zero completed cases or screenshots; document invalidation cause is unknown. The parent stopped before its new presentation/state validators. Two permission-setup ACK projections are not native capture-denial proof.
+
+[Corrected plan reviews](plan.md) and [R1 source review](source.md) preceded the first run. The first source freeze missed its artifact cap by14.617479seconds, and its frozen HANDOFF incorrectly said before; those original scopes remain closed/unapproved. A subsequent independent source review required exact main-warning binding because real AppShell renders both main and sidebar copies. The timely narrow R1 correction preserved both, and the actual synthetic checks passed.
+
+The current actual report4855/9e8aacdc was timely frozen05:17:25.951169 and fully read; genuine985/1f780b07 Root acceptance05:18:25.148876 covers retained synthetic and failed-run evidence only. The once05:07:51.279063–05:07:54.418331 is spent. [Learning](learning.md) is a distinct Auditor extraction and factual MINOR co-sign, required before final checkpoint review and publication. [Safe evidence](../../evidence/task110/README.md) contains inactive sources and a fixed summary; raw capabilities/context/payloads remain private.
+
+TASK110 native denial/other-view goals remain incomplete, count51 stays held, all nine PRD8 stories and production gates remain open. [Conditional TASK111](../../../tasks/TASK-111.md) seeks supported passive document-lifetime provenance after reviewed publication/readback and a fresh boot; it grants no current execution or retry.
