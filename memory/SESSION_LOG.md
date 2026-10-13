@@ -199,3 +199,8 @@ Learning extracted: L-047 caller-admission refinement.
 2026-10-13 TASK119 distinct learning: NO_NEW_LEARNING. Existing L-035/L-047/L-048/L-050 cover exact source-bound oracles, passive first-evidence/primary preservation and bounded collection. Native success and synthetic503 plan remain unexecuted; idle/unsaved captureBusy does not imply Start-disabled. Original121/other timing holds, count52/nine gates/corpora/Seen unchanged; no application defect, runtime or source admission.
 2026-10-13 TASK122: no new learning
 2026-10-13 TASK123: no new learning
+2026-10-13 TASK125 distinct later learning: existing L-050 nullable-state refinement and G-019 typed-envelope guidance, no new lesson/Seen/count. Current rejection facts only accepted; original12422:15 closed unfinished/report22:15:12 late/native0. Correction/source review/new synthetic once remain prospective; count52/all9/older holds unchanged.
+
+2026-10-13 TASK125: distinct post-result NO_NEW_LEARNING; existing L-050/G-019 cover69 synthetic cases, retained observations and measured23-byte metadata correction. Count52/Seen/allnine held.
+
+2026-10-13 TASK126: metadata-only checkpoint publication scope co-signed after original125 closed unfinished; NO_NEW_LEARNING, existing L-050/G-019. Count52/Seen/allnine and old caps/onces held.
