@@ -187,3 +187,5 @@ Learning extracted: L-047 caller-admission refinement.
 2026-10-13 TASK112: NO_NEW_LEARNING. L-035/L-047/L-048/L-050 already cover typed evidence, first-attempt sealing, primary preservation and bounded diagnostics; NOT_OBSERVED adds no native cause proof.
 
 2026-10-13 TASK113 distinct learning: NO_NEW_LEARNING. Applied existing L-035/L-047/L-048/L-050 to corrected primary/LAST reporting; current diagnostic admission only. Native FAILED, old late reviews held, Count52 unchanged. No Seen/corpus changes.
+
+2026-10-13 TASK115 distinct learning: NO_NEW_LEARNING. Applied existing L-035/L-047/L-048/L-050 to exact retained readback custody. Original113 artifact/total missed; native FAILED and Count52 held. Three corpora/Seen unchanged; no requery or native check.
