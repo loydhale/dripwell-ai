@@ -1,0 +1,13 @@
+CHANGES_REQUIRED — TASK114_S2 combined source/command
+
+FULL reviewGO/sourceGO/34783 inputs/43792 diff/command/handoff read.109 descriptors match raw/canonical/mode. Diff reproduced, fixture=S1; independent unified +/-39/43/71 versus declared37/43/71, below499. Full unchanged R1/boot/role/OSS/version analysis reused raw-equal; operative STATE read. Source unexecuted.
+
+1. adapter.mjs:947 and supervisor.py:236-240 permit impossible current cache. REJECTED/notAllowedfalse/observerFaultfalse with typeobject/MATCH/UNKNOWN_UNREAD/null passes forward validation, although original MATCH branch always attempts name. UNKNOWN expression and LOOKUP_FAILED likewise lack required fault conditions. Enforce bidirectional read-slot and envelope-fault relations; keep classifier-fault UNKNOWN/notAllowedtrue/observerFaulttrue valid. No extra error reads or universal-class inference.
+
+2. adapter.mjs:1039-1048 and supervisor.py:323-337 omit forward-envelope consistency from LAST serialization/parent validation. OBSERVED/REJECTED/notAllowedtrue/observerFaultfalse plus NO_MATCH/UNKNOWN_UNREAD/null passes LAST while forward rejects it. Non-REJECTED LAST can carry populated rejection tags. Collector validates forward first, but direct serializer/actual parent accept contradictory evidence. Share outcome/notAllowed/observerFault/cache relations across forward and observed LAST; preserve unavailable UNKNOWN. Add specifically affected malformed forward/LAST cases through SAME production helpers/parent, not a mirror validator.
+
+3. supervisor.py:473 reads two parent validation fields from pinned ADAPTER_RESULT, which has neither, recording nulls instead of retained seven/six results. Bind exact named historical parent RESULT and validate/extract its fields, or explicitly mark unavailable without claiming results retained. Keep v1 historical-only/old batches inert, no replay.
+
+Fixture otherwise preserves first terminal, original conditional prototype/name reads/order and notAllowed assignment BEFORE optional classifier. Promise/error/receiver/args unchanged. Six new helper samples compose with real producer/collector/exclusive IO, subject to corrections. No native-cause repair claim.
+
+Literal env-i Python-B-I/loginfalse/cwd, strict5 genuine adoption/strict8 once/240incl90 owned cleanup remain supported. Guard requires direct canonical0400 report plus PASS disposition; no execution granted. Root genuine finding adoption before narrow correction/re-review. No effects/import/parser/tests/compiler/browser/Git/SQL/learning. C1zero lateheld/oldcaps-onces/count52/ninepilot-production/protection/hostedguard/external/057-oldSQL/untilDone unchanged. First3051-byte draft rejected before creation. STOPPED.

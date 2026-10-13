@@ -429,3 +429,5 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-13 TASK113 checkpoint: current independent diagnostic acceptance and distinct NO_NEW/factualMINOR co-sign recorded; inactive R1 verifier/evidence copies and conditionalTASK114 prepared for exact final review, native goalFAILED/count52 held.
 
 2026-10-13 TASK115: retain independently completedc8/695publication readback under currentcustody and distinct NO_NEW/factualMINOR; original113artifact/total missed/nativeFAILED, counts/gates held, exact documentary checkpoint pending.
+
+2026-10-13 TASK114/TASK116: reviewed passive rejection cache and finite data-only proof transport pass changed6/5 and affected parent9+10+10 controls; native readiness FAILED with cached conditional NotFoundError/device-causeUNKNOWN/casesPNG0. Preserve original114closedcap/onces/count52/allnine; distinct learning, exact reviewed same-branch checkpoint publication and current independent readback required.
