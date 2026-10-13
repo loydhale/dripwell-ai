@@ -1,0 +1,175 @@
+{
+  "task": "TASK122",
+  "disposition": "INDEPENDENT_AUDIT_PASS_NATIVE_SYNTHETIC_LOCAL503_ONLY",
+  "observed_interval": {
+    "start": "2026-10-13T19:39:54.128775+00:00",
+    "finish": "2026-10-13T19:39:59.661886+00:00",
+    "seconds": 5.533111
+  },
+  "scope": "One owned desktop Chrome synthetic-device native capture through original components; local503 retained retry/discard only",
+  "source_sha256": "05b1774976b5669837b7599a7bcfe414822d7eded2ef19d9919bb38a8eb4d675",
+  "input_sha256": "b793e950d59f8a4d78b617a571c195aa1d7ac53d9b50451270653864207e7ff1",
+  "native": {
+    "get_user_media": "FULFILLED_ORIGINAL_PROMISE_RECEIVER_CONSTRAINTS",
+    "calls": {
+      "start": 1,
+      "pause": 1,
+      "resume": 1,
+      "stop": 1
+    },
+    "events": {
+      "start": 1,
+      "pause": 1,
+      "resume": 1,
+      "stop": 1,
+      "data": 1,
+      "error": 0
+    },
+    "constructor_original": true,
+    "prototype_object_original": true,
+    "static_original": true,
+    "wrapped_method_reflection_changed": true,
+    "audio_tracks": {
+      "audio": 1,
+      "live": 0,
+      "ended": 1
+    },
+    "chunk": {
+      "count": 1,
+      "bytes": 14016,
+      "sha256": "9b80df53e4019713a49534beb8cc30e04c7d5b67e570c3cbf05e3bc0a67ad930",
+      "drained": true
+    },
+    "original_multipart": {
+      "attempts": 2,
+      "same_segment_sequence_duration_bytes_mime_hash": true,
+      "duration_ms": 2167,
+      "mime": "audio/webm;codecs=opus",
+      "boundary_response": "DISCLOSED_LOCAL_SYNTHETIC503_NOT_REAL_API"
+    },
+    "states": [
+      {
+        "phase": "initial",
+        "time": "00:00",
+        "capture_busy": false,
+        "native_state": "UNCREATED"
+      },
+      {
+        "phase": "native-recording",
+        "time": "00:00",
+        "capture_busy": true,
+        "native_state": "recording"
+      },
+      {
+        "phase": "native-clock",
+        "time": "00:01",
+        "capture_busy": true,
+        "native_state": "recording"
+      },
+      {
+        "phase": "native-paused",
+        "time": "00:01",
+        "capture_busy": true,
+        "native_state": "paused"
+      },
+      {
+        "phase": "native-pause-held",
+        "time": "00:01",
+        "capture_busy": true,
+        "native_state": "paused"
+      },
+      {
+        "phase": "native-resumed",
+        "time": "00:02",
+        "capture_busy": true,
+        "native_state": "recording"
+      },
+      {
+        "phase": "native-stopped-unsaved",
+        "time": "00:02",
+        "capture_busy": true,
+        "native_state": "inactive"
+      },
+      {
+        "phase": "native-retry-unsaved",
+        "time": "00:02",
+        "capture_busy": true,
+        "native_state": "inactive"
+      },
+      {
+        "phase": "native-discard-cleared",
+        "time": "00:02",
+        "capture_busy": false,
+        "native_state": "inactive"
+      }
+    ]
+  },
+  "new_affected_categories": {
+    "status": "PASS",
+    "count": 5,
+    "fixture": {
+      "status": "PASS",
+      "count": 3,
+      "cases": [
+        "original-method-receiver-args-return-throw",
+        "passive-observer-fault-original-result-primary",
+        "exact-multipart-file-retry-preservation"
+      ]
+    },
+    "schema": {
+      "status": "PASS",
+      "count": 1,
+      "category": "changed-proof-schema-accessor-and-primary",
+      "negatives": 6
+    },
+    "parent": {
+      "status": "PASS",
+      "count": 1,
+      "category": "actual-success-collector-parent-binding",
+      "negatives": 7
+    }
+  },
+  "old_batches": "RETAINED_INERT_NOT_REPLAYED",
+  "compiled_loaded": {
+    "actual_compiler_file_inputs": 122,
+    "metafile_entries": 126,
+    "explicit_virtual_entries": 4,
+    "runtime_module_observations": 110,
+    "unique_runtime_paths": 7,
+    "raw_bindings_matched": true,
+    "whole_root_immutability": false
+  },
+  "screenshots": [
+    {
+      "name": "native-stopped-unsaved.png",
+      "bytes": 92762,
+      "sha256": "460cf7e86266e83fabd25cf00e5358a2d5c81afe87f7b6b404ab6a3663c9fcff",
+      "viewed": true,
+      "observation": "Original local503 unsaved Retry/Discard screen"
+    },
+    {
+      "name": "native-discard-cleared.png",
+      "bytes": 94977,
+      "sha256": "4878938e75fce49a8195552f96173533816b65cf3f3bf38236739db35a44dfe5",
+      "viewed": true,
+      "observation": "Original discarded-audio warning; retry removed"
+    }
+  ],
+  "cleanup": "KNOWN_OWNED_GROUPS_CHILDREN_LISTENERS_CLOSED; NOT_GLOBAL_HANDLE_PROFILE_OR_RESOURCE_ABSENCE",
+  "invalidation_only_diagnostic": {
+    "status": "NOT_OBSERVED",
+    "observation": null,
+    "interpretation": "Not native-capture status"
+  },
+  "limitations": [
+    "No physical microphone or iPad evidence",
+    "No rollover or active-unmount case",
+    "No actual API/storage/provider/transcription/model request",
+    "No two-clinic end-to-end pilot or whole-UI acceptance",
+    "Historical denial cause remains UNKNOWN",
+    "Hosted deployment and effective guard state unverified",
+    "All nine pilot and production gates remain open; count52 unchanged",
+    "Original old failed phase clocks and scopes are not upgraded"
+  ],
+  "once": "SPENT_NO_RETRY_NO_NEW_CLOCK"
+}
