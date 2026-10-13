@@ -435,3 +435,5 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-13 TASK118: Implemented and independently accepted the controlled native microphone-denial fixture, five new actual-launch categories and one NotAllowedError/banner/idle-reset/PNG case; retained earlier checks inert and added exact inactive sources/evidence. Original late review phases/all pilot-production guards remain held.
 
 2026-10-13 TASK120: Prepare necessary publication custody of the reviewed native-denial checkpoint after original118 total closed before any Git writes; preserve original holds and zero application/source/runtime budgets.
+
+- 2026-10-13 TASK121: published reviewed native-denial checkpoint9a8db4a; current independent728-leaf readback genuinely accepted. Record exact closing resume and NO_NEW_LEARNING/factual MINOR co-sign; original118/120 goals/count52/pilot gates stay held, nextTASK119 assessment remains bounded.
