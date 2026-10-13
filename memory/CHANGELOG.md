@@ -417,3 +417,13 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 - 2026-10-13 TASK112: admit current retained diagnostic custody/documentary closure after TASK111 actual-report deadline and original total elapsed; source/once remain closed, no rerun or completion claim.
 
 - 2026-10-13 TASK112: current retained diagnostic PASS and distinct NO_NEW_LEARNING/factual MINOR co-sign genuinely adopted; prepare exact inactive-source/evidence checkpoint and conditional native-recorder plan, publication/readback pending.
+
+- 2026-10-13 TASK112/TASK113: reviewed3de checkpoint publication and independent whole remote/native readback genuinely accepted, scopedcount52 once; admit read-only native recorder denied-capture plan, all pilot/production/old scopes held.
+
+2026-10-13 TASK113: timely concrete one-desktop native-denial plan independently accepted; source-only harness authoring admitted, no browser/test/native result yet.
+
+2026-10-13 TASK113: implemented harness independently reviewed and executed once; first forwarding-control boundary failed before native denial acceptance, exact corrective analysis pending.
+
+2026-10-13 TASK113 R1: correct masked recorder readiness reporting and retain LAST delivered observation;5affected helpers and13parent negatives PASS, native denial FAILED/causeUNKNOWN; current independent diagnostic acceptance, learning/finalpublication separately gated.
+
+2026-10-13 TASK113 checkpoint: current independent diagnostic acceptance and distinct NO_NEW/factualMINOR co-sign recorded; inactive R1 verifier/evidence copies and conditionalTASK114 prepared for exact final review, native goalFAILED/count52 held.
