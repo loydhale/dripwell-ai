@@ -184,3 +184,4 @@ Learning extracted: L-047 caller-admission refinement.
 2026-10-13 TASK108: refine L-035 for frontend metadata vs usable handles; existing Seen/count49 held; native UI FAILED.
 2026-10-13 TASK109: no new learning
 2026-10-13 TASK110: refine L-030 for scoped real error presentation; no Seen/count change.
+2026-10-13 TASK112: NO_NEW_LEARNING. L-035/L-047/L-048/L-050 already cover typed evidence, first-attempt sealing, primary preservation and bounded diagnostics; NOT_OBSERVED adds no native cause proof.

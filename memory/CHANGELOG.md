@@ -1,5 +1,7 @@
 # CHANGELOG.md
 
+- 2026-10-13: reviewed110checkpoint66fae published/currentreadback verified; original110closure deadline missed, genuinecurrentretained acceptance06:24 keepsLATE_UNFINISHED/count51. Admit queued111passive document-event provenance readonly, no8passing/once replay, native/pilot stillopen.
+
 - 2026-10-13 TASK110 reviewed checkpoint: eight real-recorder SYNTHETIC pending-media controls/15states/3scoped warning projections pass; native UI fails at uncorrelated document invalidation,0nativecases/images. Independent source/actual/learning and factualMINOR accepted; L030 refined withoutSeen/count change. Inactive sources/safe evidence/current memory and conditionalTASK111 awaitexactfinalreview/publication/readback; app291CI/migrations unrerun, count51/pilot open.
 
 - 2026-10-13 TASK110: freeze real recorder/visit verification code and narrow reviewed fixture worker policy; source packet14.62s late, originalwindow held. Current independent source-command review active; native denial/two views/eight synthetic controls unrun, app unchanged/count51/pilot open.
@@ -407,3 +409,11 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-13 TASK109 current closure preparation: independent4049 retained diagnosticPASS and distinct2960NO_NEW result/co-sign genuinelyadopted; exactly36SESSION suffix/corpus-Seen-count50 unchanged. Finalexactreview/samebranchpublication/currentreadback remain required, UIFAILED/allnineOPEN/Reportingrepair unknown; TASK110 realRecorder denial/appearance queued independently.
 
 2026-10-13 TASK109 checkpoint closure: reviewedaa22/tree67109e/656files16payloads640preserved and4529currentindependentreadback genuinelyadopted03:55:19; count50to51 boundedrole-evidence only. NativeReportingUI stillFAILED/unknowncause/allnineOPEN; TASK110 freshreadonly realAudioRecorder/otherVisit capture-denial plan admitted without prior-effect/check/migration replay.
+
+- 2026-10-13 TASK111: current independent retained-plan review and genuine adoption admit passive document-owner/phase diagnostic source only; original late phases held, checks/native/pilot completion unclaimed.
+
+- 2026-10-13 TASK111: implemented and source-reviewed the passive invalidation observer; one actual run reports six affected controls and shared-parser checks passing, natural invalidation NOT_OBSERVED, independent actual review pending.
+
+- 2026-10-13 TASK112: admit current retained diagnostic custody/documentary closure after TASK111 actual-report deadline and original total elapsed; source/once remain closed, no rerun or completion claim.
+
+- 2026-10-13 TASK112: current retained diagnostic PASS and distinct NO_NEW_LEARNING/factual MINOR co-sign genuinely adopted; prepare exact inactive-source/evidence checkpoint and conditional native-recorder plan, publication/readback pending.
