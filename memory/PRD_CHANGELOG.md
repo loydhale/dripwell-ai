@@ -310,3 +310,5 @@ TASK106 factual MINOR,2026-10-12. Record private documented nativeCSSOM measurem
 Auditor co-sign: DA, 2026-10-12, factual MINOR only.
 
 2026-10-12 TASK107 MINOR: record independently accepted corrected passive hit diagnostics/13Node1parent/524native receipt/unchanged FAILED UI and unknown cause; all nine criteria/production gates unchanged. Co-sign: DA, 2026-10-12, factual MINOR only.
+
+2026-10-13 TASK108 MINOR: record existing-scope passive pre-scroll snapshot classification,16Node1parent/704native receipt and unchanged FAILED wholeUI/causeUNKNOWN. All12features/nine numbered criteria/architecture/clinical/pricing/provider/data/protection/production/older authority unchanged. Auditor co-sign: DA, 2026-10-13, factual MINOR only.
