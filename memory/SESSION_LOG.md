@@ -198,3 +198,4 @@ Learning extracted: L-047 caller-admission refinement.
 2026-10-13 TASK121: no new learning. Current reconnect custody reuses unchanged accepted analysis with new raw observations; old caps and goals stay closed. No corpus, Seen, count or source/runtime change.
 2026-10-13 TASK119 distinct learning: NO_NEW_LEARNING. Existing L-035/L-047/L-048/L-050 cover exact source-bound oracles, passive first-evidence/primary preservation and bounded collection. Native success and synthetic503 plan remain unexecuted; idle/unsaved captureBusy does not imply Start-disabled. Original121/other timing holds, count52/nine gates/corpora/Seen unchanged; no application defect, runtime or source admission.
 2026-10-13 TASK122: no new learning
+2026-10-13 TASK123: no new learning
