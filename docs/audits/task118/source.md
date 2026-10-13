@@ -1,0 +1,9 @@
+PASS — CURRENT_UNCHANGED_SOURCE_COMMAND_ADMISSION_ONLY
+
+Prospective custody/formation from completed notes, with NEW raw/canonical/mode observations. Original review stays HELD/LATE/CLOSED, both outputs absent; no saved old observations or timely PASS credited. Authorized STATE chronology differs historically; all other declared bindings match. Standard unified counts5/15/137 and43/105/184 are confirmed. Original guards confused max-replacement with unified counts, then autojunk-false fixture41 with standard43; both failed before writes. Current oversized-draft guard also failed before writes and was shortened.
+
+Completed analysis establishes SAME checked argv→handoff/acquisition→real Popen, one no-value device switch before about:blank, baseline intact; original error identity, active/finally, owned registration/cleanup preserved. Five affected categories exercise the same helpers. SAME closed<=1024 declaration reaches actual strict parent. It declares synthetic devices, not observed hardware/permission/cause. Original native API/receiver/constraints/Promise/error/reaction slots, permissions, first failure, CSP, readiness and strict NotAllowedError/banner/reset/PNG oracle stay unchanged. Old six/five/producer/parent dispatches are removed; exact accepted R2 records remain historical RETAINED_INERT.
+
+Literal env-i/Python-B-I and strict5 genuine direct frozen report plus strict8 fresh once remain mandatory;240 seconds includes90 cleanup within fixed16:28 total. Root full genuine uptake precedes first fresh grant/execution. No core audit replay, source/runtime/imports/tests/parser/compiler/browser/network/Git/SQL/provider effects.
+
+Original114 FAILED/spent grants, original117 closed-late phase, count52/nine pilot-production gates, protected previews/real-data false/default-disabled maintenance, hosted UNVERIFIED, external057/old SQL holds persist. No full-story completion.

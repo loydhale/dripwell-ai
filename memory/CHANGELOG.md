@@ -431,3 +431,7 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-13 TASK115: retain independently completedc8/695publication readback under currentcustody and distinct NO_NEW/factualMINOR; original113artifact/total missed/nativeFAILED, counts/gates held, exact documentary checkpoint pending.
 
 2026-10-13 TASK114/TASK116: reviewed passive rejection cache and finite data-only proof transport pass changed6/5 and affected parent9+10+10 controls; native readiness FAILED with cached conditional NotFoundError/device-causeUNKNOWN/casesPNG0. Preserve original114closedcap/onces/count52/allnine; distinct learning, exact reviewed same-branch checkpoint publication and current independent readback required.
+
+2026-10-13 TASK118: Implemented and independently accepted the controlled native microphone-denial fixture, five new actual-launch categories and one NotAllowedError/banner/idle-reset/PNG case; retained earlier checks inert and added exact inactive sources/evidence. Original late review phases/all pilot-production guards remain held.
+
+2026-10-13 TASK120: Prepare necessary publication custody of the reviewed native-denial checkpoint after original118 total closed before any Git writes; preserve original holds and zero application/source/runtime budgets.

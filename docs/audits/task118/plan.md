@@ -1,0 +1,30 @@
+TASK117_S1 retained-trace formation. Original plan phase CLOSED/LATE.
+
+Story: a fictional consented consultation invokes real AudioRecorder/getUserMedia once under pre-bootstrap microphone denial; the original rejection, denied banner, idle reset and PNG must agree. This is a denied-path verifier, not actual recording/transcription or a pilot story.
+
+Retained boundary
+R2's sole6.526713-second attempt FAILED/readiness timeout. LAST541 bytes records call1/REJECTED/notAllowedfalse/observerFaultfalse, cached typeof object, original instanceof expression MATCH and conditional allowlisted NotFoundError. UI denialfalse/Start enabled/00:00/busy-pending-recordingfalse. Initialstate1/nativecases0/images0. Device/cause and universal class remain UNKNOWN. No retained log establishes device cause; old R1 node/length remains UNKNOWN.
+
+Existing permission/native trace
+adapter1329-1342 verifies one fresh default context/page about:blank and151.0.7922.173; Browser.setPermission uses microphone/denied/exact origin+embeddedOrigin/no context ID before page-session/navigation. Empty ACK is checked, owned frame guards follow. Installed1.62 protocol1935-1952/2062-2086 supports descriptor/default-context/origin/empty return. SDK microphone->audioCapture mapping is for grantPermissions. No setup defect established; raw RPC frames unretained, ACK not effective denial/device proof.
+supervisor463-464 launches owned headless/profile/cache/TMP/network restrictions/about:blank without declared media-device switch. AudioRecorder175-225 keeps original audio.echoCancellation=true/video=false, NotAllowed-only denial and generic other-error idle/release path. Native receiver/args/Promise/error/secondary reaction unchanged.
+
+Authoritative prerequisite support
+One separately authorized documentation GET14:54:32.896104-14:54:33.713467 returned exact version-tagged Chromium151.0.7922.173 media/base/media_switches.cc URL HTTP200/text/plain/base64. Raw114964/SHA9bfd8639 and decoded86223/SHA305381cc plus receipt are retained0400; inherited proxy/CA/TLS preserved, no retry. Comment explicitly states: "Use fake device for Media Stream to replace actual camera and microphone." kUseFakeDeviceForMediaStream declares use-fake-device-for-media-stream. The installed binary also contains that literal; literal alone was not semantics. SDK default-switch source contains neither fake-media flag; its browsers.json default151.0.7922.34 is distinct from the actually retained151.0.7922.173 binary. The document lacks fake-UI declaration; no undocumented fake-UI semantics inferred.
+
+Smallest proposed future change
+Only after separate review/admission, add exactly the no-value --use-fake-device-for-media-stream switch to the OWNED native launcher, before about:blank. It provides an explicitly native synthetic-device prerequisite for this one denial case. No physical mic, supplied audio/video file, fake UI/automatic grant, environment/global config, mocked getUserMedia, fallback error, altered constraints, app code or new SDK query/wait/action. This controlled prerequisite is not a repair/diagnosis of the previous NotFoundError. Flag presence alone cannot prove usable devices or denial.
+
+A shared launch-policy helper must construct/check the ACTUAL argument array passed unchanged to the existing owned launch/Popen. Preserve every existing argument and ordering except the one inserted switch. Reject missing/duplicate/value-bearing switch, fake UI/file capture/automatic permission flags and changed native identity/case. Record a closed token-free <=1024-byte policy projection from those same actual arguments; distinguish declared native synthetic device from observed permission/device state. Parent verifies exact typed projection. No extra process/command-line/profile/device inventory.
+
+Bind named accepted R2 adapter/RESULT/audit/adoption snapshots and retain6helper/5transport/producer/parent/291/4/5/13/8/6 controls INERT. Only old dispatch changes to bound inert snapshots with explicit retained authority; unchanged definitions/parsers stay unchanged. No current PASS manufactured, malformed-v2 fallback or passing-check replay. Source review must trace wiring.
+
+Meaningful affected checks only
+Through the SAME actual launch helper/collector and parent parser: (1) exact base arguments plus one inserted device switch; (2) missing/duplicate/valued device switch rejection; (3) fake-UI/file/automatic-grant/foreign-case rejection; (4) exact closed projection/type/extra/accessor/bound negatives without getter invocation; (5) original launch throw/first-failure and existing owned cleanup preservation. Positive/new negatives are synthetic helper evidence, not native device availability. No unrelated build/test/migration replay.
+
+Future native acceptance remains unchanged: one pre-bootstrap DENIED setup, one original Start, actual native REJECTED/NotAllowedError evidence, receiver/args/Promise invariants, visible original denied banner, enabled Start/00:00/not busy/not pending/not recording, real1280x800 PNG and scoped known-owned closure. Unexpected fulfillment, NotFoundError, absent banner or any original predicate failure is FAILED; no relabel/retry or successful recording claim.
+
+Admission and limits
+Plan only. Three future fresh private sources versus accepted R2, each<500 changed lines; fresh45 effect/compiled-loaded bindings. Independent concrete plan PASS/genuine Root, separate sourceGO, implemented-source/exact env-i Python-B-I command PASS/genuine strict5 adoption and fresh strict8 once required before effects. At most240s including90 cleanup; Root fixes all phase caps within original11716:28:29. No114 budget/clock/goal reset. If proposal lacks review support, park it and return to saved independent gaps without new features.
+
+Count52/all nine pilot/production/hosted source-effectiveguard UNVERIFIED; protected requestedALLOW_REAL_CLIENT_DATA=false/default-disabled, external eligibility/sender/admin/authentic-paid-referral/retention, permanent057/oldSQL and until-done holds persist. Original114 expired unfinished/bothonces spent;116 factual publication accepted8f3 only. STOPPED after freezing this plan.
