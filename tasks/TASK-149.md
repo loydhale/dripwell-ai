@@ -19,3 +19,19 @@ Independent initial-source co-sign, 2026-10-14: The existing single-owner constr
 Canonical publication message is the exact no-LF string "Verify positive owner configuration lifecycle", with no skip-CI marker. The unchanged current PR2 title/body and expected9bcb base require actual fresh lease verification, not assumption from this plan. Accepted SPENT147 helper source identities remain immutable; mechanical149 copies preserve original118 and held139..148 constants and native PRE-before-expected-head nonforceCAS/SAME-actual-SHA POST/full maps/index/two refs/clean status/45-second proxy-CA-empty-helper contracts. Never run the spent originals. Any necessary change beyond this mechanical scope needs a separately reviewed factual amendment, not an inferred grant.
 
 This is PLAN/SCOPE co-sign only. Root must genuinely adopt it before sole-Coder source dispatch. No SourcePASS, test PASS, publication permission, active helper/CI command, clinical/physical/browser/history/pilot completion or old task timing upgrade is conferred. Original14813:00,14915:00/full1200/latest14:40 and all old goals/caps/onces remain unchanged. Distinct148 learning/factual metadata may finish independently using historical documentary memory bindings; it must not become a moving runtime input.
+
+
+### R1 correction and verification, 2026-10-14
+
+The first ordinary CI run [38571100290](https://github.com/loydhale/dripwell-ai/actions/runs/38571100290), attempt 1, failed the web build on source f2a3772778afae1c7b4822d18b01a09e89aa233a. Its synthetic PR checkout 25ce20354829b6b293b8166c3235b37077c902cb has the exact reviewed 6a71a136aca493d3ab6cf9de711d491775cbc0a7 tree. TypeScript first reported the extra closing parenthesis at test line 223, which the earlier static review missed. The new handler case never ran; the standalone typecheck and following test suites were skipped. That failed source and run remain recorded.
+
+The correction removes exactly one parenthesis and preserves every lifecycle, history, isolation and cleanup assertion. Corrected test SHA256: 099986b7e4156e659d0fe5c93e4dabc85a536d8cdfc9c0b523b294a1eefb8a3b. Independent source and publication-helper review passed, with genuine Root adoption at 14:16:47 UTC. A separate local check attempt failed in installed pnpm's automatic dependency setup before TypeScript ran. No local compiler PASS or broader dependency/cache invariance is inferred. The failed private checker and its once are closed.
+
+The reviewed repair may be published only with verification pending, after the complete current packet, fresh lease, full 1,200-second admission reserve and native PRE/CAS/POST readback. The first ordinary CI on the changed source must actually compile the web app, execute the named positive two-owner configuration case and retained suites, and pass the configured typecheck and builds. Independent actual review and separate learning must follow before this new coverage is verified. No manual CI rerun is authorized.
+
+The original TASK149 ceiling remains 15:00 UTC, with latest publication admission 14:40 UTC. All nine pilot stories and twelve release gates remain open. Protected previews, requested ALLOW_REAL_CLIENT_DATA=false and default-disabled maintenance remain required. Current hosted source and effective guards are unverified. This checkpoint does not establish the required browser, recording/transcription, model, sharing, payment, roles, retention or full-story evidence.
+
+
+### Actual admission close
+
+Final R1 static review formed14:38:09.931522,69.931522seconds after its phase goal. Root genuine uptake and fresh lease/full1200 admission did not finish before14:40. No R1 object/ref/helper effect occurred. Original14915:00 remains fixed and its closing timing goal stays unfinished. TASK150 is a distinct necessary reviewed publication/CI carrier, not an old-clock extension or a passing runtime result.

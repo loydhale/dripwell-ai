@@ -220,7 +220,7 @@ suite('Positive ordinary owner configuration lifecycle', () => {
         ((audit.entityType === 'ClinicConfigurationVersion' && configs.some(config => config.id === audit.entityId) &&
           ['DRAFT_CREATED', 'SYNTHETIC_TEST', 'DRAFT_UPDATED', 'CONFIGURATION_ACTIVATED', 'CONFIGURATION_ROLLBACK'].includes(String(object(audit.details).action))) ||
          (audit.entityType === 'User' && audit.entityId === user.id && object(audit.details).action === 'CLINICAL_AUTHORITY_CHANGED' &&
-          object(audit.details).note === 'Fictional authorized clinical owner; synthetic fixture only.'))), 'EXACT_OWNED_AUDIT');
+          object(audit.details).note === 'Fictional authorized clinical owner; synthetic fixture only.')), 'EXACT_OWNED_AUDIT');
       check(3 + tenant.users.length + tenant.locations.length + sessions.length + configs.length + audits.length <= 70, 'OWNED_ROW_CAP');
       const allowed = { users: 1, locations: 1, configurationVersions: configs.length, auditLogs: audits.length };
       for (const [key, count] of Object.entries(tenant._count))
