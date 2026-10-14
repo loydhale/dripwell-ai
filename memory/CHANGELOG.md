@@ -531,3 +531,5 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-14 TASK153: authored and independently reviewed superseded-reminder cancellation plus two real-PG regressions; existing cases preserved, source-only L051 and distinct learning recorded. New tests/CI/publication remain pending exact reviewed branch checkpoint; all pilot/release/privacy/old holds remain.
 
 2026-10-14 TASK153: Verified superseded-reminder repair at42d0f500 in first ordinary CI38634898046: both new real-PostgreSQL cases, clinic17 and retained309/31/types/both builds pass; independent actual review/learning accepted, final notes/body readback pending and all pilot gates open.
+
+2026-10-14 TASK154/TASK155: Reconciled completed TASK153 closure, rejected the unsupported all-age active-search proposal and confirmed existing positive owner-lifecycle coverage in retained CI38634898046; distinct NO_NEW learning and clean dependency resume recorded, no new application source/check or pilot completion.
