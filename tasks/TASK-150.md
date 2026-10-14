@@ -20,3 +20,23 @@ This draft plan alone authorizes no source execution or publication; independent
 ### Prospective scope adoption
 
 Independent scope co-sign PASS formed14:46:51.315950 UTC, genuinely adopted 2026-10-14T14:47:58.985094+00:00. Sole Coder is limited to two private mechanical publication-helper copies; the corrected public test remains byte-unchanged. This snapshot precedes final helper/packet review and every publication/CI effect. It does not assert a future commit, test result or its own publication.
+
+
+### Actual scoped verification and necessary evidence checkpoint
+
+The reviewed repair was published as4483db0128aaa514fa5dbd244c9f95518a7bd409/treefc262, independently read back with full890 leaves and native canonical PRE/CAS/POST, and genuinely accepted15:14:39 UTC. Distinct publication learning and its exact current qualification were genuinely applied before the proper full CI reads. Earlier premature summary access remains a sequence breach. Current actual CI coverage is accepted as described below; this is not an old149 timing completion.
+
+
+### Actual corrected-source CI under TASK150, October14,2026
+
+[CI38586291142](https://github.com/loydhale/dripwell-ai/actions/runs/38586291142), attempt1/job115929064550, passed all22 steps on source4483db0128aaa514fa5dbd244c9f95518a7bd409. Its actual checkout d6a35bbb507d3b2976717934de1512c3b363912b has the exact published fc262b7b24988be2e331d0fb76888e89462d6561 tree, with main9fa134fc and4483 parents. Independent actual review formed15:31:59 UTC; Root genuine at 2026-10-14T15:34:13.830556+00:00 preceded separate NO_NEW G019/L050/L046 learning and factual MINOR adoption at 2026-10-14T15:39:14.043628+00:00.
+
+Vitest passed304 cases in30 modules, including the named positive ordinary-owner configuration case. Separate domain23/auth8/clinic15/AI-boundary11 cases, shared/web noEmit and agent/web builds passed, with no skipped cases or stages. CI used pnpm10.32.1/Node24.21.0 and a fresh disposable PostgreSQL17 service. The named case took3120ms (module3122ms); the raw CANDIDATE closure receipt remains unchanged:22/22 handlers,47 ORM calls,pending0,cleanupFailures0,cleanedLineages2,unresolved0,firstBoundarynull. Later source assertions and actual casePASS qualify this owned-lineage evidence, with no global cleanup claim.
+
+The old failedCI38571100290/newcase0/skipped following checks, local pnpm setup failure/TSCNOT_REACHED, original149 missed14:40 admission/original15:00/unfinished closing and late phases remain historical failures. The premature summary read and later metadata/schema/transport guards are retained; later proper full CI review does not rewrite that sequence. Full raw log203976 bytes has1238 physical LF-terminated lines, plus its final empty split entry. Negative database diagnostics and action warnings remain recorded.
+
+This verifies the in-process authenticated fictional-owner/real-handler/disposable-database configuration path only. It establishes no real browser/recording/transcription/model/provider/sharing/payment/referral/retention/fullpilot result. All9/all12/count52/Seen, protected previews, requested ALLOW_REAL_CLIENT_DATA=false, default-disabled maintenance and current hosted-source/effective-guard UNKNOWN remain.
+
+The separate post-CI learning co-signed a documentary-only closing amendment within the SAME original15016:15/full1200/latest15:55. At most eight public documentary paths may change, with all app/test/lock/workflow/agent source preserved. Two fresh mechanically copied private helpers require full current source/commands/Candidate/MGO/payload/maps/modes/privacy review before Rootgenuine/freshlease/full1200/exclusive closingonce. Exact noLF documentary message is Record verified owner lifecycle CI evidence [skip ci], deliberately avoiding another unchanged passing suite. This claims no CI run on a future documentary head. Native actualcanonical PRE precedes expected4483 nonforceCAS, SAMEobservedSHA POST/fullmaps/index-twoRefs-clean and independent current readback/genuine. No old spent helper/once is replayed. This snapshot precedes final closing review/publication and predicts no commitSHA or successful future result.
+
+After this checkpoint, assess remaining actual deployed-source/access/verification prerequisites using the saved holds and actual available capabilities. Continue any independently unblocked approved work; select WAITING_ON_DEPENDENCIES only when a finite assessment establishes every remaining task's external dependency. Do not infer global credential/SDK absence from one unavailable browser tool, repeat pending questions or replay unchanged provider/test attempts.
