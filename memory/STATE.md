@@ -1,6 +1,22 @@
 # STATE.md
 
-## Current resume: TASK153 reviewed reminder repair
+## Current resume: TASK153 first ordinary CI accepted
+
+Execution status: TASK153_CI_VERIFIED__FINAL_DOCUMENTARY_BODY_PUBLICATION_READBACK_PENDING.
+
+The normal TBD reschedule repair is published at42d0f500439e5ec0c54fc6c5a4cf8e642c7ba59a/treeb69a18d5a1ca8c05a921c2bc8eb7c486bf6fbf6d, soleparentf57. Independent exact candidate/factualMINOR, actual publication/full898-leaf readback and actual CI verdicts are fully genuinely accepted. The two code/test payloads remain3635/cc6906e8 and53471/837b4794; all earlier test bodies are preserved. Native HEAD/localbranch/origin aligned to the observed42 using one bounded public fetch0.485seconds and SAME-SHA soft-only alignment; no local application/check/generator/SQL operation was added.
+
+FIRST ordinary PR CI38634898046, attempt1/job116095415274, passed all22steps. Both exact new real mutation/PostgreSQL cases ran once and passed; clinic17/domain23/auth8/AI11 have zero fail/cancelled/skipped/todo. Vitest309/31, shared/web types and both agent/web builds passed. Actual checkedmerge6f6b5a3c5a745255dfb5dfd338ad4c0a7c56c30c has the identical reviewed source tree. Complete215404-byte joblog13566d40, dedicated PostgreSQL17.11/current generatedPrisma6.19.3/14migrations/Node24.21.0/pnpm10.32.1 and successful container/network removal are independently accepted in3025/01d797b6; Root genuine1899/976df02d. Dependency cache, expected denial/pg_isready diagnostics and nonfailing warnings remain recorded. This verifies the scoped handler/reconciler/disposable-DB repair; local Node URL presence is still no strict disposable-target guard, and local compiler/generator/SQL/restoration stays parked.
+
+DISTINCT post-CI NO_NEW2903/b4f3dfc9, exact two-appends proposal3001/7414d633 and Root genuine9e87be34 are accepted/applied once to SESSION and PRD journal. L051Seen1/count52/learning corpora are unchanged; the original lesson's source/prospective evidence is historical. Preserve the application receipt's qualified mislabel846/8e8f2c3c, other metadata incidents and unknown971 non-authority; none grants a replay or old-scope completion.
+
+Next: exact final documentary/body/MINOR/Git review and full Root genuine, fresh wholePR/native/payload qualification, NEW exclusive documentary once, expected42 nonforce same-branch checkpoint, observed bounded fetch/SAME-SHA soft alignment, exact body-only update and independent final actual readback/genuine/private clean resume. The documentary message skips CI; no new check is warranted for factual notes. Do not repeat source tests, migrations, CI logs or the completed publication, and do not make a recursive own-closing-SHA-only commit. Reconcile actual receipts under /workspace/pw153-board-lifecycle before any effect. Final closing/readback remains pending, not TASK153 or pilot completion.
+
+All nine pilot stories and twelve production gates remain OPEN. Protected previews/requestedALLOW_REAL_CLIENT_DATA=false/default-disabled maintenance/hosted source and effective guards UNKNOWN/ICM/authoredagent-workflows persist. PermanentTASK057 internal release park and old native/SQL/cause/restoration/clock/once holds remain separate from eligible per-user AI/transcription, owned Resend sender/domain/recipient authority, selected MFA admin/versioned policy/authentic paid-referral and retention dependencies. Stripe sandbox is complete; no repeated pending question, purchase/provider swap/pooling/upgrade/send/bootstrap/real data. No exhaustive source/queue audit, justified successor or all-external WAIT is established by this finite task. Until-done authorization ON; automation settings unchanged, scheduled work is not an uninterrupted worker.
+
+Owner's UI/status question was answered with actual saved local synthetic Oct14 consultation and Oct13 board images, explicitly dated/older-source and unverified hosted. No current connected browser controller was available; no new browser/provider/deployment or full-story substitute was run. Renewed continuation is steering, not cancellation. Earlier checkpoints below are retained history.
+
+## Historical TASK153 source-review checkpoint
 
 Execution status: TASK153_SOURCE_REVIEWED__PUBLICATION_AND_FIRST_ORDINARY_CI_PENDING.
 

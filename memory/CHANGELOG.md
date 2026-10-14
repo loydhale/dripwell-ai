@@ -529,3 +529,5 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-14 TASK152 CI checkpoint: reviewed source848e4dc7 has independent clean publication readback and first ordinary CI38612952688/attempt1 passing309 tests/31 modules, separate23/8/15/11, fresh shared/web types and both builds. Distinct post-CI NO_NEW recorded; factual documents/PR description prepared for exact review, all full-story/production/privacy holds retained.
 
 2026-10-14 TASK153: authored and independently reviewed superseded-reminder cancellation plus two real-PG regressions; existing cases preserved, source-only L051 and distinct learning recorded. New tests/CI/publication remain pending exact reviewed branch checkpoint; all pilot/release/privacy/old holds remain.
+
+2026-10-14 TASK153: Verified superseded-reminder repair at42d0f500 in first ordinary CI38634898046: both new real-PostgreSQL cases, clinic17 and retained309/31/types/both builds pass; independent actual review/learning accepted, final notes/body readback pending and all pilot gates open.

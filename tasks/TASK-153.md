@@ -4,7 +4,11 @@ PARENT_REQUEST: Owner's standing instruction to finish DripWell v2, renewed in t
 
 GOAL: Identify the first concrete independently actionable correctness gap in the approved F08/F09 board lifecycle, with a minimal meaningful regression and repair proposal.
 
-## Current phase and authority
+## Current checkpoint
+
+The scoped repair and its first ordinary CI are verified; final factual notes/body publication/readback are pending. Source42d0f500/treeb69a is published and independently readback accepted. Actual CI38634898046/attempt1/job116095415274 has all22steps successful, both new cases passed once, clinic17/domain23/auth8/AI11 zero fail/cancelled/skipped/todo, Vitest309/31, shared/web types and both builds. Checkedmerge6f6b5a3c has the identical accepted tree. Earlier source-only/unexecuted phases below are historical.
+
+## Initial phase and authority (history)
 
 Finite read-only Coder assessment only. Managed runtime is actually connected/running/current at revision1194 and native shell commands execute. Fresh PR2 GET is open/unmerged at f57bd353d758406b8c41fc90730838ef92f63a9b; native HEAD/local branch/origin match and checkout was clean before this factual queue/brief. No other worker was active. TASK152 final independent readback, Root genuine private learning and clean closing receipt are complete; source848 first ordinary CI remains authoritative for309 tests/31 modules/types/both builds. No old publication/check is replayed.
 
@@ -61,3 +65,11 @@ Mandatory Vercel Plugin guidance remains available locally at verified0.53.0 ref
 Coder STOP19:55:07 precedes its fixed source ceiling. Exact current reminders3635/cc6906e8 and Node test53471/837b4794 match the frozen after snapshots; old test bodies are intact. Independent source/prospective first-ordinary-CI review7c297d49, current inputs48c28e07 and provenance qualificationf22cdc83 are fully genuinely adopted in c32b72d8. Actual new cases remain unexecuted. DISTINCT post-source NO_NEW fe28ec9c and exact SESSION ed95c655 application are complete; no existing Seen/count increment.
 
 Current Node testUrl gate is not a strict disposable guard. The only approved prospective qualification route is the first ordinary new-source PR workflow's fresh dedicated PostgreSQL17/current generated Prisma6.19.3/fourteen-migration/Node24/pnpm10.32.1 service with both named cases, retained suites/types and builds, after separately reviewed publication/readback. No local app/check/generator/SQL/restoration or manual CI/replay. Public audit README and /workspace/pw153-board-lifecycle retain exact current review/learning/source/private provenance evidence. Full candidate/MINOR/Git review and actual publication/CI/readback remain next, no result predicted. All9/all12 and prior safeguards/parks persist; a saved screenshot or source PASS does not prove a current hosted pilot.
+
+## Actual verification and final evidence checkpoint
+
+Complete CI_JOB.log215404/13566d40 and immutable run/jobs/checkedmerge evidence were inspected independently in CI_REVIEW3025/01d797b6, with current25 typed pins and Root genuine1899/976df02d. Fresh dedicated PostgreSQL17.11/generatedPrisma6.19.3/current14migrations/Node24.21.0/pnpm10.32.1 and successful container/network cleanup are established for that first ordinary run; cache and expected/nonfailing diagnostics remain. No local source import/parser/test/compiler/generator/SQL/browser/provider operation was added. This establishes only the precise handler/reconciler/disposable-DB regression.
+
+DISTINCT post-CI NO_NEW2903/b4f3dfc9/exact3001/7414d633 proposal was fully genuinely adopted9e87be34 and applied exactly once to SESSION and factualMINOR PRD journal. L051Seen1/count52/corpora unchanged. Original application receipt cc5da915 has a qualified hash-label miss in846/8e8f2c3c; correct genuine/once/proposal/current afterbytes bind the one actual application. Unknown971 and all earlier incidents remain, no retrospective authority.
+
+Next follow only separately reviewed exact final docs/body/2740-e7bcff49 Git plan, fresh expected42 qualification/new exclusive once/nonforce samebranch, observed boundedfetch/SAME-SHA soft-only alignment, exact body-only update and independent final currentreadback/genuine/private clean resume. Final closing is pending. Preserve all9/all12/unfinished/protectedrequestedfalse/defaultdisabled/hostedUNKNOWN/ICM/permanent057/older and individual external holds. No code/check/migration/log replay, deployment/merge, old goal promotion or invented successor/all-external WAIT.
