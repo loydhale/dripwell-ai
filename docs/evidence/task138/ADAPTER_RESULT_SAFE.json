@@ -1,0 +1,730 @@
+{
+  "status": "PASS_PENDING_SUPERVISOR_CLOSURE",
+  "source_sha": "c6d5d42db9ddb20bacebd7a2c79546b77ac11cee2f12b4ab24693d33d52ea034",
+  "states": [
+    {
+      "case": "desktop",
+      "phase": "initial",
+      "selected": "intake",
+      "tabs": [
+        {
+          "id": "intake",
+          "selected": true,
+          "disabled": false,
+          "tabindex": "0"
+        },
+        {
+          "id": "recommendation",
+          "selected": false,
+          "disabled": false,
+          "tabindex": "-1"
+        },
+        {
+          "id": "care",
+          "selected": false,
+          "disabled": false,
+          "tabindex": "-1"
+        },
+        {
+          "id": "wellness",
+          "selected": false,
+          "disabled": false,
+          "tabindex": "-1"
+        },
+        {
+          "id": "history",
+          "selected": false,
+          "disabled": false,
+          "tabindex": "-1"
+        }
+      ],
+      "panels": [
+        {
+          "id": "intake",
+          "hidden": false,
+          "children": 2,
+          "text": "01 · LISTENThe consultationRecording consent recordedConsultation recordingRecord with consent, or enter the conversation below.00:00Start recording02 · UNDERSTANDQuestions that guide good careConfirm the client's answers. An unanswered question is never treated as a “no.”Required answers confirmedFictional required questionRequiredSynthetic missing-answer evidence onlyNeeds an answerReviewed visit summaryKeep reported facts distinct from uncertainties. Edit any transcription errors before saving.Review neededClient goalsReported symptomsRelevant historyMedicationsAllergiesPreferencesUnclear or unconfirmed informationWould the client like relevant wellness offers?Not discussed yetYes, open to relevant offersNo, do not include offersReason for this changeClient preferenceClient budgetItem availabilityClinical contraindicationMissing informationUnsuitable suggestionStaff judgmentOtherContext for review optionalI reviewed these facts and confirmed the required answers.Saving changed facts invalidates prior clinical approval.Save reviewed summary"
+        },
+        {
+          "id": "recommendation",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        },
+        {
+          "id": "care",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        },
+        {
+          "id": "wellness",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        },
+        {
+          "id": "history",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        }
+      ],
+      "recorder": {
+        "text": "Consultation recordingRecord with consent, or enter the conversation below.00:00Start recording",
+        "denied": false,
+        "time": "00:00",
+        "startEnabled": true,
+        "requesting": false,
+        "isRecording": false,
+        "pauseStop": false,
+        "idleIcon": true
+      },
+      "proof": {
+        "source": "c6d5d42db9ddb20bacebd7a2c79546b77ac11cee2f12b4ab24693d33d52ea034",
+        "case": "desktop",
+        "scenario": "consented",
+        "synthetic": false,
+        "captureBusy": false,
+        "mediaCalls": 0,
+        "mediaPending": false,
+        "mountedVisit": true,
+        "routes": 0,
+        "ledger": {
+          "clinic": 1,
+          "detail": 1,
+          "recordings": 2,
+          "shares": 0,
+          "mutations": 0
+        },
+        "jitless": true,
+        "failed": false,
+        "nativeForward": {
+          "version": 2,
+          "provenance": "FRESH_NATIVE_FORWARD",
+          "available": true,
+          "attempted": false,
+          "calls": 0,
+          "receiverExact": false,
+          "constraintsExact": false,
+          "promiseReturned": false,
+          "outcome": "UNATTEMPTED",
+          "notAllowed": false,
+          "observerFault": false,
+          "rejection": {
+            "type": "UNKNOWN",
+            "instanceofResult": "UNKNOWN",
+            "nameStatus": "UNKNOWN_UNREAD",
+            "name": null
+          }
+        },
+        "forwardControls": {
+          "status": "PASS",
+          "count": 4,
+          "cases": [
+            "receiver-args-original-promise-once",
+            "sync-primary-throwing-sink",
+            "rejected-primary-throwing-sink",
+            "first-terminal-no-reopen"
+          ],
+          "provenance": "SYNTHETIC_FUNCTION_PROMISE_REGISTRATION_SINK_LEAVES"
+        },
+        "rejectionControls": {
+          "status": "PASS",
+          "count": 6,
+          "cases": [
+            "matching-existing-read-count-order",
+            "short-circuit-name-unread",
+            "instanceof-fault-original-primary",
+            "name-fault-throwing-secondary",
+            "closed-type-name-tags-no-raw",
+            "first-terminal-classifier-fault"
+          ],
+          "samples": [
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": true,
+              "observerFault": false,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "MATCH",
+                "nameStatus": "ALLOWLISTED",
+                "name": "NotAllowedError"
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": false,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "NO_MATCH",
+                "nameStatus": "UNKNOWN_UNREAD",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": true,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "UNKNOWN",
+                "nameStatus": "UNKNOWN_UNREAD",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": true,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "MATCH",
+                "nameStatus": "LOOKUP_FAILED",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": false,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "MATCH",
+                "nameStatus": "OTHER_NAME",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": true,
+              "observerFault": true,
+              "rejection": {
+                "type": "UNKNOWN",
+                "instanceofResult": "UNKNOWN",
+                "nameStatus": "UNKNOWN_UNREAD",
+                "name": null
+              }
+            }
+          ],
+          "provenance": "SYNTHETIC_CHANGED_REACTION_PROXY_PROMISE_SINK_LEAVES"
+        },
+        "nativeSuccess": {
+          "version": 4,
+          "provenance": "REAL_NATIVE_FIRST_START_FINAL_SEND",
+          "constructorOriginal": true,
+          "prototypeObjectOriginal": true,
+          "staticOriginal": true,
+          "wrappedReflectionChanged": true,
+          "observerFault": false,
+          "state": "UNCREATED",
+          "tracks": {
+            "audio": 0,
+            "live": 0,
+            "ended": 0
+          },
+          "recorders": [],
+          "uploads": [],
+          "unmounts": 0,
+          "controls": {
+            "status": "INERT",
+            "count": 0,
+            "cases": []
+          }
+        }
+      },
+      "backError": false,
+      "navError": false,
+      "logoutError": false
+    },
+    {
+      "case": "desktop",
+      "phase": "native-recording",
+      "selected": "intake",
+      "tabs": [
+        {
+          "id": "intake",
+          "selected": true,
+          "disabled": true,
+          "tabindex": "-1"
+        },
+        {
+          "id": "recommendation",
+          "selected": false,
+          "disabled": true,
+          "tabindex": "-1"
+        },
+        {
+          "id": "care",
+          "selected": false,
+          "disabled": true,
+          "tabindex": "-1"
+        },
+        {
+          "id": "wellness",
+          "selected": false,
+          "disabled": true,
+          "tabindex": "-1"
+        },
+        {
+          "id": "history",
+          "selected": false,
+          "disabled": true,
+          "tabindex": "-1"
+        }
+      ],
+      "panels": [
+        {
+          "id": "intake",
+          "hidden": false,
+          "children": 2,
+          "text": "01 · LISTENThe consultationRecording consent recordedConsultation recordingRecording. Audio is saved in ordered segments.00:00PauseStop & save02 · UNDERSTANDQuestions that guide good careConfirm the client's answers. An unanswered question is never treated as a “no.”Required answers confirmedFictional required questionRequiredSynthetic missing-answer evidence onlyNeeds an answerReviewed visit summaryKeep reported facts distinct from uncertainties. Edit any transcription errors before saving.Review neededClient goalsReported symptomsRelevant historyMedicationsAllergiesPreferencesUnclear or unconfirmed informationWould the client like relevant wellness offers?Not discussed yetYes, open to relevant offersNo, do not include offersReason for this changeClient preferenceClient budgetItem availabilityClinical contraindicationMissing informationUnsuitable suggestionStaff judgmentOtherContext for review optionalI reviewed these facts and confirmed the required answers.Saving changed facts invalidates prior clinical approval.Save reviewed summary"
+        },
+        {
+          "id": "recommendation",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        },
+        {
+          "id": "care",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        },
+        {
+          "id": "wellness",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        },
+        {
+          "id": "history",
+          "hidden": true,
+          "children": 0,
+          "text": ""
+        }
+      ],
+      "recorder": {
+        "text": "Consultation recordingRecording. Audio is saved in ordered segments.00:00PauseStop & save",
+        "denied": false,
+        "time": "00:00",
+        "startEnabled": false,
+        "requesting": false,
+        "isRecording": true,
+        "pauseStop": true,
+        "idleIcon": true
+      },
+      "proof": {
+        "source": "c6d5d42db9ddb20bacebd7a2c79546b77ac11cee2f12b4ab24693d33d52ea034",
+        "case": "desktop",
+        "scenario": "consented",
+        "synthetic": false,
+        "captureBusy": true,
+        "mediaCalls": 1,
+        "mediaPending": false,
+        "mountedVisit": true,
+        "routes": 0,
+        "ledger": {
+          "clinic": 1,
+          "detail": 1,
+          "recordings": 2,
+          "shares": 0,
+          "mutations": 0
+        },
+        "jitless": true,
+        "failed": false,
+        "nativeForward": {
+          "version": 2,
+          "provenance": "FRESH_NATIVE_FORWARD",
+          "available": true,
+          "attempted": true,
+          "calls": 1,
+          "receiverExact": true,
+          "constraintsExact": true,
+          "promiseReturned": true,
+          "outcome": "FULFILLED",
+          "notAllowed": false,
+          "observerFault": false,
+          "rejection": {
+            "type": "UNKNOWN",
+            "instanceofResult": "UNKNOWN",
+            "nameStatus": "UNKNOWN_UNREAD",
+            "name": null
+          }
+        },
+        "forwardControls": {
+          "status": "PASS",
+          "count": 4,
+          "cases": [
+            "receiver-args-original-promise-once",
+            "sync-primary-throwing-sink",
+            "rejected-primary-throwing-sink",
+            "first-terminal-no-reopen"
+          ],
+          "provenance": "SYNTHETIC_FUNCTION_PROMISE_REGISTRATION_SINK_LEAVES"
+        },
+        "rejectionControls": {
+          "status": "PASS",
+          "count": 6,
+          "cases": [
+            "matching-existing-read-count-order",
+            "short-circuit-name-unread",
+            "instanceof-fault-original-primary",
+            "name-fault-throwing-secondary",
+            "closed-type-name-tags-no-raw",
+            "first-terminal-classifier-fault"
+          ],
+          "samples": [
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": true,
+              "observerFault": false,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "MATCH",
+                "nameStatus": "ALLOWLISTED",
+                "name": "NotAllowedError"
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": false,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "NO_MATCH",
+                "nameStatus": "UNKNOWN_UNREAD",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": true,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "UNKNOWN",
+                "nameStatus": "UNKNOWN_UNREAD",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": true,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "MATCH",
+                "nameStatus": "LOOKUP_FAILED",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": false,
+              "observerFault": false,
+              "rejection": {
+                "type": "object",
+                "instanceofResult": "MATCH",
+                "nameStatus": "OTHER_NAME",
+                "name": null
+              }
+            },
+            {
+              "version": 2,
+              "provenance": "SYNTHETIC_FUNCTION_PROMISE_SINK",
+              "available": true,
+              "attempted": true,
+              "calls": 1,
+              "receiverExact": true,
+              "constraintsExact": true,
+              "promiseReturned": true,
+              "outcome": "REJECTED",
+              "notAllowed": true,
+              "observerFault": true,
+              "rejection": {
+                "type": "UNKNOWN",
+                "instanceofResult": "UNKNOWN",
+                "nameStatus": "UNKNOWN_UNREAD",
+                "name": null
+              }
+            }
+          ],
+          "provenance": "SYNTHETIC_CHANGED_REACTION_PROXY_PROMISE_SINK_LEAVES"
+        },
+        "nativeSuccess": {
+          "version": 4,
+          "provenance": "REAL_NATIVE_FIRST_START_FINAL_SEND",
+          "constructorOriginal": true,
+          "prototypeObjectOriginal": true,
+          "staticOriginal": true,
+          "wrappedReflectionChanged": true,
+          "observerFault": false,
+          "state": "recording",
+          "tracks": {
+            "audio": 1,
+            "live": 1,
+            "ended": 0
+          },
+          "recorders": [
+            {
+              "ordinal": 1,
+              "sameStream": true,
+              "state": "recording",
+              "startedAtMs": 710,
+              "stoppedAtMs": null,
+              "stopRequestedAtMs": null,
+              "pausedAtMs": null,
+              "resumedAtMs": null,
+              "calls": {
+                "start": 1,
+                "pause": 0,
+                "resume": 0,
+                "stop": 0
+              },
+              "events": {
+                "start": 1,
+                "pause": 0,
+                "resume": 0,
+                "stop": 0,
+                "data": 0,
+                "error": 0
+              },
+              "chunks": {
+                "count": 0,
+                "bytes": 0,
+                "hash": null,
+                "drained": false
+              }
+            }
+          ],
+          "uploads": [],
+          "unmounts": 0,
+          "controls": {
+            "status": "INERT",
+            "count": 0,
+            "cases": []
+          }
+        }
+      },
+      "backError": false,
+      "navError": false,
+      "logoutError": false
+    }
+  ],
+  "images": [
+    {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-recording.png",
+      "bytes": 95206,
+      "sha256": "074a65156b148e2fb1db7d2fca9699893ea8ebc6156a66158454b92ee6f3c4f7"
+    }
+  ],
+  "forward_controls_authority": "RETAINED_TASK113_ACCEPTED_INERT",
+  "readiness_controls_authority": "RETAINED_TASK113_R1_ACCEPTED_INERT",
+  "retained_controls": "All old8/69/denial/launch/clock/rollover/ownership/core batches INERT; new first-Start DTO/boundary categories only",
+  "final_start_controls": {
+    "authority": "EXACT_ACCEPTED_TASK135_SIX_RETAINED_INERT"
+  },
+  "rpc_controls_authority": "EXACT_ACCEPTED_TASK130_EIGHT_RETAINED_INERT",
+  "native_device_declaration": {
+    "mode": "NATIVE_SYNTHETIC_DEVICE_PREREQUISITE",
+    "observedAvailability": "UNVERIFIED",
+    "priorCause": "UNKNOWN"
+  },
+  "case_results": [
+    {
+      "case": "desktop",
+      "status": "NATIVE_FINAL_START_DEFAULT_OWNER_CLOCKS_ORIGINAL_SEND",
+      "provenance": "FIRST_START_ONLY_OWNED_TEARDOWN_NO_STOP_DRAIN_UPLOAD"
+    }
+  ],
+  "permission_receipts": [
+    {
+      "case": "desktop",
+      "defaultContext": true,
+      "setting": "GRANTED",
+      "originBound": true,
+      "embeddedOriginBound": true,
+      "acknowledged": true,
+      "beforeDocument": true
+    }
+  ],
+  "recorder_receipts": [
+    {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-1.json",
+      "bytes": 5695,
+      "sha256": "014c09ad3a3c1529663df57b2a27be9c75edb9b927d25991abe8acb9472735b9"
+    },
+    {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-2.json",
+      "bytes": 6009,
+      "sha256": "ce9ca6ed48a57051b49fa10c16e83c5023c46bd0b1867efb588f135bd2c5d22d"
+    }
+  ],
+  "first_start_schema_controls": {
+    "status": "PASS",
+    "count": 1,
+    "category": "first-start-v4-codec-exclusive-IO",
+    "negatives": 10,
+    "receipt": {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-codec-control.json",
+      "bytes": 349,
+      "sha256": "2c930cfe2977b9635caac357541e4bb14537e095510bd00abf98d28ad1a2d043"
+    }
+  },
+  "first_start_boundary_controls": {
+    "status": "PASS",
+    "count": 1,
+    "category": "first-start-boundary-codec-exclusive-IO",
+    "negatives": 9,
+    "receipt": {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-boundary-control.json",
+      "bytes": 678,
+      "sha256": "78ac6c47c48a8ef5cbc737e707f47826680c45395f6259cbc77e6d03cbf1ce9d"
+    }
+  },
+  "before_start_work_admission": {
+    "minimumWorkMs": 130000,
+    "monotonicRemainingMs": 148219,
+    "utcRemainingMs": 148219,
+    "rolloverLeaseMs": 75000,
+    "initialReadinessReserveMs": 5000,
+    "remainingPhasesReserveMs": 50000
+  },
+  "final_start_admissions": [
+    {
+      "event": "mousePressed",
+      "minimumWorkMs": 130000,
+      "monotonicRemainingMs": 148156,
+      "utcRemainingMs": 148156,
+      "rolloverLeaseMs": 75000,
+      "initialReadinessReserveMs": 5000,
+      "remainingPhasesReserveMs": 50000
+    },
+    {
+      "event": "mouseReleased",
+      "minimumWorkMs": 130000,
+      "monotonicRemainingMs": 148148,
+      "utcRemainingMs": 148148,
+      "rolloverLeaseMs": 75000,
+      "initialReadinessReserveMs": 5000,
+      "remainingPhasesReserveMs": 50000
+    }
+  ],
+  "native_final_start_boundary": {
+    "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-boundary.json",
+    "bytes": 680,
+    "sha256": "96d4cdc9dd708f13ace17f1409836a87a274da8dc5f1f5b8992418b36484446b"
+  },
+  "native_forward_receipt": {
+    "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-forward.json",
+    "bytes": 326,
+    "sha256": "3f227b520f9dfcfc20f68fc6580cd9701ffec8590e07e1edb4e5772bb51ef929"
+  },
+  "native_success_receipt": {
+    "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-success.json",
+    "bytes": 678,
+    "sha256": "646d4fa60a9d7b5de5f32ca69584de60309e6225325da176459bdfa5777f5b9e"
+  },
+  "success_fixture_controls": {
+    "status": "INERT",
+    "count": 0,
+    "cases": []
+  },
+  "observation_disposition": "NOT_OBSERVED",
+  "listener_closed": true,
+  "invalidation_observation": null,
+  "native_style_group_outstanding": 0,
+  "first_failure": null,
+  "finished_utc": "2026-10-14T06:32:21.314Z"
+}

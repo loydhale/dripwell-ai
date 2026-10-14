@@ -1,0 +1,105 @@
+{
+  "task": "TASK135",
+  "scope": "FIRST_SIX_SOURCE_BOUND_FINALSEND_ASSERTIONS_ONLY",
+  "status": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "first_failure": null,
+  "cleanup_failures": [],
+  "controls": {
+    "status": "PASS",
+    "count": 6,
+    "cases": [
+      "timely-original-prepared-send",
+      "aged-monotonic-zero-final-send",
+      "aged-utc-zero-final-send",
+      "pre-release-monotonic-keeps-prior-press",
+      "pre-release-utc-keeps-prior-press",
+      "original-prepared-sender-error"
+    ],
+    "provenance": "ACTUAL_PREPARED_INPUT_DOCUMENTACQUISITION_DEFERRED_SENDER_CLOCK_LEAVES"
+  },
+  "hidden_locals": "UNKNOWN/NOT_RETAINED",
+  "native_budget": 0,
+  "sources_sha256": "1084191260b3baaf8395cd6e9b7621c682986150571862c7aa030b7b075bbb95",
+  "inputs_sha256": "f1ab445f7cd22d71b949a616e11ebd3927dfabb18cec21c6c65a34347c3597cc",
+  "command_sha256": "e6b9136c17885f8b848ebd996af3c462aa217ce775564d2eb7a4557f77fabb72",
+  "grant_sha256": "341ddbbf8750fb33ba3886380c11b335d3e716b22249cf7404aebbecb58d5731",
+  "started_utc": "2026-10-14T04:28:17.148498+00:00",
+  "started_monotonic": 1087705.145315846,
+  "work_end_utc": 1791952137.1484976,
+  "work_end_monotonic": 1087745.145315846,
+  "total_end_utc": 1791952157.1484976,
+  "total_end_monotonic": 1087765.145315846,
+  "javascript_spans": [
+    {
+      "name": "need",
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33",
+      "start_byte": 2715,
+      "end_byte": 2779
+    },
+    {
+      "name": "DocumentAcquisition",
+      "bytes": 2518,
+      "sha256": "829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e",
+      "start_byte": 10912,
+      "end_byte": 13430
+    },
+    {
+      "name": "layoutTransport",
+      "bytes": 840,
+      "sha256": "f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f",
+      "start_byte": 91047,
+      "end_byte": 91887
+    },
+    {
+      "name": "freshLayoutOwner",
+      "bytes": 362,
+      "sha256": "ce6b4e189e15f41765e465afb43d4058318ca21a13615b60ed902eaf7c860646",
+      "start_byte": 106721,
+      "end_byte": 107083
+    },
+    {
+      "name": "preparedInput",
+      "bytes": 413,
+      "sha256": "37537cbc30dc399c8e4a47480043d693587c65d4fa145e7776088373c745dc70",
+      "start_byte": 131433,
+      "end_byte": 131846
+    },
+    {
+      "name": "preparedStartTransport",
+      "bytes": 555,
+      "sha256": "70efbe124f818dc4d26a8555da9d7ce7123b77237a34de63944046888385b464",
+      "start_byte": 131846,
+      "end_byte": 132401
+    },
+    {
+      "name": "finalStartControls",
+      "bytes": 2066,
+      "sha256": "6b5618babcd32ee7bfcc3cb62c84d4203e133ea84cf3e8e2b7a6eac19139ba5d",
+      "start_byte": 132401,
+      "end_byte": 134467
+    },
+    {
+      "name": "nativeStartAdmission",
+      "bytes": 427,
+      "sha256": "7e1308a19d7d5aa5d580bb661f37233f3e17ef91a975cad0a1057f9b0d7dd15e",
+      "start_byte": 217203,
+      "end_byte": 217630
+    }
+  ],
+  "child_entry_utc_ms": 1791952097177,
+  "child_entry_monotonic_ms": 24.842967,
+  "child_elapsed_ms": 5.942170999999998,
+  "cleanup_started_utc": "2026-10-14T04:28:17.189198+00:00",
+  "cleanup_started_monotonic": 1087705.186031539,
+  "cleanup_child_returncode": 0,
+  "cleanup_group_absent": true,
+  "child_output": {
+    "stdout": "{\"task\":\"TASK135\",\"scope\":\"FIRST_SIX_SOURCE_BOUND_FINALSEND_ASSERTIONS_ONLY\",\"status\":\"PASS\",\"first_failure\":null,\"spans\":[{\"name\":\"need\",\"bytes\":64,\"sha256\":\"0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33\",\"start_byte\":2715,\"end_byte\":2779},{\"name\":\"DocumentAcquisition\",\"bytes\":2518,\"sha256\":\"829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e\",\"start_byte\":10912,\"end_byte\":13430},{\"name\":\"layoutTransport\",\"bytes\":840,\"sha256\":\"f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f\",\"start_byte\":91047,\"end_byte\":91887},{\"name\":\"freshLayoutOwner\",\"bytes\":362,\"sha256\":\"ce6b4e189e15f41765e465afb43d4058318ca21a13615b60ed902eaf7c860646\",\"start_byte\":106721,\"end_byte\":107083},{\"name\":\"preparedInput\",\"bytes\":413,\"sha256\":\"37537cbc30dc399c8e4a47480043d693587c65d4fa145e7776088373c745dc70\",\"start_byte\":131433,\"end_byte\":131846},{\"name\":\"preparedStartTransport\",\"bytes\":555,\"sha256\":\"70efbe124f818dc4d26a8555da9d7ce7123b77237a34de63944046888385b464\",\"start_byte\":131846,\"end_byte\":132401},{\"name\":\"finalStartControls\",\"bytes\":2066,\"sha256\":\"6b5618babcd32ee7bfcc3cb62c84d4203e133ea84cf3e8e2b7a6eac19139ba5d\",\"start_byte\":132401,\"end_byte\":134467},{\"name\":\"nativeStartAdmission\",\"bytes\":427,\"sha256\":\"7e1308a19d7d5aa5d580bb661f37233f3e17ef91a975cad0a1057f9b0d7dd15e\",\"start_byte\":217203,\"end_byte\":217630}],\"controls\":{\"status\":\"PASS\",\"count\":6,\"cases\":[\"timely-original-prepared-send\",\"aged-monotonic-zero-final-send\",\"aged-utc-zero-final-send\",\"pre-release-monotonic-keeps-prior-press\",\"pre-release-utc-keeps-prior-press\",\"original-prepared-sender-error\"],\"provenance\":\"ACTUAL_PREPARED_INPUT_DOCUMENTACQUISITION_DEFERRED_SENDER_CLOCK_LEAVES\"},\"hidden_locals\":\"UNKNOWN/NOT_RETAINED\",\"entered_utc_ms\":1791952097177,\"entered_monotonic_ms\":24.842967,\"finished_utc_ms\":1791952097183,\"finished_monotonic_ms\":30.785138,\"elapsed_ms\":5.942170999999998}",
+    "stderr": "",
+    "returncode": 0
+  },
+  "finished_utc": "2026-10-14T04:28:17.189277+00:00",
+  "finished_monotonic": 1087705.186101504,
+  "elapsed_seconds": 0.04078565794043243
+}

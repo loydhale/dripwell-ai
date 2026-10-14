@@ -1,0 +1,9 @@
+# TASK119: Assess the remaining native successful-capture verification gap
+
+Start only after TASK118's exact reviewed publication, independent current readback and genuine Root acceptance. Read latest branch governance, PRD section8, memory and the Coder persona first; reconcile actual workers and runtime.
+
+Read-only Coder assessment: trace the current recorder's native successful start, pause/resume, stop and stream cleanup path and its actual upload/transcription boundary. Compare the accepted evidence with that path and version-matched installed browser/SDK documentation. Existing denied-path and passing synthetic controls stay retained/inert. Identify the smallest genuinely independent unblocked gap or explicitly identify the selected eligibility/access dependency. Do not invent an application defect or historical cause.
+
+Return a concrete bounded proposal with exact files, existing same-path oracles, feasible evidence and limits. No source edit, import, check, compiler, browser/permission operation, provider request, new database/migration/old target, network probe, credentials inspection or deployment is authorized by this brief. Separate independent plan/source review and genuine execution admission are required for any later change or native attempt.
+
+Keep all nine full-story pilot criteria and production gates open. Synthetic native capture cannot establish physical-device performance, eligible transcription/model output, actual approved sharing/PDF, roles or retention. Preserve protected previews, requested ALLOW_REAL_CLIENT_DATA=false/default-disabled maintenance, all original failed/late closed phases and spent grants, permanent TASK057/old SQL holds and pending external choices. This prospective assessment does not renew any earlier task goal, clock, source or runtime budget.

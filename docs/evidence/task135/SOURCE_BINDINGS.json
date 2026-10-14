@@ -1,0 +1,367 @@
+{
+  "task": "TASK135",
+  "scope": "FIRST_SIX_SOURCE_BOUND_FINALSEND_ASSERTIONS_ONLY",
+  "native_budget": 0,
+  "original_total_until": "2026-10-14T05:00:00+00:00",
+  "metadata_observed_utc": "2026-10-14T04:18:05+00:00",
+  "files": [
+    {
+      "role": "adapter",
+      "path": "/workspace/pw133-native-r1/adapter.mjs",
+      "canonical": "/workspace/pw133-native-r1/adapter.mjs",
+      "bytes": 293447,
+      "mode": "0400",
+      "sha256": "7f018ba96dd747030b814b547fa28a7f47f40e2ff1063ac64b7ca8e15345feb7"
+    },
+    {
+      "role": "runner",
+      "path": "/workspace/pw135-final-send-regression/regression.py",
+      "canonical": "/workspace/pw135-final-send-regression/regression.py",
+      "bytes": 19709,
+      "mode": "0400",
+      "sha256": "a61cae1d58b167c8ef27d10c8d6a5090989d56d763b02e624f70005142c6e3cd"
+    }
+  ],
+  "javascript_spans": [
+    {
+      "name": "need",
+      "begin_token": "// TASK125 BEGIN need\n",
+      "end_token_excluded": "// TASK125 END need",
+      "strip_begin_token": true,
+      "start_byte": 2715,
+      "end_byte": 2779,
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33"
+    },
+    {
+      "name": "DocumentAcquisition",
+      "begin_token": "class DocumentAcquisition {",
+      "end_token_excluded": "async function requestNativeViewport(",
+      "strip_begin_token": false,
+      "start_byte": 10912,
+      "end_byte": 13430,
+      "bytes": 2518,
+      "sha256": "829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e"
+    },
+    {
+      "name": "layoutTransport",
+      "begin_token": "async function layoutTransport(",
+      "end_token_excluded": "async function layoutTransportDeadlineControls(",
+      "strip_begin_token": false,
+      "start_byte": 91047,
+      "end_byte": 91887,
+      "bytes": 840,
+      "sha256": "f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f"
+    },
+    {
+      "name": "freshLayoutOwner",
+      "begin_token": "async function freshLayoutOwner(",
+      "end_token_excluded": "async function layoutTree(",
+      "strip_begin_token": false,
+      "start_byte": 106721,
+      "end_byte": 107083,
+      "bytes": 362,
+      "sha256": "ce6b4e189e15f41765e465afb43d4058318ca21a13615b60ed902eaf7c860646"
+    },
+    {
+      "name": "preparedInput",
+      "begin_token": "async function preparedInput(",
+      "end_token_excluded": "async function preparedStartTransport(",
+      "strip_begin_token": false,
+      "start_byte": 131433,
+      "end_byte": 131846,
+      "bytes": 413,
+      "sha256": "37537cbc30dc399c8e4a47480043d693587c65d4fa145e7776088373c745dc70"
+    },
+    {
+      "name": "preparedStartTransport",
+      "begin_token": "async function preparedStartTransport(",
+      "end_token_excluded": "async function finalStartControls(",
+      "strip_begin_token": false,
+      "start_byte": 131846,
+      "end_byte": 132401,
+      "bytes": 555,
+      "sha256": "70efbe124f818dc4d26a8555da9d7ce7123b77237a34de63944046888385b464"
+    },
+    {
+      "name": "finalStartControls",
+      "begin_token": "async function finalStartControls(",
+      "end_token_excluded": "async function layoutClick(",
+      "strip_begin_token": false,
+      "start_byte": 132401,
+      "end_byte": 134467,
+      "bytes": 2066,
+      "sha256": "6b5618babcd32ee7bfcc3cb62c84d4203e133ea84cf3e8e2b7a6eac19139ba5d"
+    },
+    {
+      "name": "nativeStartAdmission",
+      "begin_token": "function nativeStartAdmission(",
+      "end_token_excluded": "function secondStartControls(",
+      "strip_begin_token": false,
+      "start_byte": 217203,
+      "end_byte": 217630,
+      "bytes": 427,
+      "sha256": "7e1308a19d7d5aa5d580bb661f37233f3e17ef91a975cad0a1057f9b0d7dd15e"
+    }
+  ],
+  "python_helper_spans": [
+    {
+      "name": "need",
+      "begin_token": "def need(",
+      "end_token_excluded": "def sha(",
+      "start_byte": 5002,
+      "end_byte": 5075,
+      "bytes": 73,
+      "accepted_base_start_byte": 4826,
+      "accepted_base_end_byte": 4899,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "679a438d5d2bc3e7850abde7232195776b7222132566a07d4e4c91876f3b3713"
+    },
+    {
+      "name": "sha",
+      "begin_token": "def sha(",
+      "end_token_excluded": "def exact(",
+      "start_byte": 5075,
+      "end_byte": 5135,
+      "bytes": 60,
+      "accepted_base_start_byte": 4899,
+      "accepted_base_end_byte": 4959,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "c67cf2904611540f72d80ebb12270cabe6f565bf281c941d133fd0058ef4b73a"
+    },
+    {
+      "name": "exact",
+      "begin_token": "def exact(",
+      "end_token_excluded": "def pin(",
+      "start_byte": 5135,
+      "end_byte": 5421,
+      "bytes": 286,
+      "accepted_base_start_byte": 4959,
+      "accepted_base_end_byte": 5245,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "26cd3241362791674df63a53d54ead2122d7a63854a1675e8c911a2df5237869"
+    },
+    {
+      "name": "pin",
+      "begin_token": "def pin(",
+      "end_token_excluded": "def exclusive(",
+      "start_byte": 5421,
+      "end_byte": 5717,
+      "bytes": 296,
+      "accepted_base_start_byte": 5245,
+      "accepted_base_end_byte": 5541,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "601e0cc93b155762f4315d763fcfc01283ffd0142c3417644678dc47b90d5fc8"
+    },
+    {
+      "name": "exclusive",
+      "begin_token": "def exclusive(",
+      "end_token_excluded": "def identity(",
+      "start_byte": 5717,
+      "end_byte": 6103,
+      "bytes": 386,
+      "accepted_base_start_byte": 5541,
+      "accepted_base_end_byte": 5927,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "16d3c353f4b5a38138c64a35fcd76ff45e434e10d122a471eb253dacc6cb9a18"
+    },
+    {
+      "name": "identity",
+      "begin_token": "def identity(",
+      "end_token_excluded": "def group_absent(",
+      "start_byte": 6103,
+      "end_byte": 6299,
+      "bytes": 196,
+      "accepted_base_start_byte": 5927,
+      "accepted_base_end_byte": 6123,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "380f3817d2e43ddd02cf23c9d81ff9feafd8e8b270edf24ffb5f00ca1b15bd48"
+    },
+    {
+      "name": "group_absent",
+      "begin_token": "def group_absent(",
+      "end_token_excluded": "def bounded_child_output(",
+      "start_byte": 6299,
+      "end_byte": 6432,
+      "bytes": 133,
+      "accepted_base_start_byte": 6123,
+      "accepted_base_end_byte": 6256,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "94e9c35b62d0a7403fad126ef7b8c044ecc085841aa914310c1f71b02238309b"
+    },
+    {
+      "name": "bounded_child_output",
+      "begin_token": "def bounded_child_output(",
+      "end_token_excluded": "def main(",
+      "start_byte": 6432,
+      "end_byte": 7635,
+      "bytes": 1203,
+      "accepted_base_start_byte": 6256,
+      "accepted_base_end_byte": 7459,
+      "provenance": "RAW_LITERAL_OFFSET_METADATA_FOR_INDEPENDENT_BYTE_REVIEW_NO_PARSER_OR_CHECK_EXECUTION",
+      "sha256": "358fe754bfdd84d5e2a2e2bbe93acb81e660256f6ea2897adf24605548c00b51"
+    }
+  ],
+  "metadata": {
+    "input_manifest": {
+      "path": "/workspace/pw135-final-send-regression/RUNNER_INPUT_PINS.json",
+      "canonical": "/workspace/pw135-final-send-regression/RUNNER_INPUT_PINS.json",
+      "bytes": 10369,
+      "mode": "0400",
+      "sha256": "f1ab445f7cd22d71b949a616e11ebd3927dfabb18cec21c6c65a34347c3597cc"
+    },
+    "command": {
+      "path": "/workspace/pw135-final-send-regression/COMMAND.txt",
+      "canonical": "/workspace/pw135-final-send-regression/COMMAND.txt",
+      "bytes": 206,
+      "mode": "0400",
+      "sha256": "e6b9136c17885f8b848ebd996af3c462aa217ce775564d2eb7a4557f77fabb72"
+    },
+    "source_diff": {
+      "path": "/workspace/pw135-final-send-regression/SOURCE_DIFF.patch",
+      "canonical": "/workspace/pw135-final-send-regression/SOURCE_DIFF.patch",
+      "bytes": 13707,
+      "mode": "0400",
+      "sha256": "c16e85f981eb042d30bf7fcc09de42ce760a594199646c6fa59531d6a011f63d"
+    },
+    "body_bindings": {
+      "path": "/workspace/pw135-final-send-regression/BODY_BINDINGS.json",
+      "canonical": "/workspace/pw135-final-send-regression/BODY_BINDINGS.json",
+      "bytes": 7699,
+      "mode": "0400",
+      "sha256": "e5950284e9bf14737b8b538e6e4a6f18681f57ae857c231dd02429d9fb4e2e58"
+    },
+    "source_handoff": {
+      "path": "/workspace/pw135-final-send-regression/SOURCE_HANDOFF.md",
+      "canonical": "/workspace/pw135-final-send-regression/SOURCE_HANDOFF.md",
+      "bytes": 5338,
+      "mode": "0400",
+      "sha256": "1547a335859460263bc04ade643aff56e4bf261aff6c81c034050c9b76a9a091"
+    }
+  },
+  "accepted_mechanical_base": {
+    "path": "/workspace/pw130-rpc-regression/regression.py",
+    "canonical": "/workspace/pw130-rpc-regression/regression.py",
+    "bytes": 19479,
+    "sha256": "5417cce0d0c6df302389383844ec73dd196810047678925db89e63e35aab985e",
+    "mode": "0400"
+  },
+  "delta": {
+    "added": 26,
+    "deleted": 25,
+    "total": 51
+  },
+  "helper_read_credit": {
+    "byte_identical": [
+      "need",
+      "sha",
+      "exact",
+      "pin",
+      "exclusive",
+      "identity",
+      "group_absent",
+      "bounded_child_output"
+    ],
+    "all_adapted_paths": "FULL_FRESH_RUNNER_MAIN_NODE_CONTEXT_COMMAND_AND_INPUT_REVIEW_REQUIRED",
+    "raw_identity_provenance": "SOURCE_DIFF_AND_LITERAL_BYTE_OFFSETS_HASH_METADATA_ONLY_NO_SOURCE_PARSE_IMPORT_CHECK_VM_EXECUTION"
+  },
+  "source_only_authority": {
+    "path": "/workspace/pw135-final-send-regression/SOURCE_ONLY_GO.json",
+    "canonical": "/workspace/pw135-final-send-regression/SOURCE_ONLY_GO.json",
+    "bytes": 3003,
+    "mode": "0400",
+    "sha256": "834ece06d4705ef8d85774b43e6840c7678bb702b22ef69b60e2772e9e6ae8ca"
+  },
+  "plan": {
+    "path": "/workspace/pw135-final-send-regression/PLAN.md",
+    "canonical": "/workspace/pw135-final-send-regression/PLAN.md",
+    "bytes": 9929,
+    "sha256": "29905d9425b7f096c218d9b734bb8f82295519ca0f23ba11ff61b90781d5423f",
+    "mode": "0400"
+  },
+  "plan_genuine": {
+    "path": "/workspace/pw135-final-send-regression/ROOT_LEARNING_UPTAKE.json",
+    "canonical": "/workspace/pw135-final-send-regression/ROOT_LEARNING_UPTAKE.json",
+    "bytes": 1390,
+    "sha256": "f3faa670462a1187e3296a406418923e3de6aa40d27e049e1df254455395f698",
+    "mode": "0400"
+  },
+  "plan_application": {
+    "path": "/workspace/pw135-final-send-regression/ROOT_LEARNING_APPLICATION.json",
+    "canonical": "/workspace/pw135-final-send-regression/ROOT_LEARNING_APPLICATION.json",
+    "bytes": 1088,
+    "sha256": "c1d1397b2f89aa64b0e2aeb04200e476243ba3495d072987c004ce79ca0a3327",
+    "mode": "0400"
+  },
+  "current_source_custody": {
+    "path": "/workspace/pw133-native-r1/ROOT_CURRENT_SOURCE_CUSTODY_UPTAKE.json",
+    "canonical": "/workspace/pw133-native-r1/ROOT_CURRENT_SOURCE_CUSTODY_UPTAKE.json",
+    "bytes": 2432,
+    "sha256": "1649a5f63d955a465036000424b8806556508055dd0c42353851ffbbbb869424",
+    "mode": "0400"
+  },
+  "current_stable_input_rows": 23,
+  "execution": {
+    "authorized": false,
+    "once_authored": false,
+    "runner_invoked": false,
+    "new_controls": "UNRUN",
+    "old_RPC8_old69_native": "INACTIVE",
+    "only_future_entry": "finalStartControls",
+    "expected_names": [
+      "timely-original-prepared-send",
+      "aged-monotonic-zero-final-send",
+      "aged-utc-zero-final-send",
+      "pre-release-monotonic-keeps-prior-press",
+      "pre-release-utc-keeps-prior-press",
+      "original-prepared-sender-error"
+    ],
+    "expected_provenance": "ACTUAL_PREPARED_INPUT_DOCUMENTACQUISITION_DEFERRED_SENDER_CLOCK_LEAVES",
+    "host_queueMicrotask": "REAL_NODE_HOST_FUNCTION_REQUIRED_EXPLICITLY_SUPPLIED",
+    "hidden_locals": "UNKNOWN/NOT_RETAINED",
+    "source_providers": 2,
+    "python_body_count": 8,
+    "javascript_body_count": 8
+  },
+  "future_budget": {
+    "total_seconds": 60,
+    "work_seconds": 40,
+    "unconditional_cleanup_seconds": 20,
+    "Node_child_local_ms": 25000,
+    "paired_anchor": "AFTER_ALL_INPUT_AND_GRANT_METADATA_BEFORE_EXCLUSIVE_ONCE",
+    "original_UTC_ceiling": "2026-10-14T05:00:00+00:00",
+    "no_reset_or_retry": true
+  },
+  "future_command": {
+    "literal": "/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python -B -I /workspace/pw135-final-send-regression/regression.py",
+    "login": false,
+    "workdir": "/workspace",
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "LANG": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    }
+  },
+  "future_execution_exact_keys": [
+    "task",
+    "scope",
+    "original_total_until",
+    "source_pins_sha256",
+    "input_pins_sha256",
+    "command_sha256",
+    "total_seconds",
+    "cleanup_seconds",
+    "opened_utc",
+    "latest_start_utc"
+  ],
+  "future_strict5_root_source_prerequisite": [
+    "disposition",
+    "source_review",
+    "source_pins_sha256",
+    "input_pins_sha256",
+    "genuinely_adopted_utc"
+  ],
+  "historical_documentary_bases": "Accepted PLAN/INPUT_PINS/HANDOFF are immutable history. RUNNER_INPUT_PINS is the current executable manifest. Its files pin stable metadata bodies only, never recursively moving memory/journal snapshots.",
+  "state": "SOURCE_ONLY_UNREVIEWED_UNRUN_NO_SOURCEPASS_GENUINE_ONCE_OR_RESULT_AUTHORED",
+  "holds": "Original133LATE_UNAPPROVED/nativegoalCLOSED_UNFINISHED/native0/alloldcaps-goals-onces/RPC8-69passingnotrerun/count52-Seen-all9-PRD8-production/privacyprotected-requestedfalse-defaultdisabled/hostedUNKNOWN/external/permanent057/ICM-authoredagent-workflows/branchPR2 unchanged"
+}

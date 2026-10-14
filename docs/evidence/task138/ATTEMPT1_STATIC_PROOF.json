@@ -1,0 +1,58 @@
+{
+  "task": "TASK138_SOURCE_ATTEMPT1_FIRST_STATIC_BLOCKER_ONLY",
+  "observed_utc": "2026-10-14T06:05:46.098626+00:00",
+  "source": {
+    "kind": "ACTUAL_FROZEN_SOURCE_PACKET_BOUND_ONLY",
+    "path": "/workspace/pw138-native-start/supervisor.py",
+    "canonical": "/workspace/pw138-native-start/supervisor.py",
+    "bytes": 97877,
+    "sha256": "efff54d8769b8b9a896639c13cb5e02031993dd6866655e7321edeff5fd3bbb8",
+    "mode": "0400"
+  },
+  "baseline": {
+    "kind": "ACCEPTED_BASELINE_RAW_TEXT_REJECTION_COMPARISON",
+    "path": "/workspace/pw133-native-r1/supervisor.py",
+    "canonical": "/workspace/pw133-native-r1/supervisor.py",
+    "bytes": 94773,
+    "sha256": "fe5822574a1e77cf2b25b338a4d976c8c7de1682bd6b1cb3aa2768f5841f38f6",
+    "mode": "0400"
+  },
+  "scope": "RAW_TEXT_ONLY_NO_PARSE_IMPORT_COMPILE_OR_EXECUTION",
+  "raw_source_extent": {
+    "first_line": 279,
+    "last_line": 315,
+    "start_byte": 27690,
+    "end_byte": 32587,
+    "bytes": 4897,
+    "sha256": "1574f4204ddea6e49be58cdb36bb15ffa8f28c8c8f8968ebcb1683a36bc3f3ed",
+    "text": "def success_projection(body):\n    need(type(body) is bytes and 0<len(body)<=4096,'Rollover body bound')\n    def pairs(items):\n        out={}\n        for k,v in items:need(k not in out,'Rollover duplicate');out[k]=v\n        return out\n    def constant(_):raise AssertionError('Rollover nonfinite')\n    v=json.loads(body.decode('utf-8'),object_pairs_hook=pairs,parse_constant=constant)\n    def fields(o,keys):need(type(o) is dict and set(o)==set(keys),'Rollover exact fields')\n    def ints(o,keys,maxvalue):\n        fields(o,keys)\n        for k in keys:need(type(o[k]) is int and 0<=o[k]<=maxvalue,'Rollover count')\n    fields(v,['version','provenance','constructorOriginal','prototypeObjectOriginal','staticOriginal','wrappedReflectionChanged','observerFault','state','tracks','recorders','uploads','unmounts','controls'])\n    need(type(v['version']) is int and v['version']==4 and v['provenance']=='REAL_NATIVE_FIRST_START_FINAL_SEND' and v['state'] in ['UNCREATED','recording','paused','inactive'],'Second control labels')\n    for k in ['constructorOriginal','prototypeObjectOriginal','staticOriginal','wrappedReflectionChanged','observerFault']:need(type(v[k]) is bool,'Rollover flags')\n    ints(v['tracks'],['audio','live','ended'],8);need(v['tracks']['live']+v['tracks']['ended']==v['tracks']['audio'],'Rollover tracks');need(type(v['unmounts']) is int and v['unmounts']==0,'Single explicit fixture action')\n    import re\n    need(type(v['recorders']) is list and len(v['recorders'])<=1 and type(v['uploads']) is list and len(v['uploads'])==0,'Two native sources maximum')\n    for i,r in enumerate(v['recorders']):\n        fields(r,['ordinal','sameStream','state','startedAtMs','stoppedAtMs','stopRequestedAtMs','pausedAtMs','resumedAtMs','calls','events','chunks']);need(type(r['ordinal']) is int and r['ordinal']==i+1 and r['sameStream'] is True and r['state'] in ['recording','paused','inactive'],'Native ordinal/stream')\n        need(type(r['startedAtMs']) is int and 0<=r['startedAtMs']<=600000,'Native start timestamp')\n        for k in ['stoppedAtMs','stopRequestedAtMs','pausedAtMs','resumedAtMs']:need(r[k] is None or type(r[k]) is int and r['startedAtMs']<=r[k]<=600000,'Native method timestamp')\n        need(i!=0 or r['pausedAtMs'] is None and r['resumedAtMs'] is None,'First recorder received second marks')\n        need(r['resumedAtMs'] is None or r['pausedAtMs'] is not None and r['resumedAtMs']>=r['pausedAtMs'],'Second method order')\n        ints(r['calls'],['start','pause','resume','stop'],2);ints(r['events'],['start','pause','resume','stop','data','error'],32)\n        need(all(r['calls'][k]==r['events'][k]==0 for k in ['pause','resume','stop']),'First Start no later controls')\n        c=r['chunks'];fields(c,['count','bytes','hash','drained']);need(type(c['count']) is int and 0<=c['count']<=16 and type(c['bytes']) is int and 0<=c['bytes']<=3500000 and type(c['drained']) is bool,'Native per-source chunks')\n        need(c['hash'] is None or type(c['hash']) is str and re.fullmatch('[0-9a-f]{64}',c['hash']),'Native per-source digest');need(r['events']['stop']==1 and r['stoppedAtMs'] is not None and c['hash'] is not None if c['drained'] else c['hash'] is None,'Native per-source drain')\n    for i,u in enumerate(v['uploads']):\n        fields(u,['ordinal','segmentId','sequence','durationMs','bytes','mime','hash','mounted','atMs','returnedStatus']);need(type(u['ordinal']) is int and u['ordinal']==i+1 and type(u['sequence']) is int and u['sequence']==i and type(u['segmentId']) is str and re.fullmatch('[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}',u['segmentId']) and u['mounted'] is (i==0),'Different original segment/mount')\n        need(u['returnedStatus'] is None or type(u['returnedStatus']) is int and u['returnedStatus']==503,'Actual local response marker')\n        need(type(u['durationMs']) is int and (60000 if i==0 else 1)<=u['durationMs']<=150000 and type(u['bytes']) is int and 1<=u['bytes']<=3500000 and type(u['atMs']) is int and 0<=u['atMs']<=600000,'Native original File bounds')\n        need(type(u['mime']) is str and re.fullmatch(r'audio/(webm|mp4)(;codecs=[a-z0-9,.-]{1,32})?',u['mime']) and type(u['hash']) is str and re.fullmatch('[0-9a-f]{64}',u['hash']),'Native File MIME/digest');need(i<len(v['recorders']),'Missing source recorder');r=v['recorders'][i];need(u['bytes']==r['chunks']['bytes'] and (r['chunks']['hash'] is None or u['hash']==r['chunks']['hash']),'Same native source File binding')\n    if len(v['uploads'])==2:need(v['uploads'][0]['segmentId']!=v['uploads'][1]['segmentId'] and v['uploads'][0]['atMs']<=v['uploads'][1]['atMs'],'Actual different segment order')\nfields(v['controls'],['status','count','cases']);need(type(v['controls']['count']) is int and type(v['controls']['cases']) is list and v['controls']=={'status':'INERT','count':0,'cases':[]},'First Start controls remain inert')\n    return v\n\n"
+  },
+  "exact_bad_lines": [
+    {
+      "line": 313,
+      "leading_spaces": 0,
+      "text": "fields(v['controls'],['status','count','cases']);need(type(v['controls']['count']) is int and type(v['controls']['cases']) is list and v['controls']=={'status':'INERT','count':0,'cases':[]},'First Start controls remain inert')\n"
+    },
+    {
+      "line": 314,
+      "leading_spaces": 4,
+      "text": "    return v\n"
+    }
+  ],
+  "original_correct_line": {
+    "line": 312,
+    "leading_spaces": 4,
+    "text": "    fields(v['controls'],['status','count','cases']);need(v['controls']=={'status':'PASS','count':2,'cases':['second-successful-method-marks-primary-isolation','actual-response-first-envelope-multipart-isolation']},'Two changed source categories')\n"
+  },
+  "diff_extent": {
+    "start_byte": 34204,
+    "end_byte": 35574,
+    "bytes": 1370,
+    "sha256": "3d1fa04fa963b3abb6a3d7571df3bc8e3c47b386d5f02c7092a54dbbcd0c00c9",
+    "text": "@@\n         need(type(u['durationMs']) is int and (60000 if i==0 else 1)<=u['durationMs']<=150000 and type(u['bytes']) is int and 1<=u['bytes']<=3500000 and type(u['atMs']) is int and 0<=u['atMs']<=600000,'Native original File bounds')\n         need(type(u['mime']) is str and re.fullmatch(r'audio/(webm|mp4)(;codecs=[a-z0-9,.-]{1,32})?',u['mime']) and type(u['hash']) is str and re.fullmatch('[0-9a-f]{64}',u['hash']),'Native File MIME/digest');need(i<len(v['recorders']),'Missing source recorder');r=v['recorders'][i];need(u['bytes']==r['chunks']['bytes'] and (r['chunks']['hash'] is None or u['hash']==r['chunks']['hash']),'Same native source File binding')\n     if len(v['uploads'])==2:need(v['uploads'][0]['segmentId']!=v['uploads'][1]['segmentId'] and v['uploads'][0]['atMs']<=v['uploads'][1]['atMs'],'Actual different segment order')\n-    fields(v['controls'],['status','count','cases']);need(v['controls']=={'status':'PASS','count':2,'cases':['second-successful-method-marks-primary-isolation','actual-response-first-envelope-multipart-isolation']},'Two changed source categories')\n+fields(v['controls'],['status','count','cases']);need(type(v['controls']['count']) is int and type(v['controls']['cases']) is list and v['controls']=={'status':'INERT','count':0,'cases':[]},'First Start controls remain inert')\n     return v\n \n def owned_success(item,run,token):\n"
+  },
+  "finding": "Module-level dedent terminates success_projection; following return has unexpected indentation. Exact supervisor command is not executable as written. This is a static source finding, not an observed parser/runtime failure.",
+  "whole_source_review_complete": false,
+  "protected_body_full_diff_proof_complete": false,
+  "native_execution": 0
+}

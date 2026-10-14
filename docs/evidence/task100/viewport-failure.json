@@ -1,0 +1,1 @@
+{"version":1,"phase":"INITIAL_VIEWPORT_FAILURE","units":"CSS_PIXELS_EXCLUDING_SCROLLBARS","expected":{"clientWidth":1280,"clientHeight":800},"observed":{"clientWidth":{"kind":"NUMBER","value":1265},"clientHeight":{"kind":"NUMBER","value":800}}}

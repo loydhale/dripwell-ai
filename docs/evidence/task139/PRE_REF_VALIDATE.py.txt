@@ -1,0 +1,72 @@
+"""Read actual canonical Git commit before the separately approved remote CAS."""
+from pathlib import Path
+import datetime, hashlib, json, os, re, subprocess, sys
+R=Path('/workspace/dripwell-build')
+D=Path('/workspace/pw139-native-boundary-publication')
+C=json.loads((D/'CANDIDATE.json').read_text())
+M=json.loads((D/'METADATA_GO.json').read_text())
+assert C['task']=='TASK139_CLOSING' and M['task']=='TASK139_REVIEWED_DOCUMENTARY_PUBLICATION'
+assert C['held_original118_total_until']==C['original_total_ceiling']==M['held_original118_total_until']=='2026-10-13T16:28:29.222013+00:00'
+assert C['held_original120_total_until']==M['held_original120_total_until']=='2026-10-13T17:06:41.743636+00:00'
+assert C['held_original121_total_until']==M['held_original121_total_until']=='2026-10-13T18:06:29.460980+00:00'
+assert C['held_original119_total_until']==M['held_original119_total_until']=='2026-10-13T19:00:00+00:00'
+assert C['held_original122_total_until']==M['held_original122_total_until']=='2026-10-13T20:15:00+00:00'
+assert C['held_original123_total_until']==M['held_original123_total_until']=='2026-10-13T21:15:00+00:00'
+assert C['held_original124_total_until']==M['held_original124_total_until']=='2026-10-13T22:15:00+00:00'
+assert C['held_original125_total_until']==M['held_original125_total_until']=='2026-10-13T23:15:00+00:00'
+assert C['held_original126_total_until']==M['held_original126_total_until']=='2026-10-13T23:45:00+00:00'
+assert C['held_original127_total_until']==M['held_original127_total_until']=='2026-10-14T00:10:00+00:00'
+assert C['held_original128_total_until']==M['held_original128_total_until']=='2026-10-14T01:00:00+00:00'
+assert C['held_original129_total_until']==M['held_original129_total_until']=='2026-10-14T01:00:00+00:00'
+assert C['held_original130_total_until']==M['held_original130_total_until']=='2026-10-14T01:40:00+00:00'
+assert C['held_original131_total_until']==M['held_original131_total_until']=='2026-10-14T02:20:00+00:00'
+assert C['held_original132_total_until']==M['held_original132_total_until']=='2026-10-14T02:40:00+00:00'
+assert C['held_original133_total_until']==M['held_original133_total_until']=='2026-10-14T03:45:00+00:00'
+assert C['held_original134_total_until']==M['held_original134_total_until']=='2026-10-14T04:15:00+00:00'
+assert C['held_original135_total_until']==M['held_original135_total_until']=='2026-10-14T05:00:00+00:00'
+assert C['held_original136_total_until']==M['held_original136_total_until']=='2026-10-14T05:30:00+00:00'
+assert C['held_original137_total_until']==M['held_original137_total_until']=='2026-10-14T06:30:00+00:00'
+assert C['held_original138_total_until']==M['held_original138_total_until']=='2026-10-14T07:00:00+00:00'
+assert C['current_metadata_total_until']==M['current_metadata_total_until']=='2026-10-14T07:45:00+00:00'
+new=sys.argv[1]
+assert re.fullmatch('[0-9a-f]{40}',new)
+assert datetime.datetime.now(datetime.timezone.utc)<datetime.datetime.fromisoformat(M['current_metadata_total_until'])
+def git(*args):
+ return subprocess.check_output(['git','--no-optional-locks','-c','core.fsmonitor=false','-c','gc.auto=0','-c','maintenance.auto=false','-c','fetch.writeCommitGraph=false','-c','credential.helper=','-c','credential.interactive=false',*args],cwd=R,env={**os.environ,'GIT_TERMINAL_PROMPT':'0'},timeout=45)
+def leaves(commit):
+ out={}
+ for row in git('ls-tree','-r','--full-tree','-z',commit).split(b'\0'):
+  if row:
+   hdr,path=row.split(b'\t',1);mode,kind,sha=hdr.decode().split()
+   assert path.decode() not in out
+   out[path.decode()]=(mode,kind,sha)
+ return out
+base={x['path']:(x['mode'],x['type'],x['sha']) for x in C['base_leaves']}
+expected={x['path']:(x['mode'],x['type'],x['sha']) for x in C['expected_leaves']}
+assert git('rev-parse','HEAD').decode().strip()==C['base_head']
+assert leaves(C['base_head'])==base
+idx={}
+for row in git('ls-files','--stage','-z').split(b'\0'):
+ if row:
+  hdr,path=row.split(b'\t',1);mode,sha,stage=hdr.decode().split()
+  assert stage=='0' and path.decode() not in idx
+  idx[path.decode()]=(mode,sha)
+assert idx=={p:(v[0],v[2]) for p,v in base.items()}
+for ref in ['refs/heads/'+C['branch'],'refs/remotes/origin/'+C['branch']]:
+ assert git('rev-parse',ref).decode().strip()==C['base_head']
+git('fetch','--no-tags','--no-write-fetch-head','--no-recurse-submodules','--no-auto-maintenance','origin',new)
+raw=git('cat-file','commit',new)
+assert hashlib.sha1(b'commit '+str(len(raw)).encode()+b'\0'+raw).hexdigest()==new
+headers,message=raw.split(b'\n\n',1);rows=headers.decode().splitlines()
+assert [x for x in rows if x.startswith('tree ')]==['tree '+C['expected_tree']]
+assert [x for x in rows if x.startswith('parent ')]==['parent '+C['base_head']]
+assert message.decode()==C['message'] and leaves(new)==expected
+assert git('rev-parse','HEAD').decode().strip()==C['base_head']
+assert datetime.datetime.now(datetime.timezone.utc)<datetime.datetime.fromisoformat(M['current_metadata_total_until'])
+def frozen(name,data):
+ fd=os.open(D/name,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o400)
+ with os.fdopen(fd,'wb') as f:f.write(data);f.flush();os.fsync(f.fileno())
+frozen('PRE_REF_CANONICAL_COMMIT.raw',raw)
+report={'task':'TASK139','candidate_task':C['task'],'held_original118_total_until':C['original_total_ceiling'],'held_original120_total_until':C['held_original120_total_until'],'held_original121_total_until':C['held_original121_total_until'],'held_original119_total_until':C['held_original119_total_until'],'held_original122_total_until':C['held_original122_total_until'],'held_original123_total_until':C['held_original123_total_until'],'held_original124_total_until':C['held_original124_total_until'],'held_original125_total_until':C['held_original125_total_until'],'held_original126_total_until':C['held_original126_total_until'],'held_original127_total_until':C['held_original127_total_until'],'held_original128_total_until':C['held_original128_total_until'],'held_original129_total_until':C['held_original129_total_until'],'held_original130_total_until':C['held_original130_total_until'],'held_original131_total_until':C['held_original131_total_until'],'held_original132_total_until':C['held_original132_total_until'],'held_original133_total_until':C['held_original133_total_until'],'held_original134_total_until':C['held_original134_total_until'],'held_original135_total_until':C['held_original135_total_until'],'held_original136_total_until':C['held_original136_total_until'],'held_original137_total_until':C['held_original137_total_until'],'held_original138_total_until':C['held_original138_total_until'],'current_metadata_total_until':M['current_metadata_total_until'],'actual_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':new,'tree':C['expected_tree'],'sole_parent':C['base_head'],'message_exact':True,'expected_leaf_count':len(expected),'whole_native_leafmap_matches':True,'head_index_refs_remain_base':True,'canonical_commit_bytes':len(raw),'canonical_commit_sha256':hashlib.sha256(raw).hexdigest(),'scope':'Actual native canonical commit verified before CAS; no REST serialization/time guess or index/ref mutation.'}
+frozen('PRE_REF_NATIVE_VALIDATION.json',(json.dumps(report,indent=2)+'\n').encode())
+print(json.dumps(report,indent=2))

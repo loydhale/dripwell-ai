@@ -1,0 +1,44 @@
+{
+  "schema": "TASK130_SAFE_DERIVED_RESULT_V1",
+  "task": "TASK130",
+  "scope": "FIRST_EIGHT_SOURCE_BOUND_RPC_ASSERTIONS_ONLY",
+  "accepted_status": "PASS_SYNTHETIC_EIGHT_RPC_ASSERTIONS_ONLY",
+  "source_recorded_status": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "controls": {
+    "status": "PASS",
+    "count": 8,
+    "cases": [
+      "ordinary-local-cap",
+      "short-monotonic-budget",
+      "short-utc-budget",
+      "expired-monotonic-zero-send",
+      "expired-utc-zero-send",
+      "deferred-monotonic-expiration",
+      "deferred-utc-expiration",
+      "original-sender-failure"
+    ],
+    "provenance": "SYNTHETIC_ACTUAL_TRANSPORT_SENDER_SCHEDULER_CLOCK_LEAVES"
+  },
+  "hidden_locals": "UNKNOWN/NOT_RETAINED",
+  "native_budget": 0,
+  "started_utc": "2026-10-14T01:30:28.846957+00:00",
+  "finished_utc": "2026-10-14T01:30:28.900770+00:00",
+  "recorded_parent_elapsed_seconds": 0.05381972901523113,
+  "recorded_child_elapsed_ms": 4.876599999999996,
+  "tool_wall_seconds": 0.124903966,
+  "tool_timestamp_precision": "SECONDS_ONLY",
+  "terminal_exit_code": 0,
+  "terminal_stderr": "NOT_SEPARATELY_SUPPLIED",
+  "known_owned_cleanup_evidence": {
+    "child_returncode": 0,
+    "group_absent": true,
+    "first_failure": null,
+    "cleanup_failures": [],
+    "scope": "RECORDED_OWNED_CHILD_GROUP_ONLY_NO_GLOBAL_CLAIM_OR_LATE_OS_PROBE"
+  },
+  "raw_result_sha256": "211565899115d337da44bc7d5b9551360b22a042bc6da2d646b0cfbd8f8948ed",
+  "raw_child_output_sha256": "73d8178f13a9bae71eb8760b3a8f0c8095a53d4819f635a665a009d7cddf968b",
+  "independent_actual_report_sha256": "84dd644fbd65a3f834c6a26abd3c30984397d619bcf02e229be9eed9b774bf13",
+  "root_genuine_sha256": "3027b7a5d90b3845af3fc83ff15627dfed236240ba54ad486c92635b555336fc",
+  "omitted_fields": "Private actual PID/PGID/birth, raw owned-child object, projected argv/configuration, private run path and raw terminal run-path field omitted. Hidden local numeric values remain unretained, no raw recording or environment content."
+}

@@ -1,0 +1,29 @@
+# TASK113: Plan the next native recorder verification gap
+
+Conditional on exact reviewed TASK112 publication, independent whole current remote/native readback and genuine Root adoption, latest nine boot/PRD8/STATE, actual runtime and stopped-worker reconciliation. This brief grants no source or execution scope.
+
+Native capture denial and the remaining visit views are still unverified. Read real AudioRecorder/Consultation/AppShell/session-permission flow and installed supported browser contracts. Choose the smallest justified next native story, preferably actual denied-capture behavior under default-context exact-origin and embedded-origin microphone DENIED before bootstrap. Any fictional consent/GET setup must be explicit, source-real components retained, and no physical microphone/stream/audio/upload/provider/send/admin/SQL or real-client data allowed. Do not treat a setup ACK or synthetic leaf as actual denial.
+
+The newly tested passive callback observer may retain the existing guard/first-primary provenance during a future separately reviewed scope. Its two bind/read paths did not reproduce invalidation; this proves no cause or repair. No forced event, oracle weakening, stale-owner bypass, extra unsupported query, fallback or unchanged failure retry. Original TASK111 once and all older scopes are closed. Eight passing media controls, six current observer controls and291 source tests remain inert unless a relevant change justifies specific affected checks.
+
+Only a concrete independent plan/source/command review and fresh bounded authority can admit implementation. Keep CTO/Coder/Auditor, actual Vercel Plugin/version guidance, three small sources/15 model minutes and known-owned mandatory cleanup. Park unsupported Reporting/document causal repairs individually. All nine pilot/production, current hosted source/effectivefalse UNVERIFIED, protected requestedfalse/default-disabled, eligible AI/audio, sender/admin/payment/permanent057/oldSQL/until-done hourly holds persist.
+
+Actualreadonlyplanadmission09:18:18.562137, artifact09:30:18.562137/wall09:33:18.562137/original113total11:18:18.562137. Current3de/679clean/current1083/stoppedroles/latestnine/PRD8 and genuine1118publicationacceptance prerequisites met. PLAN5200/INPUT_PINS only, no source/runtime/oldpassing replay before separately reviewed authority.
+
+Timely PLAN4988/INPUT10346 at09:27:05, current2721 independent PASS at09:35:47/fullgenuine1530 Root accepted. Distinct SOURCE_GO4749/bf5a2e85 actual09:38:01.264181 toartifact09:53:01.264181/wall09:58:01.264181,3freshprivatefiles<500changedlines each; no runtime/checks before implemented-source/exact-commandPASS/genuineRoot/newonce. Original113total11:18:18.562137 fixed, old8/6/291/migrations uninvoked and all external/pilot holds persist.
+
+Actualsource froze09:44:23.095113,3private files102/55/90changedlines, no effects. Independent22641/6a2a750a source+exactcommandreview admitted09:47:30.727914 toartifact09:57:30.727914/wall09:59:30.727914; source-only Coder stopped, no execution untilcurrentPASS/genuineRoot/newonce.
+
+Timely3564sourcePASS/fullgenuine448 and fresh767once admitted soleliteralrun09:58:25 to09:58:31/6.510692s/session98918exit1, firstFour actual same-helper controls; nativecases/images0. OnceSPENT. Independent10166/b374a66e actualreview10:01:11.367239 to10:11:11.367239/wall10:13:11.367239, no correction/retry before actualacceptance.
+
+Firstactual2966diagnosticPASS/1366safe/fullgenuine1365 accepted10:14:35.189992: fourhelpers/producerPASS, parent7NOT_REACHED, readiness primary masked/postclickunknown. Distinct7916R1source correction10:14:35.190522 toartifact10:26:35.190522/wall10:29:35.190522, original113total11:18 unchanged. Onlyreportsequencing/cached-LASTflags fromexistingpredicate/no extraquery-wait-action; oldonceSPENT/passingcontrols inert, source-commandreview/genuineRoot/newonce required.
+
+R1source frozen10:22:09.745821/5-103-57changedlines; onlyreportordering/LASTlocalflags, noeffects. Current24853/7d3b1214 R1sourceaudit10:25:03.494125 to10:33:03.494125/wall10:35:03.494125,19packet/45effects/6retainedproofs. PriorPASS4/producerinert, firstonceSPENT, independentR1PASS/genuineRoot/newonce mandatory.
+
+OriginalR1reviewabsent10:33:41/late2770and21673at10:33:57 remainLATE_UNAPPROVED/held677. Distinctcurrent25262/4308ce1c completedanalysiscustody10:37:55.000304 to10:42:55.000304/wall10:44:55.000304, exactunchangedcode/no originalclockreset orR1executiongrant. Author5/103/57vsindependent5/105/57 below499, immutablefactsheld.
+
+Current R1 source1756PASS/genuine459/fresh781once preceded6.608418-second FAILED run; primarypreserved/new5helper+7formerlyunreached+6newparserPASS, lastcall1REJECTEDnotAllowedfalse/deniedfalse/idle. OriginalR1actual2008 frozenlate10:54:43 remainsheld757. Timelycurrent1618PASS10:58:23/current28491pins/FULLgenuine762 acceptance10:59 precede distinct4599learningGO10:59:32 to11:02:32/wall11:03:32. BothonceSPENT/nativecases-images0/causeUNKNOWN/count52/original113total11:18 unchanged. Finalcheckpoint/publication/readback separately pending; TASK114 onlyconditional diagnostic proposal.
+
+Distinct955NO_NEW/factualMINOR/4780DIFF/3888pins11:01:34 timely/FULLRootgenuine adoption follows currentactual762. Exactinactive-source/documentary final review and publication/currentreadback pending; nativegoalFAILED/count52/originaltotal held, no deadline or once refill.
+
+Reviewedc8 checkpoint published; originalpublicationcappartial/separatefirstPR-POSTmetadata complete11:15. OriginalreadbackartifactABSENT after11:18:18 total, original113unfinished forever. CurrentTASK1151665retained-custodyPASS/exact70443normalized/genuine1106 plusdistinct964learning accepted, no repeatedGET/nativechecks or nativegoal/count52 advance. Currentfactual115checkpoint/readback beforeconditional114.

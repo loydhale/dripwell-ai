@@ -1,0 +1,16 @@
+{
+  "task": "TASK125_R1_ACTUAL_REPORT_FACTUAL_CLARIFICATION",
+  "actual_utc": "2026-10-13T23:11:31.919526+00:00",
+  "original_total_until": "2026-10-13T23:15:00+00:00",
+  "report_sha256": "8c9a348498b5b50f610d991b07d40c322153bbfe3bf1c7c5adc4125b9443f8f5",
+  "correction": "Report paragraph4 incorrectly describes the retained literal collision as20bytes. Its actual byte-verified length is23bytes. Exact literal,mode0400,hash/primary/no-reopen assertions and scoped PASS unchanged; original frozen report retained.",
+  "metadata_error": "First clarification attempt asserted an assumed22byte length and stopped at AssertionError before writing. Actual byte length is now measured, not assumed. No code/runtime replay or change occurred.",
+  "collision": {
+    "path": "/workspace/pw125-nullable-r1/regression-run-b5afbc9707ed/owned-collision.json",
+    "canonical": "/workspace/pw125-nullable-r1/regression-run-b5afbc9707ed/owned-collision.json",
+    "bytes": 23,
+    "sha256": "1fa81ec2216efc85e7266f2628397e7667c99e7e41ca09a39228a90a3598dd01",
+    "mode": "0400"
+  },
+  "runtime_replay": false
+}

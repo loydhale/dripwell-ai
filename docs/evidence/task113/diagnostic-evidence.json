@@ -1,0 +1,51 @@
+{
+  "review_disposition": "LATE_UNAPPROVED",
+  "run_status": "FAILED",
+  "once": "SPENT",
+  "duration_seconds": 6.608418,
+  "primary_preserved": true,
+  "new_helper_controls": 5,
+  "actual_new_receipts": 3,
+  "previously_unreached_parent_negatives": 7,
+  "new_parent_negatives": 6,
+  "older_controls": "RETAINED_INERT",
+  "last_observation": {
+    "version": 1,
+    "event": "RECORDER_READINESS_FAILURE",
+    "case": "desktop",
+    "phase": "native-denied",
+    "primary": "READINESS_TIMEOUT",
+    "candidate": "OBSERVED",
+    "native": {
+      "provenance": "FRESH_NATIVE_FORWARD",
+      "calls": 1,
+      "outcome": "REJECTED",
+      "notAllowed": false,
+      "observerFault": false
+    },
+    "ui": {
+      "denied": false,
+      "startEnabled": true,
+      "requesting": false,
+      "isRecording": false,
+      "pauseStop": false,
+      "timeZero": true,
+      "captureBusy": false,
+      "mediaPending": false,
+      "mediaCalls": 1
+    }
+  },
+  "native_completed_cases": 0,
+  "images": 0,
+  "error_name_class_object": "UNKNOWN",
+  "cause": "UNKNOWN",
+  "compiled_files": 122,
+  "loaded_records": 110,
+  "loaded_unique_paths": 7,
+  "owned_closure": "SCOPED_TWO_GROUPS",
+  "native_goal": "UNVERIFIED",
+  "pilot_production": "UNVERIFIED",
+  "hosted_guard": "UNVERIFIED",
+  "count": 52,
+  "runtime_grant": false
+}

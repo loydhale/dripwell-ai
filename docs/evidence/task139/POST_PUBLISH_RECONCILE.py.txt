@@ -1,0 +1,121 @@
+"""Exact native Git metadata reconciliation after separately approved publication."""
+from pathlib import Path
+import base64
+import datetime
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+
+R = Path('/workspace/dripwell-build')
+D = Path('/workspace/pw139-native-boundary-publication')
+C = json.loads((D / 'CANDIDATE.json').read_text())
+M = json.loads((D / 'METADATA_GO.json').read_text())
+assert C['task'] == 'TASK139_CLOSING' and M['task'] == 'TASK139_REVIEWED_DOCUMENTARY_PUBLICATION'
+assert C['held_original118_total_until'] == C['original_total_ceiling'] == M['held_original118_total_until'] == '2026-10-13T16:28:29.222013+00:00'
+assert C['held_original120_total_until'] == M['held_original120_total_until'] == '2026-10-13T17:06:41.743636+00:00'
+assert C['held_original121_total_until'] == M['held_original121_total_until'] == '2026-10-13T18:06:29.460980+00:00'
+assert C['held_original119_total_until'] == M['held_original119_total_until'] == '2026-10-13T19:00:00+00:00'
+assert C['held_original122_total_until'] == M['held_original122_total_until'] == '2026-10-13T20:15:00+00:00'
+assert C['held_original123_total_until'] == M['held_original123_total_until'] == '2026-10-13T21:15:00+00:00'
+assert C['held_original124_total_until'] == M['held_original124_total_until'] == '2026-10-13T22:15:00+00:00'
+assert C['held_original125_total_until'] == M['held_original125_total_until'] == '2026-10-13T23:15:00+00:00'
+assert C['held_original126_total_until'] == M['held_original126_total_until'] == '2026-10-13T23:45:00+00:00'
+assert C['held_original127_total_until'] == M['held_original127_total_until'] == '2026-10-14T00:10:00+00:00'
+assert C['held_original128_total_until'] == M['held_original128_total_until'] == '2026-10-14T01:00:00+00:00'
+assert C['held_original129_total_until'] == M['held_original129_total_until'] == '2026-10-14T01:00:00+00:00'
+assert C['held_original130_total_until'] == M['held_original130_total_until'] == '2026-10-14T01:40:00+00:00'
+assert C['held_original131_total_until'] == M['held_original131_total_until'] == '2026-10-14T02:20:00+00:00'
+assert C['held_original132_total_until'] == M['held_original132_total_until'] == '2026-10-14T02:40:00+00:00'
+assert C['held_original133_total_until'] == M['held_original133_total_until'] == '2026-10-14T03:45:00+00:00'
+assert C['held_original134_total_until'] == M['held_original134_total_until'] == '2026-10-14T04:15:00+00:00'
+assert C['held_original135_total_until'] == M['held_original135_total_until'] == '2026-10-14T05:00:00+00:00'
+assert C['held_original136_total_until'] == M['held_original136_total_until'] == '2026-10-14T05:30:00+00:00'
+assert C['held_original137_total_until'] == M['held_original137_total_until'] == '2026-10-14T06:30:00+00:00'
+assert C['held_original138_total_until'] == M['held_original138_total_until'] == '2026-10-14T07:00:00+00:00'
+assert C['current_metadata_total_until'] == M['current_metadata_total_until'] == '2026-10-14T07:45:00+00:00'
+published = sys.argv[1]
+assert re.fullmatch('[0-9a-f]{40}', published)
+assert datetime.datetime.now(datetime.timezone.utc) < datetime.datetime.fromisoformat(M['current_metadata_total_until'])
+
+def git(*args):
+    return subprocess.check_output(['git', '--no-optional-locks', '-c', 'core.fsmonitor=false',
+        '-c', 'gc.auto=0', '-c', 'maintenance.auto=false', '-c', 'fetch.writeCommitGraph=false',
+        '-c', 'credential.helper=', '-c', 'credential.interactive=false',
+        *args], cwd=R, env={**os.environ, 'GIT_TERMINAL_PROMPT': '0'}, timeout=45)
+
+def oid(kind, b):
+    return hashlib.sha1(kind.encode() + b' ' + str(len(b)).encode() + b'\0' + b).hexdigest()
+
+def ls_tree(commit):
+    result = {}
+    for row in git('ls-tree', '-r', '--full-tree', '-z', commit).split(b'\0'):
+        if row:
+            hdr, path = row.split(b'\t', 1)
+            mode, kind, sha = hdr.decode().split()
+            result[path.decode()] = (mode, kind, sha)
+    return result
+
+base = {x['path']: (x['mode'], x['type'], x['sha']) for x in C['base_leaves']}
+expected = {x['path']: (x['mode'], x['type'], x['sha']) for x in C['expected_leaves']}
+assert git('rev-parse', 'HEAD').decode().strip() == C['base_head']
+assert ls_tree(C['base_head']) == base
+idx = {}
+for row in git('ls-files', '--stage', '-z').split(b'\0'):
+    if row:
+        hdr, path = row.split(b'\t', 1)
+        mode, sha, stage = hdr.decode().split()
+        assert stage == '0'
+        idx[path.decode()] = (mode, sha)
+assert idx == {p: (v[0], v[2]) for p, v in base.items()}
+allowed = set(C['allowed_paths'])
+others = {x.decode() for x in git('ls-files', '--others', '--exclude-standard', '-z').split(b'\0') if x}
+assert others <= allowed
+for rel, (mode, kind, sha) in expected.items():
+    p = R / rel
+    b = os.readlink(p).encode() if mode == '120000' else p.read_bytes()
+    native_mode = '120000' if p.is_symlink() else ('100755' if p.stat().st_mode & 0o111 else '100644')
+    assert kind == 'blob' and oid('blob', b) == sha and native_mode == mode, rel
+for f in C['files']:
+    b = (R / f['path']).read_bytes()
+    content = base64.b64decode(f['content'], validate=True) if f['encoding'] == 'base64' else f['content'].encode()
+    assert b == content and len(b) == f['bytes'] and hashlib.sha256(b).hexdigest() == f['sha256']
+    assert oct((R / f['path']).stat().st_mode & 0o777) == f['native_mode']
+branch_ref = 'refs/heads/' + C['branch']
+origin_ref = 'refs/remotes/origin/' + C['branch']
+assert git('rev-parse', branch_ref).decode().strip() == C['base_head']
+assert git('rev-parse', origin_ref).decode().strip() == C['base_head']
+
+git('fetch', '--no-tags', '--no-write-fetch-head', '--no-recurse-submodules',
+    '--no-auto-maintenance', 'origin', published)
+raw = git('cat-file', 'commit', published)
+assert oid('commit', raw) == published
+headers, message = raw.split(b'\n\n', 1)
+rows = headers.decode().splitlines()
+assert [x for x in rows if x.startswith('tree ')] == ['tree ' + C['expected_tree']]
+assert [x for x in rows if x.startswith('parent ')] == ['parent ' + C['base_head']]
+assert message.decode() == C['message']
+assert ls_tree(published) == expected
+p = D / 'ACTUAL_CANONICAL_COMMIT.raw'
+assert not p.exists()
+p.write_bytes(raw)
+p.chmod(0o400)
+git('read-tree', published)
+git('update-ref', branch_ref, published, C['base_head'])
+git('update-ref', origin_ref, published, C['base_head'])
+assert git('rev-parse', 'HEAD').decode().strip() == published
+assert git('status', '--porcelain=v1', '--untracked-files=all') == b''
+report = dict(task='TASK139', candidate_task=C['task'], held_original118_total_until=C['original_total_ceiling'],
+    held_original120_total_until=C['held_original120_total_until'], held_original121_total_until=C['held_original121_total_until'], held_original119_total_until=C['held_original119_total_until'], held_original122_total_until=C['held_original122_total_until'], held_original123_total_until=C['held_original123_total_until'], held_original124_total_until=C['held_original124_total_until'], held_original125_total_until=C['held_original125_total_until'], held_original126_total_until=C['held_original126_total_until'], held_original127_total_until=C['held_original127_total_until'], held_original128_total_until=C['held_original128_total_until'], held_original129_total_until=C['held_original129_total_until'], held_original130_total_until=C['held_original130_total_until'], held_original131_total_until=C['held_original131_total_until'], held_original132_total_until=C['held_original132_total_until'], held_original133_total_until=C['held_original133_total_until'], held_original134_total_until=C['held_original134_total_until'], held_original135_total_until=C['held_original135_total_until'], held_original136_total_until=C['held_original136_total_until'], held_original137_total_until=C['held_original137_total_until'], held_original138_total_until=C['held_original138_total_until'], current_metadata_total_until=M['current_metadata_total_until'], actual_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    head=published, tree=C['expected_tree'], sole_parent=C['base_head'], leaf_count=len(expected),
+    whole_native_map_matches=True, whole_worktree_matches=True, index_base_matched_before_fetch=True,
+    index_refs_reconciled=True, clean=True, canonical_commit_bytes=len(raw),
+    canonical_commit_sha256=hashlib.sha256(raw).hexdigest(),
+    scope='Actual canonical Git object/full expected leafmap/exact reviewed file bytes/refs-index-worktree, no checkout/reset/merge/app execution.')
+p = D / 'ACTUAL_NATIVE_RECONCILIATION.json'
+assert not p.exists()
+p.write_text(json.dumps(report, indent=2) + '\n')
+p.chmod(0o400)
+print(json.dumps(report, indent=2))

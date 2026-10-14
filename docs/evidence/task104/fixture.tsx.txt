@@ -1,0 +1,30 @@
+import { config as zodConfig } from 'zod';
+import { createContext, useContext, createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import '/workspace/dripwell-build/apps/web/app/globals.css';
+declare const __CAPTURE_SOURCE_SHA__: string;
+export const BoundaryContext = createContext<any>(null);
+export function useBoundary() { const value = useContext(BoundaryContext); if (!value) throw new Error('Missing fictional context'); return value; }
+let boundary: any;
+export function BoundaryProvider({children}:any) { return createElement(BoundaryContext.Provider,{value:boundary},children); }
+zodConfig({jitless:true});
+void (async () => {
+ const shared=await import('/workspace/dripwell-build/packages/shared/src/v2/index.ts');
+ const {emptyConfiguration}=await import('/workspace/dripwell-build/apps/web/components/configuration-editor');
+ const {AppShell}=await import('/workspace/dripwell-build/apps/web/components/app-shell');
+ const {Dashboard}=await import('/workspace/dripwell-build/apps/web/components/dashboard');
+ const timestamp='2026-10-12T12:00:00.000Z',locationId='77777777-7777-4777-8777-777777777701',configurationId='77777777-7777-4777-8777-777777777703';
+ const caseName=new URL(location.href).searchParams.get('case'); if(!['desktop','mobile'].includes(caseName||'')) throw new Error('Unknown fictional case');
+ const ledger:any[]=[],routes:string[]=[]; let mutations=0;
+ const proof=document.createElement('pre');proof.id='__layout_fixture';proof.hidden=true;document.body.append(proof);
+ const reflect=()=>{proof.textContent=JSON.stringify({source:__CAPTURE_SOURCE_SHA__,case:caseName,jitless:zodConfig().jitless,ledger,routes,mutations,failed:(window as any).__CAPTURE__.failed});};
+ const deny=(reason:string):never=>{(window as any).__CAPTURE__.fault(reason);reflect();throw new Error(reason);};
+ window.fetch=async()=>deny('Undeclared fixture fetch');
+ const visits=shared.consultationStages.map((stage,index)=>({id:'77777777-7777-4777-8777-'+String(777777777710+index),reference:'SYNTHETIC-LAYOUT-0'+(index+1),stage,version:1,locationId,providerId:'fictional-staff',providerName:'Fictional Staff',isTest:false,configurationVersionId:configurationId,consentAt:null,consentDeclined:true,summary:shared.emptyConsultationSummary(),transcript:[],initialRecommendation:null,initialRevision:0,clinicalApprovedVersion:null,actualCare:null,careOutcome:index===1?'STARTED':'NOT_STARTED',wellnessPlan:null,wellnessRevision:0,wellnessApprovedVersion:null,wellnessDecision:index===3?'ACCEPTED':index===4?'REJECTED':index===5?'TBD':null,archivedAt:null,createdAt:timestamp,updatedAt:timestamp}));
+ const notifications=[{id:'fictional-care',type:'CARE_OUTCOME',title:'Fictional care outcome reminder',message:'Synthetic outstanding care outcome.',consultationId:visits[1].id,createdAt:timestamp,isRead:false,readAt:null},{id:'fictional-wellness',type:'WELLNESS_DECISION',title:'Fictional wellness decision reminder',message:'Synthetic recorded reminder.',consultationId:visits[3].id,createdAt:timestamp,isRead:false,readAt:timestamp},{id:'fictional-read',type:'WELLNESS_DECISION',title:'Fictional completed reminder',message:'Synthetic read reminder.',consultationId:visits[4].id,createdAt:timestamp,isRead:true,readAt:null}];
+ const active={id:configurationId,version:1,revision:1,status:'ACTIVE',configuration:emptyConfiguration('Fictional layout clinic'),createdAt:timestamp};
+ const data={user:{id:'fictional-owner',name:'Fictional Owner',email:'owner@example.invalid',role:'OWNER',canApproveClinical:false},clinic:{id:'fictional-clinic',name:'Fictional layout clinic'},locations:[{id:locationId,name:'Fictional location'}],configuration:{active,draft:null,versions:[active]},consultations:visits,consultationCount:6,consultationPagination:{nextCursor:null,pageSize:50},notifications,metrics:{from:'2026-10-01T00:00:00.000Z',to:'2026-11-01T00:00:00.000Z',denominator:6,consultations:6,careStarted:1,careNotStarted:5,carePending:0,wellnessAccepted:1,wellnessRejected:1,wellnessTbd:1,wellnessUndecided:3,adjustments:0,overdue:1,completionMedianHours:null,membershipEnrollments:1,membershipDeclines:1,membershipNotRecorded:4,membershipRecorded:2,membershipEnrollmentRate:0.5},trial:{used:0,remaining:10,limit:10,endsAt:'2026-11-01T00:00:00.000Z',status:'ACTIVE',daysRemaining:14,canStart:false},improvements:[],adjustments:[],staff:[]};
+ const refresh=async(filters:any={})=>{if(ledger.length>=8||Reflect.ownKeys(filters).some(key=>!['archived','search','from','to','locationId','pageSize'].includes(String(key))))deny('Undeclared synthetic read');if(filters.from&&(!Number.isFinite(Date.parse(filters.from))||!Number.isFinite(Date.parse(filters.to))))deny('Invalid real date filter');ledger.push({kind:'SYNTHETIC_GET',filters});reflect();};
+ boundary={data,loading:false,error:'',pageError:'',locationId,captureBusy:false,pathname:'/dashboard',refresh,loadMore:()=>deny('Undeclared paging'),selectLocation:()=>deny('Undeclared location change'),setCaptureBusy:()=>deny('Undeclared capture'),mutate:()=>{mutations++;return deny('Mutation denied');},navigate:(href:string)=>{if(href!=='/dashboard?locationId='+locationId)deny('Undeclared route intent');routes.push(href);reflect();}};
+ reflect();createRoot(document.getElementById('root')!).render(createElement(AppShell,null,createElement(Dashboard)));
+})();

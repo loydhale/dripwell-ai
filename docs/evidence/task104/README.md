@@ -1,0 +1,11 @@
+# TASK104 reviewed failed native evidence
+
+This is an isolated synthetic render of the actual unchanged AppShell/Dashboard/MembershipOutcomes/CSS with disclosed clinic/router/read-API leaves. It is not the current protected deployment or a complete two-clinic clinical story.
+
+The corrected reader preserves descendant whitespace before normalizing display text once, preserves raw JSON, and retains already observed safe scalars when selected-subtree diagnostics are unavailable. All31 affected controls and3parent compatibility projections passed in the sole1.815297-second run;15 older passes stayed uninvoked. The native run failed at `Fixed native style`; the exact property/value/pane/cause was not retained. Zero native phases/cases are accepted. Native badge fields and a causal repair are not proved by synthetic controls.
+
+[Early desktop image](desktop-first-board.png) is the actual108290-byte1280x800PNG/SHA25681af3c31b7c520ca045dd56c5a30516fdc57960e9c0598f83885e514f71ed3ee, identical to previously actually viewed original bytes. It shows a pale left navigation, white consultation center, right reminders, partial fictional board and readiness notice. It precedes complete geometry/style assertions. Other4expected images, mobile/Reporting/full board and real recorder proof are absent. No generated or edited image.
+
+Inactive `.txt` copies preserve exact corrected sources: fixture5344/8277b777,adapter145329/80596b13,supervisor28218/9e13a334. These copies grant no runtime authority. Source-firstslot/exclusive0400/8192byte safe diagnostic controls and shared parent validation are reviewed; actual known-owned cleanup/currentinput/compiler/load evidence has scoped limitations. No raw context/proof/nonce/session/browser profile/diagnostic capability payload is published.
+
+[Current custody audit](../../AUDIT_NATIVE_TEXT_RESULT.md) accepts immutable failed evidence. [Original actual report](../../AUDIT_NATIVE_TEXT_RESULT_LATE.md) and original plan report remain LATE_UNAPPROVED. Original104/103 wholeUI goals remain failed/unfinished, count47 held. App5a9c8dea/firstCI291 is unchanged with no check/migration/provider replay. All nine pilot/production and current hosted source/effective guard gates remain open, with protected requestedfalse/default-disabled maintenance/permanent057/until-done holds.

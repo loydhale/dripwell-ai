@@ -1,0 +1,53 @@
+{
+  "scope": "INACTIVE_EXACT_FOUR_REVIEWED_SOURCE_SLICES_ONLY",
+  "source_acceptance": "TASK128 R1 complete source5200/6bdbce1a and Root genuine1967/6146b291, before original01:00; no original native execution",
+  "runtime_state": "TASK130 first eight source-bound synthetic assertions independently PASS; native budget0, original128 native recording remains unrun",
+  "private_source_pin": {
+    "kind": "accepted_actual_four_slice_source",
+    "path": "/workspace/pw128-native-r1/adapter.mjs",
+    "canonical": "/workspace/pw128-native-r1/adapter.mjs",
+    "bytes": 285291,
+    "sha256": "472f6f0849c918e1b57e9c29252d8b4c754707839a250eac35ed28c236b26c15",
+    "mode": "0400"
+  },
+  "slices": [
+    {
+      "name": "need",
+      "path": "docs/evidence/task130/need.js.txt",
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33",
+      "private_start_byte": 2669,
+      "private_end_byte": 2733,
+      "native_mode": "100644"
+    },
+    {
+      "name": "DocumentAcquisition",
+      "path": "docs/evidence/task130/document-acquisition.js.txt",
+      "bytes": 2518,
+      "sha256": "829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e",
+      "private_start_byte": 10866,
+      "private_end_byte": 13384,
+      "native_mode": "100644"
+    },
+    {
+      "name": "layoutTransport",
+      "path": "docs/evidence/task130/layout-transport.js.txt",
+      "bytes": 840,
+      "sha256": "f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f",
+      "private_start_byte": 91001,
+      "private_end_byte": 91841,
+      "native_mode": "100644"
+    },
+    {
+      "name": "layoutTransportDeadlineControls",
+      "path": "docs/evidence/task130/layout-transport-controls.js.txt",
+      "bytes": 1997,
+      "sha256": "5e374c426fd8ba33eef7149a4d9f8c22a68b4d9db6d0fe6d80845227adc8af50",
+      "private_start_byte": 91841,
+      "private_end_byte": 93838,
+      "native_mode": "100644"
+    }
+  ],
+  "actual_report_sha256": "84dd644fbd65a3f834c6a26abd3c30984397d619bcf02e229be9eed9b774bf13",
+  "root_actual_genuine_sha256": "3027b7a5d90b3845af3fc83ff15627dfed236240ba54ad486c92635b555336fc"
+}

@@ -1,0 +1,1 @@
+{"version":2,"provenance":"FRESH_NATIVE_FORWARD","available":true,"attempted":true,"calls":1,"receiverExact":true,"constraintsExact":true,"promiseReturned":true,"outcome":"REJECTED","notAllowed":true,"observerFault":false,"rejection":{"type":"object","instanceofResult":"MATCH","nameStatus":"ALLOWLISTED","name":"NotAllowedError"}}

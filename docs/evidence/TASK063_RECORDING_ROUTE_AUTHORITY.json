@@ -1,0 +1,366 @@
+{
+  "RootActualAdoption": {
+    "bytes": 5430,
+    "mode": "0600",
+    "path": "/workspace/dripwell-task063-root-private/V3_ACTUAL_SCOPED_PUBLICATION_NATIVE_CI_AND_DISTINCT_LEARNING_ROOT_ADOPTION.json",
+    "sha256": "9e80a10a9241ee432f6195dbf0e3bb8c9d89c82a5ce6413a357ef596520aaeb2"
+  },
+  "TASK057PermanentInternalParkNative13Closed": true,
+  "actualReview": {
+    "bytes": 47346,
+    "sha256": "97fb730b81e025a5128e5ad7c530239b635d0448b4baca09f40e1f96ab477c99"
+  },
+  "all12FeaturesNinePilotProductionGatesUnchanged": true,
+  "componentVerdicts": {
+    "documentaryDefinitionOfDone": "PENDING_SEPARATE_REVIEW_PUBLICATION_CLOSURE",
+    "exactNormalPublication": "PASS",
+    "newNamedCaseAndOwnedClosure": "PASS_SCOPED",
+    "originalCIResultEvidence": "PASS",
+    "trackedNativeSynchronization": "PASS",
+    "wholePilot": "NOT_ESTABLISHED"
+  },
+  "currentProofLimits": [
+    "Only synthetic direct recording metadata/retry authority is established. No real recording capture/upload, provider Blob object, transcription/model call, clinical approval, consented patient data, real enrollment/payment, secure-sharing/PDF flow, production retention sweep or ordinary HTTP/browser/deployed full story is established.",
+    "Fixture owner roles are synthetic SUPER_USER and STAFF with clinicalfalse/MFAfalse; no normal signup/MFA/activation/platform-admin proof or permission grant follows.",
+    "No full PRD criterion or all12 features/nine pilot acceptance criteria are completed by this component. Effective hosted false is UNVERIFIED, encrypted defaults UNKNOWN, protected historical preview807 remains historical; automatic Git hosting reaction is UNKNOWN, direct native Vercel deployment0.",
+    "All old TASK057 parks/exhausted recovery/source lanes, closed native13, paid/provider/domain/integration/shared-data/production holds remain. This review performs no new real physical/provider/SQL action."
+  ],
+  "distinctLearning": {
+    "bytes": 10266,
+    "disposition": "NO_NEW_LEARNING",
+    "sha256": "e9ed7f1f9a3ea3982255bd0ac050e8f21597b180fe48d114b012d9f419195017"
+  },
+  "evidenceLimits": "Raw full DB rows, random IDs/tokens/hashes, each individual response body, deletion predicates and query returns were intentionally RAM-only/unretained. Accepted proof is the exact source's real assertions plus original safe record and named full-case/file/job success, not independently dumped DB payloads. Internal SQL statement/retry counts and failing reader closure behavior are not proved.",
+  "historicalFailures": {
+    "firstV1Blockers": "Immutable A01 first reader-error and A02 stored SHA256 rate-key findings/corrections preserved.",
+    "old375747Cause": "UNKNOWN; no causal or flaky inference from current success.",
+    "priorFailedCI": {
+      "actualReview": {
+        "bytes": 28418,
+        "mode": "0600",
+        "path": "/workspace/dripwell-task063-audit-private/TASK063_ACTUAL_SOURCE_PUBLICATION_NATIVE_FIRST_CI_INDEPENDENT_REVIEW.json",
+        "sha256": "bdeafec2d79d6404609c56b21fd39fd3871150cb463aa434c1f44adfa50f096d"
+      },
+      "conclusion": "FAILURE_BEFORE_TESTS",
+      "job": 112772807524,
+      "run": 37615527361
+    },
+    "sameL035ActualRecurrence": "One existing genuine private occurrence from the original failed type build, proposed Seen5->6 once. No extra recurrence from static V3, this success or reporting.",
+    "staticV2Pass": "Immutable missed type-boundary PASS preserved; current success does not relabel the earlier source/outcome."
+  },
+  "learningAccounting": {
+    "L035SeenAfter": 6,
+    "L035SeenBefore": 5,
+    "fourPhaseFragments": [
+      {
+        "bytes": 186,
+        "occurrencesAfter": 1,
+        "occurrencesBefore": 0,
+        "sha256": "4bc979acdbcc4f7aa62e2fedaed85e1421b1e81aae626332d54c888fba7aa34b"
+      },
+      {
+        "bytes": 197,
+        "occurrencesAfter": 1,
+        "occurrencesBefore": 0,
+        "sha256": "a50807cdc50d073b4195e27ffd12487cba23586dcddf1f3925dfdd97911f6c92"
+      },
+      {
+        "bytes": 235,
+        "occurrencesAfter": 1,
+        "occurrencesBefore": 0,
+        "sha256": "06b52b079a3985abc3ab68045f6c93f3fea937fbb0e6a8f3e17a9a76b815e6f9"
+      },
+      {
+        "bytes": 247,
+        "occurrencesAfter": 1,
+        "occurrencesBefore": 0,
+        "sha256": "980cd9870c98a7f3976b2874e009587220008b199db1ad1441093dd6e4c63f13"
+      }
+    ],
+    "newV3Recurrences": 0,
+    "originalTASK063Recurrences": 1,
+    "planningStaticAndCorrectionCount": 0,
+    "scopedCountAfterReviewedActualClosure": 39,
+    "scopedCountBefore": 38
+  },
+  "matrix": [
+    {
+      "actor": "A owner",
+      "assertion": "exact recording projection",
+      "call": 1,
+      "method": "GET",
+      "status": 200,
+      "target": "A consultation"
+    },
+    {
+      "actor": "A STAFF",
+      "assertion": "same allowed projection",
+      "call": 2,
+      "method": "GET",
+      "status": 200,
+      "target": "A consultation"
+    },
+    {
+      "actor": "B owner",
+      "assertion": "exact B projection",
+      "call": 3,
+      "method": "GET",
+      "status": 200,
+      "target": "B consultation"
+    },
+    {
+      "actor": "A owner",
+      "call": 4,
+      "code": "NOT_FOUND",
+      "method": "GET",
+      "status": 404,
+      "target": "B consultation"
+    },
+    {
+      "actor": "B owner",
+      "call": 5,
+      "code": "NOT_FOUND",
+      "method": "GET",
+      "status": 404,
+      "target": "A consultation"
+    },
+    {
+      "actor": "A owner",
+      "call": 6,
+      "code": "RECORDING_UNAVAILABLE",
+      "method": "POST retry",
+      "status": 410,
+      "target": "expired consultation recording"
+    },
+    {
+      "actor": "A owner",
+      "call": 7,
+      "code": "RECORDING_UNAVAILABLE",
+      "method": "POST retry",
+      "status": 410,
+      "target": "expired setup recording"
+    },
+    {
+      "actor": "different A owner",
+      "call": 8,
+      "code": "OWNER_REQUIRED",
+      "method": "POST retry",
+      "status": 403,
+      "target": "setup recording"
+    },
+    {
+      "actor": "A owner",
+      "call": 9,
+      "code": "NOT_FOUND",
+      "method": "POST retry",
+      "status": 404,
+      "target": "B recording"
+    },
+    {
+      "actor": "missing cookie",
+      "call": 10,
+      "code": "UNAUTHENTICATED",
+      "method": "GET",
+      "status": 401,
+      "target": "A consultation"
+    },
+    {
+      "actor": "same cookie after owned current STAFF demotion",
+      "call": 11,
+      "code": "OWNER_REQUIRED",
+      "method": "POST retry",
+      "status": 403,
+      "target": "setup recording"
+    },
+    {
+      "actor": "same cookie after owned session revocation",
+      "call": 12,
+      "code": "UNAUTHENTICATED",
+      "method": "GET",
+      "status": 401,
+      "target": "A consultation"
+    }
+  ],
+  "next": "TASK064_READ_ONLY_ONLY_AFTER_REVIEWED_ACTUAL_DOCUMENTARY_CLOSURE",
+  "originalCI": {
+    "APIHeadSHA": "UNRETAINED",
+    "allListedStageConclusions": "success",
+    "allListedStages": 22,
+    "buildTypeEvidence": "Web production build proceeded through TypeScript completion/raw589, static pages and optimization. Separate pnpm typecheck/raw647-668 and all22 terminal job stages succeed. Original TS2345/TS18048 are resolved for this actual head's build; old failed run remains failed.",
+    "checkout": {
+      "base": "9fa134fc9005dd0d5d351f14b35882d158dc1de4",
+      "mainMergePerformed": false,
+      "merge": "fd1a4dfa706ffc8e935bd9da5cab710cc17f365a",
+      "normalPRMergeCheckout": true,
+      "rawLines": [
+        186,
+        188,
+        213,
+        215,
+        216
+      ],
+      "source": "3c74520101ad0c89914af54221935a7951c098f4"
+    },
+    "conclusion": "success",
+    "event": "UNRETAINED",
+    "file": {
+      "line": 841,
+      "milliseconds": 2378,
+      "path": "apps/web/lib/recording-route-authority.integration.test.ts",
+      "status": "PASS",
+      "tests": 1
+    },
+    "jobId": 112794307366,
+    "log": {
+      "original": {
+        "bytes": 230962,
+        "mode": "0600",
+        "path": "/workspace/dripwell-task063-root-private/V3_FIRST_ORDINARY_CHANGED_SOURCE_CI_JOB_LOG_ORIGINAL.json",
+        "sha256": "b2a633178d77412d3e9436e549eac4171629a565d4deeec5eb38262942974a88"
+      },
+      "raw": {
+        "bytes": 211919,
+        "mode": "0600",
+        "path": "/workspace/dripwell-task063-root-private/V3_FIRST_ORDINARY_CHANGED_SOURCE_CI_JOB_LOG_RAW.log",
+        "sha256": "a0e62b49f299d1c8b7dfefa640a27d07346fc2aad99645ddb54b9d422026d946"
+      },
+      "rawLines": 1236,
+      "rawWrapperContentExact": true,
+      "readSpent": {
+        "bytes": 769,
+        "mode": "0600",
+        "path": "/workspace/dripwell-task063-root-private/V3_FIRST_ORDINARY_CHANGED_SOURCE_CI_JOB_LOG_READ_SPENT_BEFORE_CALL.json",
+        "sha256": "0571835b40e9e84bbf83c48fb602d994cb3f6195aa37f75bab78b81f3e6b4a4d"
+      },
+      "refetchesByAuditor": 0
+    },
+    "namedCase": {
+      "line": 843,
+      "milliseconds": 2376,
+      "status": "PASS",
+      "title": "keeps recording metadata tenant scoped and rejects expired or unauthorized retries before dispatch"
+    },
+    "provenance": "Original run/job wrappers and sole spent log retrieval bind the ordinary automatic reviewed changed-source pipeline. No manual/local or unchanged-head retry was invoked. Direct event/head/run_attempt fields are unavailable; actual source correlation uses checkout and fresh PR merge metadata.",
+    "runAttempt": "UNRETAINED",
+    "runId": 37622006306,
+    "runNumber": 43,
+    "separateClinicNode": {
+      "cancelled": 0,
+      "fail": 0,
+      "isSeparateCurrentStage15": true,
+      "pass": 15,
+      "rawLines": [
+        775,
+        776,
+        777,
+        778,
+        779,
+        780,
+        781
+      ],
+      "skipped": 0,
+      "tests": 15,
+      "todo": 0
+    },
+    "status": "completed",
+    "suite": {
+      "VitestFilesPassed": 23,
+      "VitestTestsPassed": 242,
+      "notWholeCITestTotal": true,
+      "rawLines": [
+        946,
+        947
+      ],
+      "skips": "NOT_LISTED_IN_TERMINAL_SUMMARY"
+    },
+    "target": {
+      "ALLOW_REAL_CLIENT_DATA": "false (raw unit-stage env827 and source strict pre-import guard)",
+      "Node": "24.21.0",
+      "PostgreSQL": "17.11",
+      "Vitest": "5.0.3",
+      "database": "fresh disposable localhost:5432/dripwell_verification",
+      "migrations": 14,
+      "sharedMigrationReplay": false
+    },
+    "terminalSupport": "All22 completed successful stages include post steps and container cleanup; named case/file and later complete unit summary corroborate final code after the candidate frame. CLOSURE_CANDIDATE by itself is not accepted as a test result."
+  },
+  "safeActualClosureFrame": {
+    "UTF8Bytes": 414,
+    "line": 840,
+    "record": {
+      "GET": 7,
+      "additionalOrm": 367,
+      "censusBoundaries": 5,
+      "cleanupOrm": 98,
+      "closed": true,
+      "deleted": 20,
+      "denied": 9,
+      "elapsedMs": 2371,
+      "first": null,
+      "forbidden": 0,
+      "moduleRestored": true,
+      "originalClockMs": 30000,
+      "outcome": "CLOSURE_CANDIDATE",
+      "pending": 0,
+      "phase": "CLEANUP",
+      "readerClosureUnknown": false,
+      "readers": 0,
+      "resolved": true,
+      "restored": true,
+      "retry": 5,
+      "returned": 12,
+      "scenarioOrm": 269,
+      "starts": 12,
+      "task": "TASK063",
+      "unknown": false
+    },
+    "sourceCapBytes": 2048
+  },
+  "schema": "TASK063_SAFE_SCOPED_RECORDING_ROUTE_AUTHORITY_EVIDENCE",
+  "source": {
+    "blob": "49df376dc85cace14af43d9fba223a62082aceee",
+    "bytes": 30807,
+    "commit": "3c74520101ad0c89914af54221935a7951c098f4",
+    "ordinaryLines": 438,
+    "sha256": "8b60946bf829276674c8685fd2e7531db278d4963042f3ca07b6ddccea425cbc",
+    "tree": "bf0b532705ebf4741c6be0e450ec832c8f329826"
+  },
+  "sourceEnforcedFacts": [
+    {
+      "fact": "Original clock precedes strict CI/Node24/testDB/literalfalse admission and target imports. Fresh owned PrismaClient/getDb/global descriptors and mocked leaf identities are checked on work boundaries; no borrower, clinical authority, MFA/key or positive flag.",
+      "lines": "13-23,107,246-285",
+      "scope": "Pre-effect target and ownership"
+    },
+    {
+      "fact": "All twenty unique UUIDs were pretracked; each real create result is captured after exact id/date/input-scalar assertions. Chronology and one-target/null JSON contract are valid. Source asserts actual20 seeded records; no committed-success guess before returned resolution.",
+      "lines": "111-129,204-214,290-329",
+      "scope": "Owned row resolution"
+    },
+    {
+      "fact": "Three positive GETs require exact nine-field public projection using stored staff/original transcript and dates; all twelve responses require private/no-store/no-cache/nosniff headers and bounded reader/JSON closure. Nine denials require exact code,error shape, no masked forbidden work, current A/B full eight-model scalar snapshots and context exit.",
+      "lines": "182-202,332-386",
+      "scope": "Projection, privacy and denial preservation"
+    },
+    {
+      "fact": "45 clinic-lineage models at five boundaries match RAM captured row membership/scalars with finite takes/20 rows/32768 RAM. Seven declared global models are excluded. Actual tracked explicit additional ORM367 =269 scenario+98 cleanup, within300/100/400 caps; it is not a total SQL or internal transaction-retry count.",
+      "lines": "150-194,285,330,387,395,404",
+      "scope": "Physical PG cohorts and census"
+    },
+    {
+      "fact": "Throwing/counting AI-ready/Workflow/fetch leaves were not reached (forbidden0); no old expected exception masks a failure. All started tracked promises settle and are truly joined under the original30-second clock, with20-second ordinary-effect cutoff. Actual reader0/closureUnknownfalse; only normal response closure is exercised, not an induced cancel/release-failure test.",
+      "lines": "46-102,135-145,215-243,258-282",
+      "scope": "Forbidden leaves and original clock"
+    },
+    {
+      "fact": "After original join, resolved/pending0/no unknown/context empty and fresh ownership census admit eight-model exact native-FK delete predicates and return counts. Actual deleted20, empty post-census, owned disconnect, module/mock/ALS/global descriptor restoration and final complete-closure checks all pass; no broad cascade or unknown-work teardown.",
+      "lines": "390-422",
+      "scope": "Exact cleanup and global/module restoration"
+    },
+    {
+      "fact": "414-byte fixed frame excludes raw errors/IDs/rows/secrets. Source awaits stdout's real callback and pending0/context/descriptor/original-clock checks after capture; later named-case/file/job PASS corroborate that they succeeded. Recorded2371ms is pre-write frame capture, case2376ms/file2378ms are runner timings, not clinical latency evidence or a fabricated final-clock scalar.",
+      "lines": "424-437",
+      "scope": "Final emission"
+    }
+  ],
+  "status": "ACTUAL_COMPONENT_PASS_DOCUMENTARY_PUBLICATION_CLOSURE_SEPARATE"
+}

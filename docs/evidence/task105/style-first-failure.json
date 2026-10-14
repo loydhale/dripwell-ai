@@ -1,0 +1,1 @@
+{"version":1,"case":"desktop","phase":"initial","role":"navigation","property":"white-space","boundary":"FIXED_NATIVE_STYLE","expectedRule":"EXACTLY_ONE_STRING_LE64","literalExpected":null,"literalStatus":"NO_LITERAL_AT_GATE","matchCount":0,"returnedKind":"MISSING","firstMatchValue":null}

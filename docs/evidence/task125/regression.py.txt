@@ -1,0 +1,343 @@
+"""TASK125 synthetic-only shared-function regression, separate reviewed once required."""
+import ast
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import secrets
+import selectors
+import signal
+import subprocess
+import time
+
+BASE = Path('/workspace/pw125-nullable-r1')
+NODE = '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+ENV = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1'}
+OUTER = datetime.fromisoformat('2026-10-13T23:15:00+00:00').timestamp()
+JS_NAMES = ['need','ownData','cachedNames','cachedRejection','cachedEnvelope','nativeForwardBody','recorderLease','deliverRecorderPredicate','readinessFailureValue','readinessFailureBody','RecorderReadinessFailureReceipt','retainRecorderReadinessFailure','waitRecorder']
+PY_NAMES = ['need','sha','frozen','cached_rejection','cached_envelope','readiness_projection','owned_readiness']
+NODE_PROGRAM = r'''
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),vm=require('node:vm');
+const cfg=JSON.parse(process.argv[1]),out={status:'FAILED',cases:[],receipts:[],spans:[],first_failure:null};
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+const assert=(ok,label)=>{if(!ok)throw new Error(label);};
+assert(fs.realpathSync(cfg.run)===cfg.run&&(fs.statSync(cfg.run).mode&511)===448,'Owned synthetic run');
+const source=fs.readFileSync(cfg.source.path);assert(source.length===cfg.source.bytes&&hash(source)===cfg.source.sha256&&fs.realpathSync(cfg.source.path)===cfg.source.canonical&&(fs.statSync(cfg.source.path).mode&511)===256,'Source gate before VM');
+const text=source.toString('utf8'),spans=[];
+for(const name of cfg.js_names){
+ const begin='// TASK125 BEGIN '+name+'\n',end='// TASK125 END '+name+'\n';
+ assert(text.split(begin).length===2&&text.split(end).length===2,'Unique actual function span');
+ const start=text.indexOf(begin)+begin.length,stop=text.indexOf(end);assert(stop>start,'Span order');
+ const body=text.slice(start,stop),declaration=name==='cachedNames'?'const cachedNames=':name==='RecorderReadinessFailureReceipt'?'class '+name+' ':name==='waitRecorder'?'async function '+name+'(':'function '+name+'(';
+ assert(body.startsWith(declaration)&&Buffer.byteLength(body)<=16384,'Actual declaration/span bound');
+ const expected=cfg.js_spans.find(item=>item.name===name);assert(expected&&expected.bytes===Buffer.byteLength(body)&&expected.sha256===hash(Buffer.from(body)),'Reviewed literal function span hash');
+ spans.push(body);out.spans.push({name,bytes:Buffer.byteLength(body),sha256:hash(Buffer.from(body))});
+}
+const childEnd=performance.now()+Math.min(24000,cfg.remaining_ms),childUTC=Math.min(Date.now()+24000,cfg.work_end_utc);
+const active=()=>assert(performance.now()<childEnd&&Date.now()<childUTC,'Synthetic child work lease');
+let writes=0;
+const write=(destination,body,options)=>{
+ active();assert(fs.realpathSync(cfg.run)===cfg.run&&path.dirname(destination)===cfg.run&&/^[-a-z0-9]+\.json$/.test(path.basename(destination)),'Owned exclusive destination');
+ assert(Buffer.isBuffer(body)&&body.length<=2048&&options.flag==='wx'&&options.mode===256,'Actual exclusive IO options');
+ if(fs.existsSync(destination))assert(!fs.lstatSync(destination).isSymbolicLink(),'No synthetic IO symlink');
+ writes++;fs.writeFileSync(destination,body,options);
+};
+const scope={Buffer,hash,performance,setTimeout,clearTimeout,ctx:{token:'TASK125_SYNTHETIC_CAPABILITY'},run:cfg.run,record:{states:[]},fs:{writeFileSync:write},nativeReadinessFailure:null,fail:()=>{},recorderState:null,workEnd:0};
+const script=new vm.Script(spans.join('\n')+'\nglobalThis.actual={waitRecorder,readinessFailureValue,readinessFailureBody,RecorderReadinessFailureReceipt,retainRecorderReadinessFailure};',{filename:'TASK125_PINNED_ACTUAL_DECLARATIONS'});
+script.runInNewContext(scope,{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}});const a=scope.actual;
+const flags=['denied','startEnabled','requesting','isRecording','pauseStop','timeZero'];
+const unknownCache=()=>({type:'UNKNOWN',instanceofResult:'UNKNOWN',nameStatus:'UNKNOWN_UNREAD',name:null});
+const sample=(phase,present=false)=>({case:'desktop',phase,selected:present?'intake':'UNMOUNTED',tabs:[],panels:[],backError:false,navError:false,logoutError:false,
+ recorder:present?{text:'Synthetic recorder',denied:false,time:'00:07',startEnabled:false,requesting:false,isRecording:true,pauseStop:true,idleIcon:true}:null,
+ proof:{source:'SYNTHETIC',case:'desktop',scenario:'consented',synthetic:false,captureBusy:true,mediaCalls:7,mediaPending:false,mountedVisit:present,routes:0,ledger:{clinic:1,detail:1,recordings:2,shares:0,mutations:0},jitless:true,failed:false,
+ nativeForward:{version:2,provenance:'FRESH_NATIVE_FORWARD',available:true,attempted:true,calls:2,receiverExact:true,constraintsExact:true,promiseReturned:true,outcome:'FULFILLED',notAllowed:false,observerFault:false,rejection:unknownCache()},forwardControls:{},rejectionControls:{},nativeSuccess:{}}});
+const receipt=(name,io)=>new a.RecorderReadinessFailureReceipt(cfg.run+'/'+name+'.json',io||scope.fs);
+const noReopen=(r,original,outcome,phase)=>{assert(r.capture({case:'desktop',phase},sample(phase),new Error('Synthetic later'),'READINESS_TIMEOUT')===outcome&&r.primary===original&&r.sealed,'No later reopening');};
+const persisted=(r)=>{assert(r.outcome.status==='PERSISTED','Actual receipt persisted');const b=fs.readFileSync(r.destination);assert((fs.statSync(r.destination).mode&511)===256&&b.length===r.outcome.receipt.bytes&&hash(b)===r.outcome.receipt.sha256,'Actual persisted binding');out.receipts.push(r.outcome.receipt);return JSON.parse(b);};
+async function composed(name,last,predicateThrow){
+ active();const phase=last?last.phase:'native-quiescent',r=receipt(name),primary=new Error('Synthetic predicate primary'),before=writes;
+ scope.nativeReadinessFailure=r;scope.workEnd=Math.min(childEnd,performance.now()+65);let calls=0;
+ scope.recorderState=async()=>{calls++;if(last&&calls===1)return{value:{...last,proof:{...last.proof,mediaCalls:3,nativeForward:{...last.proof.nativeForward,calls:1}}}};return last===null?null:{value:last};};
+ let caught;try{await a.waitRecorder({check:active},'desktop',phase,()=>{if(predicateThrow&&calls>1)throw primary;return false;});}catch(e){caught=e;}
+ assert(caught&&r.primary===caught&&(!predicateThrow||caught===primary)&&writes===before+1,'Actual wait delivery primary/exclusive write');
+ const v=persisted(r),first=r.outcome;noReopen(r,caught,first,phase);assert(writes===before+1,'Positive reopened IO');
+ if(last){assert(calls>=2&&v.native.calls===2&&v.native.outcome==='FULFILLED'&&v.ui.mediaCalls===7&&v.ui.captureBusy===true&&v.ui.mediaPending===false,'Last delivered native/proof retained');assert(v.ui.recorderState===(last.recorder===null?'ABSENT':'PRESENT')&&flags.every(k=>last.recorder===null?v.ui[k]===null:typeof v.ui[k]==='boolean'),'Presence fields');}
+ else assert(v.candidate==='UNKNOWN'&&v.ui.recorderState==='UNKNOWN'&&v.native.calls===null&&flags.every(k=>v.ui[k]===null)&&v.ui.captureBusy===null&&v.ui.mediaCalls===null,'Unavailable remains unknown');
+ assert(v.primary===(predicateThrow?'OTHER_READINESS_FAILURE':'READINESS_TIMEOUT'),'Actual caller error code');out.cases.push({name,status:'PASS'});return v;
+}
+function rejectedCandidate(name,change){
+ active();let phase='native-quiescent';const last=sample(phase),counter={reads:0};change(last,counter);phase=last.phase;const r=receipt(name),error=new Error('Synthetic invalid original'),before=writes;
+ assert(a.retainRecorderReadinessFailure({case:'desktop',phase},last,error,'OTHER_READINESS_FAILURE',r,()=>{})===error&&r.primary===error&&r.outcome.code==='READINESS_RECEIPT_REJECTED','Rejected candidate primary');
+ const first=r.outcome;noReopen(r,error,first,phase);assert(counter.reads===0&&writes===before&&!fs.existsSync(r.destination),'Unsafe accessor/write/reopen');out.cases.push({name,status:'PASS'});
+}
+(async()=>{try{
+ const absent=await composed('absent-drain-timeout',sample('native-unmounted-drained'),false);
+ await composed('absent-drain-predicate-primary',sample('native-unmounted-drained'),true);
+ await composed('absent-quiescent-timeout',sample('native-quiescent'),false);
+ await composed('absent-quiescent-predicate-primary',sample('native-quiescent'),true);
+ const present=await composed('v3-present-sentinel',sample('native-clock',true),true),unknown=await composed('v3-unavailable-sentinel',null,false);
+ const longText=sample('native-clock',true);longText.recorder.text='x'.repeat(4097);const longValue=await composed('v3-present-long-text-compat',longText,true);
+ const wideMinute=sample('native-clock',true);wideMinute.recorder.time='100:00';const wideValue=await composed('v3-present-wide-minute-compat',wideMinute,true);
+ for(const [name,input,value] of [['v3-present-long-text-compat',longText,longValue],['v3-present-wide-minute-compat',wideMinute,wideValue]]){
+ const body=fs.readFileSync(cfg.run+'/'+name+'.json');assert(value.ui.recorderState==='PRESENT'&&value.ui.timeZero===false&&body.length<=2048&&!body.includes(Buffer.from(input.recorder.text))&&!body.includes(Buffer.from(input.recorder.time)),'PRESENT compatibility bounded omission');}
+ const accessor=(object,key,c)=>Object.defineProperty(object,key,{enumerable:true,get(){c.reads++;throw new Error('Synthetic getter');}});
+ const negatives=[['absent-invalid-phase',v=>v.phase='native-clock'],['absent-invalid-selected',v=>v.selected='intake'],['absent-mounted-true',v=>v.proof.mountedVisit=true],['absent-mounted-nonboolean',v=>v.proof.mountedVisit=0],['recorder-undefined',v=>v.recorder=undefined],['recorder-nonobject',v=>v.recorder=7],['recorder-accessor',(v,c)=>accessor(v,'recorder',c)],['proof-accessor',(v,c)=>accessor(v,'proof',c)],['proof-late-accessor',(v,c)=>accessor(v.proof,'mediaPending',c)],['native-late-accessor',(v,c)=>accessor(v.proof.nativeForward.rejection,'name',c)],['late-proof-invalid-flag',v=>v.proof.mediaPending=0],['late-proof-invalid-count',v=>v.proof.mediaCalls=NaN],['late-native-invalid-count',v=>v.proof.nativeForward.calls=NaN],['late-native-unsafe-name',v=>v.proof.nativeForward.rejection.name='TASK125_SYNTHETIC_CAPABILITY'],['proof-extra-schema',v=>v.proof.extra=true]];
+ for(const [name,change] of negatives)rejectedCandidate(name,change);
+ for(const [name,seed,change] of [['serializer-forged-present',absent,v=>v.ui.recorderState='PRESENT'],['serializer-forged-unknown',absent,v=>v.candidate='UNKNOWN'],['serializer-absent-false',absent,v=>v.ui.denied=false],['serializer-wrong-proof',absent,v=>v.ui.captureBusy=null],['serializer-wrong-native',absent,v=>v.native.calls=true],['serializer-absent-phase',absent,v=>v.phase='native-clock'],['serializer-present-null',present,v=>v.ui.timeZero=null],['serializer-unknown-observed',unknown,v=>v.ui.mediaCalls=0],['serializer-v2-inert',absent,v=>v.version=2]]){
+ const v=JSON.parse(JSON.stringify(seed));change(v);let denied=false;try{a.readinessFailureBody(v);}catch{denied=true;}assert(denied,'Actual serializer accepted mutation');out.cases.push({name,status:'PASS'});}
+ const phase='native-quiescent',error=new Error('Synthetic IO original'),last=sample(phase);let attempts=0;
+ const sink=receipt('throwing-sink',{writeFileSync(...args){attempts++;assert(sink.sealed&&sink.primary===error,'Primary sealed before IO');return write(...args);}});
+ assert(a.retainRecorderReadinessFailure({case:'desktop',phase},last,error,'OTHER_READINESS_FAILURE',sink,()=>{throw new Error('Synthetic secondary sink');})===error,'Throwing sink replaced primary');persisted(sink);const first=sink.outcome;noReopen(sink,error,first,phase);assert(attempts===1,'Sink reopened');out.cases.push({name:'absent-throwing-sink-primary-exclusive',status:'PASS'});
+ const collision=receipt('owned-collision',{writeFileSync(...args){attempts++;return write(...args);}}),collisionBytes=Buffer.from('owned TASK125 collision');fs.writeFileSync(collision.destination,collisionBytes,{flag:'wx',mode:256});attempts=0;
+ assert(a.retainRecorderReadinessFailure({case:'desktop',phase},last,error,'OTHER_READINESS_FAILURE',collision,()=>{})===error&&collision.outcome.code==='READINESS_RECEIPT_WRITE_FAILED','Collision primary');const collisionFirst=collision.outcome;noReopen(collision,error,collisionFirst,phase);assert(attempts===1&&fs.readFileSync(collision.destination).equals(collisionBytes)&&(fs.statSync(collision.destination).mode&511)===256,'Collision changed/reopened');out.cases.push({name:'absent-exclusive-collision-primary',status:'PASS'});
+ attempts=0;const fault=receipt('owned-write-fault',{writeFileSync(){attempts++;assert(fault.sealed&&fault.primary===error,'Fault before primary seal');throw new Error('Synthetic IO fault');}});
+ assert(a.retainRecorderReadinessFailure({case:'desktop',phase},last,error,'OTHER_READINESS_FAILURE',fault,()=>{})===error&&fault.outcome.code==='READINESS_RECEIPT_WRITE_FAILED','IO fault primary');const faultFirst=fault.outcome;noReopen(fault,error,faultFirst,phase);assert(attempts===1&&!fs.existsSync(fault.destination),'IO fault reopened');out.cases.push({name:'absent-write-fault-primary',status:'PASS'});
+ assert(scope.record.states.length===0&&!scope.record.recorder_receipts,'No success/native branch');out.writes=writes;out.status='PASS';
+ }catch(e){out.first_failure='SYNTHETIC_BOUNDARY_'+e.name;process.exitCode=1;}
+ const result=JSON.stringify(out);assert(Buffer.byteLength(result)<=65536,'Child output bound');process.stdout.write(result);
+})().catch(()=>{process.exitCode=1;process.stderr.write('TASK125_CHILD_FINAL_REPORT_FAILED');});
+'''
+
+def need(ok, label):
+    if not ok:
+        raise AssertionError(label)
+
+def sha(body):
+    return hashlib.sha256(body).hexdigest()
+
+def exact(path, mode=0o400, maximum=1048576):
+    path = Path(path)
+    need(path.resolve() == path and not path.is_symlink(), 'Canonical input')
+    stat = path.stat()
+    need(stat.st_mode & 0o777 == mode and stat.st_size <= maximum, 'Input mode/bound')
+    return path.read_bytes()
+
+def pin(item):
+    path = Path(item['path'])
+    need(str(path.resolve()) == item['canonical'], 'Pinned canonical input')
+    body = exact(path.resolve(), int(item['mode'], 8), 134217728)
+    need(len(body) == item['bytes'] and sha(body) == item['sha256'], 'Pinned input bytes')
+    return body
+
+def exclusive(path, value):
+    need(path.parent.resolve() == path.parent and not path.is_symlink(), 'Exclusive parent')
+    body = json.dumps(value, indent=2, allow_nan=False).encode()
+    need(len(body) <= 131072, 'Owned result bound')
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o400)
+    with os.fdopen(fd, 'wb') as file:
+        file.write(body)
+
+def identity(pid):
+    body = Path('/proc/' + str(pid) + '/stat').read_text()
+    fields = body[body.rfind(')') + 2:].split()
+    return {'pid': pid, 'pgid': int(fields[2]), 'birth': fields[19]}
+
+def group_absent(pgid):
+    try:
+        os.killpg(pgid, 0)
+        return False
+    except ProcessLookupError:
+        return True
+
+def bounded_child_output(child, work_end, work_utc):
+    end = min(time.monotonic()+25,work_end)
+    buffers = {'stdout':bytearray(),'stderr':bytearray()}
+    limits = {'stdout':65536,'stderr':16384}
+    with selectors.DefaultSelector() as selector:
+        for name, stream in [('stdout',child.stdout),('stderr',child.stderr)]:
+            os.set_blocking(stream.fileno(),False)
+            selector.register(stream,selectors.EVENT_READ,name)
+        while selector.get_map():
+            need(time.monotonic()<end and time.time()<work_utc,'Actual child output deadline')
+            for key, _ in selector.select(min(0.1,max(0,end-time.monotonic()),max(0,work_utc-time.time()))):
+                name=key.data
+                block=os.read(key.fd,min(4096,limits[name]-len(buffers[name])+1))
+                if not block:
+                    selector.unregister(key.fileobj)
+                else:
+                    need(len(buffers[name])+len(block)<=limits[name],'Actual pipe output cap')
+                    buffers[name].extend(block)
+        child.wait(timeout=min(1,max(0.001,end-time.monotonic()),max(0.001,work_utc-time.time())))
+    return bytes(buffers['stdout']),bytes(buffers['stderr'])
+
+def selected_parent(source, expected):
+    tree = ast.parse(source, filename='TASK125_PINNED_PARENT', mode='exec')
+    selected, records, seen = [], [], set()
+    for node in tree.body:
+        name = node.name if isinstance(node, ast.FunctionDef) else None
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'CACHED_NAMES' for t in node.targets):
+            name = 'CACHED_NAMES'
+            need(len(node.targets) == 1 and isinstance(node.value, ast.List) and all(isinstance(v, ast.Constant) and type(v.value) is str for v in node.value.elts), 'Actual cached literal')
+        if name in PY_NAMES + ['CACHED_NAMES']:
+            need(name not in seen and (not isinstance(node, ast.FunctionDef) or not node.decorator_list), 'Actual parent unique declaration')
+            seen.add(name)
+            span = ast.get_source_segment(source, node).encode()
+            need(0 < len(span) <= 16384, 'Actual parent span bound')
+            binding=next(item for item in expected if item['name']==name)
+            need(binding['bytes']==len(span) and binding['sha256']==sha(span),'Reviewed actual parent span hash')
+            records.append({'name': name, 'bytes': len(span), 'sha256': sha(span)})
+            selected.append(node)
+    need(seen == set(PY_NAMES + ['CACHED_NAMES']), 'Exact actual parent definitions')
+    context = {'json': json, 'hashlib': hashlib, 'Path': Path}
+    exec(compile(ast.Module(body=selected, type_ignores=[]), 'TASK125_SELECTED_PARENT', 'exec'), context)
+    return context, records
+
+def parent_controls(parent, receipts, run, work_guard):
+    cases, values = [], {}
+    for item in receipts:
+        work_guard()
+        body, value = parent['owned_readiness'](item, run, 'TASK125_SYNTHETIC_CAPABILITY')
+        need(value['version'] == 3, 'Parent current version')
+        name = Path(item['path']).stem
+        values[name] = (body, value, item)
+        cases.append({'name': 'parent-' + name, 'status': 'PASS'})
+    absent = values['absent-drain-timeout'][1]
+    present = values['v3-present-sentinel'][1]
+    unknown = values['v3-unavailable-sentinel'][1]
+    mutations = [('state-present',absent,('ui','recorderState'),'PRESENT'),('state-unknown',absent,('ui','recorderState'),'UNKNOWN'),('candidate-unknown',absent,('candidate',),'UNKNOWN'),('absent-wrong-phase',absent,('phase',),'native-clock'),('absent-false-ui',absent,('ui','denied'),False),('proof-null',absent,('ui','captureBusy'),None),('proof-wrong-type',absent,('ui','mediaPending'),0),('proof-bool-count',absent,('ui','mediaCalls'),True),('native-bool-count',absent,('native','calls'),True),('native-wrong-flag',absent,('native','observerFault'),0),('foreign-version',absent,('version',),2),('foreign-state',absent,('ui','recorderState'),'OTHER'),('foreign-native-label',absent,('native','outcome'),'OTHER'),('foreign-schema',absent,('extra',),True),('present-null',present,('ui','pauseStop'),None),('unknown-observed',unknown,('ui','mediaCalls'),0)]
+    bodies = []
+    for name, seed, keys, replacement in mutations:
+        value = json.loads(json.dumps(seed)); target = value
+        for key in keys[:-1]:
+            target = target[key]
+        target[keys[-1]] = replacement
+        bodies.append((name, json.dumps(value).encode()))
+    raw = values['absent-drain-timeout'][0]
+    bodies += [('duplicate-key',raw[:-1]+b',"version":3}'),('nonfinite',raw.replace(b'"calls":2',b'"calls":NaN')),('invalid-utf8',b'\xff'),('over2048',b' '*2049)]
+    for name, body in bodies:
+        work_guard(); rejected = False
+        try:
+            parent['readiness_projection'](body)
+        except (AssertionError, ValueError, KeyError, TypeError, UnicodeError):
+            rejected = True
+        need(rejected, 'Actual parent mutation accepted')
+        cases.append({'name':'parent-reject-'+name,'status':'PASS'})
+    descriptor = values['absent-drain-timeout'][2]
+    bad_descriptors = [('hash',{**descriptor,'sha256':'0'*64}),('bytes',{**descriptor,'bytes':descriptor['bytes']+1}),('path',{**descriptor,'path':str(BASE/'outside.json')})]
+    mode_path = run/'wrong-mode.json'; mode_path.write_bytes(raw); mode_path.chmod(0o600)
+    bad_descriptors.append(('mode',{'path':str(mode_path),'bytes':len(raw),'sha256':sha(raw)}))
+    link = run/'symlink-receipt.json'; link.symlink_to(Path(descriptor['path']))
+    bad_descriptors.append(('symlink',{'path':str(link),'bytes':len(raw),'sha256':sha(raw)}))
+    for name, item in bad_descriptors:
+        work_guard(); rejected = False
+        try:
+            parent['owned_readiness'](item,run,'TASK125_SYNTHETIC_CAPABILITY')
+        except (AssertionError, ValueError, OSError):
+            rejected = True
+        need(rejected,'Actual owned parent descriptor accepted')
+        cases.append({'name':'parent-owned-reject-'+name,'status':'PASS'})
+    return cases
+
+def main():
+    started, start_utc = time.monotonic(), time.time()
+    need(start_utc + 60 < OUTER, 'Full sixty second admission')
+    total_end, total_utc = started + 60, min(start_utc + 60, OUTER)
+    work_end, work_utc = started + 40, min(start_utc + 40, OUTER - 20)
+    def work_guard():
+        need(time.monotonic() < work_end and time.time() < work_utc, 'Paired synthetic workEnd')
+    source_bytes, input_bytes, command_bytes = exact(BASE/'SOURCE_PINS.json'), exact(BASE/'INPUT_PINS.json'), exact(BASE/'COMMAND.txt')
+    sources, inputs = json.loads(source_bytes), json.loads(input_bytes)
+    grant = json.loads(exact(BASE/'REGRESSION_EXECUTION_GO.json'))
+    need(set(grant) == {'task','scope','original_total_until','source_pins_sha256','input_pins_sha256','command_sha256','total_seconds','cleanup_seconds','opened_utc','latest_start_utc'}, 'Exact synthetic grant')
+    binding={key:value for key,value in grant.items() if key not in ['opened_utc','latest_start_utc']}
+    need(binding == {'task':'TASK125','scope':'SYNTHETIC_ONLY','original_total_until':'2026-10-13T23:15:00+00:00','source_pins_sha256':sha(source_bytes),'input_pins_sha256':sha(input_bytes),'command_sha256':sha(command_bytes),'total_seconds':60,'cleanup_seconds':20}, 'Bound separately reviewed grant')
+    opened=datetime.fromisoformat(grant['opened_utc']).timestamp(); latest=datetime.fromisoformat(grant['latest_start_utc']).timestamp()
+    need(opened<=time.time()<=latest and latest+60<=OUTER,'Root start window/full original ceiling')
+    need(dict(os.environ)==ENV,'Literal sanitized runner environment')
+    provider_bytes = {item['role']: pin(item) for item in sources['files']}
+    for item in inputs['files']:
+        pin(item)
+    need(set(provider_bytes) == {'adapter','supervisor','runner'} and provider_bytes['runner'] == Path(__file__).read_bytes(), 'Three exact code providers')
+    work_guard(); need(time.time()+60 < OUTER, 'Full sixty admission before once')
+    exclusive(BASE/'REGRESSION_ONCE.json', {'task':'TASK125','scope':'SYNTHETIC_ONLY','started_utc':datetime.now(timezone.utc).isoformat(),'source_pins_sha256':sha(source_bytes),'input_pins_sha256':sha(input_bytes),'grant_sha256':sha(exact(BASE/'REGRESSION_EXECUTION_GO.json'))})
+    run = BASE/('regression-run-'+secrets.token_hex(6)); run.mkdir(mode=0o700)
+    need(run.resolve() == run and run.stat().st_mode & 0o777 == 0o700, 'Fresh private synthetic directory')
+    record = {'task':'TASK125','scope':'SYNTHETIC_ONLY','status':'FAILED','first_failure':None,'cleanup_failures':[],'cases':[],'sources_sha256':sha(source_bytes),'inputs_sha256':sha(input_bytes)}
+    child, owned, stdout, stderr = None, None, b'', b''
+    watched={signal.SIGINT,signal.SIGTERM,signal.SIGHUP}
+    def interrupted(_signal,_frame):
+        raise KeyboardInterrupt('TASK125_REGISTERED_CHILD_CLEANUP')
+    for signum in watched:
+        signal.signal(signum,interrupted)
+    def fail(label):
+        if record['first_failure'] is None:
+            record['first_failure'] = label
+    try:
+        parent, spans = selected_parent(provider_bytes['supervisor'].decode('utf8'),sources['python_spans']); record['python_spans'] = spans
+        adapter = next(item for item in sources['files'] if item['role'] == 'adapter')
+        cfg = {'run':str(run),'source':adapter,'js_names':JS_NAMES,'js_spans':sources['javascript_spans'],'remaining_ms':min(25000,int((work_end-time.monotonic())*1000)),'work_end_utc':int(work_utc*1000)}
+        work_guard(); need(cfg['remaining_ms'] > 0, 'Child remaining lease')
+        argv = [NODE, '-e', NODE_PROGRAM, json.dumps(cfg, separators=(',',':'))]
+        record['child_argv'] = [NODE,'-e','LITERAL_NODE_PROGRAM_SHA256_'+sha(NODE_PROGRAM.encode()),'DECLARED_SYNTHETIC_CONFIGURATION']
+        blocked = signal.pthread_sigmask(signal.SIG_BLOCK,watched)
+        try:
+            child = subprocess.Popen(argv, cwd=str(BASE), env=ENV, shell=False, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+            owned = {'pid':child.pid,'pgid':child.pid,'birth':None}
+            record['owned_child'] = owned
+            observed = identity(child.pid); owned['birth'] = observed['birth']; need(observed['pgid'] == owned['pgid'],'Owned child group identity')
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK,blocked)
+        stdout, stderr = bounded_child_output(child,work_end,work_utc)
+        work_guard(); need(len(stdout) <= 65536 and len(stderr) <= 16384, 'Bounded child output')
+        exclusive(run/'child-output.json',{'stdout':stdout.decode('utf8'),'stderr':stderr.decode('utf8'),'returncode':child.returncode})
+        need(child.returncode == 0,'Child actual regression failed')
+        result = json.loads(stdout); need(result['status'] == 'PASS' and result['first_failure'] is None and len(result['cases']) <= 64 and len(result['receipts']) == 9,'Actual child report')
+        record['cases'] = result['cases']; record['javascript_spans'] = result['spans']; record['receipts'] = result['receipts']
+        record['cases'] += parent_controls(parent,result['receipts'],run,work_guard)
+        need(len(list(run.iterdir())) <= 32,'Owned receipt enumeration bound')
+        record['status'] = 'PASS_PENDING_INDEPENDENT_REVIEW'
+    except BaseException as error:
+        fail('REGRESSION_BOUNDARY_'+type(error).__name__)
+    finally:
+        cleanup_mask=signal.pthread_sigmask(signal.SIG_BLOCK,watched)
+        record['cleanup_started_utc'] = datetime.now(timezone.utc).isoformat()
+        if child is not None:
+            def cleanup_step(label, action):
+                try:
+                    return action()
+                except BaseException as error:
+                    record['cleanup_failures'].append(label+'_'+type(error).__name__)
+                    return None
+            def terminate_registered():
+                try:
+                    observed=identity(owned['pid'])
+                    need(observed['pgid']==owned['pgid'] and (owned['birth'] is None or observed['birth']==owned['birth']),'Cleanup registered identity')
+                    if owned['birth'] is None:
+                        owned['birth']=observed['birth']
+                    os.killpg(owned['pgid'],signal.SIGTERM)
+                except BaseException as error:
+                    record['cleanup_failures'].append('REGISTERED_METADATA_'+type(error).__name__)
+                    child.terminate()
+            if child.poll() is None:
+                cleanup_step('TERM',terminate_registered)
+                try:
+                    child.wait(timeout=min(2,max(0.001,total_end-time.monotonic()),max(0.001,total_utc-time.time())))
+                except BaseException:
+                    cleanup_step('GROUP_KILL',lambda:os.killpg(owned['pgid'],signal.SIGKILL))
+                    cleanup_step('CHILD_KILL',child.kill)
+            cleanup_step('REAP',lambda:child.wait(timeout=min(5,max(0.001,total_end-time.monotonic()),max(0.001,total_utc-time.time()))))
+            record['cleanup_child_returncode']=child.returncode
+            record['cleanup_group_absent']=cleanup_step('GROUP_ABSENCE',lambda:group_absent(owned['pgid']))
+            if record['cleanup_group_absent'] is not True:
+                record['cleanup_failures'].append('KNOWN_OWNED_GROUP_PRESENT_OR_UNKNOWN')
+            for stream in [child.stdout,child.stderr]:
+                if stream is not None:
+                    cleanup_step('PIPE_CLOSE',stream.close)
+        else:
+            record['cleanup_child_returncode'] = None; record['cleanup_group_absent'] = 'NOT_SPAWNED'
+        if record['cleanup_failures']:
+            fail('OWNED_CLEANUP_FAILED')
+        if time.monotonic() >= total_end or time.time() >= total_utc:
+            fail('TOTAL_DEADLINE_EXCEEDED')
+        if record['first_failure'] is not None:
+            record['status'] = 'FAILED'
+        record['finished_utc'] = datetime.now(timezone.utc).isoformat()
+        record['elapsed_seconds'] = time.monotonic()-started
+        exclusive(run/'RESULT.json',record)
+        signal.pthread_sigmask(signal.SIG_SETMASK,cleanup_mask)
+    print(json.dumps({'run':str(run),'status':record['status'],'cases':len(record['cases']),'first_failure':record['first_failure']}))
+    return 0 if record['status'] == 'PASS_PENDING_INDEPENDENT_REVIEW' else 1
+
+if __name__ == '__main__':
+    raise SystemExit(main())

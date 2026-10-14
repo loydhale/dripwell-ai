@@ -1,0 +1,255 @@
+{
+  "status": "PASS_PENDING_INDEPENDENT_REVIEW",
+  "source_sha": "c6d5d42db9ddb20bacebd7a2c79546b77ac11cee2f12b4ab24693d33d52ea034",
+  "input_sha": "c549e05a9c5e86963d3335dbef754757e1aa8e8e6e0e8b67fc9a977391cab73a",
+  "started_utc": "2026-10-14T06:32:19.192629+00:00",
+  "scope": "TASK138 original first Start default owner-real clock-native sender; two states-one image-owned cleanup only; old batches INERT",
+  "budget_admission": {
+    "total_seconds": 240,
+    "work_seconds": 150,
+    "cleanup_seconds": 90,
+    "end_utc": "2026-10-14T06:36:19.192629+00:00",
+    "work_utc": "2026-10-14T06:34:49.192629+00:00",
+    "utc_available_before_once": 1660.807371,
+    "monotonic_anchor": 1095147.18942893
+  },
+  "admission_ownership_controls": {
+    "authority": "INERT_UNEXECUTED_DEFINITION_NO_RESULT"
+  },
+  "native_media_policy": {
+    "value": {
+      "version": 1,
+      "case": "desktop",
+      "nativeVersion": "151.0.7922.173",
+      "provenance": "DECLARED_NATIVE_SYNTHETIC_DEVICE_LAUNCH",
+      "deviceMode": "NATIVE_SYNTHETIC",
+      "deviceSwitchCount": 1,
+      "deviceSwitchNoValue": true,
+      "baseArgumentsPreserved": true,
+      "observedPermission": "UNVERIFIED",
+      "observedDeviceAvailability": "UNVERIFIED",
+      "priorCause": "UNKNOWN"
+    },
+    "bytes": 328,
+    "sha256": "f7fe4ecf7b92bb226043d78919b1a82bdd39a69d01c3b2f19244d24a0a4da442",
+    "provenance": "ACTUAL_ARGV_PASSED_UNCHANGED_TO_OWNED_POPEN_DECLARATION_ONLY"
+  },
+  "native_style_group_cleanup": {
+    "acknowledged": 0,
+    "unknown": 0,
+    "outstanding": 0,
+    "scope": "Owned group RPC acknowledgements, not global handle absence"
+  },
+  "observation_disposition": "NOT_OBSERVED",
+  "adapter_primary_code": "OTHER_OR_NONE",
+  "native_final_start_boundary": {
+    "descriptor": {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-boundary.json",
+      "bytes": 680,
+      "sha256": "96d4cdc9dd708f13ace17f1409836a87a274da8dc5f1f5b8992418b36484446b"
+    },
+    "value": {
+      "version": 1,
+      "event": "NATIVE_FINAL_START_BOUNDARY",
+      "case": "desktop",
+      "provenance": "REAL_NATIVE_DEFAULT_PREPARATION_CLOCKS_ORIGINAL_SENDER",
+      "click": {
+        "x": 345,
+        "y": 563,
+        "label": "Start recording",
+        "button": "left",
+        "clickCount": 1
+      },
+      "admissions": [
+        {
+          "event": "mousePressed",
+          "minimumWorkMs": 130000,
+          "monotonicRemainingMs": 148156,
+          "utcRemainingMs": 148156,
+          "rolloverLeaseMs": 75000,
+          "initialReadinessReserveMs": 5000,
+          "remainingPhasesReserveMs": 50000
+        },
+        {
+          "event": "mouseReleased",
+          "minimumWorkMs": 130000,
+          "monotonicRemainingMs": 148148,
+          "utcRemainingMs": 148148,
+          "rolloverLeaseMs": 75000,
+          "initialReadinessReserveMs": 5000,
+          "remainingPhasesReserveMs": 50000
+        }
+      ],
+      "defaultClockOverrideAbsent": true,
+      "startScopeCleared": true
+    }
+  },
+  "final_start_admissions": [
+    {
+      "event": "mousePressed",
+      "minimumWorkMs": 130000,
+      "monotonicRemainingMs": 148156,
+      "utcRemainingMs": 148156,
+      "rolloverLeaseMs": 75000,
+      "initialReadinessReserveMs": 5000,
+      "remainingPhasesReserveMs": 50000
+    },
+    {
+      "event": "mouseReleased",
+      "minimumWorkMs": 130000,
+      "monotonicRemainingMs": 148148,
+      "utcRemainingMs": 148148,
+      "rolloverLeaseMs": 75000,
+      "initialReadinessReserveMs": 5000,
+      "remainingPhasesReserveMs": 50000
+    }
+  ],
+  "new_first_start_controls": {
+    "status": "PASS",
+    "count": 3,
+    "codec": {
+      "status": "PASS",
+      "count": 1,
+      "category": "first-start-v4-codec-exclusive-IO",
+      "negatives": 10,
+      "receipt": {
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-codec-control.json",
+        "bytes": 349,
+        "sha256": "2c930cfe2977b9635caac357541e4bb14537e095510bd00abf98d28ad1a2d043"
+      }
+    },
+    "boundary": {
+      "status": "PASS",
+      "count": 1,
+      "category": "first-start-boundary-codec-exclusive-IO",
+      "negatives": 9,
+      "receipt": {
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-boundary-control.json",
+        "bytes": 678,
+        "sha256": "78ac6c47c48a8ef5cbc737e707f47826680c45395f6259cbc77e6d03cbf1ce9d"
+      }
+    },
+    "parent": {
+      "status": "PASS",
+      "count": 1,
+      "category": "first-start-two-phase-boundary-parent",
+      "negatives": 18
+    }
+  },
+  "scope_result": {
+    "native_goal": "NATIVE_FINAL_START_DEFAULT_OWNER_CLOCKS_ORIGINAL_SEND_PENDING_INDEPENDENT_AUDIT",
+    "cases": [
+      {
+        "case": "desktop",
+        "status": "NATIVE_FINAL_START_DEFAULT_OWNER_CLOCKS_ORIGINAL_SEND",
+        "provenance": "FIRST_START_ONLY_OWNED_TEARDOWN_NO_STOP_DRAIN_UPLOAD"
+      }
+    ],
+    "forward_receipt": {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-forward.json",
+      "bytes": 326,
+      "sha256": "3f227b520f9dfcfc20f68fc6580cd9701ffec8590e07e1edb4e5772bb51ef929"
+    },
+    "success_receipt": {
+      "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-success.json",
+      "bytes": 678,
+      "sha256": "646d4fa60a9d7b5de5f32ca69584de60309e6225325da176459bdfa5777f5b9e"
+    },
+    "boundary": {
+      "descriptor": {
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-boundary.json",
+        "bytes": 680,
+        "sha256": "96d4cdc9dd708f13ace17f1409836a87a274da8dc5f1f5b8992418b36484446b"
+      },
+      "value": {
+        "version": 1,
+        "event": "NATIVE_FINAL_START_BOUNDARY",
+        "case": "desktop",
+        "provenance": "REAL_NATIVE_DEFAULT_PREPARATION_CLOCKS_ORIGINAL_SENDER",
+        "click": {
+          "x": 345,
+          "y": 563,
+          "label": "Start recording",
+          "button": "left",
+          "clickCount": 1
+        },
+        "admissions": [
+          {
+            "event": "mousePressed",
+            "minimumWorkMs": 130000,
+            "monotonicRemainingMs": 148156,
+            "utcRemainingMs": 148156,
+            "rolloverLeaseMs": 75000,
+            "initialReadinessReserveMs": 5000,
+            "remainingPhasesReserveMs": 50000
+          },
+          {
+            "event": "mouseReleased",
+            "minimumWorkMs": 130000,
+            "monotonicRemainingMs": 148148,
+            "utcRemainingMs": 148148,
+            "rolloverLeaseMs": 75000,
+            "initialReadinessReserveMs": 5000,
+            "remainingPhasesReserveMs": 50000
+          }
+        ],
+        "defaultClockOverrideAbsent": true,
+        "startScopeCleared": true
+      }
+    },
+    "state_receipts": [
+      {
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-1.json",
+        "bytes": 5695,
+        "sha256": "014c09ad3a3c1529663df57b2a27be9c75edb9b927d25991abe8acb9472735b9"
+      },
+      {
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-2.json",
+        "bytes": 6009,
+        "sha256": "ce9ca6ed48a57051b49fa10c16e83c5023c46bd0b1867efb588f135bd2c5d22d"
+      }
+    ],
+    "images": [
+      {
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-recording.png",
+        "bytes": 95206,
+        "sha256": "074a65156b148e2fb1db7d2fca9699893ea8ebc6156a66158454b92ee6f3c4f7"
+      }
+    ],
+    "controls": {
+      "status": "PASS",
+      "count": 3,
+      "codec": {
+        "status": "PASS",
+        "count": 1,
+        "category": "first-start-v4-codec-exclusive-IO",
+        "negatives": 10,
+        "receipt": {
+          "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-codec-control.json",
+          "bytes": 349,
+          "sha256": "2c930cfe2977b9635caac357541e4bb14537e095510bd00abf98d28ad1a2d043"
+        }
+      },
+      "boundary": {
+        "status": "PASS",
+        "count": 1,
+        "category": "first-start-boundary-codec-exclusive-IO",
+        "negatives": 9,
+        "receipt": {
+          "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-boundary-control.json",
+          "bytes": 678,
+          "sha256": "78ac6c47c48a8ef5cbc737e707f47826680c45395f6259cbc77e6d03cbf1ce9d"
+        }
+      },
+      "parent": {
+        "status": "PASS",
+        "count": 1,
+        "category": "first-start-two-phase-boundary-parent",
+        "negatives": 18
+      }
+    },
+    "limits": "First Start native/defaultowner-realclocks-originalsender source-bound; no Target wire payloads/appStop-drain-upload-track-ended-provider-pilot proof"
+  },
+  "cleanup_failures": [],
+  "finished_utc": "2026-10-14T06:32:21.380090+00:00"
+}

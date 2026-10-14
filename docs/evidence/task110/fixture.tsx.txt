@@ -1,0 +1,123 @@
+import { config as zodConfig } from 'zod';
+import { createElement, useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import '/workspace/dripwell-build/apps/web/app/globals.css';
+declare const __CAPTURE_SOURCE_SHA__: string;
+zodConfig({ jitless: true });
+const locationId = '77777777-7777-4777-8777-777777777701';
+const visitId = '77777777-7777-4777-8777-777777777710';
+const configId = '77777777-7777-4777-8777-777777777703';
+let routes = 0;
+export function useBoundary() {
+  return { pathname: '/consultations/' + visitId, navigate(href: string) {
+    if (href !== '/dashboard?locationId=' + locationId) throw new Error('Undeclared fictional navigation');
+    routes++; reflect();
+  } };
+}
+const caseName = new URL(location.href).searchParams.get('case');
+if (!['desktop', 'mobile', 'synthetic'].includes(caseName || '')) throw new Error('Unknown recorder case');
+const synthetic = caseName === 'synthetic';
+const ledger = { clinic: 0, detail: 0, recordings: 0, shares: 0, mutations: 0 };
+let scenario = synthetic ? 'no-consent' : caseName === 'desktop' ? 'consented' : 'no-consent';
+let captureBusy = false, mediaCalls = 0, mountedVisit = true;
+let rejectMedia: null | ((error: DOMException) => void) = null;
+let mediaPending = false;
+const proof = document.createElement('pre');
+proof.id = '__recorder_fixture'; proof.hidden = true; document.body.append(proof);
+function reflect() {
+  proof.textContent = JSON.stringify({ source: __CAPTURE_SOURCE_SHA__, case: caseName, scenario,
+    synthetic, captureBusy, mediaCalls, mediaPending, mountedVisit, routes, ledger,
+    jitless: zodConfig().jitless === true, failed: Boolean((window as any).__CAPTURE__.failed) });
+}
+function deny(reason: string): never {
+  (window as any).__CAPTURE__.fault(reason); reflect(); throw new Error(reason);
+}
+if (synthetic) {
+  if (!navigator.mediaDevices || typeof MediaRecorder === 'undefined') deny('Synthetic media leaf unavailable');
+  Object.defineProperty(navigator.mediaDevices, 'getUserMedia', { configurable: true, value: () => {
+    mediaCalls++; mediaPending = true; reflect();
+    return new Promise<MediaStream>((_resolve, reject) => { rejectMedia = reject; });
+  } });
+}
+void (async () => {
+  const shared = await import('/workspace/dripwell-build/packages/shared/src/v2/index.ts');
+  const { emptyConfiguration } = await import('/workspace/dripwell-build/apps/web/components/configuration-editor');
+  const { AppShell } = await import('/workspace/dripwell-build/apps/web/components/app-shell');
+  const { Consultation } = await import('/workspace/dripwell-build/apps/web/components/consultation');
+  const { useClinic } = await import('/workspace/dripwell-build/apps/web/components/clinic-context');
+  const timestamp = '2026-10-13T00:00:00.000Z';
+  const configuration = emptyConfiguration('Fictional recorder clinic');
+  configuration.questions = [{ id: 'fictional-question', text: 'Fictional required question',
+    why: 'Synthetic missing-answer evidence only', type: 'TEXT', options: [], required: true,
+    safetyRelevant: true, activeWhen: [], priority: 1 }];
+  shared.clinicConfigurationSchema.parse(configuration);
+  const summary = shared.emptyConsultationSummary();
+  shared.consultationSummarySchema.parse(summary);
+  function visit() {
+    return { id: visitId, reference: 'SYNTHETIC-RECORDER', stage: 'CONSULTATION_STARTED', version: 1,
+      locationId, providerId: 'fictional-staff', providerName: 'Fictional Staff', isTest: true,
+      configurationVersionId: configId, consentAt: scenario === 'no-consent' ? null : timestamp,
+      consentDeclined: scenario === 'no-consent', summary, transcript: [], initialRecommendation: null,
+      initialRevision: 0, clinicalApprovedVersion: null, clinicalApprovedAt: null, actualCare: null,
+      careOutcome: 'PENDING', wellnessPlan: null, wellnessRevision: 0, wellnessApprovedVersion: null,
+      wellnessApprovedAt: null, wellnessDecision: null, wellnessDecisionRevision: null,
+      archivedAt: scenario === 'archived' ? timestamp : null, archiveReason: 'Synthetic archive',
+      createdAt: timestamp, updatedAt: timestamp, questionStates: [], adjustments: [], jobs: [] };
+  }
+  const version = { id: configId, version: 1, revision: 1, status: 'ACTIVE', configuration, createdAt: timestamp };
+  function clinic() {
+    return { user: { id: 'fictional-owner', name: 'Fictional Owner', email: 'owner@example.invalid',
+      role: 'OWNER', canApproveClinical: false }, clinic: { id: 'fictional-clinic', name: configuration.clinic.name },
+      locations: [{ id: locationId, name: 'Fictional location' }, { id: '77777777-7777-4777-8777-777777777702', name: 'Second fictional location' }], configuration: { active: version, draft: null, versions: [version] },
+      consultations: [visit()], consultationCount: 1, consultationPagination: { nextCursor: null, pageSize: 50 },
+      notifications: [], metrics: {}, trial: null, improvements: [], adjustments: [], staff: [] };
+  }
+  window.fetch = async (input, init) => {
+    const url = new URL(typeof input === 'string' ? input : input instanceof Request ? input.url : String(input), location.href);
+    const method = init?.method || (input instanceof Request ? input.method : 'GET');
+    if (method !== 'GET') { ledger.mutations++; return deny('Recorder mutation denied'); }
+    if (url.origin !== location.origin) return deny('Foreign recorder fetch');
+    let payload;
+    if (url.pathname === '/api/clinic' && url.searchParams.get('id') === visitId && [...url.searchParams.keys()].length === 1) {
+      ledger.detail++; payload = { consultation: visit(), configuration };
+    } else if (url.pathname === '/api/clinic' && url.searchParams.get('locationId') === locationId && [...url.searchParams.keys()].length === 1) {
+      ledger.clinic++; payload = clinic();
+    } else if (url.pathname === '/api/recordings' && url.searchParams.get('consultationId') === visitId && [...url.searchParams.keys()].length === 1) {
+      ledger.recordings++; payload = { recordings: [] };
+    } else if (url.pathname === '/api/share' && visit().wellnessPlan !== null && visit().wellnessApprovedVersion === visit().wellnessRevision) {
+      ledger.shares++; payload = { shares: [] };
+    } else return deny('Undeclared recorder GET');
+    if (Object.values(ledger).some(n => n > 32)) return deny('Recorder GET count bound');
+    reflect(); return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  function Probe() {
+    const context = useClinic();
+    useEffect(() => { captureBusy = context.captureBusy; reflect(); }, [context.captureBusy]);
+    return null;
+  }
+  function Harness() {
+    const [generation, setGeneration] = useState(0);
+    const [showVisit, setShowVisit] = useState(true);
+    const reset = (next: string) => {
+      if (mediaPending || captureBusy) return deny('Reset during pending capture');
+      scenario = next; mountedVisit = true; setShowVisit(true); setGeneration(n => n + 1); reflect();
+    };
+    const reject = () => {
+      if (!rejectMedia || !mediaPending) return deny('No controlled pending media');
+      mediaPending = false; const reject = rejectMedia; rejectMedia = null;
+      reject(new DOMException('Synthetic permission denial', 'NotAllowedError')); reflect();
+    };
+    return createElement('div', null,
+      synthetic ? createElement('aside', { 'aria-label': 'Synthetic test controls' },
+        ...['no-consent', 'archived', 'consented'].map(next => createElement('button', {
+          id: 'control-' + next, key: next, type: 'button', onClick: () => reset(next),
+        }, 'Synthetic reset ' + next)),
+        createElement('button', { id: 'control-reject', type: 'button', onClick: reject }, 'Reject synthetic media'),
+        createElement('button', { id: 'control-unmount', type: 'button', onClick: () => {
+          mountedVisit = false; setShowVisit(false); reflect();
+        } }, 'Unmount synthetic visit')) : null,
+      createElement(AppShell, { key: generation }, createElement(Probe),
+        showVisit ? createElement(Consultation, { id: visitId }) : null));
+  }
+  reflect(); createRoot(document.getElementById('root')!).render(createElement(Harness));
+})().catch(() => (window as any).__CAPTURE__.fault('Recorder fixture setup failed'));

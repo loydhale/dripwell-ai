@@ -1,0 +1,996 @@
+{
+  "SDK_prospective_readonly_root": {
+    "authority": "Declared readonly native SDK root;fresh actual loaded-path ledger required,not whole-root immutability.",
+    "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package",
+    "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package"
+  },
+  "addendum": {
+    "bytes": 629,
+    "canonical": "/workspace/pw110-plan/ADDENDUM_R1.md",
+    "mode": "0400",
+    "path": "/workspace/pw110-plan/ADDENDUM_R1.md",
+    "sha256": "6b7572ff8824d743f338a9e2db38d1c4f92c7b8c2b81ac8b2457e3227de2a00f"
+  },
+  "additional_guidance": [
+    {
+      "bytes": 2907,
+      "canonical": "/workspace/dripwell-build/personas/CODER.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/personas/CODER.md",
+      "sha256": "b7a9797ae10b6c98d515f1bc2864000b040ba8225e59902a3a62537db1323916"
+    },
+    {
+      "bytes": 678,
+      "canonical": "/workspace/dripwell-build/apps/web/AGENTS.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/AGENTS.md",
+      "sha256": "63f2c50380ed6303237cce215ce27af1d620d094c215e28d1b1538a3c070e3bb"
+    },
+    {
+      "bytes": 7922,
+      "canonical": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "sha256": "1dd50aa65a4f8a287f8d8e2fbbaf4e52a3998451a9011659ab0ab38d19539932"
+    }
+  ],
+  "compiled_application_inputs": {
+    "/workspace/dripwell-build/apps/web/app/globals.css": {
+      "bytes": 56407,
+      "canonical": "/workspace/dripwell-build/apps/web/app/globals.css",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/app/globals.css",
+      "sha256": "a0d35c46e14aee573ef4b59c8804966a5e6142fcd0243d37ce5409ddfa086cb9"
+    },
+    "/workspace/dripwell-build/apps/web/components/app-shell.tsx": {
+      "bytes": 10507,
+      "canonical": "/workspace/dripwell-build/apps/web/components/app-shell.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/app-shell.tsx",
+      "sha256": "d54e9f88bbf6d78b97fee2586cd83e14e00b30b4bcb611d5ef6b384e7df756cd"
+    },
+    "/workspace/dripwell-build/apps/web/components/audio-recorder.tsx": {
+      "bytes": 11203,
+      "canonical": "/workspace/dripwell-build/apps/web/components/audio-recorder.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/audio-recorder.tsx",
+      "sha256": "f2adf35af81aeb641289f0fe98106c5d103e3b3db4f734c5e33381d6b859cc47"
+    },
+    "/workspace/dripwell-build/apps/web/components/clinic-context.tsx": {
+      "bytes": 11349,
+      "canonical": "/workspace/dripwell-build/apps/web/components/clinic-context.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/clinic-context.tsx",
+      "sha256": "d390088c7274c5d18316cef19eecdcea20caf3b6aa1ff0e1608df56922516b43"
+    },
+    "/workspace/dripwell-build/apps/web/components/configuration-editor.tsx": {
+      "bytes": 34797,
+      "canonical": "/workspace/dripwell-build/apps/web/components/configuration-editor.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/configuration-editor.tsx",
+      "sha256": "ce14e523a31c88b0454de23ded8dd7f153a4e5a4f4f68bd2579d77308c601141"
+    },
+    "/workspace/dripwell-build/apps/web/components/consultation.tsx": {
+      "bytes": 68502,
+      "canonical": "/workspace/dripwell-build/apps/web/components/consultation.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/consultation.tsx",
+      "sha256": "351a344a8ff6b754f825b9d4b2e76e68109ce1e5fafe88d550b50e084b19acb9"
+    },
+    "/workspace/dripwell-build/apps/web/components/dashboard.tsx": {
+      "bytes": 16275,
+      "canonical": "/workspace/dripwell-build/apps/web/components/dashboard.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/dashboard.tsx",
+      "sha256": "2b2f6160b47fc9cca8aa61b0c6db642b11b1c70057a51b02e15c2de472dcbbf9"
+    },
+    "/workspace/dripwell-build/apps/web/components/job-client.ts": {
+      "bytes": 1001,
+      "canonical": "/workspace/dripwell-build/apps/web/components/job-client.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/job-client.ts",
+      "sha256": "a1187518893ffc9d89d71846924ee7cb78ddcb496547fa8b81029d90fbcb5d06"
+    },
+    "/workspace/dripwell-build/apps/web/components/membership-outcomes.tsx": {
+      "bytes": 2906,
+      "canonical": "/workspace/dripwell-build/apps/web/components/membership-outcomes.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/membership-outcomes.tsx",
+      "sha256": "3fce491b2f447e685fd407f33c0d6a823ac5ea9bb3776d662803072121a757bc"
+    },
+    "/workspace/dripwell-build/apps/web/components/recording-segments.tsx": {
+      "bytes": 8855,
+      "canonical": "/workspace/dripwell-build/apps/web/components/recording-segments.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/recording-segments.tsx",
+      "sha256": "6f424bd796f88b091b7cc274b535bbadda2b5467f157e75952ecafb772931d0a"
+    },
+    "/workspace/dripwell-build/apps/web/components/ui.tsx": {
+      "bytes": 6275,
+      "canonical": "/workspace/dripwell-build/apps/web/components/ui.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/ui.tsx",
+      "sha256": "c46af2b417c0f24ec2adae886f51221addded78d4dae28668cead4f115217bd2"
+    },
+    "/workspace/dripwell-build/apps/web/components/wellness-offer.tsx": {
+      "bytes": 1286,
+      "canonical": "/workspace/dripwell-build/apps/web/components/wellness-offer.tsx",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/components/wellness-offer.tsx",
+      "sha256": "5c8ffb7b2d68b62b2c996ed686cd4527e2c3e1b32f7eac8ac76db13da6f168e5"
+    },
+    "/workspace/dripwell-build/apps/web/lib/membership-metrics.ts": {
+      "bytes": 1201,
+      "canonical": "/workspace/dripwell-build/apps/web/lib/membership-metrics.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/lib/membership-metrics.ts",
+      "sha256": "439f822aee6f6e8283fb5dbb674e91d7ec8ba6cdf8463305279ad254ebee5766"
+    },
+    "/workspace/dripwell-build/apps/web/lib/recording-clock.ts": {
+      "bytes": 1413,
+      "canonical": "/workspace/dripwell-build/apps/web/lib/recording-clock.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/lib/recording-clock.ts",
+      "sha256": "d18ca57acbe3cbdd971a7f18bb7248ef575a0021dc48fbcfec6f3d2c55af9076"
+    },
+    "/workspace/dripwell-build/packages/shared/src/v2/contracts.ts": {
+      "bytes": 10081,
+      "canonical": "/workspace/dripwell-build/packages/shared/src/v2/contracts.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/packages/shared/src/v2/contracts.ts",
+      "sha256": "78617ce7684e1f72a2000a38e4cdcc1daf02f91dba53d84605bf3f2aa49105b1"
+    },
+    "/workspace/dripwell-build/packages/shared/src/v2/engine.ts": {
+      "bytes": 24097,
+      "canonical": "/workspace/dripwell-build/packages/shared/src/v2/engine.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/packages/shared/src/v2/engine.ts",
+      "sha256": "70552f59511406e9fe0ac393745384c1e436f45f4592e78a29551e69e134de78"
+    },
+    "/workspace/dripwell-build/packages/shared/src/v2/index.ts": {
+      "bytes": 121,
+      "canonical": "/workspace/dripwell-build/packages/shared/src/v2/index.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/packages/shared/src/v2/index.ts",
+      "sha256": "604a26f49d02d575c574194cff66a25a8a1f68d40fcd5a5129b1d7835dd2ab1d"
+    },
+    "/workspace/dripwell-build/packages/shared/src/v2/lifecycle.ts": {
+      "bytes": 4084,
+      "canonical": "/workspace/dripwell-build/packages/shared/src/v2/lifecycle.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/packages/shared/src/v2/lifecycle.ts",
+      "sha256": "7fb3ffe38d252f249834ead7c9beea42e125ff92cdc409c5bdc4e1b9cafb27f1"
+    },
+    "/workspace/dripwell-build/packages/shared/src/v2/money.ts": {
+      "bytes": 2949,
+      "canonical": "/workspace/dripwell-build/packages/shared/src/v2/money.ts",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/packages/shared/src/v2/money.ts",
+      "sha256": "857ccf4cba8f66017edf0c4144badb5a7ec2880516ec47bd2e8e0f0910291608"
+    }
+  },
+  "current_R2_addendum": {
+    "bytes": 1412,
+    "canonical": "/workspace/pw110-plan/ADDENDUM_R2.md",
+    "mode": "0400",
+    "path": "/workspace/pw110-plan/ADDENDUM_R2.md",
+    "sha256": "80b03bc6a5303a3d6c363198aecdd4c7d6c70686b8be691977e016d48ba945bc"
+  },
+  "current_R2_adoption": {
+    "bytes": 869,
+    "canonical": "/workspace/pw110-plan/ROOT_R2_ADOPTION.json",
+    "mode": "0400",
+    "path": "/workspace/pw110-plan/ROOT_R2_ADOPTION.json",
+    "sha256": "6996baf8155d24ac31583bf7366b27489d8196aff60be4e110903b6dcdd6845f"
+  },
+  "current_governance_snapshots": [
+    {
+      "bytes": 5086,
+      "canonical": "/workspace/dripwell-build/AGENTS.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/AGENTS.md",
+      "sha256": "a693ef947ea2525a5187178d28c4ee06c1fd7a4edba01703d6f8f15d6257ec98"
+    },
+    {
+      "bytes": 89990,
+      "canonical": "/workspace/dripwell-build/PRD.md",
+      "mode": "0644",
+      "path": "/workspace/dripwell-build/PRD.md",
+      "sha256": "2a1425c06ef0a54f357e15381661641bff49dfb7677c8a45cde22571a9441830"
+    },
+    {
+      "bytes": 5552,
+      "canonical": "/workspace/dripwell-build/personas/CTO.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/personas/CTO.md",
+      "sha256": "af5d15ed1dcd64a1104584cf6a3528afdceebaec4556c945957585edeae415c0"
+    },
+    {
+      "bytes": 7092,
+      "canonical": "/workspace/dripwell-build/workflows/CONTINUOUS_MODE.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/workflows/CONTINUOUS_MODE.md",
+      "sha256": "1b3140c5ec08b90ef4d9e5b57d7f5dd3b6a8684a756ab374ee6ffd2f72830c6d"
+    },
+    {
+      "bytes": 347357,
+      "canonical": "/workspace/dripwell-build/memory/STATE.md",
+      "mode": "0644",
+      "path": "/workspace/dripwell-build/memory/STATE.md",
+      "sha256": "5845dbcb209afebc8eabbb9e046a56b682b24f3e5b29cefdbf926fd759d3bb09"
+    },
+    {
+      "bytes": 13375,
+      "canonical": "/workspace/dripwell-build/memory/PROJECT_CONTEXT.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/memory/PROJECT_CONTEXT.md",
+      "sha256": "bc55d942c602e8a792b217a0836a370d8779b23200393f9a6cf73e539aac733a"
+    },
+    {
+      "bytes": 87780,
+      "canonical": "/workspace/dripwell-build/memory/LESSONS.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/memory/LESSONS.md",
+      "sha256": "736501557a3757a5dee458d414018e2c52e42d30dca5f6e7b3df2d43cd37f78a"
+    },
+    {
+      "bytes": 31680,
+      "canonical": "/workspace/dripwell-build/memory/PATTERNS.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/memory/PATTERNS.md",
+      "sha256": "f61c6aa4b1201b2c640c531bce3af457512e94aa5c136f0fcd183ae2cff77de6"
+    },
+    {
+      "bytes": 51311,
+      "canonical": "/workspace/dripwell-build/memory/GOTCHAS.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/memory/GOTCHAS.md",
+      "sha256": "eb8836626cb96c3ad98427042922f7ecdec5d81eed6019af460baf6398d7e091"
+    },
+    {
+      "bytes": 2907,
+      "canonical": "/workspace/dripwell-build/personas/CODER.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/personas/CODER.md",
+      "sha256": "b7a9797ae10b6c98d515f1bc2864000b040ba8225e59902a3a62537db1323916"
+    },
+    {
+      "bytes": 678,
+      "canonical": "/workspace/dripwell-build/apps/web/AGENTS.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/AGENTS.md",
+      "sha256": "63f2c50380ed6303237cce215ce27af1d620d094c215e28d1b1538a3c070e3bb"
+    },
+    {
+      "bytes": 3190,
+      "canonical": "/workspace/dripwell-build/workflows/CODING_LOOP.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/workflows/CODING_LOOP.md",
+      "sha256": "b4ded67a586e49372a315e4734aae5cc132c3842483aa6191176dae7e762b41c"
+    },
+    {
+      "bytes": 7039,
+      "canonical": "/workspace/dripwell-build/tasks/TASK-110.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/tasks/TASK-110.md",
+      "sha256": "b2f551d5f08a1694b07c737f38a4135aba1cb291db41b77389914fa4835679f6"
+    }
+  ],
+  "current_plan": {
+    "bytes": 5452,
+    "canonical": "/workspace/pw111-plan/PLAN.md",
+    "mode": "0400",
+    "path": "/workspace/pw111-plan/PLAN.md",
+    "sha256": "dcb8c263eec2bdcc71c89dceede8accaa65a3110a21b88441767d43f95c9d4a1"
+  },
+  "current_plan_adoption": {
+    "bytes": 770,
+    "canonical": "/workspace/pw111-plan/ROOT_CURRENT_PLAN_ADOPTION.json",
+    "mode": "0400",
+    "path": "/workspace/pw111-plan/ROOT_CURRENT_PLAN_ADOPTION.json",
+    "sha256": "0ccac63d4d998f3ea790f1ec70eb3506c70561d7036a8a18e8b6b5250624d58c"
+  },
+  "current_plan_audit": {
+    "bytes": 2922,
+    "canonical": "/workspace/pw111-plan/CURRENT_PLAN_AUDIT.md",
+    "mode": "0400",
+    "path": "/workspace/pw111-plan/CURRENT_PLAN_AUDIT.md",
+    "sha256": "bfb00c119e731eb218bfa8276a422775254ef16188872d994db90b67934245f5"
+  },
+  "declared_readonly_package_roots": {
+    "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild": {
+      "authority": "Prospective declared readonly compilation root only; actual accessed/loaded paths require fresh run evidence. Not whole-root immutability.",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild",
+      "mode": "0700",
+      "package_json": {
+        "bytes": 1490,
+        "canonical": "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/package.json",
+        "mode": "0600",
+        "path": "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/package.json",
+        "sha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+      },
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom": {
+      "authority": "Prospective declared readonly compilation root only; actual accessed/loaded paths require fresh run evidence. Not whole-root immutability.",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom",
+      "mode": "0700",
+      "package_json": {
+        "bytes": 3054,
+        "canonical": "/workspace/dripwell-build/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom/package.json",
+        "mode": "0600",
+        "path": "/workspace/dripwell-build/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom/package.json",
+        "sha256": "136d4af63de473392ea79d6a21932b0ed9eb37fe518ce70f4621250f3d79e9bb"
+      },
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/react@19.3.0/node_modules/react": {
+      "authority": "Prospective declared readonly compilation root only; actual accessed/loaded paths require fresh run evidence. Not whole-root immutability.",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/react@19.3.0/node_modules/react",
+      "mode": "0700",
+      "package_json": {
+        "bytes": 1242,
+        "canonical": "/workspace/dripwell-build/node_modules/.pnpm/react@19.3.0/node_modules/react/package.json",
+        "mode": "0600",
+        "path": "/workspace/dripwell-build/node_modules/.pnpm/react@19.3.0/node_modules/react/package.json",
+        "sha256": "6e003e4e9ed25afa7fdd55613f8aa877cefa9b359d9c13f81ee704030248e24e"
+      },
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/react@19.3.0/node_modules/react"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler": {
+      "authority": "Prospective declared readonly compilation root only; actual accessed/loaded paths require fresh run evidence. Not whole-root immutability.",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler",
+      "mode": "0700",
+      "package_json": {
+        "bytes": 558,
+        "canonical": "/workspace/dripwell-build/node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler/package.json",
+        "mode": "0600",
+        "path": "/workspace/dripwell-build/node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler/package.json",
+        "sha256": "06290718f22bcd93f29eaa1ac8d2ec9a7592ba4fec12bf1230e7cdd9a871b324"
+      },
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/zod@4.6.5/node_modules/zod": {
+      "authority": "Prospective declared readonly compilation root only; actual accessed/loaded paths require fresh run evidence. Not whole-root immutability.",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/zod@4.6.5/node_modules/zod",
+      "mode": "0700",
+      "package_json": {
+        "bytes": 4142,
+        "canonical": "/workspace/dripwell-build/node_modules/.pnpm/zod@4.6.5/node_modules/zod/package.json",
+        "mode": "0600",
+        "path": "/workspace/dripwell-build/node_modules/.pnpm/zod@4.6.5/node_modules/zod/package.json",
+        "sha256": "a046ed85fa09571dba539fee9ef236152d12dabd1f229b014ec3bd2ebaad9000"
+      },
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/zod@4.6.5/node_modules/zod"
+    }
+  },
+  "explicit_tool_docs_binary_inputs": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": {
+      "bytes": 125989464,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "mode": "0755",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    },
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python": {
+      "bytes": 30894944,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "mode": "0755",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    },
+    "/usr/bin/chromium": {
+      "bytes": 5064,
+      "canonical": "/usr/bin/chromium",
+      "mode": "0755",
+      "path": "/usr/bin/chromium",
+      "sha256": "2c8d32d29dc6781c35ae196ea83299d507ac88fc339301abe74672feda299779"
+    },
+    "/usr/bin/env": {
+      "bytes": 56144,
+      "canonical": "/usr/bin/env",
+      "mode": "0755",
+      "path": "/usr/bin/env",
+      "sha256": "eb1c64bbc9908afcdf8cb48524f17112d8dd76a249f80dee2f01da14747b3b6e"
+    },
+    "/usr/include/linux/prctl.h": {
+      "bytes": 11794,
+      "canonical": "/usr/include/linux/prctl.h",
+      "mode": "0644",
+      "path": "/usr/include/linux/prctl.h",
+      "sha256": "cf8b8fb00c07b16f3bc294ece011059302a02d9cc24b12751622da8de73b81a8"
+    },
+    "/usr/lib/chromium/chromium": {
+      "bytes": 321686360,
+      "canonical": "/usr/lib/chromium/chromium",
+      "mode": "0755",
+      "path": "/usr/lib/chromium/chromium",
+      "sha256": "d387400aaf740ccb75e5e996a34aa0940e6e97683a4eabd6ae34c1eed6804723"
+    },
+    "/usr/lib/x86_64-linux-gnu/libc.so.6": {
+      "bytes": 1995216,
+      "canonical": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "mode": "0755",
+      "path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+      "sha256": "fa430b8f298f817a266046af84a77533185ad6fc4406c7d3787b5a0a0c207826"
+    },
+    "/workspace/dripwell-build/apps/web/node_modules/next/dist/docs/01-app/01-getting-started/11-css.md": {
+      "bytes": 12368,
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/next@16.3.8_@types+node@22.19.17_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/next/dist/docs/01-app/01-getting-started/11-css.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/node_modules/next/dist/docs/01-app/01-getting-started/11-css.md",
+      "sha256": "26732dd6853d66b3edb7e7cda65e46c3ff150525377f51f187e4a075d253eeda"
+    },
+    "/workspace/dripwell-build/apps/web/node_modules/next/dist/docs/01-app/03-api-reference/01-directives/use-client.md": {
+      "bytes": 3802,
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/next@16.3.8_@types+node@22.19.17_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/next/dist/docs/01-app/03-api-reference/01-directives/use-client.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/node_modules/next/dist/docs/01-app/03-api-reference/01-directives/use-client.md",
+      "sha256": "b46c9669be66bf95c946bf47a9518b2fd755ae6303c977c364c5a632942d223e"
+    },
+    "/workspace/dripwell-build/apps/web/node_modules/next/package.json": {
+      "bytes": 3173,
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/next@16.3.8_@types+node@22.19.17_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/next/package.json",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/apps/web/node_modules/next/package.json",
+      "sha256": "6da8fc4823b66b8f2906d150002618e3f3e0d2446ebf3823b2a2f7efe73a46a4"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild": {
+      "bytes": 10358936,
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild",
+      "mode": "0755",
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild",
+      "sha256": "bab29b2ca7a9e89b67cf720b77b2d743f9f31f5cf0d5bd74ee8c8de30ced7014"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js": {
+      "bytes": 88706,
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js",
+      "mode": "0600",
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js",
+      "sha256": "0d1241812c443111d39475dfc66836003e9ef8b87e54d990dd67df29d20010e1"
+    },
+    "/workspace/dripwell-vercel-plugin-reference/package.json": {
+      "bytes": 1211,
+      "canonical": "/workspace/dripwell-vercel-plugin-reference/package.json",
+      "mode": "0600",
+      "path": "/workspace/dripwell-vercel-plugin-reference/package.json",
+      "sha256": "a39c6fa68785d2a752d512c51f323dcb06bb0ce0831418835a3baf81bf70343d"
+    },
+    "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md": {
+      "bytes": 7922,
+      "canonical": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "mode": "0600",
+      "path": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "sha256": "1dd50aa65a4f8a287f8d8e2fbbaf4e52a3998451a9011659ab0ab38d19539932"
+    }
+  },
+  "genuine_current_plan_adoption": {
+    "bytes": 1039,
+    "canonical": "/workspace/pw109-plan/ROOT_PLAN_ADOPTION.json",
+    "mode": "0400",
+    "path": "/workspace/pw109-plan/ROOT_PLAN_ADOPTION.json",
+    "sha256": "5dd09a1a4d733d885ea937864195c6ac20fbbe72540ea6641816cbc68bd5391a"
+  },
+  "genuine_current_source_rejection": {
+    "bytes": 737,
+    "canonical": "/workspace/pw110/ROOT_CURRENT_SOURCE_REJECTION.json",
+    "mode": "0400",
+    "path": "/workspace/pw110/ROOT_CURRENT_SOURCE_REJECTION.json",
+    "sha256": "ace4a1a0040fc3398d9d87a916dfa0742be73884075d1e6f0fdc8bf500889a7d"
+  },
+  "historical_observed_utc": "2026-10-13T02:44:14.949152+00:00",
+  "historical_original_total_ceiling_utc": "2026-10-13T04:20:35.391383+00:00",
+  "historical_phase": "COMPONENT_ROLE_SOURCE_AUTHORING_ONLY",
+  "historical_plan_pins": {
+    "bytes": 27365,
+    "canonical": "/workspace/pw109-plan/INPUT_PINS.json",
+    "mode": "0400",
+    "path": "/workspace/pw109-plan/INPUT_PINS.json",
+    "sha256": "175696385c15536ecaa544e24c3875825372b338b2a819956ebb8747f3c5f64a"
+  },
+  "observed_utc": "2026-10-13T18:53:19.396596+00:00",
+  "original_total_ceiling_utc": "2026-10-13T20:15:00+00:00",
+  "phase": "NEW_NATIVE_SUCCESS_SOURCE_ONLY_NOT_EXECUTED",
+  "production_header_authoring_observation": {
+    "bytes": 1563,
+    "canonical": "/workspace/dripwell-build/apps/web/next.config.ts",
+    "mode": "0600",
+    "path": "/workspace/dripwell-build/apps/web/next.config.ts",
+    "sha256": "209cbc60351556f260274d7fb0457b873d908f8586b2277628bcdbb877d51173"
+  },
+  "provenance": "Fresh45; inherited historical descriptions are not current grants; new controlled native synthetic-device prerequisite only",
+  "scope": "THREE_PRIVATE_VERIFIER_SOURCES_NATIVE_SYNTHETIC_CAPTURE_LOCAL503_ONLY",
+  "sdk_entry_descriptors": [
+    {
+      "bytes": 876,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/package.json",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/package.json",
+      "sha256": "4556ebbf21a31c5e8dabb49c991ec291c5f00ffcad8b18cda45e4070b8a473bd"
+    },
+    {
+      "bytes": 697,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/index.js",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/index.js",
+      "sha256": "a58fb2cec4293e7dcf73c58a179898a4f3986666451a19da4e731fa3af63265b"
+    },
+    {
+      "bytes": 3481,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/lib/bootstrap.js",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/lib/bootstrap.js",
+      "sha256": "4637f4dbfef9cfc01baeb5f5d2cb63fa0901522c96915ea2227290558d27123e"
+    },
+    {
+      "bytes": 3425217,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/lib/coreBundle.js",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/lib/coreBundle.js",
+      "sha256": "3258d1cf334c6afc95f22aa9c292436cb976b391e0437f1359c83b84f0cb9d66"
+    },
+    {
+      "bytes": 1110840,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/types/types.d.ts",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/types/types.d.ts",
+      "sha256": "6c688250f2b7061cec3a17ab8797671137b653f8c4e81a6df3190cb112a7579a"
+    },
+    {
+      "bytes": 823302,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/types/protocol.d.ts",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/types/protocol.d.ts",
+      "sha256": "b836eed98b79fabb54f1df73252a0ce178b8df4a89794251ade2fa0c5e52b678"
+    },
+    {
+      "bytes": 1780,
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/browsers.json",
+      "mode": "0644",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/playwright/driver/package/browsers.json",
+      "sha256": "f306eed529599b1eaf2f8a85db9de2b23e1a3fe36c2b66434b7c9434fb627a99"
+    }
+  ],
+  "source_authoring_go": {
+    "path": "/workspace/pw-native-success/SOURCE_GO.json",
+    "canonical": "/workspace/pw-native-success/SOURCE_GO.json",
+    "bytes": 3131,
+    "sha256": "0f57b269e2ada88e70d27f67909869bc6fb4410200cc67aebf4c500fc8b1aa80",
+    "mode": "0o400"
+  },
+  "source_observation_utc": "2026-10-13T15:26:05.438646+00:00",
+  "task": "TASK122",
+  "retained_control_evidence": {
+    "initial": {
+      "path": "/workspace/pw113/run-20261013T095825-584850/recorder-1.json",
+      "canonical": "/workspace/pw113/run-20261013T095825-584850/recorder-1.json",
+      "bytes": 2879,
+      "sha256": "15d0dcdd2cf1eb32d3afec6b1305fdaae2ed19d3ae67b45b17125c24f5948dbb",
+      "mode": "0400"
+    },
+    "adapter": {
+      "path": "/workspace/pw113/run-20261013T095825-584850/ADAPTER_RESULT.json",
+      "canonical": "/workspace/pw113/run-20261013T095825-584850/ADAPTER_RESULT.json",
+      "bytes": 63065,
+      "sha256": "4eb48e05dd86347b709c21c61204a8f01669738f97775de68817aede57b7359a",
+      "mode": "0400"
+    },
+    "producer": {
+      "path": "/workspace/pw113/run-20261013T095825-584850/forward-control.json",
+      "canonical": "/workspace/pw113/run-20261013T095825-584850/forward-control.json",
+      "bytes": 233,
+      "sha256": "67555ae91719502371b1b10cabe10551c12d2efbc5019b9f0c3d03fdc3c52fd8",
+      "mode": "0400"
+    },
+    "collision": {
+      "path": "/workspace/pw113/run-20261013T095825-584850/forward-collision.json",
+      "canonical": "/workspace/pw113/run-20261013T095825-584850/forward-collision.json",
+      "bytes": 23,
+      "sha256": "c778c0a5377729bf14dce2df3d1ad0c4307d24794eeb67be234fda47f03f4ba0",
+      "mode": "0400"
+    },
+    "actual_audit": {
+      "path": "/workspace/pw113/ACTUAL_AUDIT.md",
+      "canonical": "/workspace/pw113/ACTUAL_AUDIT.md",
+      "bytes": 2966,
+      "sha256": "26c90e571afa8907e6f6f5020776a8907cb64ab356124836a71aca7d7c28e536",
+      "mode": "0400"
+    },
+    "root_adoption": {
+      "path": "/workspace/pw113/ROOT_FIRST_ACTUAL_ADOPTION.json",
+      "canonical": "/workspace/pw113/ROOT_FIRST_ACTUAL_ADOPTION.json",
+      "bytes": 1365,
+      "sha256": "8a2bd53ac1a8cd7bf8e4125a83eb066eb3bc012bcf129a6d9534039c8ff79e55",
+      "mode": "0400"
+    }
+  },
+  "authority_annotations": {
+    "inherited_descriptions": "HISTORICAL_REFERENCE_NOT_EXECUTION_GRANT",
+    "s1_fixture": "EXACT_UNEXECUTED_SOURCE_NOT_REVIEW_PASS",
+    "current_scope": "Source-command independent PASS/genuine strict5/new strict8 once required",
+    "mutable_governance": "Boot snapshots historical after authorized STATE updates, not runtime input authority",
+    "source_correction": "Prospective TASK118 only; original114 expired unfinished/bothoncesSPENT and117 originalplanphaseclosedlate. Originalcumulative42/98/103 not reset.",
+    "task122": "Actual runtime inputs are compiled_application_inputs/explicit_tool_docs_binary_inputs/roots/sdk_entry_descriptors/retained groups/current_scope_reference_inputs/new source files. Historical governance/plan fields are retained documentary observations; Root119HEAD/STATE may change without altering application inputs. No current mutable STATE is runtime-pinned or mislabeled.",
+    "TASK118_documentary_reference": "Active byte/canonical guard retained with exact current3148/58524aa9 identity. Historical TASK118 documentary reference only, not TASK122 execution authority or a historical timing upgrade."
+  },
+  "retained_reaction_evidence": {
+    "adapter": {
+      "path": "/workspace/pw113-r1/run-20261013T104201-585388/ADAPTER_RESULT.json",
+      "canonical": "/workspace/pw113-r1/run-20261013T104201-585388/ADAPTER_RESULT.json",
+      "bytes": 64881,
+      "sha256": "d59a06af6dbd03129cff11ca772fa4e27d1738ab8b76c6bfea42eb38b7ceb273",
+      "mode": "0400"
+    },
+    "audit": {
+      "path": "/workspace/pw113-r1/CURRENT_ACTUAL_AUDIT.md",
+      "canonical": "/workspace/pw113-r1/CURRENT_ACTUAL_AUDIT.md",
+      "bytes": 1618,
+      "sha256": "50da4d2ddb2348ac1810c82c37a7e345b2609a3cdd89f09ac7d3ea8ae2ac84b4",
+      "mode": "0400"
+    },
+    "adoption": {
+      "path": "/workspace/pw113-r1/ROOT_CURRENT_ACTUAL_ADOPTION.json",
+      "canonical": "/workspace/pw113-r1/ROOT_CURRENT_ACTUAL_ADOPTION.json",
+      "bytes": 762,
+      "sha256": "12bb9f00f7a8841af57545ab1add7b377d3d5d12cd05b0ec9a5126c2fc133884",
+      "mode": "0400"
+    },
+    "parent": {
+      "path": "/workspace/pw113-r1/run-20261013T104201-585388/RESULT.json",
+      "canonical": "/workspace/pw113-r1/run-20261013T104201-585388/RESULT.json",
+      "bytes": 4735,
+      "sha256": "cef3494329eec3f1823f600a25f1b0f52712ce2372a5ee91b3b458662e6944ba",
+      "mode": "0400"
+    }
+  },
+  "current_scope_reference_inputs": {
+    "/workspace/pw114-s1/fixture.tsx": {
+      "path": "/workspace/pw114-s1/fixture.tsx",
+      "canonical": "/workspace/pw114-s1/fixture.tsx",
+      "bytes": 19397,
+      "sha256": "cbe29ff4467195deffefd211ffacca36f91a3efcef444054893a996ff83de98e",
+      "mode": "0400"
+    },
+    "/workspace/pw114-s1/FIXTURE_PINS.json": {
+      "path": "/workspace/pw114-s1/FIXTURE_PINS.json",
+      "canonical": "/workspace/pw114-s1/FIXTURE_PINS.json",
+      "bytes": 1865,
+      "sha256": "005861fda9aa8a7cd14c9a919d4c3143c740255c28ed89d6e64f67fcc4568e6a",
+      "mode": "0400"
+    },
+    "/workspace/pw114-s1/HANDOFF.md": {
+      "path": "/workspace/pw114-s1/HANDOFF.md",
+      "canonical": "/workspace/pw114-s1/HANDOFF.md",
+      "bytes": 849,
+      "sha256": "16de4c7b32ecebce46902a257369ace5a1989e08609b86991eaac608c6e5ed54",
+      "mode": "0400"
+    },
+    "/workspace/pw114-plan/PLAN.md": {
+      "path": "/workspace/pw114-plan/PLAN.md",
+      "canonical": "/workspace/pw114-plan/PLAN.md",
+      "bytes": 5130,
+      "sha256": "2393a1f26c7e7290f20cd1fb4f63e188283ecbe3445a8d0233690ed7a6fca0a4",
+      "mode": "0400"
+    },
+    "/workspace/pw114-plan/ROOT_PLAN_ADOPTION.json": {
+      "path": "/workspace/pw114-plan/ROOT_PLAN_ADOPTION.json",
+      "canonical": "/workspace/pw114-plan/ROOT_PLAN_ADOPTION.json",
+      "bytes": 932,
+      "sha256": "6db0e4d524c13edf0741e2d629097de7a69851f486164c3d651e4d7638149cdb",
+      "mode": "0400"
+    },
+    "/workspace/pw114/SOURCE_AUTHORING_HELD.json": {
+      "path": "/workspace/pw114/SOURCE_AUTHORING_HELD.json",
+      "canonical": "/workspace/pw114/SOURCE_AUTHORING_HELD.json",
+      "bytes": 1117,
+      "sha256": "28d2175d7e377adf54f23c0cea9b93997f1cf0c4a838da2a5f60eabd005add9f",
+      "mode": "0400"
+    },
+    "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md": {
+      "path": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "canonical": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "bytes": 7922,
+      "sha256": "1dd50aa65a4f8a287f8d8e2fbbaf4e52a3998451a9011659ab0ab38d19539932",
+      "mode": "0600"
+    },
+    "/workspace/dripwell-build/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts": {
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.dom.d.ts",
+      "bytes": 1874901,
+      "sha256": "080941d9f9ff9307f7e27a83bcd888b7c8270716c39af943532438932ec1d0b9",
+      "mode": "0600"
+    },
+    "/workspace/pw114-r1/SOURCE_GO.json": {
+      "path": "/workspace/pw114-r1/SOURCE_GO.json",
+      "canonical": "/workspace/pw114-r1/SOURCE_GO.json",
+      "bytes": 6232,
+      "sha256": "a5ea04b7251d13b6db88536047d3b14e535c2f00db5e33fe44f69dd0a6d6d68f",
+      "mode": "0400"
+    },
+    "/workspace/pw114-s2/SOURCE_AUDIT.md": {
+      "path": "/workspace/pw114-s2/SOURCE_AUDIT.md",
+      "canonical": "/workspace/pw114-s2/SOURCE_AUDIT.md",
+      "bytes": 2713,
+      "sha256": "ff22ecca99aee3651081adaa1d4ffa6b3e479efba8bd150a956a4c872f4b616e",
+      "mode": "0400"
+    },
+    "/workspace/pw114-s2/ROOT_SOURCE_FINDINGS_ADOPTION.json": {
+      "path": "/workspace/pw114-s2/ROOT_SOURCE_FINDINGS_ADOPTION.json",
+      "canonical": "/workspace/pw114-s2/ROOT_SOURCE_FINDINGS_ADOPTION.json",
+      "bytes": 979,
+      "sha256": "8303762923efdd2b4fe571ceb55c50345a81297cb6eee09842a87f4ef28dbacb",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/SOURCE_GO.json": {
+      "path": "/workspace/pw114-r2/SOURCE_GO.json",
+      "canonical": "/workspace/pw114-r2/SOURCE_GO.json",
+      "bytes": 4291,
+      "sha256": "a3b26af68f1561e78d048c661c36084e4e9f3d82c014a124089931ffbd896297",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r1/ACTUAL_AUDIT.md": {
+      "path": "/workspace/pw114-r1/ACTUAL_AUDIT.md",
+      "canonical": "/workspace/pw114-r1/ACTUAL_AUDIT.md",
+      "bytes": 2011,
+      "sha256": "48cf968fa291c21b2b70d385f30dcf65a0b84f329cfe5fa5d19cf1e03cb26287",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r1/SAFE_ACTUAL_EVIDENCE.json": {
+      "path": "/workspace/pw114-r1/SAFE_ACTUAL_EVIDENCE.json",
+      "canonical": "/workspace/pw114-r1/SAFE_ACTUAL_EVIDENCE.json",
+      "bytes": 1399,
+      "sha256": "888fa6af22483f0255d1cd81b07f628d5d08a39205bcf99cb54ff212eb5f5a6b",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r1/ROOT_CURRENT_ACTUAL_FINDINGS_ADOPTION.json": {
+      "path": "/workspace/pw114-r1/ROOT_CURRENT_ACTUAL_FINDINGS_ADOPTION.json",
+      "canonical": "/workspace/pw114-r1/ROOT_CURRENT_ACTUAL_FINDINGS_ADOPTION.json",
+      "bytes": 1482,
+      "sha256": "d3abf4f1a891231107093a31826c5c342a580f19d0e2548b916e1482b9ba0705",
+      "mode": "0400"
+    },
+    "/workspace/pw117-s1/PLAN.md": {
+      "path": "/workspace/pw117-s1/PLAN.md",
+      "canonical": "/workspace/pw117-s1/PLAN.md",
+      "bytes": 6153,
+      "sha256": "75165fec690d3c096cc11e3d4a4e963e42f8e2b3dd05452afa650ab7155f87b7",
+      "mode": "0400"
+    },
+    "/workspace/pw117-s1/INPUT_BINDINGS.json": {
+      "path": "/workspace/pw117-s1/INPUT_BINDINGS.json",
+      "canonical": "/workspace/pw117-s1/INPUT_BINDINGS.json",
+      "bytes": 35599,
+      "sha256": "2a516de4462c69eddf41711854951f5a313ecee6d51e28d23ad0949ac67e4dec",
+      "mode": "0400"
+    },
+    "/workspace/pw117-s1/PLAN_AUDIT.md": {
+      "path": "/workspace/pw117-s1/PLAN_AUDIT.md",
+      "canonical": "/workspace/pw117-s1/PLAN_AUDIT.md",
+      "bytes": 3002,
+      "sha256": "ecca96935f158d39961c9bc1dcb5dce9553d493574ce65e49aca35eb0d5c897f",
+      "mode": "0400"
+    },
+    "/workspace/pw117-s1/PLAN_AUDIT_PINS.json": {
+      "path": "/workspace/pw117-s1/PLAN_AUDIT_PINS.json",
+      "canonical": "/workspace/pw117-s1/PLAN_AUDIT_PINS.json",
+      "bytes": 46524,
+      "sha256": "020632c12ae15f9ad4bfb79dd1d076c5473aa18d828bd548f484f9df92a017ed",
+      "mode": "0400"
+    },
+    "/workspace/pw117-s1/ROOT_PLAN_ADOPTION.json": {
+      "path": "/workspace/pw117-s1/ROOT_PLAN_ADOPTION.json",
+      "canonical": "/workspace/pw117-s1/ROOT_PLAN_ADOPTION.json",
+      "bytes": 1113,
+      "sha256": "248da6f43f7d10d7a2c89a20e24792d29b59ca44b74be56bf8aecd26606363ad",
+      "mode": "0400"
+    },
+    "/workspace/pw117-plan/PLAN_PHASE_HELD.json": {
+      "path": "/workspace/pw117-plan/PLAN_PHASE_HELD.json",
+      "canonical": "/workspace/pw117-plan/PLAN_PHASE_HELD.json",
+      "bytes": 918,
+      "sha256": "2d3972b5a545990418813bd1f9b1fe4595ceb3047785b13f0839715e3771c5bd",
+      "mode": "0400"
+    },
+    "/workspace/pw117-plan/DOCUMENT_READ_RECEIPT.json": {
+      "path": "/workspace/pw117-plan/DOCUMENT_READ_RECEIPT.json",
+      "canonical": "/workspace/pw117-plan/DOCUMENT_READ_RECEIPT.json",
+      "bytes": 1387,
+      "sha256": "71ed569549054570edf81b3974a1728a3259878dc8ab488ff7557c4931419e61",
+      "mode": "0400"
+    },
+    "/workspace/pw117-plan/DOCUMENT_SOURCE.cc.txt": {
+      "path": "/workspace/pw117-plan/DOCUMENT_SOURCE.cc.txt",
+      "canonical": "/workspace/pw117-plan/DOCUMENT_SOURCE.cc.txt",
+      "bytes": 86223,
+      "sha256": "305381cc9fd7dfc12c29fbe3f7a261404bddfd4941e8201ab7806db84f8ddc11",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/fixture.tsx": {
+      "path": "/workspace/pw114-r2/fixture.tsx",
+      "canonical": "/workspace/pw114-r2/fixture.tsx",
+      "bytes": 19433,
+      "sha256": "53fc955cf73c487aa493d2e6c16587621e341c54c498a4df75832680334b5ffe",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/adapter.mjs": {
+      "path": "/workspace/pw114-r2/adapter.mjs",
+      "canonical": "/workspace/pw114-r2/adapter.mjs",
+      "bytes": 269310,
+      "sha256": "a55676d7cab0c1c2772ce01b4a9fe12ef10820b0eaf4a662ced51c9ce9d066f0",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/supervisor.py": {
+      "path": "/workspace/pw114-r2/supervisor.py",
+      "canonical": "/workspace/pw114-r2/supervisor.py",
+      "bytes": 66498,
+      "sha256": "9b4215e95169c6865c7807c85dd14dff2fff921585942f773ac0a644734d75c8",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/SOURCE_PINS.json": {
+      "path": "/workspace/pw114-r2/SOURCE_PINS.json",
+      "canonical": "/workspace/pw114-r2/SOURCE_PINS.json",
+      "bytes": 3955,
+      "sha256": "93f4ea98a88865aa369abad337f61dbafa7bab5ae8bf3b06d911dcd522b30e4b",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/ACTUAL_AUDIT.md": {
+      "path": "/workspace/pw114-r2/ACTUAL_AUDIT.md",
+      "canonical": "/workspace/pw114-r2/ACTUAL_AUDIT.md",
+      "bytes": 2075,
+      "sha256": "3123941c40a2e0ee9a42af89b6dd2e97cb362093ffa9b7887982465018dd0ac0",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/SAFE_ACTUAL_EVIDENCE.json": {
+      "path": "/workspace/pw114-r2/SAFE_ACTUAL_EVIDENCE.json",
+      "canonical": "/workspace/pw114-r2/SAFE_ACTUAL_EVIDENCE.json",
+      "bytes": 1738,
+      "sha256": "095de7bb405101447938230dd3b9c926c27c4a094e18e29c80e8e6c380aaa27d",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/ROOT_ACTUAL_FINDINGS_ADOPTION.json": {
+      "path": "/workspace/pw114-r2/ROOT_ACTUAL_FINDINGS_ADOPTION.json",
+      "canonical": "/workspace/pw114-r2/ROOT_ACTUAL_FINDINGS_ADOPTION.json",
+      "bytes": 1550,
+      "sha256": "310c349bc1f5469b409ff20f0b4b731555501b9880d6fddd12fcea181cb3fc44",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/run-20261013T140145-588142/RESULT.json": {
+      "path": "/workspace/pw114-r2/run-20261013T140145-588142/RESULT.json",
+      "canonical": "/workspace/pw114-r2/run-20261013T140145-588142/RESULT.json",
+      "bytes": 8451,
+      "sha256": "37f040ce08c84c112ad69ea2bf443673778d902d073c9979d105961f9ccaa1e4",
+      "mode": "0400"
+    },
+    "/workspace/pw114-r2/run-20261013T140145-588142/ADAPTER_RESULT.json": {
+      "path": "/workspace/pw114-r2/run-20261013T140145-588142/ADAPTER_RESULT.json",
+      "canonical": "/workspace/pw114-r2/run-20261013T140145-588142/ADAPTER_RESULT.json",
+      "bytes": 76712,
+      "sha256": "064fb2909e21a93175abe9db3686464561c0c3471bb2b18121fef61f2b9d7670",
+      "mode": "0400"
+    },
+    "/workspace/dripwell-build/tasks/TASK-118.md": {
+      "path": "/workspace/dripwell-build/tasks/TASK-118.md",
+      "canonical": "/workspace/dripwell-build/tasks/TASK-118.md",
+      "bytes": 3148,
+      "sha256": "58524aa9ba8079d2cdda025719d14dcd1bf3a8323fb4e53c30305eb46c47b3db",
+      "mode": "0o600"
+    },
+    "/workspace/pw118/SOURCE_GO.json": {
+      "path": "/workspace/pw118/SOURCE_GO.json",
+      "canonical": "/workspace/pw118/SOURCE_GO.json",
+      "bytes": 22398,
+      "sha256": "1c6cca9026d5c78824c7a5e8bbc935cb1472fb6250613831e52a20a76742b993",
+      "mode": "0400"
+    },
+    "/workspace/pw-native-success/SOURCE_GO.json": {
+      "path": "/workspace/pw-native-success/SOURCE_GO.json",
+      "canonical": "/workspace/pw-native-success/SOURCE_GO.json",
+      "bytes": 3131,
+      "sha256": "0f57b269e2ada88e70d27f67909869bc6fb4410200cc67aebf4c500fc8b1aa80",
+      "mode": "0o400"
+    },
+    "/workspace/pw-native-success/TASK_BRIEF.md": {
+      "path": "/workspace/pw-native-success/TASK_BRIEF.md",
+      "canonical": "/workspace/pw-native-success/TASK_BRIEF.md",
+      "bytes": 1533,
+      "sha256": "94bd06b3ed89191ef8fe0a6b5bf653986f8c3755f93b9af606b7fe1d487fc346",
+      "mode": "0o400"
+    },
+    "/workspace/pw119-assessment/ASSESSMENT.md": {
+      "path": "/workspace/pw119-assessment/ASSESSMENT.md",
+      "canonical": "/workspace/pw119-assessment/ASSESSMENT.md",
+      "bytes": 11682,
+      "sha256": "25a823df1579110d8fba3355cd20a89e2a3183cfc390452fff7f60741fd17027",
+      "mode": "0o400"
+    },
+    "/workspace/pw119-assessment/ASSESSMENT_PLAN_AUDIT.md": {
+      "path": "/workspace/pw119-assessment/ASSESSMENT_PLAN_AUDIT.md",
+      "canonical": "/workspace/pw119-assessment/ASSESSMENT_PLAN_AUDIT.md",
+      "bytes": 2911,
+      "sha256": "f0eeb34f4f547e92ef5f412b25c6118bcc79cd566ca738b75da36c524d0dc2bd",
+      "mode": "0o400"
+    },
+    "/workspace/pw119-assessment/ROOT_ASSESSMENT_PLAN_ADOPTION.json": {
+      "path": "/workspace/pw119-assessment/ROOT_ASSESSMENT_PLAN_ADOPTION.json",
+      "canonical": "/workspace/pw119-assessment/ROOT_ASSESSMENT_PLAN_ADOPTION.json",
+      "bytes": 1019,
+      "sha256": "ce87c6456cc95320baba1e1f6a0be3e6019ef0a8e968cc0ab2e4a648944d6b4f",
+      "mode": "0o400"
+    },
+    "/workspace/pw119-assessment/ROOT_LEARNING_ADOPTION.json": {
+      "path": "/workspace/pw119-assessment/ROOT_LEARNING_ADOPTION.json",
+      "canonical": "/workspace/pw119-assessment/ROOT_LEARNING_ADOPTION.json",
+      "bytes": 814,
+      "sha256": "ad18174430994d47b8ceb5a58c55152b25289a58738f92f92124e044c3eea05b",
+      "mode": "0o400"
+    }
+  },
+  "retained_r2_evidence": {
+    "adapter": {
+      "path": "/workspace/pw114-r2/run-20261013T140145-588142/ADAPTER_RESULT.json",
+      "canonical": "/workspace/pw114-r2/run-20261013T140145-588142/ADAPTER_RESULT.json",
+      "bytes": 76712,
+      "sha256": "064fb2909e21a93175abe9db3686464561c0c3471bb2b18121fef61f2b9d7670",
+      "mode": "0400"
+    },
+    "parent": {
+      "path": "/workspace/pw114-r2/run-20261013T140145-588142/RESULT.json",
+      "canonical": "/workspace/pw114-r2/run-20261013T140145-588142/RESULT.json",
+      "bytes": 8451,
+      "sha256": "37f040ce08c84c112ad69ea2bf443673778d902d073c9979d105961f9ccaa1e4",
+      "mode": "0400"
+    },
+    "source_audit": {
+      "path": "/workspace/pw114-r2/SOURCE_AUDIT.md",
+      "canonical": "/workspace/pw114-r2/SOURCE_AUDIT.md",
+      "bytes": 1764,
+      "sha256": "6fd62455f45deca2d36e71ef6e678e4ba0d4c82ec718e99bb822a214fdf7c263",
+      "mode": "0400"
+    },
+    "actual_audit": {
+      "path": "/workspace/pw114-r2/ACTUAL_AUDIT.md",
+      "canonical": "/workspace/pw114-r2/ACTUAL_AUDIT.md",
+      "bytes": 2075,
+      "sha256": "3123941c40a2e0ee9a42af89b6dd2e97cb362093ffa9b7887982465018dd0ac0",
+      "mode": "0400"
+    },
+    "actual_adoption": {
+      "path": "/workspace/pw114-r2/ROOT_ACTUAL_FINDINGS_ADOPTION.json",
+      "canonical": "/workspace/pw114-r2/ROOT_ACTUAL_FINDINGS_ADOPTION.json",
+      "bytes": 1550,
+      "sha256": "310c349bc1f5469b409ff20f0b4b731555501b9880d6fddd12fcea181cb3fc44",
+      "mode": "0400"
+    },
+    "safe": {
+      "path": "/workspace/pw114-r2/SAFE_ACTUAL_EVIDENCE.json",
+      "canonical": "/workspace/pw114-r2/SAFE_ACTUAL_EVIDENCE.json",
+      "bytes": 1738,
+      "sha256": "095de7bb405101447938230dd3b9c926c27c4a094e18e29c80e8e6c380aaa27d",
+      "mode": "0400"
+    }
+  },
+  "historical_118_manifest": {
+    "path": "/workspace/pw118/CURRENT_INPUT_BINDINGS.json",
+    "canonical": "/workspace/pw118/CURRENT_INPUT_BINDINGS.json",
+    "bytes": 44801,
+    "sha256": "c1664fc7b09b40a91c10c7b99b4f20688bb9e1fa4ed4f463750867e7cf9780c4",
+    "mode": "0o400"
+  },
+  "historical_governance_and_plan_fields": "All original current_governance_snapshots/current_plan/addendum/etc refer to immutable historic118 preparation observations, not current runtime boot or old-cap renewal.",
+  "retained_118_evidence": {
+    "parent": {
+      "path": "/workspace/pw118/run-20261013T155102-589774/RESULT.json",
+      "canonical": "/workspace/pw118/run-20261013T155102-589774/RESULT.json",
+      "bytes": 15641,
+      "sha256": "3be1fb068add1e7a5c749b2f296e3f7734839aa6d46fc95d19f776c5cac3a604",
+      "mode": "0o400"
+    },
+    "adapter": {
+      "path": "/workspace/pw118/run-20261013T155102-589774/ADAPTER_RESULT.json",
+      "canonical": "/workspace/pw118/run-20261013T155102-589774/ADAPTER_RESULT.json",
+      "bytes": 87192,
+      "sha256": "609bbd324f9fb9c1ab3acc6ce519267b12b7b59b0a9ae2aa48e54e2c52f59cf5",
+      "mode": "0o400"
+    }
+  }
+}

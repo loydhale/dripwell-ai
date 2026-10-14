@@ -1,0 +1,495 @@
+{
+  "task": "TASK138_R1_MINIMAL_CORRECTION_SOURCE_ONLY",
+  "frozen_sources_utc": "2026-10-14T06:16:10.427523+00:00",
+  "metadata_binding_observed_utc": "2026-10-14T06:16:10.427523+00:00",
+  "original_total_until": "2026-10-14T07:00:00+00:00",
+  "files": [
+    {
+      "path": "/workspace/pw138-native-start-r1/fixture.tsx",
+      "canonical": "/workspace/pw138-native-start-r1/fixture.tsx",
+      "bytes": 35244,
+      "sha256": "e3d27fcc7071692f6eb954b894d462af96ca4ed8885c93879810af3f3bdc98bb",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw138-native-start-r1/adapter.mjs",
+      "canonical": "/workspace/pw138-native-start-r1/adapter.mjs",
+      "bytes": 295666,
+      "sha256": "8d0e7efc75aaf3ad4785cda1e4d046784ec965fe1c835934c06b316d29cd35ea",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw138-native-start-r1/supervisor.py",
+      "canonical": "/workspace/pw138-native-start-r1/supervisor.py",
+      "bytes": 97884,
+      "sha256": "ac44462128bc8b2857a0e3a97d1e58ba1ea5b6d9fc4e4c8a489c58bf2b6b1593",
+      "mode": "0400"
+    }
+  ],
+  "baseline_files": [
+    {
+      "path": "/workspace/pw133-native-r1/fixture.tsx",
+      "canonical": "/workspace/pw133-native-r1/fixture.tsx",
+      "bytes": 35209,
+      "sha256": "f1515e3780ea825b3d01c02764926e2e1f18cc11247e11882b9d153ce431d31b",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw133-native-r1/adapter.mjs",
+      "canonical": "/workspace/pw133-native-r1/adapter.mjs",
+      "bytes": 293447,
+      "sha256": "7f018ba96dd747030b814b547fa28a7f47f40e2ff1063ac64b7ca8e15345feb7",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw133-native-r1/supervisor.py",
+      "canonical": "/workspace/pw133-native-r1/supervisor.py",
+      "bytes": 94773,
+      "sha256": "fe5822574a1e77cf2b25b338a4d976c8c7de1682bd6b1cb3aa2768f5841f38f6",
+      "mode": "0400"
+    }
+  ],
+  "standard_unified_added_deleted": {
+    "fixture": {
+      "added": 2,
+      "deleted": 2,
+      "total": 4
+    },
+    "adapter": {
+      "added": 20,
+      "deleted": 31,
+      "total": 51
+    },
+    "supervisor": {
+      "added": 72,
+      "deleted": 34,
+      "total": 106
+    },
+    "maximum_each": 500,
+    "method": "Full actual cumulative standard unified text diff; no target parsing/check/test."
+  },
+  "input_manifest": {
+    "path": "/workspace/pw138-native-start-r1/CURRENT_INPUT_BINDINGS.json",
+    "canonical": "/workspace/pw138-native-start-r1/CURRENT_INPUT_BINDINGS.json",
+    "bytes": 75024,
+    "sha256": "c549e05a9c5e86963d3335dbef754757e1aa8e8e6e0e8b67fc9a977391cab73a",
+    "mode": "0400"
+  },
+  "source_diff": {
+    "path": "/workspace/pw138-native-start-r1/SOURCE_DIFF.patch",
+    "canonical": "/workspace/pw138-native-start-r1/SOURCE_DIFF.patch",
+    "bytes": 58162,
+    "sha256": "f72da0004bd7f5acc81d4225155580e3fd1330b77f4038f2271f9109210957f9",
+    "mode": "0400"
+  },
+  "command": {
+    "path": "/workspace/pw138-native-start-r1/COMMAND.txt",
+    "canonical": "/workspace/pw138-native-start-r1/COMMAND.txt",
+    "bytes": 200,
+    "sha256": "3651ea6b3c2983c89b0d860a4fe099287559a2b3a06c8dc0eb866804c600ae7c",
+    "mode": "0400"
+  },
+  "handoff": {
+    "path": "/workspace/pw138-native-start-r1/HANDOFF.md",
+    "canonical": "/workspace/pw138-native-start-r1/HANDOFF.md",
+    "bytes": 3781,
+    "sha256": "05605b29691c4fb8a599228d8bbd9dc4c04759f712c2426ebcdc99fd9281e91b",
+    "mode": "0400"
+  },
+  "source_authoring_go": {
+    "path": "/workspace/pw138-native-start-r1/SOURCE_ONLY_GO.json",
+    "canonical": "/workspace/pw138-native-start-r1/SOURCE_ONLY_GO.json",
+    "bytes": 4979,
+    "sha256": "06956b8018c5e65ef1510e2026f3278e4b368e72c323862791319224afc79a8e",
+    "mode": "0400"
+  },
+  "current_plan_report": {
+    "path": "/workspace/pw137-native-start-proposal/PLAN.md",
+    "canonical": "/workspace/pw137-native-start-proposal/PLAN.md",
+    "bytes": 11969,
+    "sha256": "79c84db9f5226d2b4409152c035b28e639584b9b1fc4f904edf338955240ce42",
+    "mode": "0400"
+  },
+  "current_plan_genuine": {
+    "path": "/workspace/pw138-native-start/ROOT_PLAN_SCOPE_LEARNING_ADOPTION.json",
+    "canonical": "/workspace/pw138-native-start/ROOT_PLAN_SCOPE_LEARNING_ADOPTION.json",
+    "bytes": 1745,
+    "sha256": "7d4e0a7ac3082a913bdad0da52d6a2ef9da64e3126251af38dfa99122fb30bb4",
+    "mode": "0400"
+  },
+  "current_plan_application": {
+    "path": "/workspace/pw138-native-start/ROOT_PLAN_SCOPE_LEARNING_APPLICATION.json",
+    "canonical": "/workspace/pw138-native-start/ROOT_PLAN_SCOPE_LEARNING_APPLICATION.json",
+    "bytes": 1351,
+    "sha256": "672aa9e90fb0f88eebcb5c02f1d9570993ee78912133bbf102ff759fe5326e80",
+    "mode": "0400"
+  },
+  "runtime_command_literal": "/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python -B -I /workspace/pw138-native-start-r1/supervisor.py",
+  "runtime_shell_login": false,
+  "runtime_workdir": "/workspace",
+  "javascript_spans": [
+    {
+      "name": "need",
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33"
+    },
+    {
+      "name": "ownData",
+      "bytes": 325,
+      "sha256": "6d9b7366b9d728bb93eb84a29005617847afb089dab506106e952b9a27acf8a5"
+    },
+    {
+      "name": "cachedNames",
+      "bytes": 146,
+      "sha256": "fd306faefc1933a301d0abb84cb805764437eb2564e2d4f9cfdb11514a8986b5"
+    },
+    {
+      "name": "cachedRejection",
+      "bytes": 693,
+      "sha256": "04dd59c936ccdc6cd32844b9f754127401a3f2928959bfcbcdb89c3f515cd86b"
+    },
+    {
+      "name": "cachedEnvelope",
+      "bytes": 1088,
+      "sha256": "0c126424bcf82c4b7deae746fe6ad0d6faeb0c68ca76c55df0361fede69222b8"
+    },
+    {
+      "name": "nativeForwardBody",
+      "bytes": 1418,
+      "sha256": "07378f43e33f3e7400f183d0f9f76f0de1fcf61566e3c3681294cd7b07304638"
+    },
+    {
+      "name": "recorderLease",
+      "bytes": 237,
+      "sha256": "6aa7c6464c8f8289a338cc710b2b6f619dc0cc30c17b54cb1b38a6d7cff680cf"
+    },
+    {
+      "name": "deliverRecorderPredicate",
+      "bytes": 111,
+      "sha256": "1746fbecef1e05ea5fa40bf25c9fa4760311260df48563a3cd0aa13d56f21c05"
+    },
+    {
+      "name": "readinessFailureValue",
+      "bytes": 2897,
+      "sha256": "de3c21f0ba21b62d482ce736cd88fe320c433021b01a5165b175b94d966162f4"
+    },
+    {
+      "name": "readinessFailureBody",
+      "bytes": 2661,
+      "sha256": "fe59fc78d4909c2d402ae04ff308adaa3e15c6883296c1e6075b3545f6bf5cd7"
+    },
+    {
+      "name": "RecorderReadinessFailureReceipt",
+      "bytes": 742,
+      "sha256": "f032a691e2887cf292a8c8459febe5d0b16b115fe11a849421f6e0bcd910a2da"
+    },
+    {
+      "name": "retainRecorderReadinessFailure",
+      "bytes": 329,
+      "sha256": "673233878465ddad7af85e8803bf5a947dc3b27baffd071d91aa279f39cc32e9"
+    },
+    {
+      "name": "waitRecorder",
+      "bytes": 1074,
+      "sha256": "a4355d16b06815071d8cf69bf6c843472e6d47b449da77b0a10af8b66b5ee8eb"
+    }
+  ],
+  "python_spans": [
+    {
+      "name": "need",
+      "bytes": 65,
+      "sha256": "21956fea0c208533024ffae726286c1ea0cc1cf9f9baa46d6800ff559708940a"
+    },
+    {
+      "name": "sha",
+      "bytes": 54,
+      "sha256": "11e0797cbcc7f94b9fa71ad3ae6389c2367c3c0e21c53553158763bd4058c839"
+    },
+    {
+      "name": "frozen",
+      "bytes": 176,
+      "sha256": "744275aafb26ac85e73f3437df1acfa83be9b32e554e013e1de414f897e7ee1f"
+    },
+    {
+      "name": "cached_rejection",
+      "bytes": 746,
+      "sha256": "0cff7b087fc4eb4fdbf45575f1b60c8e63977c915bbc5283470daa47aafef919"
+    },
+    {
+      "name": "cached_envelope",
+      "bytes": 1068,
+      "sha256": "e9669a31d30994e950923002506fb7671eaff2b216be990473b442b4c697f859"
+    },
+    {
+      "name": "readiness_projection",
+      "bytes": 2886,
+      "sha256": "3cb1df3ba7708a73d7a087be93444548116654d0177526cef6333eec0406d1f0"
+    },
+    {
+      "name": "owned_readiness",
+      "bytes": 424,
+      "sha256": "95f8dcfa50a989bd64da3cf7d6b55fb1a34c806a59427d2cc8127c2719fb40a9"
+    },
+    {
+      "name": "CACHED_NAMES",
+      "bytes": 139,
+      "sha256": "2384e51b47292a0ba5a0069e2ced404503ac271117862488c56091f8aaca447a"
+    }
+  ],
+  "selected_span_provenance": "Retained exact13JS/eightPython readiness bodies plus eight135JS; literal token offsets for eight135 only. Full current bytes and all reachable native input/source/ownership/cleanup require independent review. No parser/import/VM/test.",
+  "active_input_observations": {
+    "inherited_R1_historical_descriptors": 149,
+    "first138_added_scope_references": 9,
+    "current_correction_additional_unique_scope_paths": 10,
+    "current_TASK138_brief_actual_replaced_descriptor": {
+      "path": "/workspace/dripwell-build/tasks/TASK-138.md",
+      "canonical": "/workspace/dripwell-build/tasks/TASK-138.md",
+      "bytes": 6980,
+      "sha256": "503e67f2d88fd78d295e12210461c291f7ff31f72bbffa2dba9941f12d10a656",
+      "mode": "0644"
+    },
+    "moving_memory_policy": "HISTORICAL_DOCUMENTARY_NOT_EXECUTABLE_STALE_GATE"
+  },
+  "new_affected_categories": [
+    "first-start-v4-codec-exclusive-IO",
+    "first-start-boundary-codec-exclusive-IO",
+    "first-start-parent-v4-phase-boundary-reader"
+  ],
+  "authored_control_expectations": {
+    "status": "UNRUN",
+    "node_v4_negatives": 10,
+    "node_boundary_negatives": 9,
+    "parent_reader_negatives": 18,
+    "old_six_eight_69_and_second_batches": "INERT"
+  },
+  "final_Start_gate": "UNCHANGED_DEFAULT_FRESH_LAYOUT_OWNER_REAL_PAIRED_130000_CLOCKS_ORIGINAL_PRESS_RELEASE_ACTUAL_RETURN_CLICK_TWO_BOUNDARY_RECORDS",
+  "native_story": "FIRST_START_ONLY_TWO_PHASES_INITIAL_NATIVE_RECORDING_ONE_IMAGE_NO_ROLLOVER_STOP_PAUSE_RESUME_UPLOAD_OR_UNMOUNT",
+  "budget_contract": {
+    "source_until": "2026-10-14T06:20:42.062629+00:00",
+    "total_seconds": 240,
+    "work_seconds": 150,
+    "cleanup_seconds": 90,
+    "admission": "FULL240_BOTH_UTC_MONOTONIC_AFTER_ALL_METADATA_BEFORE_EXCLUSIVE_ONCE",
+    "before_Start_both_remaining_ms": 130000,
+    "last_full_native_admission_before": "2026-10-14T06:56:00+00:00",
+    "original_total_until": "2026-10-14T07:00:00+00:00"
+  },
+  "compact_run_contract": {
+    "basename": "16lowercasehex_WITHOUT_RUN_PREFIX",
+    "namespace_utf8_bytes": 32,
+    "mode": "0700",
+    "maximum_adapter_TMPDIR_utf8_bytes": 53,
+    "maximum_browser_TMPDIR_utf8_bytes": 52,
+    "maximum_allowed_bytes": 60
+  },
+  "future_source_adoption_exact_keys": [
+    "disposition",
+    "source_review",
+    "source_pins_sha256",
+    "input_pins_sha256",
+    "genuinely_adopted_utc"
+  ],
+  "future_exclusive_root_execution_go_exact_keys": [
+    "source_review_disposition",
+    "source_review",
+    "source_adoption",
+    "source_pins_sha256",
+    "input_pins_sha256",
+    "opened_utc",
+    "execution_ceiling_utc",
+    "original_total_ceiling_utc"
+  ],
+  "future_authority_descriptors": "ACTUAL_DIRECT_CURRENT_BASE_CANONICAL0400_RAW_REPORT_AND_STRICT5; NO_CODER_GO_ONCE_OR_ADOPTION",
+  "execution_authority": false,
+  "publication_authority": false,
+  "source_review_disposition": "UNREVIEWED",
+  "source_effects": {
+    "authored_code_files": 3,
+    "source_copies": 3,
+    "target_code_parse_import_VM_test_compiler_browser_permission_native_provider_SQL_Git": 0,
+    "metadata_only_besides_minimal_source": true
+  },
+  "holds": "All prior scopes, goals, caps, onces, counters52/Seen, all nine pilot gates, protected previews, ALLOW_REAL_CLIENT_DATA=false/defaultdisabled, selected external057 unchanged.",
+  "body_bindings": {
+    "path": "/workspace/pw138-native-start-r1/BODY_BINDINGS.json",
+    "canonical": "/workspace/pw138-native-start-r1/BODY_BINDINGS.json",
+    "bytes": 9093,
+    "sha256": "ec79f88a7b4a939770b22d5a26ada06c93720011b3139ca83d4946b12f09c1ae",
+    "mode": "0400"
+  },
+  "protected_eight135_javascript_spans": [
+    {
+      "name": "need",
+      "begin_token": "// TASK125 BEGIN need\n",
+      "end_token_excluded": "// TASK125 END need",
+      "strip_begin_token": true,
+      "start_byte": 2721,
+      "end_byte": 2785,
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "DocumentAcquisition",
+      "begin_token": "class DocumentAcquisition {",
+      "end_token_excluded": "async function requestNativeViewport(",
+      "strip_begin_token": false,
+      "start_byte": 10918,
+      "end_byte": 13436,
+      "bytes": 2518,
+      "sha256": "829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "layoutTransport",
+      "begin_token": "async function layoutTransport(",
+      "end_token_excluded": "async function layoutTransportDeadlineControls(",
+      "strip_begin_token": false,
+      "start_byte": 91053,
+      "end_byte": 91893,
+      "bytes": 840,
+      "sha256": "f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "freshLayoutOwner",
+      "begin_token": "async function freshLayoutOwner(",
+      "end_token_excluded": "async function layoutTree(",
+      "strip_begin_token": false,
+      "start_byte": 106727,
+      "end_byte": 107089,
+      "bytes": 362,
+      "sha256": "ce6b4e189e15f41765e465afb43d4058318ca21a13615b60ed902eaf7c860646",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "preparedInput",
+      "begin_token": "async function preparedInput(",
+      "end_token_excluded": "async function preparedStartTransport(",
+      "strip_begin_token": false,
+      "start_byte": 131439,
+      "end_byte": 131852,
+      "bytes": 413,
+      "sha256": "37537cbc30dc399c8e4a47480043d693587c65d4fa145e7776088373c745dc70",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "preparedStartTransport",
+      "begin_token": "async function preparedStartTransport(",
+      "end_token_excluded": "async function finalStartControls(",
+      "strip_begin_token": false,
+      "start_byte": 131852,
+      "end_byte": 132407,
+      "bytes": 555,
+      "sha256": "70efbe124f818dc4d26a8555da9d7ce7123b77237a34de63944046888385b464",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "finalStartControls",
+      "begin_token": "async function finalStartControls(",
+      "end_token_excluded": "async function layoutClick(",
+      "strip_begin_token": false,
+      "start_byte": 132407,
+      "end_byte": 134473,
+      "bytes": 2066,
+      "sha256": "6b5618babcd32ee7bfcc3cb62c84d4203e133ea84cf3e8e2b7a6eac19139ba5d",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "nativeStartAdmission",
+      "begin_token": "function nativeStartAdmission(",
+      "end_token_excluded": "function secondStartControls(",
+      "strip_begin_token": false,
+      "start_byte": 222724,
+      "end_byte": 223151,
+      "bytes": 427,
+      "sha256": "7e1308a19d7d5aa5d580bb661f37233f3e17ef91a975cad0a1057f9b0d7dd15e",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    }
+  ],
+  "incremental_baseline_files": [
+    {
+      "path": "/workspace/pw138-native-start/fixture.tsx",
+      "canonical": "/workspace/pw138-native-start/fixture.tsx",
+      "bytes": 35244,
+      "sha256": "e3d27fcc7071692f6eb954b894d462af96ca4ed8885c93879810af3f3bdc98bb",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw138-native-start/adapter.mjs",
+      "canonical": "/workspace/pw138-native-start/adapter.mjs",
+      "bytes": 295663,
+      "sha256": "9e401cf31e5cd5a562808d5305fa337c974549d0a61cf6cfb37af126e22e6271",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw138-native-start/supervisor.py",
+      "canonical": "/workspace/pw138-native-start/supervisor.py",
+      "bytes": 97877,
+      "sha256": "efff54d8769b8b9a896639c13cb5e02031993dd6866655e7321edeff5fd3bbb8",
+      "mode": "0400"
+    }
+  ],
+  "incremental_standard_unified_added_deleted": {
+    "fixture": {
+      "added": 0,
+      "deleted": 0,
+      "total": 0
+    },
+    "adapter": {
+      "added": 1,
+      "deleted": 1,
+      "total": 2
+    },
+    "supervisor": {
+      "added": 2,
+      "deleted": 2,
+      "total": 4
+    },
+    "maximum_each": 500,
+    "method": "Full actual incremental standard unified text diff; identical fixture retains zero delta."
+  },
+  "incremental_source_diff": {
+    "path": "/workspace/pw138-native-start-r1/INCREMENTAL_SOURCE_DIFF.patch",
+    "canonical": "/workspace/pw138-native-start-r1/INCREMENTAL_SOURCE_DIFF.patch",
+    "bytes": 2620,
+    "sha256": "c0e051eff2d6b324de16a64f78d60668a336b5612e19595a5add07d1b8aa5feb",
+    "mode": "0400"
+  },
+  "current_correction_rejection": {
+    "path": "/workspace/pw138-native-start/SOURCE_AUDIT.md",
+    "canonical": "/workspace/pw138-native-start/SOURCE_AUDIT.md",
+    "bytes": 3545,
+    "sha256": "fce544e59b85f216ee3a6ae4f6cd156a30aeffea2400143d94a81b7f8a8fa7a5",
+    "mode": "0400"
+  },
+  "current_correction_rejection_genuine": {
+    "path": "/workspace/pw138-native-start/ROOT_SOURCE_REJECTION_ADOPTION.json",
+    "canonical": "/workspace/pw138-native-start/ROOT_SOURCE_REJECTION_ADOPTION.json",
+    "bytes": 1917,
+    "sha256": "7d7fc849778f96b46a64c546b019e9003a5de5145e0136c3b98945ada3d134ec",
+    "mode": "0400"
+  },
+  "current_correction_genuine": {
+    "path": "/workspace/pw138-native-start-r1/ROOT_CORRECTION_PLAN_LEARNING_ADOPTION.json",
+    "canonical": "/workspace/pw138-native-start-r1/ROOT_CORRECTION_PLAN_LEARNING_ADOPTION.json",
+    "bytes": 1671,
+    "sha256": "40912443bb2d8bc58f1baa4830bccaa3012580d76f84eaee7d953425a92d5f70",
+    "mode": "0400"
+  },
+  "current_correction_application": {
+    "path": "/workspace/pw138-native-start-r1/ROOT_CORRECTION_PLAN_LEARNING_APPLICATION.json",
+    "canonical": "/workspace/pw138-native-start-r1/ROOT_CORRECTION_PLAN_LEARNING_APPLICATION.json",
+    "bytes": 1371,
+    "sha256": "1b7fd99bab88146819e1c81c81082cbdbc0f4d7a3a35c0191adb469a3ea44415",
+    "mode": "0400"
+  },
+  "current_task_brief": {
+    "path": "/workspace/dripwell-build/tasks/TASK-138.md",
+    "canonical": "/workspace/dripwell-build/tasks/TASK-138.md",
+    "bytes": 6980,
+    "sha256": "503e67f2d88fd78d295e12210461c291f7ff31f72bbffa2dba9941f12d10a656",
+    "mode": "0644"
+  },
+  "correction_scope": "Only parentcontrols four-space indentation before existing return; adapter/parent BASE namespace and metadata authority/hash/path/currentTMP bounds rebindings. First138/139 source immutable, no newcontrols/case/check."
+}

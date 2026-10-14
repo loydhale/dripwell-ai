@@ -1,0 +1,251 @@
+{
+  "task": "TASK138_R1_SOURCE_ONLY_UNREVIEWED",
+  "javascript_provider": "/workspace/pw138-native-start-r1/adapter.mjs",
+  "eight135_javascript_spans": [
+    {
+      "name": "need",
+      "begin_token": "// TASK125 BEGIN need\n",
+      "end_token_excluded": "// TASK125 END need",
+      "strip_begin_token": true,
+      "start_byte": 2721,
+      "end_byte": 2785,
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "DocumentAcquisition",
+      "begin_token": "class DocumentAcquisition {",
+      "end_token_excluded": "async function requestNativeViewport(",
+      "strip_begin_token": false,
+      "start_byte": 10918,
+      "end_byte": 13436,
+      "bytes": 2518,
+      "sha256": "829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "layoutTransport",
+      "begin_token": "async function layoutTransport(",
+      "end_token_excluded": "async function layoutTransportDeadlineControls(",
+      "strip_begin_token": false,
+      "start_byte": 91053,
+      "end_byte": 91893,
+      "bytes": 840,
+      "sha256": "f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "freshLayoutOwner",
+      "begin_token": "async function freshLayoutOwner(",
+      "end_token_excluded": "async function layoutTree(",
+      "strip_begin_token": false,
+      "start_byte": 106727,
+      "end_byte": 107089,
+      "bytes": 362,
+      "sha256": "ce6b4e189e15f41765e465afb43d4058318ca21a13615b60ed902eaf7c860646",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "preparedInput",
+      "begin_token": "async function preparedInput(",
+      "end_token_excluded": "async function preparedStartTransport(",
+      "strip_begin_token": false,
+      "start_byte": 131439,
+      "end_byte": 131852,
+      "bytes": 413,
+      "sha256": "37537cbc30dc399c8e4a47480043d693587c65d4fa145e7776088373c745dc70",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "preparedStartTransport",
+      "begin_token": "async function preparedStartTransport(",
+      "end_token_excluded": "async function finalStartControls(",
+      "strip_begin_token": false,
+      "start_byte": 131852,
+      "end_byte": 132407,
+      "bytes": 555,
+      "sha256": "70efbe124f818dc4d26a8555da9d7ce7123b77237a34de63944046888385b464",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "finalStartControls",
+      "begin_token": "async function finalStartControls(",
+      "end_token_excluded": "async function layoutClick(",
+      "strip_begin_token": false,
+      "start_byte": 132407,
+      "end_byte": 134473,
+      "bytes": 2066,
+      "sha256": "6b5618babcd32ee7bfcc3cb62c84d4203e133ea84cf3e8e2b7a6eac19139ba5d",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    },
+    {
+      "name": "nativeStartAdmission",
+      "begin_token": "function nativeStartAdmission(",
+      "end_token_excluded": "function secondStartControls(",
+      "strip_begin_token": false,
+      "start_byte": 222724,
+      "end_byte": 223151,
+      "bytes": 427,
+      "sha256": "7e1308a19d7d5aa5d580bb661f37233f3e17ef91a975cad0a1057f9b0d7dd15e",
+      "observation": "Literal current token offsets only; full independent exact-byte review remains mandatory."
+    }
+  ],
+  "readiness13_javascript_spans": [
+    {
+      "name": "need",
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33"
+    },
+    {
+      "name": "ownData",
+      "bytes": 325,
+      "sha256": "6d9b7366b9d728bb93eb84a29005617847afb089dab506106e952b9a27acf8a5"
+    },
+    {
+      "name": "cachedNames",
+      "bytes": 146,
+      "sha256": "fd306faefc1933a301d0abb84cb805764437eb2564e2d4f9cfdb11514a8986b5"
+    },
+    {
+      "name": "cachedRejection",
+      "bytes": 693,
+      "sha256": "04dd59c936ccdc6cd32844b9f754127401a3f2928959bfcbcdb89c3f515cd86b"
+    },
+    {
+      "name": "cachedEnvelope",
+      "bytes": 1088,
+      "sha256": "0c126424bcf82c4b7deae746fe6ad0d6faeb0c68ca76c55df0361fede69222b8"
+    },
+    {
+      "name": "nativeForwardBody",
+      "bytes": 1418,
+      "sha256": "07378f43e33f3e7400f183d0f9f76f0de1fcf61566e3c3681294cd7b07304638"
+    },
+    {
+      "name": "recorderLease",
+      "bytes": 237,
+      "sha256": "6aa7c6464c8f8289a338cc710b2b6f619dc0cc30c17b54cb1b38a6d7cff680cf"
+    },
+    {
+      "name": "deliverRecorderPredicate",
+      "bytes": 111,
+      "sha256": "1746fbecef1e05ea5fa40bf25c9fa4760311260df48563a3cd0aa13d56f21c05"
+    },
+    {
+      "name": "readinessFailureValue",
+      "bytes": 2897,
+      "sha256": "de3c21f0ba21b62d482ce736cd88fe320c433021b01a5165b175b94d966162f4"
+    },
+    {
+      "name": "readinessFailureBody",
+      "bytes": 2661,
+      "sha256": "fe59fc78d4909c2d402ae04ff308adaa3e15c6883296c1e6075b3545f6bf5cd7"
+    },
+    {
+      "name": "RecorderReadinessFailureReceipt",
+      "bytes": 742,
+      "sha256": "f032a691e2887cf292a8c8459febe5d0b16b115fe11a849421f6e0bcd910a2da"
+    },
+    {
+      "name": "retainRecorderReadinessFailure",
+      "bytes": 329,
+      "sha256": "673233878465ddad7af85e8803bf5a947dc3b27baffd071d91aa279f39cc32e9"
+    },
+    {
+      "name": "waitRecorder",
+      "bytes": 1074,
+      "sha256": "a4355d16b06815071d8cf69bf6c843472e6d47b449da77b0a10af8b66b5ee8eb"
+    }
+  ],
+  "readiness8_python_spans": [
+    {
+      "name": "need",
+      "bytes": 65,
+      "sha256": "21956fea0c208533024ffae726286c1ea0cc1cf9f9baa46d6800ff559708940a"
+    },
+    {
+      "name": "sha",
+      "bytes": 54,
+      "sha256": "11e0797cbcc7f94b9fa71ad3ae6389c2367c3c0e21c53553158763bd4058c839"
+    },
+    {
+      "name": "frozen",
+      "bytes": 176,
+      "sha256": "744275aafb26ac85e73f3437df1acfa83be9b32e554e013e1de414f897e7ee1f"
+    },
+    {
+      "name": "cached_rejection",
+      "bytes": 746,
+      "sha256": "0cff7b087fc4eb4fdbf45575f1b60c8e63977c915bbc5283470daa47aafef919"
+    },
+    {
+      "name": "cached_envelope",
+      "bytes": 1068,
+      "sha256": "e9669a31d30994e950923002506fb7671eaff2b216be990473b442b4c697f859"
+    },
+    {
+      "name": "readiness_projection",
+      "bytes": 2886,
+      "sha256": "3cb1df3ba7708a73d7a087be93444548116654d0177526cef6333eec0406d1f0"
+    },
+    {
+      "name": "owned_readiness",
+      "bytes": 424,
+      "sha256": "95f8dcfa50a989bd64da3cf7d6b55fb1a34c806a59427d2cc8127c2719fb40a9"
+    },
+    {
+      "name": "CACHED_NAMES",
+      "bytes": 139,
+      "sha256": "2384e51b47292a0ba5a0069e2ced404503ac271117862488c56091f8aaca447a"
+    }
+  ],
+  "python_provider": "/workspace/pw138-native-start-r1/supervisor.py",
+  "baseline_sources": [
+    {
+      "path": "/workspace/pw138-native-start/fixture.tsx",
+      "canonical": "/workspace/pw138-native-start/fixture.tsx",
+      "bytes": 35244,
+      "sha256": "e3d27fcc7071692f6eb954b894d462af96ca4ed8885c93879810af3f3bdc98bb",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw138-native-start/adapter.mjs",
+      "canonical": "/workspace/pw138-native-start/adapter.mjs",
+      "bytes": 295663,
+      "sha256": "9e401cf31e5cd5a562808d5305fa337c974549d0a61cf6cfb37af126e22e6271",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw138-native-start/supervisor.py",
+      "canonical": "/workspace/pw138-native-start/supervisor.py",
+      "bytes": 97877,
+      "sha256": "efff54d8769b8b9a896639c13cb5e02031993dd6866655e7321edeff5fd3bbb8",
+      "mode": "0400"
+    }
+  ],
+  "provenance": "Fresh first138copies; source differences only original parent statement indentation plus BASE rebind. Protected29 identities retain prior metadata; actual full currentbyte equality requires independent review. No target parse/import/VM/check/test.",
+  "cumulative_sources": [
+    {
+      "path": "/workspace/pw133-native-r1/fixture.tsx",
+      "canonical": "/workspace/pw133-native-r1/fixture.tsx",
+      "bytes": 35209,
+      "sha256": "f1515e3780ea825b3d01c02764926e2e1f18cc11247e11882b9d153ce431d31b",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw133-native-r1/adapter.mjs",
+      "canonical": "/workspace/pw133-native-r1/adapter.mjs",
+      "bytes": 293447,
+      "sha256": "7f018ba96dd747030b814b547fa28a7f47f40e2ff1063ac64b7ca8e15345feb7",
+      "mode": "0400"
+    },
+    {
+      "path": "/workspace/pw133-native-r1/supervisor.py",
+      "canonical": "/workspace/pw133-native-r1/supervisor.py",
+      "bytes": 94773,
+      "sha256": "fe5822574a1e77cf2b25b338a4d976c8c7de1682bd6b1cb3aa2768f5841f38f6",
+      "mode": "0400"
+    }
+  ]
+}
