@@ -1541,6 +1541,16 @@ export function Consultation({ id }: { id: string }) {
       }
       throw cause;
     }
+    const recordingIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (
+      !result || typeof result !== 'object' || Array.isArray(result) ||
+      typeof result.recordingId !== 'string' || !recordingIdPattern.test(result.recordingId) ||
+      typeof result.jobId !== 'string' || !recordingIdPattern.test(result.jobId) ||
+      typeof result.status !== 'string' ||
+      !['pending', 'queuing', 'running', 'complete', 'completed', 'failed', 'cancelled'].includes(result.status)
+    ) {
+      throw new Error('The recording upload could not be confirmed. Keep this page open and retry.');
+    }
     setJobs((items) => [...items, { id: result.jobId, status: 'processing' }]);
     await load();
     await refresh();
@@ -1567,7 +1577,11 @@ export function Consultation({ id }: { id: string }) {
             : item,
         ),
       );
-      throw cause;
+      setError(
+        `The recording upload was accepted. ${cause instanceof Error
+          ? cause.message
+          : 'Processing could not finish. Review the saved recording and retry if available.'}`,
+      );
     }
   }
   if (loading)

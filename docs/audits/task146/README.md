@@ -1,0 +1,11 @@
+# Accepted-recording recovery review
+
+When the recording API accepted an upload and later processing failed, the recorder previously treated the callback rejection as unsaved local audio. The Consultation handler now keeps accepted uploads in the existing saved-recording recovery path and displays the safe processing error. Unknown or malformed acknowledgements still preserve local retry/discard recovery. Acceptance is a prior event, not a claim that the stored object remains available after retention or deletion.
+
+The production change is confined to Consultation. It validates recording/job identifiers and the established status vocabulary before treating the response as accepted. AudioRecorder, RecordingSegments, routes, private storage, jobs and clinical authority are unchanged. The current source and command composition received independent static review and genuine acceptance on 2026-10-14 at 11:38 UTC. This establishes source review, not successful execution.
+
+The first meaningful DOM run composed the real Consultation, AudioRecorder and RecordingSegments with disclosed synthetic media and HTTP leaves. Twelve cases ran: ten passed and two failed. The failures reached the accepted-upload message and absence of the unsaved warning, then failed to find the saved-retry control. Their controlled clinic response omitted the visit-version increment performed by the real backend after upload adoption. The corrected test opts into that version change only for those two cases; the other ten default cases and assertions remain unchanged.
+
+The corrected fixture received complete independent source review. It was not executed locally: the original full execution-admission window had closed. The original failed run remains failed, and the first local typecheck was never entered. Current changed-source CI results must establish the corrected cases and TypeScript before this recovery fix is called verified. Publication, if separately approved, is an unmerged source-reviewed checkpoint with verification pending.
+
+Distinct learning recorded NO_NEW under the existing evidence-boundary, fixture-fidelity and execution rules. No task or pilot completion is inferred. All nine actual pilot stories and the production gates remain open; protected previews and the requested ALLOW_REAL_CLIENT_DATA=false remain required.
