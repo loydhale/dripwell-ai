@@ -188,6 +188,141 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
     assert.equal(await getDb().notification.count({ where: { consultationId: visit.id, dismissedAt: null } }), 1);
   });
 
+  it('retires the old wellness reminder when staff records TBD with a new future due date', async () => {
+    const other = await fixture();
+    const db = getDb();
+    const visit = await start(other);
+    await approvedWellness(other, visit.id);
+    const oldDueAt = new Date(Date.now() - 1000);
+    await db.consultation.update({ where: { id: visit.id }, data: { wellnessDecisionDueAt: oldDueAt } });
+    await reconcileConsultationReminders(visit.id);
+    const oldReminder = await db.notification.findUniqueOrThrow({ where: {
+      idempotencyKey: `reminder:${visit.id}:WELLNESS_DECISION_NEEDED:${oldDueAt.toISOString()}`,
+    } });
+    assert.equal(oldReminder.isRead, false);
+    assert.equal(oldReminder.dismissedAt, null);
+    const before = await db.consultation.findUniqueOrThrow({ where: { id: visit.id } });
+    const reasonNote = 'Synthetic client is still considering the plan.';
+    const submittedAt = new Date();
+    const result = await mutateClinicAction(other.staff, { action: 'consultation.outcome.record',
+      consultationId: visit.id, expectedVersion: before.version, decision: 'TBD', reasonNote });
+    const returnedAt = new Date();
+    assert.ok('consultation' in result);
+    const returned = result.consultation!;
+    const after = await db.consultation.findUniqueOrThrow({ where: { id: visit.id } });
+    assert.ok(after.wellnessDecisionDueAt instanceof Date);
+    const newDueAt = after.wellnessDecisionDueAt;
+    assert.equal(returned.wellnessDecisionDueAt, newDueAt.toISOString());
+    assert.ok(newDueAt > returnedAt);
+    const delayMs = syntheticConfiguration.reminders.wellnessDecisionHours * 3600000;
+    assert.ok(newDueAt.getTime() >= submittedAt.getTime() + delayMs);
+    assert.ok(newDueAt.getTime() <= returnedAt.getTime() + delayMs);
+    assert.equal(returned.version, before.version + 1);
+    assert.equal(returned.stage, 'WELLNESS_RECOMMENDATION_TBD');
+    assert.equal(returned.wellnessDecision, 'TBD');
+    assert.equal(returned.wellnessDecisionRevision, before.wellnessRevision);
+    assert.deepEqual(after, { ...before, version: before.version + 1, stage: 'WELLNESS_RECOMMENDATION_TBD',
+      wellnessDecision: 'TBD', wellnessDecisionRevision: before.wellnessRevision, completedAt: null,
+      wellnessDecisionDueAt: newDueAt, updatedAt: after.updatedAt });
+    const events = await db.consultationEvent.findMany({ where: { tenantId: other.staff.tenantId,
+      consultationId: visit.id, action: 'consultation.outcome.record' } });
+    assert.equal(events.length, 1);
+    assert.equal(events[0]!.userId, other.staff.userId);
+    assert.equal(events[0]!.artifactRevision, before.wellnessRevision);
+    assert.equal(events[0]!.reason, reasonNote);
+    assert.ok(events[0]!.createdAt instanceof Date);
+    assert.deepEqual(events[0]!.before, { stage: before.stage, decision: before.wellnessDecision,
+      revision: before.wellnessDecisionRevision });
+    assert.deepEqual(events[0]!.after, { stage: 'WELLNESS_RECOMMENDATION_TBD', decision: 'TBD',
+      revision: before.wellnessRevision });
+    const retired = await db.notification.findUniqueOrThrow({ where: { id: oldReminder.id } });
+    assert.ok(retired.dismissedAt instanceof Date);
+    assert.deepEqual(retired, { ...oldReminder, dismissedAt: retired.dismissedAt });
+    const scope = { tenantId: other.staff.tenantId, consultationId: visit.id,
+      type: 'WELLNESS_DECISION_NEEDED' as const, dismissedAt: null };
+    assert.equal(await db.notification.count({ where: scope }), 0);
+    const dashboard = await getClinicDashboard(other.staff);
+    const notifications = dashboard.notifications as { id: string }[];
+    assert.ok(!notifications.some(notification => notification.id === oldReminder.id));
+    assert.deepEqual(await reconcileConsultationReminders(visit.id), { nextDueAt: newDueAt.toISOString() });
+    assert.equal(await db.notification.count({ where: scope }), 0);
+    assert.deepEqual(await db.notification.findUniqueOrThrow({ where: { id: oldReminder.id } }), retired);
+    assert.deepEqual(await db.consultation.findUniqueOrThrow({ where: { id: visit.id } }), after);
+  });
+
+  it('deduplicates superseded and legacy wellness schedules without changing current read state or unrelated rows', async () => {
+    const other = await fixture();
+    const foreign = await fixture();
+    const db = getDb();
+    const visit = await start(other);
+    await approvedWellness(other, visit.id);
+    await mutate(other, visit.id, 'consultation.outcome.record', { decision: 'TBD' }, other.staff);
+    const dueAt = new Date(Date.now() - 1000);
+    await db.consultation.update({ where: { id: visit.id }, data: { wellnessDecisionDueAt: dueAt } });
+    await reconcileConsultationReminders(visit.id);
+    const currentKey = `reminder:${visit.id}:WELLNESS_DECISION_NEEDED:${dueAt.toISOString()}`;
+    const unread = await db.notification.findUniqueOrThrow({ where: { idempotencyKey: currentKey } });
+    assert.equal(unread.isRead, false);
+    const read = await mutateClinicAction(other.staff, { action: 'notification.read', notificationId: unread.id });
+    assert.equal(read.ok, true);
+    const current = await db.notification.findUniqueOrThrow({ where: { id: unread.id } });
+    assert.deepEqual(current, { ...unread, isRead: true });
+    const oldDueAt = new Date(dueAt.getTime() - 3600000);
+    const dismissedDueAt = new Date(oldDueAt.getTime() - 3600000);
+    const reminderFields = { tenantId: other.staff.tenantId, consultationId: visit.id, entityId: visit.id,
+      userId: other.staff.userId, type: 'WELLNESS_DECISION_NEEDED' as const,
+      title: current.title, message: current.message, dueAt: oldDueAt };
+    const old = await db.notification.create({ data: { ...reminderFields, isRead: false, dismissedAt: null,
+      idempotencyKey: `reminder:${visit.id}:WELLNESS_DECISION_NEEDED:${oldDueAt.toISOString()}` } });
+    const legacy = await db.notification.create({ data: { ...reminderFields, isRead: true,
+      idempotencyKey: null, dismissedAt: null } });
+    const dismissed = await db.notification.create({ data: { ...reminderFields, isRead: true,
+      dueAt: dismissedDueAt, dismissedAt: new Date(dismissedDueAt.getTime() + 1000),
+      idempotencyKey: `reminder:${visit.id}:WELLNESS_DECISION_NEEDED:${dismissedDueAt.toISOString()}` } });
+    const anotherVisit = await start(other);
+    await approvedWellness(other, anotherVisit.id);
+    await db.consultation.update({ where: { id: anotherVisit.id }, data: { wellnessDecisionDueAt: oldDueAt } });
+    await reconcileConsultationReminders(anotherVisit.id);
+    const sameTenantControl = await db.notification.findUniqueOrThrow({ where: {
+      idempotencyKey: `reminder:${anotherVisit.id}:WELLNESS_DECISION_NEEDED:${oldDueAt.toISOString()}`,
+    } });
+    const foreignVisit = await start(foreign);
+    await approvedWellness(foreign, foreignVisit.id);
+    await db.consultation.update({ where: { id: foreignVisit.id }, data: { wellnessDecisionDueAt: oldDueAt } });
+    await reconcileConsultationReminders(foreignVisit.id);
+    const foreignControl = await db.notification.findUniqueOrThrow({ where: {
+      idempotencyKey: `reminder:${foreignVisit.id}:WELLNESS_DECISION_NEEDED:${oldDueAt.toISOString()}`,
+    } });
+    const stockControl = await db.notification.create({ data: { tenantId: other.staff.tenantId,
+      consultationId: visit.id, entityId: visit.id, userId: other.staff.userId, type: 'LOW_STOCK',
+      title: 'Synthetic stock notice', message: 'Unrelated notification control.', isRead: false,
+      idempotencyKey: `synthetic-stock:${randomUUID()}`, dueAt: oldDueAt, dismissedAt: null } });
+    const visitBefore = await db.consultation.findUniqueOrThrow({ where: { id: visit.id } });
+    const retiredAt = new Map<string, Date>();
+    for (let pass = 0; pass < 2; pass++) {
+      assert.deepEqual(await reconcileConsultationReminders(visit.id), { nextDueAt: null });
+      const active = await db.notification.findMany({ where: { tenantId: other.staff.tenantId,
+        consultationId: visit.id, type: 'WELLNESS_DECISION_NEEDED', dismissedAt: null } });
+      assert.deepEqual(active, [current]);
+      for (const original of [old, legacy]) {
+        const retired = await db.notification.findUniqueOrThrow({ where: { id: original.id } });
+        assert.ok(retired.dismissedAt instanceof Date);
+        assert.deepEqual(retired, { ...original, dismissedAt: retired.dismissedAt });
+        const firstDismissal = retiredAt.get(original.id);
+        if (firstDismissal) assert.deepEqual(retired.dismissedAt, firstDismissal);
+        else retiredAt.set(original.id, retired.dismissedAt);
+      }
+      for (const control of [dismissed, sameTenantControl, foreignControl, stockControl]) {
+        assert.deepEqual(await db.notification.findUniqueOrThrow({ where: { id: control.id } }), control);
+      }
+      assert.deepEqual(await db.consultation.findUniqueOrThrow({ where: { id: visit.id } }), visitBefore);
+      const dashboard = await getClinicDashboard(other.staff);
+      const notifications = dashboard.notifications as { id: string; consultationId: string | null; type: string }[];
+      assert.deepEqual(notifications.filter(notification => notification.consultationId === visit.id &&
+        notification.type === 'WELLNESS_DECISION_NEEDED').map(notification => notification.id), [current.id]);
+    }
+  });
+
   it('searches and paginates every retained archive record beyond 250 without changing reporting totals', async () => {
     const archive = await fixture();
     const db = getDb();

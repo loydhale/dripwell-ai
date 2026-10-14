@@ -44,11 +44,21 @@ export async function reconcileConsultationReminders(consultationId: string) {
         });
         continue;
       }
+      const idempotencyKey = `reminder:${consultationId}:${condition.type}:${condition.dueAt.toISOString()}`;
+      await db.notification.updateMany({
+        where: {
+          tenantId: consultation.tenantId,
+          consultationId,
+          type: condition.type,
+          dismissedAt: null,
+          OR: [{ idempotencyKey: null }, { idempotencyKey: { not: idempotencyKey } }],
+        },
+        data: { dismissedAt: now },
+      });
       if (condition.dueAt > now) {
         futureDates.push(condition.dueAt);
         continue;
       }
-      const idempotencyKey = `reminder:${consultationId}:${condition.type}:${condition.dueAt.toISOString()}`;
       await db.notification.upsert({
         where: { idempotencyKey },
         create: {
