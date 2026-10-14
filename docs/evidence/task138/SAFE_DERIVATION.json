@@ -1,0 +1,344 @@
+{
+  "task": "TASK138_R1_EXACT_SAFE_ACTUAL_DERIVATION",
+  "frozen_utc": "2026-10-14T06:44:29.951245+00:00",
+  "approved_safe_outputs": [
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_ACTUAL_RESULT.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_ACTUAL_RESULT.json",
+        "bytes": 8687,
+        "sha256": "357da951a3972c2e489e731bfe71d802f09e239cd1e4203e1fdec510871a6825",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/RESULT.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/RESULT.json",
+        "bytes": 21768,
+        "sha256": "578691938b095d103d316f544baaff6976546d3d9d0dbd67d27d9adebcd238d2",
+        "mode": "0400"
+      },
+      "operation": "TOP_LEVEL_KEY_OMISSION_ONLY_EVERY_RETAINED_VALUE_EQUAL",
+      "retained_keys": [
+        "status",
+        "source_sha",
+        "input_sha",
+        "started_utc",
+        "scope",
+        "budget_admission",
+        "admission_ownership_controls",
+        "native_media_policy",
+        "native_style_group_cleanup",
+        "observation_disposition",
+        "adapter_primary_code",
+        "native_final_start_boundary",
+        "final_start_admissions",
+        "new_first_start_controls",
+        "scope_result",
+        "cleanup_failures",
+        "finished_utc"
+      ],
+      "omitted_keys": [
+        "cleanup",
+        "lineage",
+        "native_launch_controls",
+        "adapter_result",
+        "retained_controls",
+        "retained_parent_validation",
+        "retained_r2_controls"
+      ],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_ADAPTER_RESULT.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_ADAPTER_RESULT.json",
+        "bytes": 24033,
+        "sha256": "729bc01c60590cc4cd85e2ed11e690f6f24a446f7cb5ad12798dcaed3e4d965a",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/ADAPTER_RESULT.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/ADAPTER_RESULT.json",
+        "bytes": 91536,
+        "sha256": "4cf6d914e25ebbf81f46ad1d956d838c7ff7609e71c00b3b7552045121ba3bd0",
+        "mode": "0400"
+      },
+      "operation": "TOP_LEVEL_KEY_OMISSION_ONLY_EVERY_RETAINED_VALUE_EQUAL",
+      "retained_keys": [
+        "status",
+        "source_sha",
+        "states",
+        "images",
+        "forward_controls_authority",
+        "readiness_controls_authority",
+        "retained_controls",
+        "final_start_controls",
+        "rpc_controls_authority",
+        "native_device_declaration",
+        "case_results",
+        "permission_receipts",
+        "recorder_receipts",
+        "first_start_schema_controls",
+        "first_start_boundary_controls",
+        "before_start_work_admission",
+        "final_start_admissions",
+        "native_final_start_boundary",
+        "native_forward_receipt",
+        "native_success_receipt",
+        "success_fixture_controls",
+        "observation_disposition",
+        "listener_closed",
+        "invalidation_observation",
+        "native_style_group_outstanding",
+        "first_failure",
+        "finished_utc"
+      ],
+      "omitted_keys": [
+        "requests",
+        "compiled_inputs",
+        "runtime_modules",
+        "children",
+        "forward_controls",
+        "forward_producer_controls",
+        "readiness_failure_controls",
+        "retained_r2_controls",
+        "rpc_controls"
+      ],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_NATIVE_INITIAL.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_NATIVE_INITIAL.json",
+        "bytes": 5695,
+        "sha256": "014c09ad3a3c1529663df57b2a27be9c75edb9b927d25991abe8acb9472735b9",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-1.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-1.json",
+        "bytes": 5695,
+        "sha256": "014c09ad3a3c1529663df57b2a27be9c75edb9b927d25991abe8acb9472735b9",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_NATIVE_RECORDING.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_NATIVE_RECORDING.json",
+        "bytes": 6009,
+        "sha256": "ce9ca6ed48a57051b49fa10c16e83c5023c46bd0b1867efb588f135bd2c5d22d",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-2.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/recorder-2.json",
+        "bytes": 6009,
+        "sha256": "ce9ca6ed48a57051b49fa10c16e83c5023c46bd0b1867efb588f135bd2c5d22d",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_NATIVE_FORWARD.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_NATIVE_FORWARD.json",
+        "bytes": 326,
+        "sha256": "3f227b520f9dfcfc20f68fc6580cd9701ffec8590e07e1edb4e5772bb51ef929",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-forward.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-forward.json",
+        "bytes": 326,
+        "sha256": "3f227b520f9dfcfc20f68fc6580cd9701ffec8590e07e1edb4e5772bb51ef929",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_NATIVE_SUCCESS.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_NATIVE_SUCCESS.json",
+        "bytes": 678,
+        "sha256": "646d4fa60a9d7b5de5f32ca69584de60309e6225325da176459bdfa5777f5b9e",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-success.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-success.json",
+        "bytes": 678,
+        "sha256": "646d4fa60a9d7b5de5f32ca69584de60309e6225325da176459bdfa5777f5b9e",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_NATIVE_BOUNDARY.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_NATIVE_BOUNDARY.json",
+        "bytes": 680,
+        "sha256": "96d4cdc9dd708f13ace17f1409836a87a274da8dc5f1f5b8992418b36484446b",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-boundary.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-boundary.json",
+        "bytes": 680,
+        "sha256": "96d4cdc9dd708f13ace17f1409836a87a274da8dc5f1f5b8992418b36484446b",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_CODEC_CONTROL.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_CODEC_CONTROL.json",
+        "bytes": 349,
+        "sha256": "2c930cfe2977b9635caac357541e4bb14537e095510bd00abf98d28ad1a2d043",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-codec-control.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-codec-control.json",
+        "bytes": 349,
+        "sha256": "2c930cfe2977b9635caac357541e4bb14537e095510bd00abf98d28ad1a2d043",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_BOUNDARY_CONTROL.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_BOUNDARY_CONTROL.json",
+        "bytes": 678,
+        "sha256": "78ac6c47c48a8ef5cbc737e707f47826680c45395f6259cbc77e6d03cbf1ce9d",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-boundary-control.json",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/first-start-boundary-control.json",
+        "bytes": 678,
+        "sha256": "78ac6c47c48a8ef5cbc737e707f47826680c45395f6259cbc77e6d03cbf1ce9d",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_NATIVE_RECORDING.png",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_NATIVE_RECORDING.png",
+        "bytes": 95206,
+        "sha256": "074a65156b148e2fb1db7d2fca9699893ea8ebc6156a66158454b92ee6f3c4f7",
+        "mode": "0400"
+      },
+      "original": {
+        "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+        "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-recording.png",
+        "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/native-final-start-recording.png",
+        "bytes": 95206,
+        "sha256": "074a65156b148e2fb1db7d2fca9699893ea8ebc6156a66158454b92ee6f3c4f7",
+        "mode": "0400"
+      },
+      "operation": "EXACT_BYTE_COPY_NO_OMISSIONS",
+      "omitted_keys": [],
+      "retained_values_exact": true
+    },
+    {
+      "output": {
+        "kind": "FROZEN_REVIEWED_SAFE_PROJECTION_OR_ACTUAL_PROOF",
+        "path": "/workspace/pw138-native-start-r1/SAFE_OWNED_CLEANUP.json",
+        "canonical": "/workspace/pw138-native-start-r1/SAFE_OWNED_CLEANUP.json",
+        "bytes": 1094,
+        "sha256": "af044508b69418b53661268a646720d8bd74997136d6f195ff7c4e6af49fbb04",
+        "mode": "0400"
+      },
+      "originals": [
+        {
+          "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+          "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/RESULT.json",
+          "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/RESULT.json",
+          "bytes": 21768,
+          "sha256": "578691938b095d103d316f544baaff6976546d3d9d0dbd67d27d9adebcd238d2",
+          "mode": "0400"
+        },
+        {
+          "kind": "ACTUAL_REVIEWED_RAW_INPUT",
+          "path": "/workspace/pw138-native-start-r1/8e06809d480dca87/ADAPTER_RESULT.json",
+          "canonical": "/workspace/pw138-native-start-r1/8e06809d480dca87/ADAPTER_RESULT.json",
+          "bytes": 91536,
+          "sha256": "4cf6d914e25ebbf81f46ad1d956d838c7ff7609e71c00b3b7552045121ba3bd0",
+          "mode": "0400"
+        }
+      ],
+      "operation": "EXACT_SELECTED_VALUE_PROJECTION",
+      "retained_json_pointers": [
+        "/cleanup/* excluding pid-pgid-port",
+        "/children/* excluding pid-expected_pgid",
+        "/cleanup_failures"
+      ],
+      "omitted_nested_key_names": [
+        "pid",
+        "pgid",
+        "port",
+        "expected_pgid"
+      ],
+      "raw_identity_values_not_retained": true
+    }
+  ],
+  "never_rewrote_originals": true,
+  "raw_pending_status_preserved": true,
+  "omitted_whole_raw_artifacts": [
+    "context.json",
+    "listener.json",
+    "browser-desktop.json",
+    "adapter.log",
+    "native-desktop.log",
+    "metafile.json",
+    "ACTUAL_TERMINAL_RECEIPT.json"
+  ],
+  "omission_reason": "PRIVATE_PROCESS_GROUP_BIRTH_ENDPOINT_SDK_CONFIGURATION_OR_LOGS;COMPILE_ROW_CUSTODY_REMAINS_IN_RECONCILIATION_PROOF",
+  "source_enforced_unretained": [
+    "Target_reply_values",
+    "Input_wire_payloads",
+    "physical_microphone",
+    "provider_backend",
+    "monotonic_finish",
+    "cleanup_duration"
+  ],
+  "publication_authority": false
+}

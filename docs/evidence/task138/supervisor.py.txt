@@ -1,0 +1,920 @@
+"""TASK113 source-only authored supervisor; run only after distinct reviewed once GO."""
+import ctypes
+from datetime import datetime, timezone, timedelta
+import hashlib
+import json
+import os
+from pathlib import Path
+import secrets
+import signal
+import socket
+import subprocess
+import time
+
+BASE = Path('/workspace/pw138-native-start-r1')
+NODE = '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+CHROME = '/usr/lib/chromium/chromium'
+LIBC = '/usr/lib/x86_64-linux-gnu/libc.so.6'
+ESBUILD = '/workspace/dripwell-build/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild'
+ENV = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1'}
+OUTER = datetime.fromisoformat('2026-10-14T07:00:00+00:00')
+
+def need(ok, reason):
+    if not ok: raise AssertionError(reason)
+
+def sha(body): return hashlib.sha256(body).hexdigest()
+def utc(text): return datetime.fromisoformat(text.replace('Z', '+00:00'))
+def frozen(path):
+    path = Path(path)
+    need(path.resolve() == path and path.stat().st_mode & 0o777 == 0o400, 'Nonfrozen canonical descriptor')
+    return path.read_bytes()
+
+def pin(item, private=False):
+    path = Path(item['path']); canonical = path.resolve()
+    need((path.parent == BASE and canonical == path) if private else str(canonical) == item['canonical'], 'Input authorization')
+    body = frozen(path) if private else canonical.read_bytes()
+    need(len(body) == item['bytes'] and sha(body) == item['sha256'], 'Input changed')
+
+def identity(pid):
+    try:
+        body = Path('/proc/' + str(pid) + '/stat').read_text(); f = body[body.rfind(')') + 2:].split()
+        return {'pid': pid, 'ppid': int(f[1]), 'pgid': int(f[2]), 'birth': f[19]}
+    except FileNotFoundError: return None
+
+def children(pid):
+    try:
+        tasks = list(Path('/proc/' + str(pid) + '/task').iterdir()); need(len(tasks) <= 256, 'Owned thread bound')
+        result = set()
+        for task in tasks:
+            try: result.update(int(v) for v in (task / 'children').read_text().split())
+            except FileNotFoundError: pass
+        return sorted(result)
+    except FileNotFoundError: return []
+
+def absent(group):
+    try: os.killpg(group, 0); return False
+    except ProcessLookupError: return True
+
+def exclusive(path, value):
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o400)
+    with os.fdopen(fd, 'w') as file: json.dump(value, file, indent=2)
+
+VIEWPORT_KINDS = ['NUMBER', 'MISSING', 'INVALID_TYPE', 'NONFINITE', 'OUT_OF_RANGE', 'ACCESSOR', 'UNKNOWN_SHAPE', 'UNKNOWN_FAULT']
+
+def viewport_projection(body):
+    need(type(body) is bytes and len(body) <= 1024, 'Viewport receipt byte bound')
+    def unique(pairs):
+        value = {}
+        for key, item in pairs:
+            need(key not in value, 'Duplicate viewport field'); value[key] = item
+        return value
+    def constant(_value): raise AssertionError('Nonfinite viewport JSON constant')
+    value = json.loads(body.decode('utf-8'), object_pairs_hook=unique, parse_constant=constant)
+    def keys(item, expected): need(type(item) is dict and set(item) == set(expected), 'Viewport schema')
+    keys(value, ['version', 'phase', 'units', 'expected', 'observed'])
+    need(type(value['version']) is int and value['version'] == 1 and value['phase'] == 'INITIAL_VIEWPORT_FAILURE' and value['units'] == 'CSS_PIXELS_EXCLUDING_SCROLLBARS', 'Viewport fixed labels')
+    keys(value['expected'], ['clientWidth', 'clientHeight']); need(value['expected'] == {'clientWidth': 1280, 'clientHeight': 800}, 'Viewport expected dimensions')
+    keys(value['observed'], ['clientWidth', 'clientHeight'])
+    for dimension in value['observed'].values():
+        keys(dimension, ['kind', 'value']); need(dimension['kind'] in VIEWPORT_KINDS, 'Viewport kind')
+        number = dimension['value']
+        need((type(number) in [int, float] and 0 <= number <= 10000000) if dimension['kind'] == 'NUMBER' else number is None, 'Viewport numeric or unknown value')
+    return value
+
+def viewport_parent_controls():
+    summary = {'scope': 'NEW_VIEWPORT_PARENT_SCHEMA_ONLY_SYNTHETIC', 'status': 'RUNNING', 'count': 0, 'cases': []}
+    def fixture(): return {'version': 1, 'phase': 'INITIAL_VIEWPORT_FAILURE', 'units': 'CSS_PIXELS_EXCLUDING_SCROLLBARS', 'expected': {'clientWidth': 1280, 'clientHeight': 800}, 'observed': {'clientWidth': {'kind': 'NUMBER', 'value': 0}, 'clientHeight': {'kind': 'NUMBER', 'value': 800}}}
+    def encode(value): return json.dumps(value).encode()
+    def check(name, action):
+        try: action(); summary['cases'].append(name); summary['count'] = len(summary['cases'])
+        except BaseException: summary['status'] = 'FAILED'; summary['failed'] = name; raise
+    def rejected(body):
+        try: viewport_projection(body)
+        except Exception: return
+        raise AssertionError('Invalid parent viewport receipt accepted')
+    def numbers():
+        for number in [0, 1279.5, 10000000]:
+            value = fixture(); value['observed']['clientWidth']['value'] = number; need(viewport_projection(encode(value)) == value, 'Parent changed numeric observation')
+    check('parent-number-zero-fraction-boundary', numbers)
+    def unknowns():
+        for kind in VIEWPORT_KINDS[1:]:
+            value = fixture(); value['observed']['clientWidth'] = {'kind': kind, 'value': None}; need(viewport_projection(encode(value)) == value, 'Parent changed unknown classification')
+    check('parent-unknown-status-null-is-not-zero', unknowns)
+    def numeric_rejections():
+        for number in [True, 'synthetic-capability', -1, 10000001, float('nan'), float('inf')]:
+            value = fixture(); value['observed']['clientWidth']['value'] = number; rejected(encode(value))
+    check('parent-rejects-coercion-nonfinite-range', numeric_rejections)
+    def labels():
+        for key in ['phase', 'units', 'version']:
+            value = fixture(); value[key] = 'synthetic-capability'; rejected(encode(value))
+        value = fixture(); value['foreign'] = 'synthetic-capability'; rejected(encode(value))
+        value = fixture(); value['observed']['clientWidth']['kind'] = 'FOREIGN'; rejected(encode(value))
+    check('parent-rejects-foreign-schema-labels', labels)
+    def bounds():
+        rejected(b' ' * 1025); rejected(bytes([255])); value = encode(fixture()); rejected(value[:-1] + b',"version":1}')
+    check('parent-byte-UTF8-duplicate-key-denial', bounds)
+    def unknown_rejection():
+        value = fixture(); value['observed']['clientWidth'] = {'kind': 'MISSING', 'value': 0}; rejected(encode(value)); value['observed']['clientWidth']['value'] = None; need(viewport_projection(encode(value)) == value, 'Parent rejected exact unknown')
+    check('parent-unknown-cannot-carry-native-value', unknown_rejection)
+    summary['status'] = 'PASS'; return summary
+
+def badge_projection(body):
+    need(type(body) is bytes and 0 < len(body) <= 8192, 'Badge body bound')
+    def pairs(items):
+        result = {}
+        for key, value in items: need(key not in result, 'Duplicate badge key'); result[key] = value
+        return result
+    value = json.loads(body.decode('utf-8'), object_pairs_hook=pairs)
+    need(type(value) is dict and set(value) == {'version','case','phase','failure','cardinality','cardinalityStatus','computedText','whiteSpace','selectedSubtrees','selectionStatus'}, 'Badge exact schema')
+    need(type(value['version']) is int and value['version'] == 1 and value['case'] in ['desktop','mobile'] and value['phase'] in ['initial','first-board','last-board','reporting-open','reporting-closed','closed','menu','reminders','reminders-closed','menu-again','navigated'], 'Badge identity labels')
+    need(value['failure'] in ['BADGE_CARDINALITY','BADGE_TEXT','BADGE_READER','BADGE_WHITE_SPACE'] and value['cardinalityStatus'] == 'OBSERVED' and type(value['cardinality']) is int and 0 <= value['cardinality'] <= 4096, 'Badge observed cardinality')
+    need(value['computedText'] is None or type(value['computedText']) is str and len(value['computedText'].encode()) <= 1024, 'Badge computed text')
+    need(value['whiteSpace'] in ['normal','nowrap','SOURCE_PINNED_NOWRAP','UNKNOWN'] and value['selectionStatus'] in ['CAPTURED','UNAVAILABLE_BOUND'] and type(value['selectedSubtrees']) is list and len(value['selectedSubtrees']) <= 4, 'Badge selection labels')
+    need(value['selectionStatus'] != 'UNAVAILABLE_BOUND' or value['selectedSubtrees'] == [], 'Badge unavailable fabrication')
+    for tree in value['selectedSubtrees']:
+        pending = [(tree,0)]; count = 0
+        while pending:
+            node, depth = pending.pop(); count += 1
+            need(count <= 32 and depth <= 8 and type(node) is dict and set(node) == {'nodeType','nodeName','nodeValue','children'}, 'Badge subtree bound/schema')
+            need(type(node['nodeType']) is int and node['nodeName'] in ['SPAN','#text','#cdata-section','#comment','OTHER'] and type(node['children']) is list, 'Badge node labels')
+            need(node['nodeValue'] is None or node['nodeType'] in [3,4] and type(node['nodeValue']) is str and len(node['nodeValue'].encode()) <= 256, 'Badge node text')
+            pending.extend((child,depth+1) for child in node['children'])
+    return value
+
+STYLE_KEYS = {'version','case','phase','role','property','boundary','expectedRule','literalExpected','literalStatus','matchCount','returnedKind','firstMatchValue'}
+STYLE_PROPERTIES = ['display','position','background-color','overflow-x','overflow-y','white-space']
+def style_projection(body):
+    need(type(body) is bytes and 0 < len(body) <= 2048, 'Style body bound')
+    def unique(items):
+        result = {}
+        for key, value in items: need(key not in result, 'Duplicate style key'); result[key] = value
+        return result
+    v = json.loads(body.decode('utf-8'), object_pairs_hook=unique)
+    need(type(v) is dict and set(v) == STYLE_KEYS, 'Style exact schema')
+    need(type(v['version']) is int and v['version'] == 1 and v['case'] in ['desktop','mobile'] and v['phase'] in ['initial','first-board','last-board','reporting-open','reporting-closed','closed','menu','reminders','reminders-closed','menu-again','navigated'], 'Style case/phase')
+    need(v['role'] in ['navigation','main','reminders','topbar','badge'] and v['property'] in STYLE_PROPERTIES and v['boundary'] == 'FIXED_NATIVE_STYLE' and v['expectedRule'] == 'EXACTLY_ONE_STRING_LE64' and v['literalExpected'] is None and v['literalStatus'] == 'NO_LITERAL_AT_GATE', 'Style role/expectation')
+    count, kind, scalar = v['matchCount'], v['returnedKind'], v['firstMatchValue']
+    need(count is None or type(count) is int and 0 <= count <= 2048, 'Style cardinality')
+    need(kind in ['VALUE','MISSING','MULTIPLE','INVALID_TYPE','OVERSIZE','UNAVAILABLE_SHAPE'], 'Style kind')
+    need(scalar is None or type(scalar) is str and len(scalar.encode('utf-16-le')) // 2 <= 64 and len(scalar.encode()) <= 256, 'Style scalar bound')
+    if scalar is not None:
+        import re
+        tokens = {'display':['none','block','inline','inline-block','flex','inline-flex','grid','inline-grid','contents','flow-root','table','table-row','table-cell','table-caption','table-column','table-column-group','table-row-group','table-header-group','table-footer-group','list-item','ruby','ruby-base','ruby-text','ruby-base-container','ruby-text-container'],'position':['static','relative','absolute','fixed','sticky'],'overflow-x':['visible','hidden','clip','scroll','auto'],'overflow-y':['visible','hidden','clip','scroll','auto'],'white-space':['normal','nowrap','pre','pre-wrap','pre-line','break-spaces']}
+        need(scalar == '' or (scalar == 'transparent' or re.fullmatch(r'(?:rgba?|hsla?)\([0-9.,% /+-]+\)', scalar)) if v['property'] == 'background-color' else scalar == '' or scalar in tokens[v['property']], 'Style unsafe scalar')
+    need((count == 0 and scalar is None) if kind == 'MISSING' else (type(count) is int and count > 1) if kind == 'MULTIPLE' else (count is None and scalar is None) if kind == 'UNAVAILABLE_SHAPE' else count == 1, 'Style cardinality relation')
+    need(kind not in ['INVALID_TYPE','OVERSIZE'] or scalar is None, 'Style unavailable fabrication')
+    need(kind != 'VALUE' or scalar is not None, 'Style missing scalar')
+    return v
+
+HIT_PHASES = ['initial','first-board','last-board','reporting-open','reporting-closed','closed','menu','reminders','reminders-closed','menu-again','navigated']
+HIT_ACTIONS = ['reporting-open','reporting-close','menu-open','reminders-open','reminders-close','menu-reopen','dashboard-nav']
+HIT_CONTROL_NAMES = ['production-click-invalid-hit-zero-input','hit-frame-reject-zero-input','hit-no-parent-projection','hit-limit-32-33-projection','hit-unsafe-accessor-zero-read','hit-softbound-later-unsafe-denial','hit-first-later-no-reopen','hit-rejected-first-no-reopen','hit-collision-write-error-primary','hit-secondary-sink-primary','hit-wrapper-getters-original-evaluation-slots','hit-snapshot-summary-unrelated-hit','hit-snapshot-terminal-document-or-missing','hit-snapshot-duplicate-bound-unsafe-accessor','hit-snapshot-first-IO-primary-parent-fidelity','hit-snapshot-untracked-frontend-backend-composition','hit-role-known-board-ancestor','hit-role-reporting-or-unclassified','hit-role-ambiguous-missing-bound-unsafe','hit-role-primary-IO-parent-fidelity']
+def hit_projection(body):
+    need(type(body) is bytes and 0 < len(body) <= 2048, 'Hit bytes bound')
+    def unique(items):
+        value = {}
+        for key, scalar in items: need(key not in value, 'Duplicate hit key'); value[key] = scalar
+        return value
+    v = json.loads(body.decode('utf-8'), object_pairs_hook=unique)
+    need(type(v) is dict and set(v) == {'version','case','phase','action','failure','viewport','box','point','hit','ancestry','inputAttempts','snapshot','componentRoles'}, 'Hit exact schema')
+    need(type(v['version']) is int and v['version'] == 3 and v['case'] in ['desktop','mobile'] and v['phase'] in HIT_PHASES and v['action'] in HIT_ACTIONS and v['failure'] in ['FRAME_MISMATCH','ANCESTRY_MISMATCH'], 'Hit fixed labels')
+    viewport, box, point, hit, ancestry = (v[k] for k in ['viewport','box','point','hit','ancestry'])
+    for value, keys in [(viewport,{'width','height'}),(box,{'x','y','width','height'}),(point,{'x','y'}),(hit,{'backendKind','frontendPresent','frontendEqualsSelected','frameMatches','sourceStatus'}),(ancestry,{'initialEquals','finalEquals','lastParentPresent','hops','guardCounter','termination'})]: need(type(value) is dict and set(value) == keys, 'Hit nested exact schema')
+    need(all(type(x) is int for x in viewport.values()) and viewport == ({'width':1280,'height':800} if v['case'] == 'desktop' else {'width':390,'height':844}), 'Hit viewport')
+    need(all(type(x) in [int,float] and -2000000 <= x <= 2000000 for x in box.values()) and box['width'] > 0 and box['height'] > 0 and all(type(x) is int and abs(x) <= 9007199254740991 for x in point.values()), 'Hit geometry')
+    need(box['x'] <= point['x'] < box['x']+box['width'] and box['y'] <= point['y'] < box['y']+box['height'] and 0 <= point['x'] < viewport['width'] and 0 <= point['y'] < viewport['height'], 'Hit point')
+    flag = lambda x: type(x) is bool or type(x) is str and x == 'SKIPPED'
+    need(hit['backendKind'] in ['SAFE_INTEGER','MISSING','INVALID_TYPE'] and type(hit['frontendPresent']) is bool and flag(hit['frontendEqualsSelected']) and type(hit['frameMatches']) is bool and hit['sourceStatus'] in ['VALIDATED','UNAVAILABLE_BOUND'], 'Hit observed flags')
+    need(hit['frontendPresent'] or hit['frontendEqualsSelected'] == 'SKIPPED', 'Missing frontend comparison')
+    need(hit['sourceStatus'] != 'UNAVAILABLE_BOUND' or hit['frontendEqualsSelected'] == 'SKIPPED', 'Bounded frontend fabricated')
+    need(all(flag(ancestry[k]) for k in ['initialEquals','finalEquals','lastParentPresent']) and type(ancestry['hops']) is int and 0 <= ancestry['hops'] <= 32 and type(ancestry['guardCounter']) is int and 0 <= ancestry['guardCounter'] <= 33 and ancestry['termination'] in ['MATCHED','MISSING_PARENT','LIMIT','FRAME_REJECTED'] and type(v['inputAttempts']) is int and v['inputAttempts'] == 0, 'Hit ancestry bounds')
+    if v['failure'] == 'FRAME_MISMATCH': need(hit['frameMatches'] is False and ancestry['termination'] == 'FRAME_REJECTED' and ancestry['hops'] == ancestry['guardCounter'] == 0 and all(ancestry[k] == 'SKIPPED' for k in ['initialEquals','finalEquals','lastParentPresent']), 'Hit skipped frame ancestry')
+    else: need(hit['frameMatches'] is True and ancestry['finalEquals'] is False and ancestry['termination'] in ['MISSING_PARENT','LIMIT'], 'Hit ancestry rejection relation')
+    if ancestry['termination'] == 'LIMIT': need(ancestry['hops'] == 32 and ancestry['guardCounter'] == 33 and ancestry['lastParentPresent'] is True, 'Hit exact postincrement relation')
+    if ancestry['termination'] == 'MISSING_PARENT': need(ancestry['lastParentPresent'] is False and ancestry['hops'] == ancestry['guardCounter'], 'Hit missing parent relation')
+    snapshot = v['snapshot']
+    need(type(snapshot) is dict and set(snapshot) == {'provenance','selected','hit','terminal'} and snapshot['provenance'] == 'PRE_SCROLL_TREE', 'Hit snapshot exact schema/provenance')
+    for name in ['selected','hit','terminal']:
+        n = snapshot[name]
+        need(type(n) is dict and set(n) == {'status','tag'} and n['status'] in ['MATCHED','MISSING','AMBIGUOUS','UNAVAILABLE_BOUND','SKIPPED'] and n['tag'] in ['DOCUMENT','HTML','BODY','SUMMARY','H2','A','DIV','SPAN','OTHER','UNKNOWN'], 'Hit snapshot fixed node')
+        need(n['tag'] != 'UNKNOWN' if n['status'] == 'MATCHED' else n['tag'] == 'UNKNOWN', 'Hit snapshot unknown fabrication')
+    if v['failure'] == 'FRAME_MISMATCH': need(snapshot['hit']['status'] == snapshot['terminal']['status'] == 'SKIPPED', 'Hit unobserved snapshot')
+    else: need(snapshot['hit']['status'] != 'SKIPPED' and snapshot['terminal']['status'] != 'SKIPPED', 'Hit observed snapshot skipped')
+    roles = v['componentRoles']
+    need(type(roles) is dict and set(roles) == {'provenance','hit','ancestor'} and roles['provenance'] == 'PRE_SCROLL_TREE', 'Component role exact schema')
+    names = ['BOARD','BOARD_CARDS','VISIT_CARD_TOP','VISIT_CARD_TAGS','VISIT_CARD_FOOTER','REPORTING_PANEL','REPORTING_CONTENT','REPORTING_STATS','REPORTING_STAT_CARD','MAIN','PAGE_CONTENT','WORKSPACE','NAVIGATION','REMINDERS','TOPBAR','DOCUMENT','BODY','UNKNOWN']
+    for name, keys in [('hit',{'status','role'}),('ancestor',{'status','role','step'})]:
+        node = roles[name]
+        need(type(node) is dict and set(node) == keys and node['status'] in ['MATCHED','UNKNOWN','AMBIGUOUS','UNAVAILABLE_BOUND','SKIPPED'] and node['role'] in names, 'Component role labels')
+        need(node['role'] != 'UNKNOWN' if node['status'] == 'MATCHED' else node['role'] == 'UNKNOWN', 'Component role status relation')
+    ancestor = roles['ancestor']
+    need(type(ancestor['step']) is int and 1 <= ancestor['step'] <= 32 and ancestor['step'] <= v['ancestry']['hops'] if ancestor['status'] == 'MATCHED' else ancestor['step'] is None, 'Original ancestor step')
+    need(roles['hit']['status'] == roles['ancestor']['status'] == 'SKIPPED' if v['failure'] == 'FRAME_MISMATCH' else roles['hit']['status'] != 'SKIPPED' and roles['ancestor']['status'] != 'SKIPPED', 'Component role observation relation')
+    return v
+
+def hit_parent_controls(run, token):
+    summary = {'status':'RUNNING','count':0,'cases':[],'scope':'New actual shared hit_projection; persisted LIVE-phase synthetic native-leaf receipt'}
+    path = run / 'layout-controls' / 'role-known.json'; need(0 < path.stat().st_size <= 2048, 'Hit control file byte bound'); body = frozen(path)
+    need(path.resolve() == path and token.encode() not in body, 'Hit control file ownership/capability')
+    original = hit_projection(body); need(original['phase'] == 'last-board' and original['failure'] == 'ANCESTRY_MISMATCH' and original['hit']['frontendEqualsSelected'] is False and original['snapshot']['selected'] == {'status':'MATCHED','tag':'SUMMARY'} and original['snapshot']['hit'] == {'status':'MATCHED','tag':'DIV'} and original['snapshot']['terminal'] == {'status':'MATCHED','tag':'DOCUMENT'}, 'Actual persisted snapshot composition not used')
+    need(original['componentRoles'] == {'provenance':'PRE_SCROLL_TREE','hit':{'status':'MATCHED','role':'VISIT_CARD_TOP'},'ancestor':{'status':'MATCHED','role':'BOARD_CARDS','step':1}}, 'Actual persisted role composition not used')
+    for name in ['snapshot-untracked.json','untracked-schema.json']:
+        candidate = run / 'layout-controls' / name; need(0 < candidate.stat().st_size <= 2048, 'Untracked parent bound'); raw = frozen(candidate); need(token.encode() not in raw, 'Untracked parent capability'); parsed = hit_projection(raw); need(parsed['snapshot']['selected']['tag'] == 'SUMMARY' and parsed['snapshot']['hit']['tag'] == 'A' and parsed['snapshot']['terminal']['tag'] == 'DOCUMENT' and parsed['hit']['frontendEqualsSelected'] is False, 'Actual shared parent untracked branch')
+    mutations = [dict(original,foreign='https://foreign.invalid'),dict(original,inputAttempts=True),dict(original,phase='foreign'),dict(original,ancestry=dict(original['ancestry'],guardCounter=33)),dict(original,point=dict(original['point'],x='10')),dict(original,version=1),dict(original,snapshot=dict(original['snapshot'],provenance='LIVE_PIXELS')),dict(original,snapshot=dict(original['snapshot'],hit={'status':'MISSING','tag':'A'})),dict(original,snapshot=dict(original['snapshot'],terminal={'status':'MATCHED','tag':'https://foreign.invalid'})),dict(original,version=2),dict(original,componentRoles=dict(original['componentRoles'],hit={'status':'MATCHED','role':'https://foreign.invalid'})),dict(original,componentRoles=dict(original['componentRoles'],ancestor={'status':'MATCHED','role':'BOARD','step':0})),dict(original,componentRoles=dict(original['componentRoles'],ancestor={'status':'UNKNOWN','role':'BOARD','step':None}))]
+    bad = [json.dumps(value,separators=(',',':')).encode() for value in mutations] + [b' '*2049,body+b'\n'*2048,b'{"version":1,"version":1}',b'\xff']
+    for candidate in bad:
+        rejected = False
+        try: hit_projection(candidate)
+        except BaseException: rejected = True
+        need(rejected, 'Actual shared hit projection accepted negative')
+    summary.update(status='PASS',count=1,cases=['hit-schema-real-accept-reject']); return summary
+
+FORWARD_NAMES = ['receiver-args-original-promise-once','sync-primary-throwing-sink','rejected-primary-throwing-sink','first-terminal-no-reopen']
+CACHED_NAMES=['NotAllowedError','NotFoundError','NotReadableError','OverconstrainedError','SecurityError','AbortError','InvalidStateError']
+REJECTION_CASES=['matching-existing-read-count-order','short-circuit-name-unread','instanceof-fault-original-primary','name-fault-throwing-secondary','closed-type-name-tags-no-raw','first-terminal-classifier-fault']
+def cached_rejection(v):
+    need(type(v) is dict and set(v)=={'type','instanceofResult','nameStatus','name'},'Cached fields')
+    need(v['type'] in ['UNKNOWN','undefined','boolean','number','bigint','string','symbol','function','object'] and v['instanceofResult'] in ['UNKNOWN','MATCH','NO_MATCH'] and v['nameStatus'] in ['UNKNOWN_UNREAD','ALLOWLISTED','OTHER_NAME','INVALID_TYPE','LOOKUP_FAILED'],'Cached labels')
+    need(v['name'] in CACHED_NAMES if v['nameStatus']=='ALLOWLISTED' else v['name'] is None,'Cached name');need(v['instanceofResult']=='MATCH' or v['nameStatus']=='UNKNOWN_UNREAD','Cached short circuit');need(v['type']!='UNKNOWN' or v['instanceofResult']=='UNKNOWN' and v['nameStatus']=='UNKNOWN_UNREAD','Cached unknown');return v
+
+RELATION_CASES=['match-unread-no-fault','unknown-expression-no-fault','lookup-failed-no-fault','no-match-notAllowed','allowed-name-notAllowed-false','non-rejected-populated-cache','non-rejected-notAllowed','known-type-unknown-expression-true','unknown-classifier-no-fault','name-lookup-fault-notAllowed']
+def cached_envelope(outcome,not_allowed,fault,cached):
+    c=cached_rejection(cached);need(type(not_allowed) is bool and type(fault) is bool,'Cached envelope flags')
+    if outcome!='REJECTED':need(not not_allowed and c['type']=='UNKNOWN' and c['instanceofResult']=='UNKNOWN' and c['nameStatus']=='UNKNOWN_UNREAD','Non-rejected cache relation');return
+    if c['type']=='UNKNOWN':need(fault and c['instanceofResult']=='UNKNOWN' and c['nameStatus']=='UNKNOWN_UNREAD','Classifier fault relation');return
+    if c['instanceofResult']=='UNKNOWN':need(fault and not not_allowed and c['nameStatus']=='UNKNOWN_UNREAD','Instanceof fault relation');return
+    if c['instanceofResult']=='NO_MATCH':need(not not_allowed and c['nameStatus']=='UNKNOWN_UNREAD','Original short circuit');return
+    need(c['nameStatus']!='UNKNOWN_UNREAD','MATCH must attempt name')
+    if c['nameStatus']=='LOOKUP_FAILED':need(fault and not not_allowed,'Name fault relation');return
+    need(not_allowed is (c['nameStatus']=='ALLOWLISTED' and c['name']=='NotAllowedError'),'Original name comparison')
+
+def malformed_envelopes(samples):
+    match,no,cf,nf,other,clf=samples
+    return [{**match,'notAllowed':False,'rejection':{**match['rejection'],'nameStatus':'UNKNOWN_UNREAD','name':None}},{**cf,'observerFault':False},{**nf,'observerFault':False},{**no,'notAllowed':True},{**match,'notAllowed':False},{**match,'outcome':'PENDING','notAllowed':False},{**clf,'outcome':'PENDING'},{**cf,'notAllowed':True},{**clf,'observerFault':False},{**nf,'notAllowed':True}]
+
+def forward_projection(body,role='CURRENT_V2'):
+    need(type(body) is bytes and 0 < len(body) <= 1024, 'Forward bounded bytes')
+    def pairs(items):
+        value = {}
+        for key, item in items: need(key not in value, 'Duplicate forward key'); value[key] = item
+        return value
+    def constant(_value): raise AssertionError('Forward nonfinite JSON')
+    value = json.loads(body.decode('utf-8'), object_pairs_hook=pairs, parse_constant=constant)
+    need(role in ['CURRENT_V2','EXACT_RETAINED_V1'],'Explicit role')
+    fields={'version','provenance','available','attempted','calls','receiverExact','constraintsExact','promiseReturned','outcome','notAllowed','observerFault'}|({'rejection'} if role=='CURRENT_V2' else set());need(type(value) is dict and set(value)==fields,'Forward fields')
+    need(type(value['version']) is int and value['version'] == (2 if role=='CURRENT_V2' else 1) and value['provenance'] in ['FRESH_NATIVE_FORWARD','SYNTHETIC_FUNCTION_PROMISE_SINK'], 'Forward provenance')
+    for key in ['available','attempted','receiverExact','constraintsExact','promiseReturned','notAllowed','observerFault']: need(type(value[key]) is bool, 'Forward native booleans')
+    need(type(value['calls']) is int and 0 <= value['calls'] <= 32 and value['outcome'] in ['UNATTEMPTED','PENDING','REJECTED','FULFILLED','SYNC_THROW','OBSERVER_FAILED'], 'Forward outcome/count')
+    need(not value['notAllowed'] or value['outcome'] == 'REJECTED', 'Forward rejection relation')
+    need(value['attempted'] is (value['calls'] > 0) and (value['attempted'] or value['outcome'] == 'UNATTEMPTED'), 'Forward attempt relation')
+    if role=='CURRENT_V2':cached_envelope(value['outcome'],value['notAllowed'],value['observerFault'],value['rejection'])
+    return value
+
+def owned_forward(item, run, token, name):
+    need(type(item) is dict and set(item) == {'path','bytes','sha256'} and item['path'] == str(run/name) and type(item['bytes']) is int and 0 < item['bytes'] <= 1024, 'Owned forward descriptor')
+    body = frozen(item['path']); need(len(body) == item['bytes'] and sha(body) == item['sha256'] and token.encode() not in body, 'Forward persisted binding')
+    return body, forward_projection(body)
+
+
+def success_projection(body):
+    need(type(body) is bytes and 0<len(body)<=4096,'Rollover body bound')
+    def pairs(items):
+        out={}
+        for k,v in items:need(k not in out,'Rollover duplicate');out[k]=v
+        return out
+    def constant(_):raise AssertionError('Rollover nonfinite')
+    v=json.loads(body.decode('utf-8'),object_pairs_hook=pairs,parse_constant=constant)
+    def fields(o,keys):need(type(o) is dict and set(o)==set(keys),'Rollover exact fields')
+    def ints(o,keys,maxvalue):
+        fields(o,keys)
+        for k in keys:need(type(o[k]) is int and 0<=o[k]<=maxvalue,'Rollover count')
+    fields(v,['version','provenance','constructorOriginal','prototypeObjectOriginal','staticOriginal','wrappedReflectionChanged','observerFault','state','tracks','recorders','uploads','unmounts','controls'])
+    need(type(v['version']) is int and v['version']==4 and v['provenance']=='REAL_NATIVE_FIRST_START_FINAL_SEND' and v['state'] in ['UNCREATED','recording','paused','inactive'],'Second control labels')
+    for k in ['constructorOriginal','prototypeObjectOriginal','staticOriginal','wrappedReflectionChanged','observerFault']:need(type(v[k]) is bool,'Rollover flags')
+    ints(v['tracks'],['audio','live','ended'],8);need(v['tracks']['live']+v['tracks']['ended']==v['tracks']['audio'],'Rollover tracks');need(type(v['unmounts']) is int and v['unmounts']==0,'Single explicit fixture action')
+    import re
+    need(type(v['recorders']) is list and len(v['recorders'])<=1 and type(v['uploads']) is list and len(v['uploads'])==0,'Two native sources maximum')
+    for i,r in enumerate(v['recorders']):
+        fields(r,['ordinal','sameStream','state','startedAtMs','stoppedAtMs','stopRequestedAtMs','pausedAtMs','resumedAtMs','calls','events','chunks']);need(type(r['ordinal']) is int and r['ordinal']==i+1 and r['sameStream'] is True and r['state'] in ['recording','paused','inactive'],'Native ordinal/stream')
+        need(type(r['startedAtMs']) is int and 0<=r['startedAtMs']<=600000,'Native start timestamp')
+        for k in ['stoppedAtMs','stopRequestedAtMs','pausedAtMs','resumedAtMs']:need(r[k] is None or type(r[k]) is int and r['startedAtMs']<=r[k]<=600000,'Native method timestamp')
+        need(i!=0 or r['pausedAtMs'] is None and r['resumedAtMs'] is None,'First recorder received second marks')
+        need(r['resumedAtMs'] is None or r['pausedAtMs'] is not None and r['resumedAtMs']>=r['pausedAtMs'],'Second method order')
+        ints(r['calls'],['start','pause','resume','stop'],2);ints(r['events'],['start','pause','resume','stop','data','error'],32)
+        need(all(r['calls'][k]==r['events'][k]==0 for k in ['pause','resume','stop']),'First Start no later controls')
+        c=r['chunks'];fields(c,['count','bytes','hash','drained']);need(type(c['count']) is int and 0<=c['count']<=16 and type(c['bytes']) is int and 0<=c['bytes']<=3500000 and type(c['drained']) is bool,'Native per-source chunks')
+        need(c['hash'] is None or type(c['hash']) is str and re.fullmatch('[0-9a-f]{64}',c['hash']),'Native per-source digest');need(r['events']['stop']==1 and r['stoppedAtMs'] is not None and c['hash'] is not None if c['drained'] else c['hash'] is None,'Native per-source drain')
+    for i,u in enumerate(v['uploads']):
+        fields(u,['ordinal','segmentId','sequence','durationMs','bytes','mime','hash','mounted','atMs','returnedStatus']);need(type(u['ordinal']) is int and u['ordinal']==i+1 and type(u['sequence']) is int and u['sequence']==i and type(u['segmentId']) is str and re.fullmatch('[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}',u['segmentId']) and u['mounted'] is (i==0),'Different original segment/mount')
+        need(u['returnedStatus'] is None or type(u['returnedStatus']) is int and u['returnedStatus']==503,'Actual local response marker')
+        need(type(u['durationMs']) is int and (60000 if i==0 else 1)<=u['durationMs']<=150000 and type(u['bytes']) is int and 1<=u['bytes']<=3500000 and type(u['atMs']) is int and 0<=u['atMs']<=600000,'Native original File bounds')
+        need(type(u['mime']) is str and re.fullmatch(r'audio/(webm|mp4)(;codecs=[a-z0-9,.-]{1,32})?',u['mime']) and type(u['hash']) is str and re.fullmatch('[0-9a-f]{64}',u['hash']),'Native File MIME/digest');need(i<len(v['recorders']),'Missing source recorder');r=v['recorders'][i];need(u['bytes']==r['chunks']['bytes'] and (r['chunks']['hash'] is None or u['hash']==r['chunks']['hash']),'Same native source File binding')
+    if len(v['uploads'])==2:need(v['uploads'][0]['segmentId']!=v['uploads'][1]['segmentId'] and v['uploads'][0]['atMs']<=v['uploads'][1]['atMs'],'Actual different segment order')
+    fields(v['controls'],['status','count','cases']);need(type(v['controls']['count']) is int and type(v['controls']['cases']) is list and v['controls']=={'status':'INERT','count':0,'cases':[]},'First Start controls remain inert')
+    return v
+
+def owned_success(item,run,token):
+    need(type(item) is dict and set(item)=={'path','bytes','sha256'} and item['path']==str(run/'native-success.json') and type(item['bytes']) is int and 0<item['bytes']<=4096,'Actual rollover descriptor')
+    body=frozen(item['path']);need(len(body)==item['bytes'] and sha(body)==item['sha256'] and token.encode() not in body,'Actual rollover bytes');return body,success_projection(body)
+
+def success_parent_category(body,value):
+    first,second=value['uploads'];bad=[dict(value,foreign=True),dict(value,version=True),dict(value,recorders=value['recorders']*2),dict(value,uploads=[first,{**second,'segmentId':first['segmentId']}]),dict(value,uploads=[first,{**second,'hash':'0'*64}]),dict(value,uploads=[{**first,'durationMs':59999},second]),dict(value,uploads=[first,{**second,'mounted':True}])]
+    r0,r1=value['recorders']
+    bad.extend([dict(value,uploads=[first,{**second,'sequence':0}]),dict(value,recorders=[{**r0,'ordinal':2},r1]),dict(value,recorders=[r0,{**r1,'chunks':{**r1['chunks'],'hash':None,'drained':True}}]),dict(value,uploads=[first,{**second,'atMs':first['atMs']-1}]),dict(value,uploads=[first,{**second,'mime':'text/html'}])])
+    candidates=[json.dumps(v).encode() for v in bad]+[b' '*4097,b'\xff',body[:-1]+b',"version":2}']
+    for candidate in candidates:
+        rejected=False
+        try:success_projection(candidate)
+        except BaseException:rejected=True
+        need(rejected,'Actual same-parent rollover negative accepted')
+    return {'status':'PASS','count':1,'category':'actual-two-source-parent-order-hash-drain','negatives':len(candidates)}
+
+
+def native_start_projection(body):
+    need(type(body) is bytes and 0<len(body)<=4096,'First Start boundary bytes')
+    def pairs(items):
+        value={}
+        for k,v in items:need(k not in value,'Start duplicate');value[k]=v
+        return value
+    def constant(_):raise AssertionError('Start nonfinite')
+    value=json.loads(body.decode('utf-8'),object_pairs_hook=pairs,parse_constant=constant)
+    need(type(value) is dict and set(value)=={'version','event','case','provenance','click','admissions','defaultClockOverrideAbsent','startScopeCleared'},'Start boundary fields')
+    need(type(value['version']) is int and value['version']==1 and value['event']=='NATIVE_FINAL_START_BOUNDARY' and value['case']=='desktop' and value['provenance']=='REAL_NATIVE_DEFAULT_PREPARATION_CLOCKS_ORIGINAL_SENDER' and value['defaultClockOverrideAbsent'] is True and value['startScopeCleared'] is True,'Actual default native Start identity')
+    click=value['click'];need(type(click) is dict and set(click)=={'x','y','label','button','clickCount'} and type(click['x']) is int and 0<=click['x']<1280 and type(click['y']) is int and 0<=click['y']<800 and click['label']=='Start recording' and click['button']=='left' and type(click['clickCount']) is int and click['clickCount']==1,'Original click')
+    ads=value['admissions'];need(type(ads) is list and len(ads)==2,'Two original input admissions')
+    for i,a in enumerate(ads):
+        need(type(a) is dict and set(a)=={'event','minimumWorkMs','monotonicRemainingMs','utcRemainingMs','rolloverLeaseMs','initialReadinessReserveMs','remainingPhasesReserveMs'} and a['event']==['mousePressed','mouseReleased'][i],'Original event order')
+        need(all(type(a[k]) is int for k in a if k!='event') and a['minimumWorkMs']==130000 and a['rolloverLeaseMs']==75000 and a['initialReadinessReserveMs']==5000 and a['remainingPhasesReserveMs']==50000 and all(130000<=a[k]<=150000 for k in ['monotonicRemainingMs','utcRemainingMs']),'Actual paired final130')
+    return value
+
+def first_start_state_contract(states):
+    need(type(states) is list and len(states)==2 and [v['phase'] for v in states]==['initial','native-recording'],'Only two native first Start phases')
+    initial,started=states
+    for v in states:
+        validate_recorder(v);need(v['selected']=='intake' and v['proof']['mountedVisit'] is True and v['proof']['scenario']=='consented' and v['proof']['routes']==0,'Actual mounted consented intake')
+        s=v['proof']['nativeSuccess'];need(all(s[k] is True for k in ['constructorOriginal','prototypeObjectOriginal','staticOriginal','wrappedReflectionChanged']) and s['observerFault'] is False and s['uploads']==[] and s['unmounts']==0,'First native registry provenance')
+    need(initial['proof']['nativeForward']['calls']==0 and initial['proof']['nativeForward']['outcome']=='UNATTEMPTED' and initial['proof']['mediaCalls']==0 and not initial['proof']['mediaPending'] and not initial['proof']['captureBusy'] and initial['recorder']['startEnabled'] and initial['proof']['nativeSuccess']['recorders']==[],'Untouched original initial capture')
+    p=started['proof'];s=p['nativeSuccess'];need(p['nativeForward']['outcome']=='FULFILLED' and p['nativeForward']['calls']==1 and all(p['nativeForward'][k] is True for k in ['receiverExact','constraintsExact','promiseReturned']) and not p['nativeForward']['observerFault'] and p['mediaCalls']==1 and not p['mediaPending'] and p['captureBusy'] and started['recorder']['isRecording'] and not started['recorder']['requesting'],'Original first Start UI/forward')
+    need(s['state']=='recording' and len(s['recorders'])==1 and s['tracks']['live']>=1 and s['tracks']['ended']==0,'One live original recorder')
+    r=s['recorders'][0];need(r['ordinal']==1 and r['sameStream'] is True and r['state']=='recording' and r['calls']=={'start':1,'pause':0,'resume':0,'stop':0} and r['events']['start']==1 and all(r['events'][k]==0 for k in ['pause','resume','stop','error']) and r['stopRequestedAtMs'] is None and r['stoppedAtMs'] is None and r['pausedAtMs'] is None and r['resumedAtMs'] is None and not r['chunks']['drained'],'First original start event only')
+
+def first_start_parent_controls(success_raw,success,states,boundary_raw,boundary):
+    success_projection(success_raw);first_start_state_contract(states);native_start_projection(boundary_raw);negatives=0
+    def denied(call):
+        nonlocal negatives
+        no=False
+        try:call()
+        except (AssertionError,ValueError,TypeError,KeyError,UnicodeDecodeError):no=True
+        need(no,'New first Start parent negative accepted');negatives+=1
+    for change in [lambda v:v.update(version=True),lambda v:v.update(provenance='REAL_NATIVE_SECOND_RECORDER_PAUSE_RESUME_LOCAL503'),lambda v:v.update(recorders=v['recorders']*2),lambda v:v.update(uploads=[{}]),lambda v:v['controls'].update(status='PASS'),lambda v:v['recorders'][0]['calls'].update(pause=1)]:
+        bad=json.loads(json.dumps(success));change(bad);denied(lambda bad=bad:success_projection(json.dumps(bad).encode()))
+    for change in [lambda v:v[0]['proof']['nativeForward'].update(calls=1),lambda v:v[1]['proof']['nativeSuccess']['recorders'][0]['calls'].update(start=0),lambda v:v[1]['proof']['nativeSuccess']['tracks'].update(live=0,audio=0),lambda v:v[1]['recorder'].update(requesting=True)]:
+        bad=json.loads(json.dumps(states));change(bad);denied(lambda bad=bad:first_start_state_contract(bad))
+    for change in [lambda v:v['admissions'].reverse(),lambda v:v['admissions'].pop(),lambda v:v['admissions'][0].update(monotonicRemainingMs=129999),lambda v:v['admissions'][1].update(utcRemainingMs=float('nan')),lambda v:v['click'].update(label='Foreign'),lambda v:v.update(defaultClockOverrideAbsent=False),lambda v:v.update(startScopeCleared=False)]:
+        bad=json.loads(json.dumps(boundary));change(bad);denied(lambda bad=bad:native_start_projection(json.dumps(bad).encode()))
+    denied(lambda:native_start_projection(boundary_raw[:-1]+b',"version":1}'))
+    return {'status':'PASS','count':1,'category':'first-start-two-phase-boundary-parent','negatives':negatives}
+
+def second_state_contract(states):
+    need(type(states) is list and [v['phase'] for v in states]==['initial','native-recording','native-rollover','native-paused','native-pause-held','native-resumed','native-unmounted-drained','native-quiescent'],'Exact second control phases')
+    initial,started,rollover,paused,held,resumed,unmounted,final=states
+    first=rollover['proof']['nativeSuccess'];r0,u0=first['recorders'][0],first['uploads'][0]
+    for v in states[2:]:
+        s=v['proof']['nativeSuccess'];need(s['recorders'][0]==r0 and s['uploads'][0]==u0,'Immutable original first row/envelope')
+    need(u0['returnedStatus']==503 and r0['calls']['pause']==r0['calls']['resume']==0,'First actual503 and unpaused ordinal1')
+    for v in [rollover,paused,held,resumed]:
+        s=v['proof']['nativeSuccess'];need(len(s['recorders'])==2 and len(s['uploads'])==1 and v['recorder'] is not None and 'Retry 1 unsaved segment' in v['recorder']['text'] and 'Synthetic upload boundary unavailable.' in v['recorder']['text'] and 'segment processing' not in v['recorder']['text'] and v['proof']['captureBusy'],'Actual unsaved UI during new controls')
+    for v in [paused,held]:
+        r=v['proof']['nativeSuccess']['recorders'][1];need(r['state']=='paused' and r['calls']['pause']==r['events']['pause']==1 and r['calls']['resume']==r['events']['resume']==0 and r['pausedAtMs'] is not None and r['resumedAtMs'] is None and not v['recorder']['isRecording'],'Original second paused')
+    r=resumed['proof']['nativeSuccess']['recorders'][1];need(r['state']=='recording' and r['calls']['pause']==r['calls']['resume']==r['events']['pause']==r['events']['resume']==1 and type(r['pausedAtMs']) is int and type(r['resumedAtMs']) is int and r['resumedAtMs']>=r['pausedAtMs'] and resumed['recorder']['isRecording'],'Original second resumed')
+    need(paused['recorder']['time']==held['recorder']['time'] and resumed['recorder']['time']!=held['recorder']['time'],'Held then progressing UI clock')
+    return {'status':'PASS','scope':'ACTUAL_ORDINAL2_CONTROLS_FIRST_ENVELOPE_IMMUTABLE'}
+
+def second_parent_controls(body,value,states):
+    original=success_projection(body);need(original==value,'Same actual second producer/parent')
+    rs=value['recorders'];us=value['uploads'];bad=[dict(value,version=2),dict(value,recorders=[dict(rs[0],pausedAtMs=1),rs[1]]),dict(value,recorders=[rs[0],dict(rs[1],resumedAtMs=rs[1]['pausedAtMs']-1)]),dict(value,uploads=[dict(us[0],returnedStatus=200),us[1]])]
+    negatives=0
+    for candidate in bad:
+        denied=False
+        try:success_projection(json.dumps(candidate).encode())
+        except (AssertionError,ValueError,TypeError,KeyError):denied=True
+        need(denied,'Changed parent envelope accepted');negatives+=1
+    second_state_contract(states)
+    for mutate in [lambda v:v[4]['proof']['nativeSuccess']['uploads'][0].update(hash='0'*64),lambda v:v[4]['recorder'].update(time='99:59'),lambda v:v[5]['proof']['nativeSuccess']['recorders'][1].update(ordinal=1)]:
+        candidate=json.loads(json.dumps(states));mutate(candidate);denied=False
+        try:
+            for v in candidate:success_projection(json.dumps(v['proof']['nativeSuccess']).encode())
+            second_state_contract(candidate)
+        except (AssertionError,ValueError,TypeError,KeyError):denied=True
+        need(denied,'Changed phase relation accepted');negatives+=1
+    return {'status':'PASS','count':1,'category':'actual-second-control-parent-envelope-phases','negatives':negatives}
+
+def validate_recorder(value):
+    need(type(value) is dict and set(value) == {'case','phase','selected','tabs','panels','recorder','proof','backError','navError','logoutError'}, 'Recorder exact fields')
+    need(value['case'] in ['synthetic','desktop','mobile'] and value['selected'] in ['intake','recommendation','care','wellness','history','UNMOUNTED'], 'Recorder fixed case/view')
+    need(type(value['phase']) is str and 0 < len(value['phase']) <= 64 and all(c.isascii() and (c.islower() or c.isdigit() or c == '-') for c in value['phase']), 'Recorder phase bound')
+    proof = value['proof']
+    need(type(proof) is dict and set(proof) == {'source','case','scenario','synthetic','captureBusy','mediaCalls','mediaPending','mountedVisit','routes','ledger','jitless','failed','nativeForward','forwardControls','rejectionControls','nativeSuccess'}, 'Recorder proof schema')
+    need(proof['case'] == value['case'] and proof['synthetic'] is (value['case'] == 'synthetic') and proof['scenario'] in ['no-consent','archived','consented'] and proof['jitless'] is True and proof['failed'] is False, 'Recorder provenance')
+    forward_projection(json.dumps(proof['nativeForward']).encode());success_projection(json.dumps(proof['nativeSuccess']).encode())
+    controls=proof['forwardControls']; need(type(controls) is dict and set(controls)=={'status','count','cases','provenance'} and controls['status']=='PASS' and type(controls['count']) is int and controls['count']==4 and controls['cases']==FORWARD_NAMES and controls['provenance']=='SYNTHETIC_FUNCTION_PROMISE_REGISTRATION_SINK_LEAVES','Four fixture forward controls')
+    for k in ['captureBusy','mediaPending','mountedVisit']: need(type(proof[k]) is bool, 'Recorder proof boolean')
+    for k in ['mediaCalls','routes']: need(type(proof[k]) is int and 0 <= proof[k] <= 32, 'Recorder proof count')
+    need(type(proof['ledger']) is dict and set(proof['ledger']) == {'clinic','detail','recordings','shares','mutations'} and all(type(v) is int and 0 <= v <= 32 for v in proof['ledger'].values()) and proof['ledger']['shares'] == proof['ledger']['mutations'] == 0, 'Recorder zero sharing/mutations')
+    for k in ['backError','navError','logoutError']: need(type(value[k]) is bool, 'Recorder error boolean')
+    need(type(value['tabs']) is list and type(value['panels']) is list and len(value['tabs']) == len(value['panels']) == (5 if proof['mountedVisit'] else 0), 'Recorder actual tab cardinality')
+    ids = ['intake','recommendation','care','wellness','history']
+    for i, tab in enumerate(value['tabs']):
+        need(type(tab) is dict and set(tab) == {'id','selected','disabled','tabindex'} and tab['id'] == ids[i] and type(tab['selected']) is bool and type(tab['disabled']) is bool and tab['tabindex'] in ['0','-1'], 'Recorder tab schema')
+        panel = value['panels'][i]; need(type(panel) is dict and set(panel) == {'id','hidden','children','text'} and panel['id'] == ids[i] and type(panel['hidden']) is bool and type(panel['children']) is int and 0 <= panel['children'] <= 4096 and type(panel['text']) is str and len(panel['text'].encode()) <= 4096, 'Recorder panel schema')
+        need(panel['hidden'] is not tab['selected'] and (panel['children'] > 0) is tab['selected'], 'Recorder parent lifetime')
+    recorder = value['recorder']
+    need(recorder is None if value['selected'] != 'intake' else type(recorder) is dict, 'Recorder real composition')
+    if recorder is not None:
+        need(set(recorder) == {'text','denied','time','startEnabled','requesting','isRecording','pauseStop','idleIcon'} and type(recorder['text']) is str and len(recorder['text'].encode()) <= 4096 and type(recorder['time']) is str and len(recorder['time'])==5 and recorder['time'][2]==':' and recorder['time'].replace(':','').isdigit(), 'Recorder timer/text schema')
+        for k in ['denied','startEnabled','requesting','isRecording','pauseStop','idleIcon']: need(type(recorder[k]) is bool, 'Recorder state boolean')
+        need(recorder['idleIcon'], 'Actual recorder icon')
+
+
+INVALIDATION_CASES = ['synthetic','desktop','mobile','NONE','UNKNOWN']
+INVALIDATION_PHASES = ['BOOTSTRAP','INITIAL_READ','CASE_CLOSING','HANDOFF','DESKTOP_BOOTSTRAP','FINAL_CLEANUP','UNKNOWN']
+INVALIDATION_CONTROL_NAMES = ['unbound-no-stop','current-bound-first','closing-owner-still-stops','previous-owner-current-desktop','rejection-collision-writeerror-primary','later-event-never-reopens']
+def invalidation_projection(body):
+    need(type(body) is bytes and 0 < len(body) <= 2048, 'Invalidation byte bound')
+    def pairs(items):
+        value = {}
+        for key, item in items: need(key not in value, 'Duplicate invalidation key'); value[key] = item
+        return value
+    def constant(_value): raise AssertionError('Invalidation nonfinite JSON')
+    value = json.loads(body.decode('utf-8'), object_pairs_hook=pairs, parse_constant=constant)
+    fields = {'version','event','event_case','active_case','event_phase','active_phase','owner_relation','bound','current_session','same_acquisition','owner_closing','global_cleanup','event_order','owner_ordinal','primary_code'}
+    need(type(value) is dict and set(value) == fields, 'Invalidation exact fields')
+    need(type(value['version']) is int and value['version'] == 1 and value['event'] == 'DOCUMENT_UPDATED', 'Invalidation fixed event')
+    need(value['event_case'] in INVALIDATION_CASES and value['active_case'] in INVALIDATION_CASES and value['event_phase'] in INVALIDATION_PHASES and value['active_phase'] in INVALIDATION_PHASES, 'Invalidation closed case/phase')
+    need(value['owner_relation'] in ['CURRENT','PREVIOUS','NONE','UNKNOWN'] and value['primary_code'] in ['BOUND_DOCUMENT_INVALIDATED','OTHER_EXISTING_PRIMARY'], 'Invalidation relation/primary')
+    for k in ['bound','current_session','same_acquisition','owner_closing','global_cleanup']: need(type(value[k]) is bool, 'Invalidation flags')
+    need(value['bound'] is True, 'Unbound invalidation receipt invented')
+    for k in ['event_order','owner_ordinal']: need(type(value[k]) is int and 1 <= value[k] <= 4096, 'Invalidation counters')
+    return value
+
+def owned_invalidation_descriptor(item, directory, token):
+    need(type(item) is dict and set(item) == {'path','bytes','sha256'} and Path(item['path']).parent == directory and type(item['bytes']) is int and 0 < item['bytes'] <= 2048, 'Owned invalidation descriptor')
+    need(Path(item['path']).resolve() == Path(item['path']) and Path(item['path']).stat().st_size == item['bytes'], 'Invalidation persisted byte bound')
+    body = frozen(item['path']); need(len(body) == item['bytes'] and sha(body) == item['sha256'] and token.encode() not in body, 'Invalidation hash/capability binding')
+    return invalidation_projection(body)
+
+
+READINESS_NAMES=['actual-delivery-cache-last-not-initial','unavailable-candidate-is-unknown','primary-before-throwing-secondary-and-IO','unsafe-first-only-accessor-zero-read','collision-and-write-fault-primary-no-reopen']
+def readiness_projection(body):
+    need(type(body) is bytes and 0<len(body)<=2048,'Readiness bounded bytes')
+    def pairs(items):
+        value={}
+        for key,item in items:need(key not in value,'Duplicate readiness key');value[key]=item
+        return value
+    def constant(_value):raise AssertionError('Readiness nonfinite JSON')
+    v=json.loads(body.decode('utf-8'),object_pairs_hook=pairs,parse_constant=constant)
+    need(type(v) is dict and set(v)=={'version','event','case','phase','primary','candidate','native','ui'},'Readiness exact schema')
+    need(type(v['version']) is int and v['version']==3 and v['event']=='RECORDER_READINESS_FAILURE' and v['case']=='desktop' and v['phase'] in ['initial','native-denied','native-recording','native-clock','native-paused','native-pause-held','native-resumed','native-stopped-unsaved','native-retry-unsaved','native-discard-cleared','native-unmounted-drained','native-quiescent','native-rollover','native-second-clock'] and v['primary'] in ['READINESS_TIMEOUT','OTHER_READINESS_FAILURE'] and v['candidate'] in ['OBSERVED','UNKNOWN'],'Readiness fixed labels')
+    n,u=v['native'],v['ui'];need(type(n) is dict and set(n)=={'provenance','calls','outcome','notAllowed','observerFault','rejection'} and type(u) is dict and set(u)=={'recorderState','denied','startEnabled','requesting','isRecording','pauseStop','timeZero','captureBusy','mediaPending','mediaCalls'},'Readiness nested schema')
+    c=cached_rejection(n['rejection'])
+    unknown=v['candidate']=='UNKNOWN';need(not unknown or c['type']=='UNKNOWN' and c['instanceofResult']=='UNKNOWN' and c['nameStatus']=='UNKNOWN_UNREAD','Unknown cache fabricated');need(n['provenance']==('UNKNOWN' if unknown else 'FRESH_NATIVE_FORWARD'),'Readiness provenance')
+    need(n['outcome']=='UNKNOWN' if unknown else n['outcome'] in ['UNATTEMPTED','PENDING','REJECTED','FULFILLED','SYNC_THROW','OBSERVER_FAILED'],'Readiness outcome')
+    for value in [n['calls'],u['mediaCalls']]:need(value is None if unknown else type(value) is int and 0<=value<=32,'Readiness closed count')
+    state=u['recorderState'];need(state=='UNKNOWN' if unknown else state in ['PRESENT','ABSENT'],'Readiness recorder state')
+    need(state!='ABSENT' or v['phase'] in ['native-unmounted-drained','native-quiescent'],'Readiness absent phase')
+    for key in ['denied','startEnabled','requesting','isRecording','pauseStop','timeZero']:need(u[key] is None if unknown or state=='ABSENT' else type(u[key]) is bool,'Readiness recorder flag')
+    for value in [n['notAllowed'],n['observerFault'],u['captureBusy'],u['mediaPending']]:need(value is None if unknown else type(value) is bool,'Readiness proof/native flag')
+    need(n['notAllowed'] is not True or n['outcome']=='REJECTED','Readiness denial relation')
+    if not unknown:cached_envelope(n['outcome'],n['notAllowed'],n['observerFault'],n['rejection'])
+    return v
+
+def owned_readiness(item,directory,token):
+    need(type(item) is dict and set(item)=={'path','bytes','sha256'} and Path(item['path']).parent==directory and type(item['bytes']) is int and 0<item['bytes']<=2048,'Readiness descriptor')
+    body=frozen(item['path']);need(len(body)==item['bytes'] and sha(body)==item['sha256'] and token.encode() not in body,'Readiness persisted binding');return body,readiness_projection(body)
+
+
+DEVICE_SWITCH = '--use-fake-device-for-media-stream'
+LAUNCH_CASES = ['actual-argv-preserved-handoff','missing-duplicate-valued-rejected','forbidden-flags-identity-case-rejected','closed-projection-real-parent','original-launch-primary-owned-registration']
+LAUNCH_POLICY = {'version':1,'case':'desktop','nativeVersion':'151.0.7922.173','provenance':'DECLARED_NATIVE_SYNTHETIC_DEVICE_LAUNCH','deviceMode':'NATIVE_SYNTHETIC','deviceSwitchCount':1,'deviceSwitchNoValue':True,'baseArgumentsPreserved':True,'observedPermission':'UNVERIFIED','observedDeviceAvailability':'UNVERIFIED','priorCause':'UNKNOWN'}
+def plain_native_argv(case, argv):
+    need(type(case) is str and case=='desktop' and type(argv) is list and 2<=len(argv)<=64,'Native launch case/list')
+    need(all(type(v) is str and 0<len(v)<=4096 for v in argv) and argv[0]==CHROME and argv[-1]=='about:blank' and argv.count('about:blank')==1,'Native launch identity/terminal')
+    forbidden=('--use-fake-ui','--use-file-for-fake-','--auto-accept','--auto-select','--unsafely-allow','--disable-audio-input')
+    need(not any(v.startswith(forbidden) for v in argv),'Native forbidden UI/file/grant')
+def native_policy(case, argv, baseline):
+    plain_native_argv(case,baseline);plain_native_argv(case,argv)
+    need(not any(v.startswith(DEVICE_SWITCH) for v in baseline),'Native baseline device switch')
+    need(argv==baseline[:-1]+[DEVICE_SWITCH]+baseline[-1:] and argv[-2]==DEVICE_SWITCH and sum(v.startswith(DEVICE_SWITCH) for v in argv)==1,'Native actual unchanged argv+one no-value device')
+    return dict(LAUNCH_POLICY)
+def native_argv(case, baseline):
+    plain_native_argv(case,baseline);argv=baseline[:-1]+[DEVICE_SWITCH]+baseline[-1:];native_policy(case,argv,baseline);return argv
+def launch_policy_body(value):
+    need(type(value) is dict and set(value)==set(LAUNCH_POLICY),'Closed launch projection')
+    for k,want in LAUNCH_POLICY.items():need(type(value[k]) is type(want) and value[k]==want,'Typed declared launch policy')
+    body=json.dumps(value,separators=(',',':')).encode();need(len(body)<=1024,'Launch declaration bound');return body
+def launch_policy_parent(body):
+    need(type(body) is bytes and 0<len(body)<=1024,'Parent launch raw bound')
+    def pairs(items):
+        result={}
+        for k,v in items:
+            need(k not in result,'Parent launch duplicate');result[k]=v
+        return result
+    value=json.loads(body.decode('utf-8'),object_pairs_hook=pairs);launch_policy_body(value);return value
+def handoff_native(case, argv, baseline, handoff, publish):
+    body=launch_policy_body(native_policy(case,argv,baseline));launch_policy_parent(body)
+    publish(body)
+    return handoff(argv)
+def acquire_owned_process(name,args,env,log,acquisition,processes,popen=None,mask=None):
+    if popen is None:popen=subprocess.Popen
+    if mask is None:mask=signal.pthread_sigmask
+    acquisition['active']=True
+    prior=None;masked=False;primary=None
+    try:
+        prior=mask(signal.SIG_BLOCK,{signal.SIGALRM,signal.SIGTERM,signal.SIGINT});masked=True
+        process=popen(args,env=env,stdout=log,stderr=subprocess.STDOUT,shell=False,start_new_session=True)
+        item={'name':name,'process':process,'pgid':process.pid,'closed':False};processes.append(item)
+        return process,item
+    except BaseException as error:primary=error;raise
+    finally:
+        try:
+            if masked:mask(signal.SIG_SETMASK,prior)
+        except BaseException:
+            acquisition['pending']=True;acquisition['signal_restore_unknown']=True
+            if primary is None:raise
+        finally:acquisition['active']=False
+
+def full_budget_admission(opened,ceiling,outer,now,mono):
+    need(outer==OUTER and all(type(v) is datetime and v.tzinfo is not None and v.utcoffset()==timedelta(0) for v in [opened,ceiling,outer,now]),'Exact current UTC authority')
+    need(type(mono) in [int,float] and 0<=mono<=10**12 and opened<=now<ceiling<=outer and (ceiling-now).total_seconds()>=240,'Full240 before once')
+    return {'end':mono+240,'work':mono+150,'end_utc':now+timedelta(seconds=240),'work_utc':now+timedelta(seconds=150)}
+
+def work_budget_open(now,mono,work_utc,work):
+    need(type(mono) in [int,float] and 0<=mono<work and now<work_utc,'Paired work boundary expired')
+
+def terminate_registered(processes,record,killpg=None):
+    if killpg is None:killpg=os.killpg
+    for item in processes:
+        try:
+            killpg(item['pgid'],signal.SIGTERM)
+            record['cleanup'].append({'operation':'registered TERM dispatch','name':item['name'],'pgid':item['pgid'],'status':'observed'})
+        except ProcessLookupError:
+            record['cleanup'].append({'operation':'registered TERM already absent','name':item['name'],'pgid':item['pgid'],'status':'observed'})
+        except BaseException:
+            record['cleanup'].append({'operation':'registered TERM dispatch','name':item['name'],'pgid':item['pgid'],'status':'UNKNOWN'})
+
+def close_owned_logs(streams,record):
+    for stream in streams:
+        try:stream.close()
+        except BaseException:record['cleanup'].append({'operation':'owned log close','status':'UNKNOWN'})
+
+def restore_owned_signals(previous,record,set_signal=None):
+    if set_signal is None:set_signal=signal.signal
+    for sig,handler in previous.items():
+        try:set_signal(sig,handler)
+        except BaseException:record['cleanup'].append({'operation':'owned signal restore','signal':int(sig),'status':'UNKNOWN'})
+
+def admission_ownership_controls():
+    cases=[];anchor=OUTER-timedelta(seconds=600)
+    value=full_budget_admission(anchor-timedelta(seconds=1),OUTER,OUTER,anchor,100)
+    need(value=={'end':340,'work':250,'end_utc':anchor+timedelta(seconds=240),'work_utc':anchor+timedelta(seconds=150)},'Actual fresh budget pair');cases.append('full240-paired-admission')
+    def reject(name,action):
+        rejected=False
+        try:action()
+        except BaseException:rejected=True
+        need(rejected,'Affected admission accepted');cases.append(name)
+    reject('insufficient240-before-once',lambda:full_budget_admission(anchor,anchor+timedelta(seconds=239),OUTER,anchor,100))
+    reject('expired-current-authority',lambda:full_budget_admission(anchor,anchor,OUTER,anchor,100))
+    reject('shifted-utc-work',lambda:work_budget_open(value['work_utc'],101,value['work_utc'],value['work']))
+    reject('expired-monotonic-work',lambda:work_budget_open(anchor,value['work'],value['work_utc'],value['work']))
+    reject('invalid-monotonic-admission',lambda:full_budget_admission(anchor,OUTER,OUTER,anchor,float('nan')))
+    acq={'active':False,'pending':False};registered=[];order=[];previous=set()
+    def masked(how,which):
+        if how==signal.SIG_BLOCK:need(which=={signal.SIGALRM,signal.SIGTERM,signal.SIGINT} and acq['active'],'Exact blocked acquisition');order.append('BLOCK');return previous
+        need(how==signal.SIG_SETMASK and which is previous and acq['active'],'Mask restore identity');order.append('RESTORE');return set()
+    primary=RuntimeError('Synthetic original Popen')
+    def throwing(*args,**kwargs):need(order==['BLOCK'] and kwargs['shell'] is False and kwargs['start_new_session'] is True,'Actual Popen leaf');raise primary
+    caught=None
+    try:acquire_owned_process('synthetic',[],{},None,acq,registered,throwing,masked)
+    except BaseException as error:caught=error
+    need(caught is primary and order==['BLOCK','RESTORE'] and not registered and not acq['active'],'Original acquire primary');cases.append('original-popen-primary-block-restore')
+    class Owned:pid=71
+    owned=Owned();order.clear()
+    def returned(*args,**kwargs):need(order==['BLOCK'] and kwargs['shell'] is False and kwargs['start_new_session'] is True,'Blocked successful return');return owned
+    process,item=acquire_owned_process('synthetic',[],{},None,acq,registered,returned,masked)
+    need(process is owned and registered==[item] and item['pgid']==71 and order==['BLOCK','RESTORE'] and not acq['active'],'Immediate registered handle')
+    secondary=RuntimeError('Synthetic after-registration metadata/signal');dispatched=[];caught=None
+    try:raise secondary
+    except BaseException as error:caught=error
+    finally:terminate_registered(registered,{'cleanup':[]},lambda pgid,sig:dispatched.append((pgid,sig)))
+    need(caught is secondary and dispatched==[(71,signal.SIGTERM)] and registered[0]['process'] is owned,'Actual registered cleanup survives next failure');cases.append('post-registration-failure-owned-cleanup')
+    closed=[];cleanup={'cleanup':[]}
+    class Log:
+        def __init__(self,label,throws):self.label,self.throws=label,throws
+        def close(self):
+            closed.append(self.label)
+            if self.throws:raise RuntimeError('Synthetic log close')
+    close_owned_logs([Log('first',True),Log('second',False)],cleanup)
+    restored=[]
+    def restore(sig,handler):
+        restored.append((sig,handler))
+        if sig==signal.SIGALRM:raise RuntimeError('Synthetic handler restore')
+    restore_owned_signals({signal.SIGALRM:'a',signal.SIGTERM:'b'},cleanup,restore)
+    need(closed==['first','second'] and restored==[(signal.SIGALRM,'a'),(signal.SIGTERM,'b')] and len(cleanup['cleanup'])==2 and all(v['status']=='UNKNOWN' for v in cleanup['cleanup']) and caught is secondary,'Separate closing failures skip later cleanup');cases.append('closing-faults-retained-later-cleanup')
+    return {'status':'PASS','count':len(cases),'cases':cases,'provenance':'SYNTHETIC_ACTUAL_BUDGET_AND_ACQUISITION_WITH_PROCESS_SIGNAL_LEAVES'}
+def native_launch_controls():
+    baseline=[CHROME,'--headless=new','about:blank'];argv=native_argv('desktop',baseline);cases=[]
+    captured=[];bodies=[];result=object()
+    def handed(actual):captured.append(actual);return result
+    need(handoff_native('desktop',argv,baseline,handed,bodies.append) is result and captured==[argv] and captured[0] is argv and baseline==[CHROME,'--headless=new','about:blank'],'Same actual handoff identity/base')
+    need(launch_policy_parent(bodies[0])==native_policy('desktop',argv,baseline),'Same collector to real parent');cases.append(LAUNCH_CASES[0])
+    def reject(action):
+        denied=False
+        try:action()
+        except BaseException:denied=True
+        need(denied,'Unsafe native launch accepted')
+    for bad in [baseline,argv[:-1]+[DEVICE_SWITCH,argv[-1]],argv[:-2]+[DEVICE_SWITCH+'=custom','about:blank']]:reject(lambda bad=bad:native_policy('desktop',bad,baseline))
+    cases.append(LAUNCH_CASES[1])
+    for flag in ['--use-fake-ui-for-media-stream','--use-file-for-fake-audio-capture=/owned.wav','--use-file-for-fake-video-capture=/owned.y4m','--auto-accept-camera-and-microphone-capture','--auto-select-desktop-capture-source=x']:
+        changed=baseline[:-1]+[flag,'about:blank'];reject(lambda changed=changed:native_argv('desktop',changed))
+    reject(lambda:native_argv('foreign',baseline));reject(lambda:native_argv('desktop',['/foreign/chrome','about:blank']));cases.append(LAUNCH_CASES[2])
+    for raw in [b' '*1025,b'\xff',bodies[0][:-1]+b',"version":1}',bodies[0][:-1]+b',"extra":true}']:reject(lambda raw=raw:launch_policy_parent(raw))
+    for k,v in [('version',True),('case','foreign'),('deviceSwitchCount',True),('observedPermission','DENIED'),('priorCause','NO_DEVICE')]:
+        bad={**LAUNCH_POLICY,k:v};reject(lambda bad=bad:launch_policy_parent(json.dumps(bad).encode()))
+    reads=[]
+    class AccessorDict(dict):
+        def __getitem__(self,k):reads.append(k);raise RuntimeError('Synthetic forbidden read')
+    class AccessorList(list):
+        def __getitem__(self,k):reads.append(k);raise RuntimeError('Synthetic forbidden read')
+    reject(lambda:launch_policy_body(AccessorDict(LAUNCH_POLICY)));reject(lambda:native_argv('desktop',AccessorList(baseline)));need(not reads,'Invoked synthetic accessor');cases.append(LAUNCH_CASES[3])
+    acquisition={'active':False};processes=[];primary=RuntimeError('Synthetic original Popen')
+    def throwing(actual,**kwargs):need(actual is argv and acquisition['active'] and kwargs['start_new_session'] is True,'Actual owned acquisition');raise primary
+    caught=None
+    try:handoff_native('desktop',argv,baseline,lambda actual:acquire_owned_process('native-desktop',actual,{},None,acquisition,processes,throwing),lambda body:launch_policy_parent(body))
+    except BaseException as error:caught=error
+    need(caught is primary and not acquisition['active'] and not processes,'Original launch throw/cleanup replaced')
+    class Owned:pid=71
+    owned=Owned()
+    def successful(actual,**kwargs):need(actual is argv and acquisition['active'],'Owned registration args');return owned
+    process,item=handoff_native('desktop',argv,baseline,lambda actual:acquire_owned_process('native-desktop',actual,{},None,acquisition,processes,successful),lambda body:launch_policy_parent(body))
+    need(process is owned and processes==[item] and item['pgid']==71 and item['closed'] is False and not acquisition['active'],'Signal-safe owned registry/finally');cases.append(LAUNCH_CASES[4])
+    return {'status':'PASS','count':len(cases),'cases':cases,'provenance':'SYNTHETIC_SAME_ACTUAL_ARGV_HANDOFF_COLLECTOR_PARENT_POPEN_LEAF','cleanup':'UNCHANGED_NATIVE_CLOSURE_STILL_REQUIRED'}
+
+def main():
+    need(dict(os.environ) == ENV, 'Exact literal env-i required')
+    go_path = BASE / 'EXCLUSIVE_ROOT_EXECUTION_GO.json'; go_body=frozen(go_path);go = json.loads(go_body)
+    need(set(go) == {'source_review_disposition', 'source_review', 'source_adoption', 'source_pins_sha256', 'input_pins_sha256', 'opened_utc', 'execution_ceiling_utc', 'original_total_ceiling_utc'}, 'Exact eight-key once GO required')
+    need(go['source_review_disposition'] == 'PASS', 'Independent source/command PASS required')
+    pin(go['source_review'], True); pin(go['source_adoption'], True)
+    adoption = json.loads(frozen(go['source_adoption']['path']))
+    need(set(adoption) == {'disposition','source_review','source_pins_sha256','input_pins_sha256','genuinely_adopted_utc'}, 'Exact five-field source adoption required')
+    need(adoption['disposition'] == 'PASS' and adoption['source_review'] == go['source_review'] and
+         adoption['source_pins_sha256'] == go['source_pins_sha256'] and adoption['input_pins_sha256'] == go['input_pins_sha256'] and
+         utc(adoption['genuinely_adopted_utc']) < utc(go['opened_utc']), 'Actual source adoption binding')
+    input_body, source_body = frozen(BASE / 'CURRENT_INPUT_BINDINGS.json'), frozen(BASE / 'SOURCE_PINS.json')
+    need(sha(input_body) == go['input_pins_sha256'], 'Fresh input manifest binding')
+    need(sha(source_body) == go['source_pins_sha256'], 'Fresh source manifest binding')
+    inputs, sources = json.loads(input_body), json.loads(source_body)
+    need([x['path'] for x in sources['files']] == [str(BASE / n) for n in ['fixture.tsx', 'adapter.mjs', 'supervisor.py']], 'Source surface changed')
+    for item in sources['files']: pin(item, True)
+    for item in inputs['retained_control_evidence'].values(): pin(item)
+    for item in inputs['retained_reaction_evidence'].values(): pin(item)
+    for item in inputs['retained_r2_evidence'].values(): pin(item)
+    for item in inputs['retained_118_evidence'].values(): pin(item)
+    for item in inputs['retained_122_evidence'].values(): pin(item)
+    for item in inputs['retained_130_evidence'].values(): pin(item)
+    for item in inputs['current_scope_reference_inputs'].values(): pin(item)
+    for group in ['compiled_application_inputs', 'explicit_tool_docs_binary_inputs']:
+        for path, item in inputs[group].items(): need(path == item['path'], 'Input key mismatch'); pin(item)
+    for root, item in inputs['declared_readonly_package_roots'].items():
+        need(str(Path(root).resolve()) == item['canonical'], 'Package root mismatch'); pin(item['package_json'])
+    sdk = inputs['SDK_prospective_readonly_root']; need(str(Path(sdk['path']).resolve()) == sdk['canonical'], 'SDK root mismatch')
+    for item in inputs['sdk_entry_descriptors']: pin(item)
+    mono = time.monotonic(); now = datetime.now(timezone.utc)
+    need(go['original_total_ceiling_utc'] == OUTER.isoformat(), 'Original task total changed')
+    ceiling = utc(go['execution_ceiling_utc']);budget=full_budget_admission(utc(go['opened_utc']),ceiling,OUTER,now,mono)
+    end,work,end_utc,work_utc=budget['end'],budget['work'],budget['end_utc'],budget['work_utc']
+    exclusive(BASE / 'EXECUTED_ONCE.json', {'started_utc': now.isoformat(), 'go_sha256': sha(go_body)})
+    run = BASE / secrets.token_hex(8); run.mkdir(mode=0o700)
+    for name in ['sdk-synthetic','sdk-desktop','ps','pd','cs','cd','tmp','ts','td','xc','xd','xf']: (run / name).mkdir(mode=0o700)
+    token = secrets.token_hex(16); processes = []; known = {}; streams = []; listeners = []
+    record = {'status': 'FAILED', 'source_sha': go['source_pins_sha256'], 'input_sha': sha(input_body), 'started_utc': now.isoformat(), 'cleanup': [], 'lineage': [], 'scope': 'TASK138 original first Start default owner-real clock-native sender; two states-one image-owned cleanup only; old batches INERT','budget_admission':{'total_seconds':240,'work_seconds':150,'cleanup_seconds':90,'end_utc':end_utc.isoformat(),'work_utc':work_utc.isoformat(),'utc_available_before_once':(ceiling-now).total_seconds(),'monotonic_anchor':mono}}
+    acquisition = {'active': False, 'pending': False, 'cleanup': False}; first = None
+    def fail(reason):
+        nonlocal first
+        if first is None: first = str(reason).replace(token, '[REDACTED]'); record['first_failure'] = first
+    def guard():
+        need(first is None and not acquisition['pending'], 'Sticky failure/deferred signal')
+        work_budget_open(datetime.now(timezone.utc),time.monotonic(),work_utc,work)
+    def interrupted(_signal, _frame):
+        acquisition['pending'] = True
+        if not acquisition['active'] and not acquisition['cleanup']: raise TimeoutError('Owned phase interrupted/expired')
+    previous = {s: signal.signal(s, interrupted) for s in [signal.SIGALRM, signal.SIGTERM, signal.SIGINT]}
+    def observe():
+        pending = [os.getpid()]; seen = set()
+        while pending:
+            parent = pending.pop(); need(parent not in seen and len(seen) < 32, 'Owned lineage bound'); seen.add(parent)
+            for pid in children(parent):
+                item = identity(pid)
+                if item is None: continue
+                if pid not in known: known[pid] = item; record['lineage'].append(item)
+                need(known[pid]['birth'] == item['birth'], 'Owned PID reused')
+                need(item['pgid'] in [v['pgid'] for v in processes], 'Unexpected detached owned group')
+                pending.append(pid)
+    def launch(name, args, env):
+        guard(); log = open(run / (name + '.log'), 'xb'); streams.append(log)
+        def acquire(actual):return acquire_owned_process(name,actual,env,log,acquisition,processes)
+        if name.startswith('native-'):
+            def publish(body):record['native_media_policy']={'value':launch_policy_parent(body),'bytes':len(body),'sha256':sha(body),'provenance':'ACTUAL_ARGV_PASSED_UNCHANGED_TO_OWNED_POPEN_DECLARATION_ONLY'}
+            process,item=handoff_native(name[len('native-'):],args,native_base_argv,acquire,publish)
+        else:process,item=acquire(args)
+        guard(); current = identity(process.pid); need(current and current['pgid'] == process.pid, 'Owned acquisition identity unknown')
+        known[process.pid] = current; record['lineage'].append(current); item['identity'] = current
+        return item
+    def wait_file(path, seconds, owner):
+        stop = min(work, time.monotonic() + seconds)
+        while not path.exists():
+            guard(); observe(); need(owner['process'].poll() is None, 'Owned producer exited before descriptor')
+            need(time.monotonic() < stop, 'Descriptor readiness boundary'); time.sleep(0.02)
+        guard(); need(path.resolve() == path and path.stat().st_mode & 0o777 == 0o400, 'Producer descriptor not frozen')
+        body = path.read_bytes(); need(len(body) <= 4194304, 'Producer descriptor bound'); return json.loads(body)
+    def reap_group(item):
+        item['process'].poll()
+        if item['process'].returncode is None: return False
+        while True:
+            try:
+                pid, status = os.waitpid(-item['pgid'], os.WNOHANG)
+                if pid == 0: return False
+                record['cleanup'].append({'operation': 'adopted reap', 'pid': pid, 'wait_status': status, 'status': 'observed'})
+            except ChildProcessError: return True
+    try:
+        signal.setitimer(signal.ITIMER_REAL, work - time.monotonic())
+        need(not children(os.getpid()), 'Fresh supervisor has undeclared children')
+        libc = ctypes.CDLL(LIBC, use_errno=True); need(libc.prctl(36, 1, 0, 0, 0) == 0, 'Subreaper set failed')
+        observed = ctypes.c_int(); need(libc.prctl(37, ctypes.byref(observed), 0, 0, 0) == 0 and observed.value == 1, 'Subreaper not observed')
+        record['admission_ownership_controls']={'authority':'INERT_UNEXECUTED_DEFINITION_NO_RESULT'};guard()
+        context = {'source_sha': go['source_pins_sha256'], 'input_sha': sha(input_body), 'token': token, 'work_end_utc': work_utc.isoformat(), 'total_end_utc':end_utc.isoformat(),'supervisor': identity(os.getpid())}
+        exclusive(run / 'context.json', context)
+        env = {'PATH': ENV['PATH'], 'LANG': ENV['LANG'], 'TMPDIR': str(run / 'tmp'), 'XDG_CACHE_HOME': str(run / 'xc'), 'XDG_CONFIG_HOME': str(run / 'xf'), 'XDG_DATA_HOME': str(run / 'xd'), 'ESBUILD_BINARY_PATH': ESBUILD}
+        need(len(env['TMPDIR'].encode()) <= 60, 'Native TMPDIR socket prefix bound')
+        record['native_launch_controls']={'result':json.loads(frozen(inputs['retained_118_evidence']['parent']['path']))['native_launch_controls'],'authority':'EXACT_ACCEPTED_TASK118_RETAINED_INERT'}
+        node = launch('adapter', [NODE, str(BASE / 'adapter.mjs'), str(run)], env)
+        listener = wait_file(run / 'listener.json', 40, node)
+        need(listener['token'] == token and listener['source_sha'] == context['source_sha'] and listener['adapter'] == node['identity'], 'Owned listener descriptor binding')
+        origin = listener['origin']; from urllib.parse import urlsplit
+        address = urlsplit(origin); need(address.scheme == 'http' and address.hostname == '127.0.0.1' and address.port and not address.path and not address.query and not address.fragment and not address.username, 'Foreign fixture origin')
+        need(listener['urls'] == {name: origin + '/?case=' + name + '&locationId=77777777-7777-4777-8777-777777777701' for name in ['desktop']}, 'Fresh recorder URL binding'); listeners.append(address.port)
+        for case_name, alias, width, height in [('desktop', 'd', 1280, 800)]:
+            guard(); target = listener['urls'][case_name]
+            case_env = {k: v for k, v in env.items() if k != 'ESBUILD_BINARY_PATH'}; case_env['TMPDIR'] = str(run / ('t' + alias)); need(len(case_env['TMPDIR'].encode()) <= 60, 'Case TMPDIR bound')
+            args = [CHROME, '--headless=new', '--no-sandbox', '--no-zygote', '--single-process', '--disable-crashpad-for-testing', '--disable-dev-shm-usage', '--disable-gpu', '--disable-background-networking', '--disable-component-update', '--disable-sync', '--no-first-run', '--no-default-browser-check', '--metrics-recording-only', '--force-device-scale-factor=1', '--run-all-compositor-stages-before-draw', '--window-size=' + str(width) + ',' + str(height), '--user-data-dir=' + str(run / ('p' + alias)), '--disk-cache-dir=' + str(run / ('c' + alias)), '--proxy-server=http://127.0.0.1:9', '--proxy-bypass-list=127.0.0.1;localhost', '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1', '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', '--remote-allow-origins=' + origin, 'about:blank']
+            native_base_argv=args;args=native_argv(case_name,native_base_argv)
+            native = launch('native-' + case_name, args, case_env)
+            port_file = run / ('p' + alias) / 'DevToolsActivePort'; stop = min(work, time.monotonic() + 10)
+            while not port_file.exists(): guard(); observe(); need(native['process'].poll() is None and time.monotonic() < stop, 'Case endpoint readiness'); time.sleep(0.02)
+            need(port_file.resolve() == port_file and port_file.stat().st_mtime >= now.timestamp(), 'Case endpoint custody')
+            lines = port_file.read_text().splitlines(); need(len(lines) == 2 and lines[0].isdigit() and lines[1].startswith('/devtools/browser/'), 'Case endpoint shape')
+            port = int(lines[0]); need(0 < port < 65536, 'Native port bound'); listeners.append(port)
+            exclusive(run / ('browser-' + case_name + '.json'), {'source_sha': context['source_sha'], 'token': token, 'native': native['identity'], 'origin': origin, 'url': target, 'port': port, 'ws': 'ws://127.0.0.1:' + str(port) + lines[1]})
+        result = wait_file(run / 'ADAPTER_RESULT.json', 110, node)
+        need(result['source_sha'] == context['source_sha'], 'Adapter result source binding')
+        record['adapter_result'] = {'path': str(run / 'ADAPTER_RESULT.json'), 'bytes': len(frozen(run / 'ADAPTER_RESULT.json')), 'sha256': sha(frozen(run / 'ADAPTER_RESULT.json'))}
+        if result.get('first_failure') is not None: fail(result['first_failure'])
+        releases = result.get('style_group_releases', [])
+        need(type(releases) is list and len(releases) <= 8192, 'Bounded style release traces')
+        for release in releases:
+            need(type(release) is dict and set(release) == {'provenance','attempted','acknowledged'} and release['provenance'] in ['SYNTHETIC_NATIVE_LEAF','NATIVE_OWNED_SESSION'] and release['attempted'] is True and type(release['acknowledged']) is bool, 'Style release trace schema')
+        native_releases = [item for item in releases if item['provenance'] == 'NATIVE_OWNED_SESSION']
+        outstanding = result.get('native_style_group_outstanding')
+        need(type(outstanding) is int and 0 <= outstanding <= 8192, 'Outstanding native style group bound')
+        record['native_style_group_cleanup'] = {'acknowledged':sum(item['acknowledged'] for item in native_releases), 'unknown':sum(not item['acknowledged'] for item in native_releases), 'outstanding':outstanding, 'scope':'Owned group RPC acknowledgements, not global handle absence'}
+        controls = result.get('forward_controls')
+        need(type(controls) is dict and set(controls)=={'status','count','cases','provenance'} and controls['status']=='PASS' and type(controls['count']) is int and controls['count']==4 and controls['cases']==FORWARD_NAMES and controls['provenance']=='SYNTHETIC_FUNCTION_PROMISE_REGISTRATION_SINK_LEAVES','Four actual same-helper controls')
+        producer=result.get('forward_producer_controls'); need(type(producer) is dict and set(producer)=={'status','valid_receipt','unsafe_cases','collision','provenance'} and producer['status']=='PASS' and producer['unsafe_cases']==4 and producer['collision'] is True and producer['provenance']=='SYNTHETIC_CLOSED_STATE_EXCLUSIVE_IO','Actual forward producer controls')
+        need(result.get('forward_controls_authority')=='RETAINED_TASK113_ACCEPTED_INERT','Accepted controls must remain retained/inert')
+        retained=inputs['retained_control_evidence'];need(producer['valid_receipt']['path']==retained['producer']['path'] and producer['valid_receipt']['bytes']==retained['producer']['bytes'] and producer['valid_receipt']['sha256']==retained['producer']['sha256'],'Retained producer identity')
+        forward_projection(frozen(retained['producer']['path']),'EXACT_RETAINED_V1');record['retained_controls']=controls
+        ancestor=json.loads(frozen(inputs['retained_reaction_evidence']['adapter']['path']));need(result.get('readiness_controls_authority')=='RETAINED_TASK113_R1_ACCEPTED_INERT' and result.get('readiness_failure_controls')==ancestor['readiness_failure_controls'],'Old collector retained')
+        historical=json.loads(frozen(inputs['retained_reaction_evidence']['parent']['path']));forward_history=historical['shared_parent_validation'];last_history=historical['readiness_parent_validation']
+        need(type(forward_history) is dict and set(forward_history)=={'status','actual_control_receipts','affected_negatives','provenance'} and forward_history['status']=='PASS' and type(forward_history['actual_control_receipts']) is int and forward_history['actual_control_receipts']==1 and type(forward_history['affected_negatives']) is int and forward_history['affected_negatives']==7 and forward_history['provenance']=='Actual same forward producer/parent parser','Exact historical seven parent negatives')
+        need(type(last_history) is dict and set(last_history)=={'status','same_producer_receipts','negatives'} and last_history['status']=='PASS' and type(last_history['same_producer_receipts']) is int and last_history['same_producer_receipts']==3 and type(last_history['negatives']) is int and last_history['negatives']==6,'Exact historical six parent negatives')
+        record['retained_parent_validation']={'forward':forward_history,'readiness':last_history,'source':inputs['retained_reaction_evidence']['parent'],'provenance':'EXACT_ACCEPTED_PARENT_RESULT_RETAINED_INERT'}
+        accepted_r2=json.loads(frozen(inputs['retained_r2_evidence']['adapter']['path']));accepted_parent=json.loads(frozen(inputs['retained_r2_evidence']['parent']['path']))
+        expected_retained={'authority':'EXACT_ACCEPTED_TASK114_R2_RETAINED_INERT','helper':accepted_r2['current_rejection_controls'],'transport':accepted_r2['proof_transport_controls'],'projection':accepted_r2['current_projection_controls']}
+        need(result.get('retained_r2_controls')==expected_retained,'Exact R2 retained/inert authority');record['retained_r2_controls']={**expected_retained,'parent':accepted_parent['current_parent_validation'],'sources':inputs['retained_r2_evidence']}
+        declaration=record.get('native_media_policy');need(type(declaration) is dict and set(declaration)=={'value','bytes','sha256','provenance'} and declaration['provenance']=='ACTUAL_ARGV_PASSED_UNCHANGED_TO_OWNED_POPEN_DECLARATION_ONLY','Actual native declaration')
+        declaration_body=launch_policy_body(declaration['value']);need(type(declaration['bytes']) is int and declaration['bytes']==len(declaration_body) and declaration['sha256']==sha(declaration_body),'Native declaration byte binding');record['native_media_policy']['value']=launch_policy_parent(declaration_body)
+        need(result.get('native_device_declaration')=={'mode':'NATIVE_SYNTHETIC_DEVICE_PREREQUISITE','observedAvailability':'UNVERIFIED','priorCause':'UNKNOWN'},'Explicit synthetic device/prior unknown')
+        diagnostic=result.get('readiness_failure')
+        if diagnostic is not None:
+            try:
+                need(type(diagnostic) is dict and diagnostic.get('status') in ['PERSISTED','FAILED'],'Readiness diagnostic envelope')
+                if diagnostic['status']=='PERSISTED':
+                    need(set(diagnostic)=={'status','receipt'} and diagnostic['receipt']['path']==str(run/'readiness-failure.json'),'Actual readiness path')
+                    raw,value=owned_readiness(diagnostic['receipt'],run,token);record['readiness_failure']={'status':'PERSISTED','receipt':diagnostic['receipt'],'value':value}
+                else:
+                    need(set(diagnostic)=={'status','code'} and diagnostic['code'] in ['READINESS_RECEIPT_REJECTED','READINESS_RECEIPT_WRITE_FAILED'],'Readiness secondary failure');record['readiness_failure']=diagnostic
+            except BaseException:record['readiness_failure']={'status':'FAILED','code':'READINESS_PARENT_REJECTED'}
+        outcome = result.get('invalidation_observation')
+        if outcome is not None:
+            try:
+                need(type(outcome) is dict and outcome.get('status') in ['PERSISTED','FAILED'], 'Invalidation outcome')
+                if outcome['status'] == 'PERSISTED':
+                    need(set(outcome) == {'status','receipt'} and outcome['receipt']['path'] == str(run/'document-invalidation.json'), 'Live invalidation path')
+                    value = owned_invalidation_descriptor(outcome['receipt'],run,token)
+                    record['invalidation_observation'] = {'status':'PERSISTED','receipt':outcome['receipt'],'value':value}
+                else:
+                    need(set(outcome) == {'status','code'} and outcome['code'] in ['INVALIDATION_RECEIPT_REJECTED','INVALIDATION_RECEIPT_WRITE_FAILED'], 'Invalidation secondary status')
+                    record['invalidation_observation'] = outcome
+            except BaseException: record['invalidation_observation'] = {'status':'FAILED','code':'INVALIDATION_PARENT_REJECTED'}
+        record['observation_disposition'] = result.get('observation_disposition')
+        record['adapter_primary_code'] = 'BOUND_DOCUMENT_INVALIDATED' if result.get('first_failure') == 'Bound document invalidated' else 'OTHER_OR_NONE'
+        need(result['status'] == 'PASS_PENDING_SUPERVISOR_CLOSURE' and result['first_failure'] is None and result.get('listener_closed') is True, 'Original native boundary failed; observation is secondary')
+        need(result.get('observation_disposition') == 'NOT_OBSERVED' and outcome is None, 'No-event classification is not native success')
+        need(outstanding == 0 and all(item['acknowledged'] for item in native_releases), 'Owned style group unknown')
+        need(result['case_results']==[{'case':'desktop','status':'NATIVE_FINAL_START_DEFAULT_OWNER_CLOCKS_ORIGINAL_SEND','provenance':'FIRST_START_ONLY_OWNED_TEARDOWN_NO_STOP_DRAIN_UPLOAD'}],'One distinct default native Start')
+        need(type(result['states']) is list and len(result['recorder_receipts'])==2,'Actual two original state receipts')
+        for value,item in zip(result['states'],result['recorder_receipts']):
+            need(Path(item['path']).parent==run and type(item['bytes']) is int and 0<item['bytes']<=16384,'Actual first Start state descriptor');body=frozen(item['path']);need(len(body)==item['bytes'] and sha(body)==item['sha256'] and token.encode() not in body and json.loads(body)==value,'Actual first Start RAW');validate_recorder(value)
+        first_start_state_contract(result['states']);initial,started=result['states']
+        raw,forward=owned_forward(result.get('native_forward_receipt'),run,token,'native-forward.json');need(forward==started['proof']['nativeForward'],'Exact original forward reader')
+        success_raw,success=owned_success(result.get('native_success_receipt'),run,token);need(success==started['proof']['nativeSuccess'] and result.get('success_fixture_controls')=={'status':'INERT','count':0,'cases':[]},'Exact first registry reader and inert fixture controls')
+        item=result.get('native_final_start_boundary');need(type(item) is dict and set(item)=={'path','bytes','sha256'} and item['path']==str(run/'native-final-start-boundary.json') and type(item['bytes']) is int and 0<item['bytes']<=4096,'Owned actual final Start descriptor');boundary_raw=frozen(item['path']);need(len(boundary_raw)==item['bytes'] and sha(boundary_raw)==item['sha256'] and token.encode() not in boundary_raw,'Actual final Start bytes');boundary=native_start_projection(boundary_raw);need(boundary['admissions']==result.get('final_start_admissions'),'Actual final event pair same reader')
+        record['native_final_start_boundary']={'descriptor':item,'value':boundary};record['final_start_admissions']=boundary['admissions']
+        need(result.get('permission_receipts')==[{'case':'desktop','defaultContext':True,'setting':'GRANTED','originBound':True,'embeddedOriginBound':True,'acknowledged':True,'beforeDocument':True}],'Scoped original permission ACK only')
+        schema=result.get('first_start_schema_controls');need(type(schema) is dict and set(schema)=={'status','count','category','negatives','receipt'} and schema['status']=='PASS' and schema['count']==1 and schema['category']=='first-start-v4-codec-exclusive-IO' and schema['negatives']==10,'New first Start codec controls')
+        item=schema['receipt'];need(item['path']==str(run/'first-start-codec-control.json'),'Owned new codec control');body=frozen(item['path']);need(len(body)==item['bytes'] and sha(body)==item['sha256'] and token.encode() not in body,'Actual new codec control bytes');success_projection(body)
+        controls=result.get('first_start_boundary_controls');need(type(controls) is dict and set(controls)=={'status','count','category','negatives','receipt'} and controls['status']=='PASS' and controls['count']==1 and controls['category']=='first-start-boundary-codec-exclusive-IO' and controls['negatives']==9,'New boundary codec controls')
+        item=controls['receipt'];need(item['path']==str(run/'first-start-boundary-control.json'),'Owned new boundary control');body=frozen(item['path']);need(len(body)==item['bytes'] and sha(body)==item['sha256'] and token.encode() not in body,'Actual new boundary control bytes');native_start_projection(body)
+        need(result.get('final_start_controls')=={'authority':'EXACT_ACCEPTED_TASK135_SIX_RETAINED_INERT'} and result.get('rpc_controls_authority')=='EXACT_ACCEPTED_TASK130_EIGHT_RETAINED_INERT' and result.get('rpc_controls')==json.loads(frozen(inputs['retained_130_evidence']['result']['path']))['controls'],'Old6/8 retained inert')
+        record['new_first_start_controls']={'status':'PASS','count':3,'codec':schema,'boundary':controls,'parent':first_start_parent_controls(success_raw,success,result['states'],boundary_raw,boundary)}
+        need(type(result['images']) is list and len(result['images'])==1,'One actual first Start image')
+        image=result['images'][0];need(type(image) is dict and set(image)=={'path','bytes','sha256'} and image['path']==str(run/'native-final-start-recording.png') and type(image['bytes']) is int and 1000<image['bytes']<=2097152,'Owned first Start image');png=frozen(image['path']);need(len(png)==image['bytes'] and sha(png)==image['sha256'] and png[:8]==bytes([137,80,78,71,13,10,26,10]) and png[12:16]==b'IHDR' and int.from_bytes(png[16:20],'big')==1280 and int.from_bytes(png[20:24],'big')==800,'Actual native image bytes')
+        record['scope_result']={'native_goal':'NATIVE_FINAL_START_DEFAULT_OWNER_CLOCKS_ORIGINAL_SEND_PENDING_INDEPENDENT_AUDIT','cases':result['case_results'],'forward_receipt':result['native_forward_receipt'],'success_receipt':result['native_success_receipt'],'boundary':record['native_final_start_boundary'],'state_receipts':result['recorder_receipts'],'images':result['images'],'controls':record['new_first_start_controls'],'limits':'First Start native/defaultowner-realclocks-originalsender source-bound; no Target wire payloads/appStop-drain-upload-track-ended-provider-pilot proof'}
+        record['status'] = 'PASS_PENDING_CLEANUP'
+    except BaseException as error: fail(type(error).__name__ + ': ' + str(error))
+    finally:
+        acquisition['cleanup'] = True
+        try:signal.setitimer(signal.ITIMER_REAL, 0)
+        except BaseException:record['cleanup'].append({'operation':'owned work alarm disarm','status':'UNKNOWN'})
+        terminate_registered(processes,record)
+        def cleanup_window(seconds,reserve=0):
+            current=time.monotonic()
+            return min(end-reserve,current+seconds,current+max(0,(end_utc-datetime.now(timezone.utc)).total_seconds()-reserve))
+        for item in processes:
+            try:
+                for sig in [signal.SIGTERM, signal.SIGKILL]:
+                    if not absent(item['pgid']): os.killpg(item['pgid'], sig)
+                    stop = cleanup_window(3,15)
+                    while time.monotonic() < stop:
+                        if datetime.now(timezone.utc)>=end_utc-timedelta(seconds=15):break
+                        if reap_group(item) and absent(item['pgid']): break
+                        time.sleep(0.02)
+                item['closed'] = reap_group(item) and absent(item['pgid']) and item['process'].returncode is not None
+                record['cleanup'].append({'operation': item['name'], 'pid': item['process'].pid, 'pgid': item['pgid'], 'returncode': item['process'].returncode, 'group_absent': absent(item['pgid']), 'status': 'observed' if item['closed'] else 'UNKNOWN'})
+            except BaseException: record['cleanup'].append({'operation': item['name'], 'status': 'UNKNOWN'})
+        try: observe()
+        except BaseException: record['cleanup'].append({'operation': 'owned lineage', 'status': 'UNKNOWN'})
+        for pid, original in known.items():
+            try:
+                current = identity(pid)
+                if current is not None and current['birth'] == original['birth']:
+                    try: os.kill(pid, signal.SIGKILL)
+                    except ProcessLookupError: pass
+            except BaseException:record['cleanup'].append({'operation':'owned birth kill','pid':pid,'status':'UNKNOWN'})
+        for pid in known:
+            try:
+                stop = cleanup_window(3,10)
+                while identity(pid) is not None and time.monotonic() < stop and datetime.now(timezone.utc)<end_utc-timedelta(seconds=10):
+                    try:
+                        waited, _status = os.waitpid(pid, os.WNOHANG)
+                        if waited == pid: break
+                    except ChildProcessError: break
+                    time.sleep(0.02)
+                record['cleanup'].append({'operation': 'owned birth absence', 'pid': pid, 'status': 'observed' if identity(pid) is None else 'UNKNOWN'})
+            except BaseException:record['cleanup'].append({'operation':'owned birth absence','pid':pid,'status':'UNKNOWN'})
+        for port in listeners:
+            try:
+                with socket.socket() as connection:
+                    connection.settimeout(0.2); connected = connection.connect_ex(('127.0.0.1', port)) == 0
+                record['cleanup'].append({'operation': 'owned listener nonconnectable', 'port': port, 'status': 'UNKNOWN' if connected else 'observed'})
+            except BaseException: record['cleanup'].append({'operation': 'owned listener nonconnectable', 'status': 'UNKNOWN'})
+        try:
+            remaining = children(os.getpid()); record['cleanup'].append({'operation': 'final owned-child absence', 'remaining': remaining, 'status': 'observed' if not remaining else 'UNKNOWN'})
+        except BaseException:record['cleanup'].append({'operation':'final owned-child absence','status':'UNKNOWN'})
+        close_owned_logs(streams,record)
+        restore_owned_signals(previous,record)
+        if time.monotonic()>=end or datetime.now(timezone.utc)>=end_utc:
+            record['cleanup'].append({'operation':'paired total deadline','status':'UNKNOWN'})
+        clean = all(v['closed'] for v in processes) and all(v['status'] == 'observed' for v in record['cleanup'])
+        record['cleanup_failures']=[v for v in record['cleanup'] if v['status']!='observed']
+        record['status'] = 'PASS_PENDING_INDEPENDENT_REVIEW' if record['status'] == 'PASS_PENDING_CLEANUP' and clean and first is None else 'FAILED'
+        record['finished_utc'] = datetime.now(timezone.utc).isoformat()
+        try:exclusive(run / 'RESULT.json', record)
+        except BaseException as error:
+            record['status']='FAILED';record['result_finalization_failure']=type(error).__name__
+            print(json.dumps({'status':'FAILED','first_failure':record.get('first_failure'),'cleanup_failures':record['cleanup_failures'],'result_finalization_failure':record['result_finalization_failure']}))
+            raise
+        print(json.dumps({'status': record['status'], 'result': str(run / 'RESULT.json'), 'first_failure': record.get('first_failure')}))
+    need(record['status'] == 'PASS_PENDING_INDEPENDENT_REVIEW', 'Sole native boundary/closure failed; no retry/fallback')
+
+if __name__ == '__main__': main()

@@ -1,0 +1,319 @@
+import { config as zodConfig } from 'zod';
+import { createElement, useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import '/workspace/dripwell-build/apps/web/app/globals.css';
+declare const __CAPTURE_SOURCE_SHA__: string;
+declare const __RETAINED_REJECTION_CONTROLS__: unknown;
+declare const __RETAINED_FORWARD_CONTROLS__: { status: string; count: number; cases: string[]; provenance: string };
+zodConfig({ jitless: true });
+const locationId = '77777777-7777-4777-8777-777777777701';
+const visitId = '77777777-7777-4777-8777-777777777710';
+const configId = '77777777-7777-4777-8777-777777777703';
+let routes = 0;
+export function useBoundary() {
+  return { pathname: '/consultations/' + visitId, navigate(href: string) {
+    if (href !== '/dashboard?locationId=' + locationId) throw new Error('Undeclared fictional navigation');
+    routes++; reflect();
+  } };
+}
+const caseName = new URL(location.href).searchParams.get('case');
+if (caseName !== 'desktop') throw new Error('Unknown native recorder case');
+const synthetic = false;
+const ledger = { clinic: 0, detail: 0, recordings: 0, shares: 0, mutations: 0 };
+let successObservation: unknown = null;
+let scenario = synthetic ? 'no-consent' : caseName === 'desktop' ? 'consented' : 'no-consent';
+let captureBusy = false, mediaCalls = 0, mountedVisit = true;
+let rejectMedia: null | ((error: DOMException) => void) = null;
+let mediaPending = false;
+let forwardObservation: unknown = null, forwardControlObservation: unknown = null, rejectionControlObservation: unknown = null;
+const proof = document.createElement('script');
+proof.type = 'application/json';
+proof.id = '__recorder_fixture'; proof.hidden = true; document.body.append(proof);
+function reflect() {
+  proof.textContent = JSON.stringify({ source: __CAPTURE_SOURCE_SHA__, case: caseName, scenario,
+    synthetic, captureBusy, mediaCalls, mediaPending, mountedVisit, routes, ledger,
+    jitless: zodConfig().jitless === true, failed: Boolean((window as any).__CAPTURE__.failed),
+    nativeForward: forwardObservation, forwardControls: forwardControlObservation, rejectionControls: rejectionControlObservation, nativeSuccess: successObservation });
+}
+function deny(reason: string): never {
+  (window as any).__CAPTURE__.fault(reason); reflect(); throw new Error(reason);
+}
+void (async () => {
+type ForwardProof = { version: number; provenance: string; available: boolean; attempted: boolean; calls: number;
+  receiverExact: boolean; constraintsExact: boolean; promiseReturned: boolean; outcome: string; notAllowed: boolean; observerFault: boolean; rejection: {type:string;instanceofResult:string;nameStatus:string;name:string|null} };
+const nativeThen = Promise.prototype.then;
+function forwardState(provenance: string): ForwardProof {
+  return { version: 2, provenance, available: true, attempted: false, calls: 0, receiverExact: false,
+    constraintsExact: false, promiseReturned: false, outcome: 'UNATTEMPTED', notAllowed: false, observerFault: false, rejection:{type:'UNKNOWN',instanceofResult:'UNKNOWN',nameStatus:'UNKNOWN_UNREAD',name:null} };
+}
+const cachedNames=['NotAllowedError','NotFoundError','NotReadableError','OverconstrainedError','SecurityError','AbortError','InvalidStateError'];
+function classifyRejection(type:string,matched:boolean|null,read:boolean,returned:boolean,raw:unknown){const nameStatus=!read?'UNKNOWN_UNREAD':!returned?'LOOKUP_FAILED':typeof raw!=='string'?'INVALID_TYPE':cachedNames.includes(raw)?'ALLOWLISTED':'OTHER_NAME';return{type,instanceofResult:matched===null?'UNKNOWN':matched?'MATCH':'NO_MATCH',nameStatus,name:nameStatus==='ALLOWLISTED'?raw as string:null};}
+function observeForward(callee: Function, receiver: unknown, state: ForwardProof, sink: () => void,
+  register = (promise: unknown, yes: (value: unknown) => void, no: (error: unknown) => void) => Reflect.apply(nativeThen, promise, [yes, no]), classify=classifyRejection, fulfilled: (value: unknown) => void = () => {}) {
+  let sealed = false;
+  const publish = () => { try { sink(); } catch { state.observerFault = true; } };
+  const terminal = (outcome: string, error?: unknown) => {
+    if (sealed) return;
+    sealed = true;
+    state.outcome = outcome;
+    let matched:boolean|null=null,read=false,returned=false,raw:unknown;
+    try { state.notAllowed=outcome==='REJECTED'&&(matched=error instanceof DOMException)&&(read=true,raw=(error as DOMException).name,returned=true,raw==='NotAllowedError'); }
+    catch { state.observerFault=true; }
+    if(outcome==='REJECTED'){try{state.rejection=classify(typeof error,matched,read,returned,raw);}catch{state.observerFault=true;}}
+    publish();
+  };
+  return function (this: unknown, ...args: unknown[]) {
+    const first = !state.attempted;
+    state.attempted = true; state.calls++;
+    let returned: unknown;
+    try { returned = Reflect.apply(callee, this, args); }
+    catch (error) { if (first) terminal('SYNC_THROW'); throw error; }
+    if (first) {
+      state.outcome = 'PENDING'; state.receiverExact = this === receiver; state.promiseReturned = true;
+      try {
+        const data = (value: unknown, keys: string[]) => {
+          if (!value || typeof value !== 'object' || Reflect.ownKeys(value).length !== keys.length) return null;
+          const result: Record<string, unknown> = {};
+          for (const key of keys) { const d = Object.getOwnPropertyDescriptor(value, key); if (!d || !Object.hasOwn(d, 'value')) return null; result[key] = d.value; }
+          return result;
+        };
+        const constraints = args.length === 1 ? data(args[0], ['audio','video']) : null;
+        const audio = constraints ? data(constraints.audio, ['echoCancellation']) : null;
+        state.constraintsExact = Boolean(audio && audio.echoCancellation === true && constraints?.video === false);
+        publish();
+        register(returned, value => { terminal('FULFILLED'); try { fulfilled(value); } catch { state.observerFault = true; } publish(); }, error => terminal('REJECTED', error));
+      } catch { sealed = true; state.outcome = 'OBSERVER_FAILED'; state.observerFault = true; }
+    }
+    return returned;
+  };
+}
+const forwardNames = ['receiver-args-original-promise-once','sync-primary-throwing-sink','rejected-primary-throwing-sink','first-terminal-no-reopen'];
+const forwardControls = __RETAINED_FORWARD_CONTROLS__; // Exact accepted TASK113 snapshot, no control replay.
+async function checkForwardControls() {
+  const check = async (name: string, action: () => Promise<void> | void) => { await action(); forwardControls.cases.push(name); forwardControls.count = forwardControls.cases.length; };
+  const assert = (ok: unknown) => { if (!ok) throw new Error('Forward observer control failed'); };
+  const receiver = {}, args = { audio: { echoCancellation: true }, video: false };
+  await check(forwardNames[0], async () => {
+    const state = forwardState('SYNTHETIC_FUNCTION_PROMISE_SINK'); let calls = 0, resolve!: () => void;
+    const original = new Promise<void>(yes => { resolve = yes; });
+    const fn = observeForward(function (this: unknown, arg: unknown) { calls++; assert(this === receiver && arg === args); return original; }, receiver, state, () => {});
+    const returned = fn.call(receiver, args); assert(returned === original && calls === 1 && state.calls === 1 && state.receiverExact && state.constraintsExact && state.promiseReturned);
+    resolve(); await original; assert(state.outcome === 'FULFILLED' && !state.observerFault);
+  });
+  await check(forwardNames[1], () => {
+    const state = forwardState('SYNTHETIC_FUNCTION_PROMISE_SINK'), primary = new Error('Synthetic sync');
+    const fn = observeForward(() => { throw primary; }, receiver, state, () => { throw new Error('Secondary sink'); });
+    let observed; try { fn.call(receiver, args); } catch (error) { observed = error; }
+    assert(observed === primary && state.calls === 1 && state.outcome === 'SYNC_THROW' && state.observerFault);
+  });
+  await check(forwardNames[2], async () => {
+    const state = forwardState('SYNTHETIC_FUNCTION_PROMISE_SINK'), primary = new DOMException('Synthetic rejection', 'NotAllowedError');
+    const original = Promise.reject(primary), fn = observeForward(() => original, receiver, state, () => { throw new Error('Secondary reaction sink'); });
+    const returned = fn.call(receiver, args); let observed; try { await returned; } catch (error) { observed = error; }
+    assert(returned === original && observed === primary && state.outcome === 'REJECTED' && state.notAllowed && state.observerFault && state.calls === 1);
+  });
+  await check(forwardNames[3], () => {
+    const state = forwardState('SYNTHETIC_FUNCTION_PROMISE_SINK'), original = new Promise<void>(() => {});
+    let yes!: () => void, no!: (error: unknown) => void, sinks = 0;
+    const fn = observeForward(() => original, receiver, state, () => { sinks++; }, (_promise, accepted, rejected) => { yes = accepted; no = rejected; return undefined; });
+    assert(fn.call(receiver, args) === original); no(new DOMException('Synthetic first', 'NotAllowedError'));
+    const first = JSON.stringify(state), firstSinks = sinks; yes(); no(new Error('Synthetic later'));
+    assert(JSON.stringify(state) === first && sinks === firstSinks && state.outcome === 'REJECTED' && state.notAllowed);
+  });
+  forwardControls.status = 'PASS';
+}
+const rejectionCaseNames=['matching-existing-read-count-order','short-circuit-name-unread','instanceof-fault-original-primary','name-fault-throwing-secondary','closed-type-name-tags-no-raw','first-terminal-classifier-fault'];
+const rejectionControls=__RETAINED_REJECTION_CONTROLS__ as {status:string;count:number;cases:string[];samples:ForwardProof[];provenance:string};
+async function checkRejections(){
+ const assert=(v:unknown)=>{if(!v)throw new Error('Cached rejection control failed');},receiver={},args={audio:{echoCancellation:true},video:false};
+ const run=async(error:unknown,sink=()=>{},classify=classifyRejection)=>{const state=forwardState('SYNTHETIC_FUNCTION_PROMISE_SINK'),original=Promise.reject(error),fn=observeForward(()=>original,receiver,state,sink,undefined,classify),returned=fn.call(receiver,args);let caught;try{await returned;}catch(value){caught=value;}assert(returned===original&&caught===error&&state.calls===1&&state.receiverExact&&state.constraintsExact&&state.promiseReturned);return state;};
+ const save=(i:number,s:ForwardProof)=>{rejectionControls.cases.push(rejectionCaseNames[i]);rejectionControls.samples.push(s);rejectionControls.count++;};let order:string[]=[];
+ const proxy=(match:boolean,name:unknown,classFault=false,nameFault=false)=>new Proxy({},{getPrototypeOf(){order.push('prototype');if(classFault)throw new Error('Synthetic prototype fault');return match?DOMException.prototype:Object.prototype;},get(_t,key){if(key==='name'){order.push('name');if(nameFault||!match)throw new Error('Synthetic name fault');return name;}return undefined;}});
+ let s=await run(proxy(true,'NotAllowedError'));assert(order.join(',')==='prototype,name'&&s.notAllowed&&s.rejection.name==='NotAllowedError');save(0,s);order=[];
+ s=await run(proxy(false,null));assert(order.join(',')==='prototype'&&s.rejection.instanceofResult==='NO_MATCH'&&s.rejection.nameStatus==='UNKNOWN_UNREAD');save(1,s);order=[];
+ s=await run(proxy(false,null,true));assert(order.join(',')==='prototype'&&s.observerFault&&s.rejection.instanceofResult==='UNKNOWN');save(2,s);order=[];
+ s=await run(proxy(true,null,false,true),()=>{throw new Error('Synthetic secondary sink');});assert(order.join(',')==='prototype,name'&&s.observerFault&&s.rejection.nameStatus==='LOOKUP_FAILED');save(3,s);
+ s=await run(proxy(true,'https://synthetic.invalid/private'));assert(s.rejection.nameStatus==='OTHER_NAME'&&s.rejection.name===null);const nonstring=await run(proxy(true,{toString(){throw new Error('Forbidden coercion');}}));assert(nonstring.rejection.nameStatus==='INVALID_TYPE');for(const e of[undefined,true,1,1n,'synthetic',Symbol(),()=>{},null]){const x=await run(e);assert(x.rejection.type===typeof e&&x.rejection.instanceofResult==='NO_MATCH'&&x.rejection.nameStatus==='UNKNOWN_UNREAD');}save(4,s);
+ const primary=new DOMException('Synthetic primary','NotAllowedError');s=await run(primary,()=>{},()=>{throw new Error('Synthetic classifier fault');});assert(s.notAllowed&&s.observerFault&&s.rejection.type==='UNKNOWN');let yes!:()=>void,no!:(e:unknown)=>void;const first=forwardState('SYNTHETIC_FUNCTION_PROMISE_SINK'),original=new Promise<void>(()=>{}),fn=observeForward(()=>original,receiver,first,()=>{},(_p,y,n)=>{yes=y;no=n;});assert(fn.call(receiver,args)===original);no(primary);const bytes=JSON.stringify(first);yes();no(new Error('Later'));assert(JSON.stringify(first)===bytes);save(5,s);rejectionControls.status='PASS';
+}
+
+// Original native constructor/prototype object/statics stay unchanged. Wrapped
+// method own properties and function reflection are intentionally different.
+type NativeRecord={ordinal:number;sameStream:boolean;state:string;startedAtMs:number;stoppedAtMs:number|null;stopRequestedAtMs:number|null;pausedAtMs:number|null;resumedAtMs:number|null;calls:Record<string,number>;events:Record<string,number>;chunks:{count:number;bytes:number;hash:string|null;drained:boolean};};
+type NativeUpload={ordinal:number;segmentId:string;sequence:number;durationMs:number;bytes:number;mime:string;hash:string;mounted:boolean;atMs:number;returnedStatus:number|null;};
+type SuccessState={version:number;provenance:string;constructorOriginal:boolean;prototypeObjectOriginal:boolean;staticOriginal:boolean;wrappedReflectionChanged:boolean;observerFault:boolean;state:string;tracks:{audio:number;live:number;ended:number};recorders:NativeRecord[];uploads:NativeUpload[];unmounts:number;controls:{status:string;count:number;cases:string[]};};
+const success:SuccessState={version:4,provenance:'REAL_NATIVE_FIRST_START_FINAL_SEND',constructorOriginal:true,prototypeObjectOriginal:true,staticOriginal:true,wrappedReflectionChanged:true,observerFault:false,state:'UNCREATED',tracks:{audio:0,live:0,ended:0},recorders:[],uploads:[],unmounts:0,controls:{status:'INERT',count:0,cases:[]}};
+successObservation=success;let mediaStream:MediaStream|null=null;
+const nativeConstructor=MediaRecorder,nativePrototype=MediaRecorder.prototype,nativeStatic=MediaRecorder.isTypeSupported,nativeAdd=EventTarget.prototype.addEventListener;
+const invokeFault=(fault:()=>void)=>{try{fault();}catch{}};
+function observeMethod(callee:Function,before:(receiver:unknown,args:unknown[])=>void,after:(receiver:unknown,args:unknown[],value:unknown,error:unknown,threw:boolean)=>void,fault:()=>void){return function(this:unknown,...args:unknown[]){try{before(this,args);}catch{invokeFault(fault);}let value;try{value=Reflect.apply(callee,this,args);}catch(error){try{after(this,args,undefined,error,true);}catch{invokeFault(fault);}throw error;}try{after(this,args,value,undefined,false);}catch{invokeFault(fault);}return value;};}
+const markFault=()=>{success.observerFault=true;};
+const safeObserve=(action:()=>void)=>{try{action();reflect();}catch{markFault();}};
+function snapshotTracks(){const tracks=mediaStream?.getAudioTracks()??[];success.tracks={audio:tracks.length,live:tracks.filter(t=>t.readyState==='live').length,ended:tracks.filter(t=>t.readyState==='ended').length};success.state=success.recorders.at(-1)?.state??'UNCREATED';}
+async function digest(blob:Blob){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await blob.arrayBuffer())),b=>b.toString(16).padStart(2,'0')).join('');}
+function registerRecorder(records:NativeRecord[],map:Map<unknown,NativeRecord>,receiver:unknown,stream:unknown,expected:unknown,at:number){if(records.length>=2||map.has(receiver)||stream!==expected)throw new Error('Two original recorder registry');const row:NativeRecord={ordinal:records.length+1,sameStream:true,state:'inactive',startedAtMs:at,stoppedAtMs:null,stopRequestedAtMs:null,pausedAtMs:null,resumedAtMs:null,calls:{start:0,pause:0,resume:0,stop:0},events:{start:0,pause:0,resume:0,stop:0,data:0,error:0},chunks:{count:0,bytes:0,hash:null,drained:false}};records.push(row);map.set(receiver,row);return row;}
+function markSuccessfulMethod(row:NativeRecord,name:string,at:number){if(!['pause','resume'].includes(name))return;if(row.ordinal!==2||!Number.isSafeInteger(at)||at<row.startedAtMs||at>600000)throw new Error('Successful second method mark');if(name==='pause'){if(row.pausedAtMs!==null||row.resumedAtMs!==null)throw new Error('Repeated pause mark');row.pausedAtMs=at;}else{if(row.pausedAtMs===null||row.resumedAtMs!==null||at<row.pausedAtMs)throw new Error('Unordered resume mark');row.resumedAtMs=at;}}
+function returnedResponse(response:Response,upload:NativeUpload){const status=response.status;if(status!==503||upload.returnedStatus!==null)throw new Error('Actual local503 response');upload.returnedStatus=status;return response;}
+function selectUpload(previous:NativeUpload[],records:NativeRecord[],metadata:{segmentId:string;sequence:number;durationMs:number;bytes:number;mime:string},hash:string,mounted:boolean,atMs:number){
+ const ordinal=previous.length+1,row=records[ordinal-1];if(ordinal>2||!row||metadata.sequence!==ordinal-1||metadata.durationMs<=0||metadata.durationMs>150000||ordinal===1&&metadata.durationMs<60000||mounted!==(ordinal===1)||!row.chunks.count||metadata.bytes!==row.chunks.bytes||row.chunks.hash!==null&&hash!==row.chunks.hash||previous.some(u=>u.segmentId===metadata.segmentId))throw new Error('Different original segment correlation');
+ return{...metadata,hash,ordinal,mounted,atMs,returnedStatus:null};
+}
+const records=new Map<unknown,NativeRecord>(),chunks=new Map<unknown,Blob[]>();
+const originalMethods=Object.fromEntries(['start','pause','resume','stop'].map(n=>[n,Object.getOwnPropertyDescriptor(nativePrototype,n)!]));
+for(const name of ['start','pause','resume','stop']){const descriptor=originalMethods[name];if(!descriptor||typeof descriptor.value!=='function')deny('Original recorder method absent');const wrapped=observeMethod(descriptor.value,(receiver,args)=>{
+ if(args.length||!(receiver instanceof nativeConstructor))throw new Error('Original recorder method shape');const instance=receiver as MediaRecorder;let row=records.get(instance);
+ if(name==='start'){row=registerRecorder(success.recorders,records,instance,instance.stream,mediaStream,Math.floor(performance.now()));chunks.set(instance,[]);const current=row,parts=chunks.get(instance)!;
+  for(const event of ['start','pause','resume','stop','dataavailable','error'])Reflect.apply(nativeAdd,instance,[event,(received:Event)=>safeObserve(()=>{
+   if(received.target!==instance)throw new Error('Foreign native recorder event');current.events[event==='dataavailable'?'data':event]++;current.state=instance.state;
+   if(event==='dataavailable'){const chunk=(received as BlobEvent).data;if(chunk.size){if(parts.length>=16||current.chunks.bytes+chunk.size>3500000)throw new Error('Per-recorder chunk bound');parts.push(chunk);current.chunks.count++;current.chunks.bytes+=chunk.size;}}
+   if(event==='stop'){current.stoppedAtMs=Math.floor(performance.now());void digest(new Blob(parts)).then(hash=>safeObserve(()=>{current.chunks.hash=hash;current.chunks.drained=true;snapshotTracks();}),markFault);}snapshotTracks();
+  })]);
+ }if(!row)throw new Error('Unregistered native recorder');if(name==='stop')row.stopRequestedAtMs=Math.floor(performance.now());row.calls[name]++;
+ },(receiver,_args,_value,_error,threw)=>{if(!threw){const row=records.get(receiver);if(!row)throw new Error('Foreign after receiver');markSuccessfulMethod(row,name,Math.floor(performance.now()));row.state=(receiver as MediaRecorder).state;snapshotTracks();reflect();}},markFault);Object.defineProperty(nativePrototype,name,{...descriptor,value:wrapped});}
+success.constructorOriginal=MediaRecorder===nativeConstructor;success.prototypeObjectOriginal=MediaRecorder.prototype===nativePrototype;success.staticOriginal=MediaRecorder.isTypeSupported===nativeStatic;success.wrappedReflectionChanged=['start','pause','resume','stop'].every(n=>Object.getOwnPropertyDescriptor(nativePrototype,n)!.value!==originalMethods[n].value);
+function multipartMetadata(form:FormData,expectedVisit:string){const keys=['consultationId','segmentId','sequence','audio','consent','durationMs'];if([...form.keys()].length!==6||keys.some(k=>form.getAll(k).length!==1)||[...form.keys()].some(k=>!keys.includes(k)))throw new Error('Exact original multipart');const file=form.get('audio'),segmentId=form.get('segmentId'),seq=form.get('sequence'),duration=form.get('durationMs');if(form.get('consultationId')!==expectedVisit||form.get('consent')!=='true'||typeof segmentId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(segmentId)||typeof seq!=='string'||!/^[01]$/.test(seq)||typeof duration!=='string'||!/^[0-9]{1,6}$/.test(duration)||!(file instanceof File)||file.size<=0||file.size>3500000||!['audio/webm','audio/mp4'].includes(file.type.split(';')[0]))throw new Error('Original File identifiers');return{file,segmentId,sequence:Number(seq),durationMs:Number(duration),bytes:file.size,mime:file.type};}
+async function checkRolloverHelpers(){const need=(v:unknown)=>{if(!v)throw new Error('Changed rollover helper');},check=(name:string,action:()=>void)=>{action();success.controls.cases.push(name);success.controls.count++;};
+ check('two-recorder-registry-primary-isolation',()=>{
+  const rs:NativeRecord[]=[],map=new Map<unknown,NativeRecord>(),stream={},a={},b={},c={};
+  const first=registerRecorder(rs,map,a,stream,stream,0);let denied=0;
+  for(const action of[()=>registerRecorder(rs,map,a,stream,stream,1),()=>registerRecorder(rs,map,c,{},stream,1)])try{action();}catch{denied++;}
+  need(rs.length===1&&map.size===1,'Rejected registry was changed');
+  const second=registerRecorder(rs,map,b,stream,stream,1);first.chunks.bytes=9;
+  need(second.chunks.bytes===0&&first!==second&&map.get(a)===first&&map.get(b)===second);
+  try{registerRecorder(rs,map,c,stream,stream,2);}catch{denied++;}
+  const primary=new Error('Original primary');let observed;
+  const fn=observeMethod(()=>{throw primary;},()=>registerRecorder(rs,map,c,stream,stream,2),()=>{throw new Error('Observer');},()=>{throw new Error('Secondary');});
+  try{fn.call(c);}catch(e){observed=e;}need(denied===3&&observed===primary&&rs.length===2);
+ });
+ check('different-segment-file-multipart-mount-correlation',()=>{
+  const rs:NativeRecord[]=[],map=new Map<unknown,NativeRecord>(),stream={};
+  registerRecorder(rs,map,{},stream,stream,0);registerRecorder(rs,map,{},stream,stream,1);
+  for(const[i,r]of rs.entries()){r.chunks.count=1;r.chunks.bytes=9;r.chunks.hash=String(i).repeat(64);}
+  const ids=['77777777-7777-4777-8777-777777777711','77777777-7777-4777-8777-777777777712'];
+  const form=(i:number)=>{
+   const f=new FormData();for(const[k,v]of[['consultationId',visitId],['segmentId',ids[i]],['sequence',String(i)],['consent','true'],['durationMs',String(i?1000:60000)]])f.set(k,v);
+   f.set('audio',new File(['synthetic'],'synthetic.webm',{type:'audio/webm'}));return f;
+  };
+  const{file:_a,...a}=multipartMetadata(form(0),visitId),{file:_b,...b}=multipartMetadata(form(1),visitId);
+  const first=selectUpload([],rs,a,'0'.repeat(64),true,2),second=selectUpload([first],rs,b,'1'.repeat(64),false,3);
+  need(first.ordinal===1&&second.ordinal===2&&second.sequence===1);let rejected=0;
+  const foreign=form(1);foreign.set('consultationId',ids[0]);const mime=form(1);mime.set('audio',new File(['synthetic'],'synthetic.html',{type:'text/html'}));
+  for(const action of[
+   ()=>selectUpload([first],rs,{...b,segmentId:first.segmentId},'1'.repeat(64),false,3),
+   ()=>selectUpload([first],rs,b,'1'.repeat(64),true,3),
+   ()=>selectUpload([first],rs,{...b,sequence:0},'1'.repeat(64),false,3),
+   ()=>selectUpload([first],rs,{...b,bytes:8},'1'.repeat(64),false,3),
+   ()=>selectUpload([first],rs,b,'0'.repeat(64),false,3),
+   ()=>selectUpload([],rs,{...a,durationMs:59999},'0'.repeat(64),true,2),
+   ()=>multipartMetadata(foreign,visitId),()=>multipartMetadata(mime,visitId),
+  ])try{action();}catch{rejected++;}need(rejected===8);
+ });success.controls.status='PASS';reflect();}
+async function checkSecondControls(){const need=(v:unknown)=>{if(!v)throw new Error('Second-recorder composed control');};
+ const check=(name:string,action:()=>void)=>{action();success.controls.cases.push(name);success.controls.count++;};
+ check('second-successful-method-marks-primary-isolation',()=>{const rs:NativeRecord[]=[],map=new Map<unknown,NativeRecord>(),stream={},a={},b={};const first=registerRecorder(rs,map,a,stream,stream,0),second=registerRecorder(rs,map,b,stream,stream,1),saved=JSON.stringify(first),marker={};let faults=0;
+  const call=observeMethod(()=>marker,()=>{},()=>markSuccessfulMethod(second,'pause',20),()=>{faults++;});need(call.call(b)===marker&&second.pausedAtMs===20);markSuccessfulMethod(second,'resume',40);need(second.resumedAtMs===40&&JSON.stringify(first)===saved);
+  need(call.call(b)===marker&&faults===1&&second.pausedAtMs===20);const primary=new Error('Original second method'),fresh={...second,pausedAtMs:null,resumedAtMs:null};let caught;
+  const rejected=observeMethod(()=>{throw primary;},()=>{},(_r,_a,_v,_e,threw)=>{if(!threw)markSuccessfulMethod(fresh,'pause',50);throw new Error('Secondary observer');},()=>{faults++;throw new Error('Secondary sink');});try{rejected.call(b);}catch(e){caught=e;}need(caught===primary&&fresh.pausedAtMs===null&&fresh.resumedAtMs===null&&faults===2);
+ });
+ check('actual-response-first-envelope-multipart-isolation',()=>{const rs:NativeRecord[]=[],map=new Map<unknown,NativeRecord>(),stream={};registerRecorder(rs,map,{},stream,stream,0);registerRecorder(rs,map,{},stream,stream,1);for(const[i,r]of rs.entries()){r.chunks.count=1;r.chunks.bytes=9;r.chunks.hash=String(i).repeat(64);}
+  const form=new FormData();for(const[k,v]of[['consultationId',visitId],['segmentId','77777777-7777-4777-8777-777777777711'],['sequence','0'],['consent','true'],['durationMs','60000']])form.set(k,v);form.set('audio',new File(['synthetic'],'synthetic.webm',{type:'audio/webm'}));const{file:_f,...metadata}=multipartMetadata(form,visitId),first=selectUpload([],rs,metadata,'0'.repeat(64),true,2),response=new Response('{}',{status:503});need(returnedResponse(response,first)===response&&first.returnedStatus===response.status);const saved=JSON.stringify(first);markSuccessfulMethod(rs[1],'pause',20);markSuccessfulMethod(rs[1],'resume',40);need(JSON.stringify(first)===saved);
+  let denied=0;try{returnedResponse(new Response('{}',{status:200}),{...first,returnedStatus:null});}catch{denied++;}try{returnedResponse(response,first);}catch{denied++;}need(denied===2&&JSON.stringify(first)===saved);
+ });success.controls.status='PASS';reflect();}
+// Closed second-recorder control definitions are retained INERT, no invocation.
+
+if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function' || typeof MediaRecorder === 'undefined') deny('Native media capability unavailable');
+const nativeMediaReceiver = navigator.mediaDevices, nativeMediaCallee = nativeMediaReceiver.getUserMedia;
+const nativeForward = forwardState('FRESH_NATIVE_FORWARD');
+forwardObservation = nativeForward; forwardControlObservation = forwardControls; rejectionControlObservation=rejectionControls;
+// checkRejections retained inert; exact accepted R2 samples are supplied, not re-executed.
+// checkForwardControls is retained inert; its exact accepted result is supplied before bootstrap.
+Object.defineProperty(nativeMediaReceiver, 'getUserMedia', { configurable: true,
+  value: observeForward(nativeMediaCallee, nativeMediaReceiver, nativeForward, () => { mediaCalls = nativeForward.calls; mediaPending = nativeForward.outcome === 'PENDING'; reflect(); }, undefined, undefined, value => { if(!(value instanceof MediaStream))throw new Error('Original native stream absent'); mediaStream=value;snapshotTracks();reflect(); }) });
+reflect();
+  const shared = await import('/workspace/dripwell-build/packages/shared/src/v2/index.ts');
+  const { emptyConfiguration } = await import('/workspace/dripwell-build/apps/web/components/configuration-editor');
+  const { AppShell } = await import('/workspace/dripwell-build/apps/web/components/app-shell');
+  const { Consultation } = await import('/workspace/dripwell-build/apps/web/components/consultation');
+  const { useClinic } = await import('/workspace/dripwell-build/apps/web/components/clinic-context');
+  const timestamp = '2026-10-13T00:00:00.000Z';
+  const configuration = emptyConfiguration('Fictional recorder clinic');
+  configuration.questions = [{ id: 'fictional-question', text: 'Fictional required question',
+    why: 'Synthetic missing-answer evidence only', type: 'TEXT', options: [], required: true,
+    safetyRelevant: true, activeWhen: [], priority: 1 }];
+  shared.clinicConfigurationSchema.parse(configuration);
+  const summary = shared.emptyConsultationSummary();
+  shared.consultationSummarySchema.parse(summary);
+  function visit() {
+    return { id: visitId, reference: 'SYNTHETIC-RECORDER', stage: 'CONSULTATION_STARTED', version: 1,
+      locationId, providerId: 'fictional-staff', providerName: 'Fictional Staff', isTest: true,
+      configurationVersionId: configId, consentAt: scenario === 'no-consent' ? null : timestamp,
+      consentDeclined: scenario === 'no-consent', summary, transcript: [], initialRecommendation: null,
+      initialRevision: 0, clinicalApprovedVersion: null, clinicalApprovedAt: null, actualCare: null,
+      careOutcome: 'PENDING', wellnessPlan: null, wellnessRevision: 0, wellnessApprovedVersion: null,
+      wellnessApprovedAt: null, wellnessDecision: null, wellnessDecisionRevision: null,
+      archivedAt: scenario === 'archived' ? timestamp : null, archiveReason: 'Synthetic archive',
+      createdAt: timestamp, updatedAt: timestamp, questionStates: [], adjustments: [], jobs: [] };
+  }
+  const version = { id: configId, version: 1, revision: 1, status: 'ACTIVE', configuration, createdAt: timestamp };
+  function clinic() {
+    return { user: { id: 'fictional-owner', name: 'Fictional Owner', email: 'owner@example.invalid',
+      role: 'OWNER', canApproveClinical: false }, clinic: { id: 'fictional-clinic', name: configuration.clinic.name },
+      locations: [{ id: locationId, name: 'Fictional location' }, { id: '77777777-7777-4777-8777-777777777702', name: 'Second fictional location' }], configuration: { active: version, draft: null, versions: [version] },
+      consultations: [visit()], consultationCount: 1, consultationPagination: { nextCursor: null, pageSize: 50 },
+      notifications: [], metrics: {}, trial: null, improvements: [], adjustments: [], staff: [] };
+  }
+  window.fetch = async (input, init) => {
+    const url = new URL(typeof input === 'string' ? input : input instanceof Request ? input.url : String(input), location.href);
+    const method = init?.method || (input instanceof Request ? input.method : 'GET');
+    if(method==='POST'&&url.origin===location.origin&&url.pathname==='/api/recordings'&&!url.search&&!url.hash){
+      if(!(init?.body instanceof FormData)||success.uploads.length>=2)return deny('Undeclared synthetic POST');
+      const mountedAtDispatch=mountedVisit,dispatchAt=Math.floor(performance.now()),metadata=multipartMetadata(init.body,visitId),hash=await digest(metadata.file);const {file,...safe}=metadata;const value=selectUpload(success.uploads,success.recorders,safe,hash,mountedAtDispatch,dispatchAt);success.uploads.push(value);reflect();
+      const response=new Response(JSON.stringify({error:'Synthetic upload boundary unavailable.',code:'SYNTHETIC_UPLOAD_UNAVAILABLE'}),{status:503,headers:{'Content-Type':'application/json'}});returnedResponse(response,value);reflect();return response;
+    }
+    if (method !== 'GET') { ledger.mutations++; return deny('Recorder mutation denied'); }
+    if (url.origin !== location.origin) return deny('Foreign recorder fetch');
+    let payload;
+    if (url.pathname === '/api/clinic' && url.searchParams.get('id') === visitId && [...url.searchParams.keys()].length === 1) {
+      ledger.detail++; payload = { consultation: visit(), configuration };
+    } else if (url.pathname === '/api/clinic' && url.searchParams.get('locationId') === locationId && [...url.searchParams.keys()].length === 1) {
+      ledger.clinic++; payload = clinic();
+    } else if (url.pathname === '/api/recordings' && url.searchParams.get('consultationId') === visitId && [...url.searchParams.keys()].length === 1) {
+      ledger.recordings++; payload = { recordings: [] };
+    } else if (url.pathname === '/api/share' && visit().wellnessPlan !== null && visit().wellnessApprovedVersion === visit().wellnessRevision) {
+      ledger.shares++; payload = { shares: [] };
+    } else return deny('Undeclared recorder GET');
+    if (Object.values(ledger).some(n => n > 32)) return deny('Recorder GET count bound');
+    reflect(); return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  function Probe() {
+    const context = useClinic();
+    useEffect(() => { captureBusy = context.captureBusy; reflect(); }, [context.captureBusy]);
+    return null;
+  }
+  function Harness() {
+    const [generation, setGeneration] = useState(0);
+    const [showVisit, setShowVisit] = useState(true);
+    const reset = (next: string) => {
+      if (mediaPending || captureBusy) return deny('Reset during pending capture');
+      scenario = next; mountedVisit = true; setShowVisit(true); setGeneration(n => n + 1); reflect();
+    };
+    const reject = () => {
+      if (!rejectMedia || !mediaPending) return deny('No controlled pending media');
+      mediaPending = false; const reject = rejectMedia; rejectMedia = null;
+      reject(new DOMException('Synthetic permission denial', 'NotAllowedError')); reflect();
+    };
+    return createElement('div', null,
+      createElement('aside',{'aria-label':'Synthetic fixture lifecycle action'},createElement('button',{id:'fixture-unmount',type:'button',onClick:()=>{if(!showVisit||success.unmounts||success.recorders.length!==2||success.recorders[1].state!=='recording')return deny('Undeclared fixture unmount');success.unmounts++;mountedVisit=false;setShowVisit(false);}},'Unmount synthetic consultation fixture')),
+      synthetic ? createElement('aside', { 'aria-label': 'Synthetic test controls' },
+        ...['no-consent', 'archived', 'consented'].map(next => createElement('button', {
+          id: 'control-' + next, key: next, type: 'button', onClick: () => reset(next),
+        }, 'Synthetic reset ' + next)),
+        createElement('button', { id: 'control-reject', type: 'button', onClick: reject }, 'Reject synthetic media'),
+        createElement('button', { id: 'control-unmount', type: 'button', onClick: () => {
+          mountedVisit = false; setShowVisit(false); reflect();
+        } }, 'Unmount synthetic visit')) : null,
+      createElement(AppShell, { key: generation }, createElement(Probe),
+        showVisit ? createElement(Consultation, { id: visitId }) : null));
+  }
+  reflect(); createRoot(document.getElementById('root')!).render(createElement(Harness));
+})().catch(() => (window as any).__CAPTURE__.fault('Recorder fixture setup failed'));

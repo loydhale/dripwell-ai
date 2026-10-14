@@ -1,0 +1,41 @@
+{
+  "task": "TASK138_SOURCE_ATTEMPT1_FULL_REJECTION_GENUINE_UPTAKE",
+  "genuine_utc": "2026-10-14T06:07:48.029308+00:00",
+  "disposition": "CHANGES_REQUIRED",
+  "report": {
+    "path": "/workspace/pw138-native-start/SOURCE_AUDIT.md",
+    "canonical": "/workspace/pw138-native-start/SOURCE_AUDIT.md",
+    "bytes": 3545,
+    "sha256": "fce544e59b85f216ee3a6ae4f6cd156a30aeffea2400143d94a81b7f8a8fa7a5",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw138-native-start/SOURCE_AUDIT_PINS.json",
+    "canonical": "/workspace/pw138-native-start/SOURCE_AUDIT_PINS.json",
+    "bytes": 7066,
+    "sha256": "8604960cb0e4a75a7dac43a72115fa294a4376ea49a1ae380404cf12c71b6254",
+    "mode": "0400"
+  },
+  "proof": {
+    "path": "/workspace/pw138-native-start/INDEPENDENT_STATIC_PROOF.json",
+    "canonical": "/workspace/pw138-native-start/INDEPENDENT_STATIC_PROOF.json",
+    "bytes": 8683,
+    "sha256": "b0126c1c0fcd9d43189006d696fd686ac3b300ffcdb7d86d1425349d95571c61",
+    "mode": "0400"
+  },
+  "complete_rejection_report_bytes_read": 3545,
+  "typed_raw_comparisons": 15,
+  "whole_retained_raw_and_diff_extent_bytes_reconciled": true,
+  "complete_source_approval": false,
+  "remaining_review": [
+    "WHOLE_CURRENT_DIFF_CALLGRAPH_MAIN_PARENT_NEW_CONTROLS",
+    "FULL_CURRENT_LIVE_INPUTS",
+    "PROTECTED29BODY_FULLDIFF_INDEPENDENT_BYTE_PROOF",
+    "CURRENT_STRICT5_8_AUTHORITY_CONTRACT",
+    "COMPLETE_OWNERSHIP_CLEANUP_FRAMEWORK_ADMISSION"
+  ],
+  "native_execution": 0,
+  "source_audits_failed_this_task": 1,
+  "original_total_until": "2026-10-14T07:00:00+00:00",
+  "scope": "Only genuine rejection and explicit inspected/unreviewed limits accepted. No strict5PASS/nativeGO/once/run or oldcaprenewal. Distinct rejectionlearning/concreteMINORfreshR1 scope co-sign/fullgenuine/application andsoleCoder139STOP required before separatecorrectionSourceGO. No new case/testbatch; priorapproved37unrun controls only."
+}

@@ -1,0 +1,32 @@
+{
+  "task": "TASK135_FULL_DISTINCT_POST_ACTUAL_LEARNING_UPTAKE",
+  "genuinely_adopted_utc": "2026-10-14T04:59:40.381022+00:00",
+  "original_total_until": "2026-10-14T05:00:00+00:00",
+  "report": {
+    "kind": "independent_distinct_learning_report",
+    "path": "/workspace/pw135-final-send-regression/POST_RESULT_LEARNING_AUDIT.md",
+    "canonical": "/workspace/pw135-final-send-regression/POST_RESULT_LEARNING_AUDIT.md",
+    "bytes": 1982,
+    "sha256": "52ea4b2dbce42ce18a1219c522aa5df9a9cda0970cbf279053077e862443bc2e",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw135-final-send-regression/POST_RESULT_LEARNING_PINS.json",
+    "canonical": "/workspace/pw135-final-send-regression/POST_RESULT_LEARNING_PINS.json",
+    "bytes": 5749,
+    "sha256": "982c4d010482267d28e1ae2292c6842f8d6aa310c46308703a410ee447b06aef",
+    "mode": "0400"
+  },
+  "actual_genuine": {
+    "kind": "actual_frozen_result_acceptance",
+    "path": "/workspace/pw135-final-send-regression/ROOT_ACTUAL_RESULT_ADOPTION.json",
+    "canonical": "/workspace/pw135-final-send-regression/ROOT_ACTUAL_RESULT_ADOPTION.json",
+    "bytes": 3034,
+    "sha256": "5873cdd8db78e2f34e818c5376e332c74c7b556a31b5f13c71cfbd69850234b7",
+    "mode": "0400"
+  },
+  "full_report_and_exact_proposals_read": true,
+  "current_typed_raw_verified": 8,
+  "disposition": "NO_NEW_FACTUAL_MINOR_EXACT_APPEND",
+  "basis": "Separate1982 post-actual learning follows3034 genuine04:56:29. ExistingG019/L046/L050 suffice; exact417SESSION564journal/currentbases accepted. No corpus/Seen/count/PRDscope or native/pilot promotion. Future136 publication separate, no old goal/clock renewal."
+}

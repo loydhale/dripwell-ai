@@ -216,3 +216,27 @@ Learning extracted: L-047 caller-admission refinement.
 2026-10-14 TASK131: prospective first RPC checkpoint publication scope co-signed; NO_NEW_LEARNING existing L-050/G-019. Two fresh accepted126-based helpers/exact Candidate/current readback remain separately gated,13001:40 unchanged; old128/129closedunfinished/count52/Seen/allnine held.
 
 2026-10-14 TASK130 distinct post-result learning: NO_NEW_LEARNING; existing L-046/L-050/G-019 cover accepted8 actual source-bound synthetic RPC assertions, paired postmetadata lease and typed retained evidence. Hidden locals UNKNOWN/NOT_RETAINED; native0, old128/129closedunfinished/count52/Seen/allnine/older caps-onces held.
+
+2026-10-14 TASK133 current prerequisite learning: NO_NEW_LEARNING; existing P-014/L-046/L-050/G-019 retained. Original13202:40 closed unfinished before genuine/application,322/447 appends unapplied; current retained ordinal2 plan custody/amended03:45 brief is conditional before separate SourceGO. No oldgoal or clock reset/native result/count52/Seen/allnine change.
+
+2026-10-14 TASK134 prospective metadata scope learning: NO_NEW_LEARNING; existing L-046/L-050/G-019. Conditional two fresh131-based helpers only after133 CoderSTOP; truthful accepted evidence/exact Candidate/current PRE-CAS-POST/readback remain separately gated. Original13404:15/13303:45/132closedunfinished/count52/Seen/allnine and older holds unchanged.
+
+TASK133 R1 plan and distinct learning, 2026-10-14: After genuine source rejection uptake, the Auditor co-signs only final paired130 admission at the actual prepared Start sender, including pre-release ownership work, with composed aged-clock negatives. NO_NEW; existing L-046/G-019 applies. Same03:45 fixed; source/native authority0, full R1 review remains open, old caps/count52/Seen/allnine held.
+
+TASK134 post-source learning, 2026-10-14: After genuine complete R1 inactive-custody uptake03:54, NO_NEW; existing L-046/G-019/L-050 covers final admission, exact raw typed custody and observed/unknown limits. Original133 source phase late, native goal unfinished/GO-once-run0; all new controls unrun. Publication remains separately gated under fixed04:15; count52/Seen/allnine held.
+
+TASK135 plan and distinct learning, 2026-10-14: Auditor co-signs first six unchanged prepared/deferred-send assertions using exact eight source slices, real Node queueMicrotask and one future bounded runner from130. NO_NEW/existing L-046/G-019/L-050; SourcePASS/runtime0, old8/69/native goals not renewed. Separate author/review/genuine/once/actual-review gates under original05:00; count52/Seen/allnine held.
+
+TASK136 scope and distinct learning, 2026-10-14: Auditor co-signs conditional same-branch first-six evidence publication scope only, no future outcome. Two fresh metadata helpers from accepted131 require genuine uptake and sole135 Coder STOP; full later review and paired1200 admission within original05:30. NO_NEW/existing G-019/L-046/L-050; old134 expired/native133 unfinished, count52/Seen/allnine held.
+
+TASK135 distinct post-result learning, 2026-10-14: After full actual genuine04:56:29, six source-bound synthetic prepared-send assertions passed once with recorded child0/group absence and clean terminal. NO_NEW/existing G-019/L-046/L-050; hidden locals/default owner/native clocks remain unverified. Original05:00 fixed, old133 native0/old8-69/count52/Seen/allnine held; separately reviewed136 publication pending.
+
+TASK137 queue amendment and distinct learning, 2026-10-14: Auditor co-signs READONLY changed-default-owner/native-clock/final-send feasibility from accepted135 evidence and136 static custody while publication is parked. One15-minute proposal within fixed06:30 after genuine/exact application only; code/runtime/Git0, no old133 case or136 retry. NO_NEW/existing G-019/L-046/L-050; count52/Seen/allnine held.
+
+TASK139 conditional scope and distinct learning, 2026-10-14: Auditor co-signs new-native-boundary evidence publication only if genuinely new138 execution/outcome and its independent review/learning are accepted. Two131-based fresh helpers remain conditional on scope genuine/application, actual138 deadline and Coder STOP. Fixed07:45/full1200 cutoff07:25, no renamed136 retry. NO_NEW; count52/Seen/allnine held.
+
+TASK137 plan and TASK138 scope learning, 2026-10-14: Complete readonly first-Start proposal co-signed, preserving default owner preparation, real paired130000 clocks and original SDK send. New138 fixed07:00/full240(150work90cleanup)/last06:56; two RAW phases and one image then owned teardown only. NO_NEW/existing G-019/L-046/L-050; source/native0, old133/136 goals closed, count52/Seen/allnine held.
+
+TASK138 distinct attempt1 failure learning, 2026-10-14: After genuine06:07:48 rejection uptake, parent313 dedent before314 return is a static source blocker, native0. NO_NEW/existing G-019/L-046/L-050. Co-sign only one indentation repair and necessary rebindings in fresh3-copy R1; remaining whole source review required. Original07:00/full240/last06:56 and old source author06:01 closed; count52/Seen/allnine held.
+
+TASK138 distinct post-result learning, 2026-10-14: After current full actual genuine06:50:04, one native synthetic-device first Start,37 new negative assertions,two RAW states,one inspected recording image and recorded known-owned closure accepted. NO_NEW/existing G-019/L-046/L-050; UTC2.187461s, monotonic/cleanup durations unretained. Root first selfguard miss retained, original07:00 fixed. Conditional139 final review next; count52/Seen/allnine held.

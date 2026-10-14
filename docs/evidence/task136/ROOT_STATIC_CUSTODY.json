@@ -1,0 +1,34 @@
+{
+  "task": "TASK136_CURRENT_STATIC_FINAL_REVIEW_CUSTODY_ONLY",
+  "accepted_utc": "2026-10-14T05:14:53.847511+00:00",
+  "report": {
+    "path": "/workspace/pw136-finalsend-publication/FINAL_AUDIT.md",
+    "canonical": "/workspace/pw136-finalsend-publication/FINAL_AUDIT.md",
+    "bytes": 5759,
+    "sha256": "01e9266703237df7163fc2754b6bc7b488d53275ae6a842ba2a04ef4a8766792",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw136-finalsend-publication/FINAL_AUDIT_PINS.json",
+    "canonical": "/workspace/pw136-finalsend-publication/FINAL_AUDIT_PINS.json",
+    "bytes": 29534,
+    "sha256": "9b29c7f428dc713f3275f0369d6beaf35f29d4f32cef31c06ac65bce2d3ae6bc",
+    "mode": "0400"
+  },
+  "proof": {
+    "path": "/workspace/pw136-finalsend-publication/FINAL_BYTE_MAP_PROOF.json",
+    "canonical": "/workspace/pw136-finalsend-publication/FINAL_BYTE_MAP_PROOF.json",
+    "bytes": 545908,
+    "sha256": "b6b9b48ce647c73d8e8f97d4eb99840b6baabdb1298dfa57304d3d17d21ce312",
+    "mode": "0400"
+  },
+  "current_raw_verified": 78,
+  "full_report_read": true,
+  "disposition": "PASS_STATIC_CUSTODY_ONLY_PUBLICATION_NOT_ADMITTED",
+  "original_total_until": "2026-10-14T05:30:00+00:00",
+  "full_admission_cutoff": "2026-10-14T05:10:00+00:00",
+  "first_root_genuine_attempt": "Guard stopped before ROOT_FINAL_ADOPTION creation after full metadata verification; no fresh lease/exclusive once/blob/tree/commit/helper/CAS/POST effect.",
+  "full1200_unchanged": true,
+  "source_runtime_publication_authority": false,
+  "scope": "Current fully reviewed exact35payload/804base835expected/800preserved/current2helper custody accepted only. This does not complete136publication or renew its deadline,128-135/oldergoals-onces or all9. Unpublished accepted135 source-test-learning remains held."
+}

@@ -1,0 +1,60 @@
+{
+  "task": "TASK138_R1_CURRENT_COMPLETE_ACTUAL_RESULT_GENUINE_UPTAKE",
+  "genuine_utc": "2026-10-14T06:50:04.117632+00:00",
+  "disposition": "PASS_SCOPED_NATIVE_FIRST_START_37_ASSERTIONS_KNOWN_OWNED_CLOSURE_ONLY",
+  "report": {
+    "path": "/workspace/pw138-native-start-r1/ACTUAL_RESULT_AUDIT.md",
+    "canonical": "/workspace/pw138-native-start-r1/ACTUAL_RESULT_AUDIT.md",
+    "bytes": 6849,
+    "sha256": "02a94cafd64d2a8672526958ecca9d92df362a8e96af6f8eb42f55d24145156f",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw138-native-start-r1/ACTUAL_RESULT_AUDIT_PINS.json",
+    "canonical": "/workspace/pw138-native-start-r1/ACTUAL_RESULT_AUDIT_PINS.json",
+    "bytes": 20112,
+    "sha256": "5cde251f62d4968aa35ee5ac964b87e58d5c0e289250e18f267e6e51a902ffe8",
+    "mode": "0400"
+  },
+  "proof": {
+    "path": "/workspace/pw138-native-start-r1/ACTUAL_RECONCILIATION_PROOF.json",
+    "canonical": "/workspace/pw138-native-start-r1/ACTUAL_RECONCILIATION_PROOF.json",
+    "bytes": 68823,
+    "sha256": "118a458076c49419a5afc846b1080c017d0ca011df91d9397727ef318b11af7f",
+    "mode": "0400"
+  },
+  "derivation": {
+    "path": "/workspace/pw138-native-start-r1/SAFE_ACTUAL_DERIVATION.json",
+    "canonical": "/workspace/pw138-native-start-r1/SAFE_ACTUAL_DERIVATION.json",
+    "bytes": 13370,
+    "sha256": "6efcc50440743618b964e59826d42dbd62c3d8a66590caf139698f9836646299",
+    "mode": "0400"
+  },
+  "complete_report_bytes_read": 6849,
+  "complete_typed_raw_comparisons": 38,
+  "actual_compiled122_runtime110_bytes_checked": true,
+  "exact_safe_outputs_derivation_compared": 11,
+  "actual_image_inspected_by_Root_and_Auditor": true,
+  "metadata_custody": "Completed unchanged full raw/compiled/runtime/eightbytecopies/twotoplevelsubset/exactcleanup-value comparisons from first Root uptake reused. All data comparisons passed; first write stopped solely on self-imposed Root-before-Auditor-artifact-cap guard, no output/effect. Actual report06:44:29 timely under06:47:04 artifactcap. Current genuine is AFTER that reportcap under originalTask13807:00 as authorized; no oldtimelyRoot acceptance or reportclockrenewal claimed. Current report/pins unchangedhashes rechecked.",
+  "scope_result": {
+    "native_cases": 1,
+    "raw_phases": 2,
+    "new_negative_assertions": 37,
+    "image_count": 1,
+    "terminal_exit": 0,
+    "recorded_UTC_seconds": 2.187461,
+    "monotonic_elapsed": "UNKNOWN_NOT_RETAINED",
+    "cleanup_duration": "NOT_RETAINED",
+    "known_owned_recorded_closure_only": true
+  },
+  "source_enforced_unretained": [
+    "Target_reply_values",
+    "Input_wire_payloads",
+    "physical_microphone",
+    "provider_backend",
+    "monotonic_finish",
+    "cleanup_duration"
+  ],
+  "original_total_until": "2026-10-14T07:00:00+00:00",
+  "scope": "Current genuine nativefirstStart/37/scopedclosure only. Rawpendingstatuses/NOT_OBSERVED-OTHER_OR_NONE retained. No fullrecording-save-physical-transcription-model-backend-pilot/production proof or oldcap-goal-once/count52/Seen promotion. Distinctlaterlearning/STATE-CHANGELOG andconditional139finalreview/full1200 beforeGit pending."
+}
