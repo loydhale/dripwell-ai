@@ -1,0 +1,174 @@
+{
+  "task": "TASK130",
+  "scope": "FIRST_EIGHT_SOURCE_BOUND_RPC_ASSERTIONS_ONLY",
+  "native_budget": 0,
+  "original_total_until": "2026-10-14T01:40:00+00:00",
+  "files": [
+    {
+      "role": "adapter",
+      "path": "/workspace/pw128-native-r1/adapter.mjs",
+      "canonical": "/workspace/pw128-native-r1/adapter.mjs",
+      "bytes": 285291,
+      "sha256": "472f6f0849c918e1b57e9c29252d8b4c754707839a250eac35ed28c236b26c15",
+      "mode": "0400"
+    },
+    {
+      "role": "runner",
+      "path": "/workspace/pw130-rpc-regression/regression.py",
+      "canonical": "/workspace/pw130-rpc-regression/regression.py",
+      "bytes": 19479,
+      "sha256": "5417cce0d0c6df302389383844ec73dd196810047678925db89e63e35aab985e",
+      "mode": "0400"
+    }
+  ],
+  "javascript_spans": [
+    {
+      "name": "need",
+      "begin_token": "// TASK125 BEGIN need\n",
+      "end_token_excluded": "// TASK125 END need",
+      "strip_begin_token": true,
+      "start_byte": 2669,
+      "end_byte": 2733,
+      "bytes": 64,
+      "sha256": "0be8807b7e01ac2edda31b3feaa825ba887e01abcc13dedf43face8220ffdb33"
+    },
+    {
+      "name": "DocumentAcquisition",
+      "begin_token": "class DocumentAcquisition {\n",
+      "end_token_excluded": "async function requestNativeViewport(",
+      "strip_begin_token": false,
+      "start_byte": 10866,
+      "end_byte": 13384,
+      "bytes": 2518,
+      "sha256": "829c453a660e2997e62f1d461ae727de4530f07062a82aafc69c6f288fa1e69e"
+    },
+    {
+      "name": "layoutTransport",
+      "begin_token": "async function layoutTransport(",
+      "end_token_excluded": "async function layoutTransportDeadlineControls(",
+      "strip_begin_token": false,
+      "start_byte": 91001,
+      "end_byte": 91841,
+      "bytes": 840,
+      "sha256": "f6f0245a8320d98612b1a651904bd76961976e06b67e1b902c72a1a1a65e659f"
+    },
+    {
+      "name": "layoutTransportDeadlineControls",
+      "begin_token": "async function layoutTransportDeadlineControls(",
+      "end_token_excluded": "// TASK125 BEGIN ownData\n",
+      "strip_begin_token": false,
+      "start_byte": 91841,
+      "end_byte": 93838,
+      "bytes": 1997,
+      "sha256": "5e374c426fd8ba33eef7149a4d9f8c22a68b4d9db6d0fe6d80845227adc8af50"
+    }
+  ],
+  "metadata": [
+    {
+      "role": "input_pins",
+      "path": "/workspace/pw130-rpc-regression/INPUT_PINS.json",
+      "canonical": "/workspace/pw130-rpc-regression/INPUT_PINS.json",
+      "bytes": 8107,
+      "sha256": "21fb9db11aba3dc95b1ed113442de1fc9da337342e6dbe092f7f3af8cfa8af45",
+      "mode": "0400"
+    },
+    {
+      "role": "command",
+      "path": "/workspace/pw130-rpc-regression/COMMAND.txt",
+      "canonical": "/workspace/pw130-rpc-regression/COMMAND.txt",
+      "bytes": 199,
+      "sha256": "ae9a249d9ecee92b4fd42fe032b61325cebdc3091069235c4578a9dd758329bf",
+      "mode": "0400"
+    },
+    {
+      "role": "standard_text_diff",
+      "path": "/workspace/pw130-rpc-regression/SOURCE_DIFF.patch",
+      "canonical": "/workspace/pw130-rpc-regression/SOURCE_DIFF.patch",
+      "bytes": 41675,
+      "sha256": "8f469aafe90373d5c2f6f1327ce117890e3f16f77bf55a54f484cbb9ea24b3c5",
+      "mode": "0400"
+    },
+    {
+      "role": "source_handoff",
+      "path": "/workspace/pw130-rpc-regression/HANDOFF.md",
+      "canonical": "/workspace/pw130-rpc-regression/HANDOFF.md",
+      "bytes": 3645,
+      "sha256": "2635305a32e1780f52027445ad7b5dfede3a1c621732897083e03ba51ea5e3f2",
+      "mode": "0400"
+    }
+  ],
+  "accepted_base": {
+    "kind": "accepted125R1_harness_read_credit_only_no_old_replay",
+    "path": "/workspace/pw125-nullable-r1/regression.py",
+    "canonical": "/workspace/pw125-nullable-r1/regression.py",
+    "bytes": 29479,
+    "sha256": "d25d155990640706096322865ae3bbb549328e385c87b2d811f4ef25293a3d91",
+    "mode": "0400"
+  },
+  "delta": {
+    "added": 155,
+    "deleted": 215,
+    "total": 370
+  },
+  "helper_read_credit": {
+    "byte_identical": [
+      "need",
+      "sha",
+      "exact",
+      "pin",
+      "exclusive",
+      "identity",
+      "group_absent",
+      "bounded_child_output"
+    ],
+    "all_adapted_paths": "FULL_NEW_RUNNER_COMMAND_REVIEW_REQUIRED"
+  },
+  "execution": {
+    "source_only": true,
+    "executed": false,
+    "native_budget": 0,
+    "expected_case_names": [
+      "ordinary-local-cap",
+      "short-monotonic-budget",
+      "short-utc-budget",
+      "expired-monotonic-zero-send",
+      "expired-utc-zero-send",
+      "deferred-monotonic-expiration",
+      "deferred-utc-expiration",
+      "original-sender-failure"
+    ],
+    "unchanged_entry": "layoutTransportDeadlineControls",
+    "old69_and_parent_ast": "INERT_NOT_INCLUDED",
+    "hidden_locals": "UNKNOWN/NOT_RETAINED",
+    "raw_observation_wrapper": false
+  },
+  "future_budget": {
+    "admission": "FULL60_AFTER_ALL_METADATA_BEFORE_ONCE_WITHIN_ORIGINAL_01:40",
+    "total_seconds": 60,
+    "work_seconds": 40,
+    "cleanup_seconds": 20,
+    "child_local_cap_ms": 25000,
+    "paired": true,
+    "anchor_reset": false,
+    "fresh_separate_execution_grant": "REQUIRED"
+  },
+  "future_command": {
+    "file": "/workspace/pw130-rpc-regression/COMMAND.txt",
+    "workdir": "/workspace",
+    "login": false,
+    "shell": false,
+    "environment": {
+      "PATH": "/usr/bin:/bin",
+      "LANG": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "python_flags": [
+      "-B",
+      "-I"
+    ],
+    "child": "SOLE_INLINE_NODE_NEW_SESSION"
+  },
+  "state": "FROZEN_SOURCE_PENDING_INDEPENDENT_REVIEW_NO_EXECUTION_AUTHORITY",
+  "historical_documentary_bases": "Prior plan STATE/SESSION/journal pins are retained documentary history only, excluded from current runtime input gates. Current19 runtime inputs use stable declared providers/authorities/APIs/executables.",
+  "holds": "Native budget0; original128 and129 CLOSED_UNFINISHED; old69/parentAST/native-main/partial129helpers never invoked; count52/Seen/allnine/protectedfalse/defaultdisabled/external057oldSQL/alloldergoals-caps-onces held."
+}

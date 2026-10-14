@@ -204,3 +204,15 @@ Learning extracted: L-047 caller-admission refinement.
 2026-10-13 TASK125: distinct post-result NO_NEW_LEARNING; existing L-050/G-019 cover69 synthetic cases, retained observations and measured23-byte metadata correction. Count52/Seen/allnine held.
 
 2026-10-13 TASK126: metadata-only checkpoint publication scope co-signed after original125 closed unfinished; NO_NEW_LEARNING, existing L-050/G-019. Count52/Seen/allnine and old caps/onces held.
+
+2026-10-14 TASK127: NO_NEW_LEARNING; existing L-050/G-019/L-046 cover source-grounded natural rollover/unmount proposal, paired admission and ownership. Future TASK128 remains separately gated; count52/Seen/allnine and older caps/onces held.
+
+2026-10-14 TASK129: prospective metadata checkpoint scope co-signed; NO_NEW_LEARNING, existing L-050/G-019. TASK128 source/runtime remains separately gated under unchanged01:00; count52/Seen/allnine and every earlier cap/goal/once held.
+
+2026-10-14 TASK128 R1: distinct NO_NEW_LEARNING, existing L-046/G-019 cover the prevented live-RPC deadline finding. Minimal actual paired transport correction remains prospective; rejected attempt1/remaining whole review/native0/count52/Seen/allnine and unchanged01:00 held.
+
+2026-10-14 TASK130: prospective first-eight actual RPC assertion regression plan co-signed, NO_NEW_LEARNING existing L-046/L-050/G-019. Hidden local values remain NOT_RETAINED, native budget0; old128/129closedunfinished/count52/Seen/allnine held.
+
+2026-10-14 TASK131: prospective first RPC checkpoint publication scope co-signed; NO_NEW_LEARNING existing L-050/G-019. Two fresh accepted126-based helpers/exact Candidate/current readback remain separately gated,13001:40 unchanged; old128/129closedunfinished/count52/Seen/allnine held.
+
+2026-10-14 TASK130 distinct post-result learning: NO_NEW_LEARNING; existing L-046/L-050/G-019 cover accepted8 actual source-bound synthetic RPC assertions, paired postmetadata lease and typed retained evidence. Hidden locals UNKNOWN/NOT_RETAINED; native0, old128/129closedunfinished/count52/Seen/allnine/older caps-onces held.

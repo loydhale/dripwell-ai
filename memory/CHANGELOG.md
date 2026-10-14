@@ -444,3 +444,16 @@ Distinct custody-failure NO_NEW learning3309/d47a9440, diff186/e30a9b7d and pins
 2026-10-13 TASK124: Implemented and froze the new native rollover/unmount verifier and ancillary publication helpers; independent preliminary nullable-diagnostic finding blocks execution. Prior workers pending initialization were stopped and a narrow replacement review assigned; no native run or application/production completion claim.
 2026-10-13 TASK125: Corrected reviewed nullable diagnostic producer/serializer/parent and removed unrelated PRESENT admission restrictions; sole new synthetic run35Node+34parent PASS/nine receipts/scoped owned cleanup independently accepted. Native rollover/pilot/production remain open; distinct learning accepted, original125closedunfinishedbeforepublication; exact reviewed TASK126publication/readback pending.
 2026-10-13 TASK126: Prepared necessary metadata-only reviewed checkpoint publication after original125totalclosed; retained exact accepted69synthetic result/clarification/learning/inactive snapshots, co-signed scope and current samebranch/fullnativebase. No source/check/native replay; exact final review/publication/current readback pending.
+
+2026-10-14 TASK126 actual closure: reviewed ce3b3ae checkpoint/33payloads/full781 leaves/nativePRE-CAS-POST/indexrefs-clean independent readback fully accepted before original23:45; no deployment or original125timely completion.
+2026-10-14 TASK127: accepted concrete natural-rollover/unmount proposal and distinct NO_NEW/factual MINOR learning before00:10; exact memory appends applied. Separate TASK128 source-only scope queued, no new native result or pilot completion.
+
+2026-10-14 TASK128 attempt1: independent source review blocked the live RPC fixed5s timeout from consuming cleanup reserve; rejected packet retained unexecuted. Distinct reviewed minimal R1 correction queued under unchanged01:00, no browser/native results.
+
+2026-10-14 TASK128 R1 source: minimal live RPC paired-deadline correction independently passed full current native/command review;124 active bindings and21 protected spans verified. No tests or native run admitted because full240 no longer fits unchanged01:00. Goal remains unfinished; exact reviewed checkpoint publication pending.
+
+2026-10-14 TASK129 closure: fixed01:00 expired after two ancillary metadata helpers and diff froze; source pins/handoff absent, helpers unreviewed/unexecuted, publication goal unfinished. Queue130 proposes first focused RPC-composed regressions only, preserving old native budget/once/goals.
+
+2026-10-14 TASK130: accepted concrete first-eight RPC regression plan and exact assertion-evidence clarification; one runner source-only, native/old scopes held.
+
+2026-10-14 TASK130: independently accepted8 first source-bound RPC deadline/failure assertions, exact source/command/actual/learning; known-owned cleanup and safe checkpoint prepared. No native recording, old69/application-CI/migration replay or pilot completion. TASK131 exact publication pending.

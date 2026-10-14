@@ -1,0 +1,11 @@
+async function layoutTransport(acquisition, session, method, params, schedule=setTimeout, cancel=clearTimeout, leaves=null) {
+  const remaining=leaves?.remaining??(()=>[workEnd-performance.now(),Date.parse(ctx.work_end_utc)-Date.now()]);
+  const admit=()=>{
+    guard();acquisition.check();const budgets=remaining();
+    need(Array.isArray(budgets)&&budgets.length===2&&budgets.every(v=>typeof v==='number'&&Number.isFinite(v)&&v>0),'Layout transport work expired');
+    return Math.min(5000,...budgets);
+  };
+  let timer;
+  try { admit();return await Promise.race([Promise.resolve().then(()=>{admit();return session.send(method,params);}),new Promise((_,reject)=>{timer=schedule(()=>reject(new Error(method+' timeout')),admit());})]); }
+  catch(error){try{acquisition.stop(method+' failed');}catch{}throw error;} finally{cancel(timer);}
+}
