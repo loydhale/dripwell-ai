@@ -1109,8 +1109,12 @@ function Wellness({
             <div className="takeaway-care">
               <span>Care received today</span>
               <strong>
-                {plan.careReceived.items.map((item) => item.name).join(' + ') ||
-                  'Recorded treatment'}
+                {plan.careReceived.outcome === 'STARTED'
+                  ? plan.careReceived.items.map((item) => item.name).join(' + ') ||
+                    'Recorded treatment'
+                  : plan.careReceived.outcome === 'NOT_STARTED'
+                    ? 'Care was not started at this visit.'
+                    : 'Your clinic is confirming the care outcome.'}
               </strong>
             </div>
             {plan.offers.length ? (
