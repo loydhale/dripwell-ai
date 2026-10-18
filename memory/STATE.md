@@ -1,5 +1,21 @@
 # STATE.md
 
+## Current task, October 18, 2026: selected AI/transcription access handoff
+
+Execution status: TASK157_HANDOFF_REVIEWED__TASK158_NEXT_AFTER_DOCUMENTARY_PUBLICATION.
+
+Actual native HEAD/origin and PR2 remain18c8f30f; no other worker was active at admission. TASK156 final actual reviewabc09b16/typedinputs36f18329 and genuine Root uptake closed its scoped regression/documentary task. Managed environment1438 was current connected/running; actual shell/native Git access works and inherited proxy/CA policy is preserved. Required current boot identities and operative/changed text were refreshed against inherited complete reads. Earlier TASK156 pending labels below are prepublication history, not replay authority.
+
+[TASK157](../tasks/TASK-157.md) resumes the saved concrete selected model/transcription handoff. Coder's current [handoff](../docs/AI_ACCESS_HANDOFF_CURRENT.md),10411/8eb90106, has independent actual PASSeca28050/typedinputsc4d9740b, fully read and genuinely adopted by Root after verification of all68 typed descriptors including50 named evidence artifacts. Normal Vercel connector userGET identifiesloyd-1222, but the correctly selected team/project reads returned403 and stopped. Existing PATH/repo/exact historical/standard-cache CLI locations were absent. Root explicitly authorized a new private officialvercel62.1.0 tooling restoration, with package/SRI/engines verified and scripts disabled, separate from closed old application/SQL/restoration scopes. Installed help and one normal noninteractivewhoami returnedexit1/loggedIn:false; no CLI project inspection or login followed. Restored executable is /workspace/scratch/dripwell-157-coder/cli-recovery/tool/node_modules/vercel/dist/vc.js, retained for future separately approved normal reads. This is a specific client result, not universal credential absence or proof that reconnecting fixes the connector403.
+
+Current first-party docs confirm Gateway on allplans/noPro prerequisite, conditional payment verification and one-time credit flow, project-OIDC soft-budget limitations and possible fees. The former manual-purchase URL now redirects; current purchase minimum/checkout total, selected-account funds/payment verification/budgets/entitlement remain UNKNOWN. One public476-entry catalog contains both exact existing model IDs without account/free-tier annotations. Accepted current SIWC eligibility/limitations/terms were reused, preserving commercial/per-user/transcription limits. No inference/transcription, account change, purchase/upgrade/provider swap/login/token extraction or application/test/build/SQL/CI/log/migration replay occurred. No new deployed-source/effective-guard proof.
+
+Distinct later learning8d34dece/exactpatch8a16b16c/typede646214d was fully read, exact applied bytes verified and genuinely adopted: L045 refinement, no new IDs/recurrences/counters, Seen1 unchanged. Next at this prepublication snapshot: exact final factual documentary/PRD co-sign and expected18c8 same-branch [skip ci] publication with actual remote/native readback. The snapshot precedes its own commit; actual reviewed readback closes it without a closing-SHA-only edit or check replay. Then [TASK158](../tasks/TASK-158.md) is a conditional read-only comparison of the existing F10 owner improvement-proposal workflow, reusing passed configuration/pinning tests and identifying at most one concrete new gap. It does not grant application edits/execution now. The isolated account lane does not prove all-source exhaustion or all-external WAITING_ON_DEPENDENCIES. No repeated pending owner question.
+
+All9/all12 and hostedUNKNOWN/protected/requestedfalse/default-disabled/ICM/permanent057/older closed scopes remain. Stripe sandbox is complete. Resend owned sender/domain and selected platform-admin identity/MFA remain requested once. Until-done authorization/automation settings are unchanged; scheduled continuation is a wake-up, not an uninterrupted coding worker.
+
+## Historical TASK156 prepublication snapshot, scoped task subsequently closed
+
 ## Current recovery result, October 18, 2026
 
 Execution status: TASK156_SCOPED_REGRESSION_AND_LEARNING_ACCEPTED__DOCUMENTARY_PUBLICATION_NEXT.
