@@ -1,5 +1,23 @@
 # STATE.md
 
+## Current resume, October 18, 2026
+
+Execution status: TASK159_FINITE_NO_GAP_ACCEPTED__INDIVIDUAL_SERVICE_LANES_PARKED.
+
+[TASK158](../tasks/TASK-158.md) is fully closed at9c520fb605ad7ae8e23c588991e35f4a5f10c5aa/tree09bc3c40/soleparent55c58: independent actual publication08a9d7e5/typeda3f75ecc and all909leaves/exact8docs/901preserved/PR2originalbody-base-open/clean were genuinely accepted before159 admission. Source55c58/first ordinary CI39102264823/new proposal case/clinic19/Vitest309-31/types/bothbuilds/all22steps remain accepted. [Evidence](../docs/audits/task158/README.md). No check replay or new production-code claim.
+
+[TASK159](../tasks/TASK-159.md) independently passes NO_CONFIRMED_GAP_IN_FINITE_SCOPE. Existing tests already protect10of11 distinct concurrent starts, exhausted-key replay, four-write rollback, genuinely overlapping same-key callbacks with one committed visit/usage/event, exact expiry and continued existing-visit editing. Root actually fully read review76deafb8/typed10d6371f, verified23 actual descriptors and genuinely adopted06:22:24UTC before distinct NO_NEW learning32ca2f28/typed994912f9 and exact652-byte SESSION append. Original admission's historical quoted pending sentence and explicit qualification remain preserved. No source/test edit or new application/check/SQL/provider/browser/account/CI/log operation; corpora/IDs/Seen/counters unchanged. [Finite audit](../docs/audits/task159/README.md) preserves original058 fixture/raw/attribution limits and accepted158 reuse; this is not new runtime or full criterion7 proof.
+
+Next: publish only the exact independently reviewed factual documentary packet as an expected9c520 child [skip ci] on the same branch, then reconcile actual remote/native branch, reviewed Git blobs/tree, PR2 body/base/open and clean readback before dependent work. Actual accepted readback closes this scoped packet without a recursive closing-SHA-only edit or passing-check replay. No new implementation is allocated by this finite comparison. Genuinely changed service prerequisites or a separately evidenced approved gap remain eligible for normal CTO/Coder/Auditor work; finite no-gap is not exhaustive source/queue or all-external WAITING_ON_DEPENDENCIES.
+
+Affected live-service lanes remain parked on the concrete [account handoff](../docs/AI_ACCESS_HANDOFF_CURRENT.md): connected Vercel user access succeeds, selected-team/project403, normal restored CLI loggedIn:false, current funds/verification/entitlement/checkout minimum UNKNOWN. The owner's normal selected-team dashboard inspection or deliberate supported authentication/access grant is relevant new evidence. No new login/inference/purchase/provider switch is authorized by this resume. Stripe sandbox is complete. Owned Resend sender/domain and selected platform-admin/MFA remain requested once; authentic paid-referral and retention evidence remain open. Do not repeat pending questions or silently invent choices.
+
+Unchanged scheduled wake-up: reconcile actual active worker/current branch first, preserve the clean resume and reuse unchanged accepted evidence. Do not repeat159, an invariant-only documentary checkpoint, passing tests/logs/migrations, unchanged provider/account probes or pending questions. Notify only for a changed blocker or genuinely needed action. This suppresses no-op repeats; it does not claim software completion or prohibit independent approved forward work.
+
+All9 actual two-clinic stories/all12 production gates remain OPEN; hosted source/effective privacy/maintenance guards UNKNOWN. Protected previews/requestedALLOW_REAL_CLIENT_DATA=false/default-disabled maintenance/ICM/authored agent-workflows/permanent057final3 and older closed scopes/caps/onces remain. No purchase/provider swap/pooling/upgrade/partner/outbound/admin bootstrap/realdata/merge/production. Until-done authorization/automation settings unchanged; a scheduled continuation is a wake-up, not an uninterrupted worker.
+
+## Historical TASK158 prepublication snapshot, scoped task subsequently closed
+
 ## Current task, October 18, 2026: owner proposal regression verified
 
 Execution status: TASK158_SCOPED_REGRESSION_VERIFIED__FINAL_DOCUMENTARY_PUBLICATION_NEXT.
