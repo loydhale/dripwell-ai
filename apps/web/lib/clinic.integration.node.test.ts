@@ -663,4 +663,138 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
       assert.equal((await getDb().subscription.findUniqueOrThrow({ where: { tenantId: other.owner.tenantId } })).trialUsed, 1);
     } finally { process.env.ALLOW_REAL_CLIENT_DATA = 'true'; }
   });
+
+  it('pins historical consultation artifacts through configuration replacement, rollback and regeneration', async () => {
+    const other = await fixture();
+    const summary: ConsultationSummary = { ...reviewedSummary, wellnessOffersAllowed: true };
+    function catalog(label: string, treatmentPrice: number, membershipPrice: number): ClinicConfiguration {
+      const treatment = syntheticConfiguration.products[0]!;
+      return { ...syntheticConfiguration,
+        products: [{ ...treatment, name: `Synthetic ${label} IV`, priceCents: treatmentPrice,
+          terms: `Synthetic ${label} treatment terms.`,
+          rules: { ...treatment.rules, rationale: `Synthetic ${label} treatment rationale.` } },
+        { ...treatment, id: 'fixture-membership', name: `Synthetic ${label} membership`, type: 'MEMBERSHIP',
+          description: 'Fictional offer for historical-version testing only.', clinical: false,
+          priceCents: membershipPrice, benefits: [`Synthetic ${label} benefit`],
+          terms: `Synthetic ${label} membership terms.`,
+          rules: { validated: false, validationNote: '', eligibility: [], exclusions: [],
+            rationale: `Synthetic ${label} membership rationale.` } }],
+        recommendationPolicy: { ...syntheticConfiguration.recommendationPolicy, maxWellnessOffers: 1 } };
+    }
+    async function activate(configuration: ClinicConfiguration) {
+      const draftResult = await mutateClinicAction(other.owner, { action: 'config.saveDraft', locationId: other.locationId,
+        configuration, source: 'Synthetic historical visit pinning fixture only.' });
+      const draft = draftResult.result as { id: string; revision: number };
+      const testedResult = await mutateClinicAction(other.owner, { action: 'config.test', configurationVersionId: draft.id,
+        expectedVersion: draft.revision, summary });
+      const tested = testedResult.result as { configuration: { revision: number }; test: { id: string } };
+      const activated = await mutateClinicAction(other.owner, { action: 'config.activate', configurationVersionId: draft.id,
+        expectedVersion: tested.configuration.revision, approvedTestIds: [tested.test.id] });
+      const active = activated.result as { id: string; version: number };
+      assert.equal(active.id, draft.id);
+      return active;
+    }
+    async function approvedArtifacts(id: string) {
+      await mutate(other, id, 'consultation.summary.update', { summary, reason: 'STAFF_JUDGMENT' });
+      await mutate(other, id, 'consultation.initial.generate');
+      await mutate(other, id, 'consultation.initial.approve');
+      await mutate(other, id, 'consultation.care.record', { actualCare: { outcome: 'NOT_STARTED', items: [],
+        observations: 'Synthetic manual-intake visit only.', reason: 'Synthetic client declined care.', currency: 'USD' } });
+      await mutate(other, id, 'consultation.wellness.generate');
+      await mutate(other, id, 'consultation.wellness.approve');
+    }
+    async function persisted(id: string) {
+      return getDb().consultation.findUniqueOrThrow({ where: { id }, include: {
+        revisions: { orderBy: [{ kind: 'asc' }, { revision: 'asc' }] },
+      } });
+    }
+    function assertFacts(visit: Awaited<ReturnType<typeof start>>, id: string, configuration: ClinicConfiguration) {
+      assert.equal(visit.configurationVersionId, id);
+      assert.deepEqual(visit.configuration, configuration);
+      const initial = visit.initialRecommendation, wellness = visit.wellnessPlan;
+      assert.ok(initial && wellness);
+      assert.equal(initial.configurationVersionId, id);
+      assert.equal(wellness.configurationVersionId, id);
+      assert.equal(initial.engineVersion, 'dripwell-rules-v2.1');
+      assert.equal(wellness.engineVersion, 'dripwell-rules-v2.2');
+      assert.equal(initial.blocked, false);
+      assert.equal(initial.items.length, 1);
+      assert.equal(wellness.offers.length, 1);
+      for (const [item, product] of [[initial.items[0]!, configuration.products[0]!],
+        [wellness.offers[0]!, configuration.products[1]!]] as const) {
+        assert.deepEqual({ productId: item.productId, name: item.name, type: item.type, priceCents: item.priceCents,
+          currency: item.currency, quantity: item.quantity, terms: item.terms, rationale: item.rationale },
+        { productId: product.id, name: product.name, type: product.type, priceCents: product.priceCents,
+          currency: product.currency, quantity: 1, terms: product.terms, rationale: product.rules.rationale });
+      }
+      const offer = wellness.offers[0]!;
+      assert.ok('benefits' in offer && 'matchedGoals' in offer);
+      assert.deepEqual(offer.benefits, configuration.products[1]!.benefits);
+      assert.deepEqual(offer.matchedGoals, summary.goals);
+      assert.equal(visit.actualCare!.outcome, 'NOT_STARTED');
+      assert.deepEqual(visit.actualCare!.items, []);
+    }
+
+    const catalogA = catalog('A', 11000, 7100), catalogB = catalog('B', 16000, 9200);
+    const activeA = await activate(catalogA);
+    assert.notEqual(activeA.id, other.configurationId);
+    const visitA = await start(other);
+    await approvedArtifacts(visitA.id);
+    assertFacts((await getConsultation(other.owner, visitA.id)).consultation, activeA.id, catalogA);
+    const savedA = await persisted(visitA.id);
+    assert.equal(savedA.clinicalApprovedVersion, savedA.initialRevision);
+    assert.equal(savedA.wellnessApprovedVersion, savedA.wellnessRevision);
+    assert.equal(savedA.clinicalApprovedById, other.owner.userId);
+    assert.equal(savedA.wellnessApprovedById, other.owner.userId);
+
+    const activeB = await activate(catalogB);
+    assert.notEqual(activeB.id, activeA.id);
+    assert.equal(activeB.version, activeA.version + 1);
+    assert.deepEqual(await persisted(visitA.id), savedA);
+    assertFacts((await getConsultation(other.owner, visitA.id)).consultation, activeA.id, catalogA);
+    const visitB = await start(other);
+    await approvedArtifacts(visitB.id);
+    assertFacts((await getConsultation(other.owner, visitB.id)).consultation, activeB.id, catalogB);
+    const savedB = await persisted(visitB.id);
+    assert.equal(savedB.clinicalApprovedVersion, savedB.initialRevision);
+    assert.equal(savedB.wellnessApprovedVersion, savedB.wellnessRevision);
+
+    const rollbackResult = await mutateClinicAction(other.owner, { action: 'config.rollback',
+      configurationVersionId: activeA.id, locationId: other.locationId });
+    const restored = rollbackResult.result as { id: string; version: number };
+    assert.notEqual(restored.id, activeA.id);
+    assert.notEqual(restored.id, activeB.id);
+    assert.equal(restored.version, activeB.version + 1);
+    const currentConfiguration = await getDb().clinicConfigurationVersion.findFirstOrThrow({ where: {
+      tenantId: other.owner.tenantId, locationId: other.locationId, status: 'ACTIVE' } });
+    assert.equal(currentConfiguration.id, restored.id);
+    assert.deepEqual(currentConfiguration.payload, catalogA);
+
+    for (const [saved, active, configuration] of [[savedA, activeA, catalogA], [savedB, activeB, catalogB]] as const) {
+      assert.deepEqual(await persisted(saved.id), saved);
+      assertFacts((await getConsultation(other.owner, saved.id)).consultation, active.id, configuration);
+      // A later non-safety note invalidates approval, but cannot rebind this visit to today's active catalog.
+      await mutate(other, saved.id, 'consultation.summary.update', { summary: { ...summary,
+        preferences: ['Synthetic later communication preference.'] }, reason: 'STAFF_JUDGMENT' });
+      await mutate(other, saved.id, 'consultation.initial.generate');
+      await mutate(other, saved.id, 'consultation.wellness.generate');
+      const regenerated = (await getConsultation(other.owner, saved.id)).consultation;
+      assertFacts(regenerated, active.id, configuration);
+      assert.equal(regenerated.summaryRevision, saved.summaryRevision + 1);
+      assert.equal(regenerated.initialRevision, saved.initialRevision + 1);
+      assert.equal(regenerated.wellnessRevision, saved.wellnessRevision + 1);
+      assert.equal(regenerated.clinicalApprovedVersion, null);
+      assert.equal(regenerated.wellnessApprovedVersion, null);
+      const after = await persisted(saved.id);
+      assert.deepEqual(after.revisions.filter(row => saved.revisions.some(original => original.id === row.id)), saved.revisions);
+      for (const [kind, number, payload] of [['INITIAL', regenerated.initialRevision, regenerated.initialRecommendation],
+        ['WELLNESS', regenerated.wellnessRevision, regenerated.wellnessPlan]] as const) {
+        const revision = after.revisions.find(row => row.kind === kind && row.revision === number);
+        assert.ok(revision);
+        assert.deepEqual(revision.payload, payload);
+        assert.equal(revision.model, 'deterministic-rules');
+        assert.equal(revision.promptVersion, payload!.engineVersion);
+      }
+    }
+  });
 });

@@ -1,5 +1,15 @@
 # STATE.md
 
+## Current manual recovery, October 18, 2026
+
+Execution status: CURRENT_CHECKPOINT_RECONCILED__PINNING_REGRESSION_IMPLEMENTED_AWAITING_SOURCE_REVIEW.
+
+The Owner explicitly challenged the status-only loop and asked the team to fix its internal problems. [TASK156](../tasks/TASK-156.md) records this distinct manual recovery. The published review branch was restored into `/workspace/dripwell-recovery` at head97c65233/treeffdf23ed, with902 tracked leaves, matching nine governance blobs and a clean worktree before this task's documentary planning changes. Actual shell/file/native Git access works. The original private audit receipts under `/workspace/pw155-owner-lifecycle` remain unavailable; prior results are historical attribution, not recovered custody or replay authority.
+
+The independent Auditor's actual phase1 current-checkpoint PASS07815ea8 and phase2 finding PASS717c5e38, with their input manifests, were fully read and genuinely accepted by Root. Missing original private custody remains qualified and does not block distinct forward work. Coder now implemented one134-line PostgreSQL regression, candidate62402/da12f9fb, covering two historical visits and configuration/offer pinning through activation/rollback and later regeneration. No production defect is established; prior bodies/fixture/production code are unchanged, and TASK155's positive configuration-only case is not duplicated. Static diff checks passed; actual application executions remain0. Next: independent exact source/three-file documentary review, reviewed same-PR fast-forward publication from expected97c65233, first ordinary materially changed-test CI, then independent actual-result review and distinct learning. No local dependency restoration/check/SQL/provider execution is authorized. All runtime validation remains pending. No exhaustive queue/source or all-external WAITING conclusion; the previous finite assessment remains valid within its original scope and is not a blanket stop on this new manual recovery.
+
+All nine actual pilot stories and twelve production gates remain OPEN, current hosted source/effective guards UNKNOWN. Protected previews, requested ALLOW_REAL_CLIENT_DATA=false/default-disabled maintenance, ICM/authored agent-workflows and permanent TASK057 final3/old native/SQL/restoration/cap/once holds remain. Stripe sandbox is complete. Individual model/transcription, Resend sender/domain, selected MFA admin/policy/authentic paid-referral and retention prerequisites remain separate. No purchases/provider switch/subscription pooling/upgrade/partner application/send/admin bootstrap/real-client enablement or repeated pending question. Until-done authorization and automation settings remain unchanged.
+
 ## Current resume: finite queue review closed, no new source allocation
 
 Execution status: PAUSED_NO_ELIGIBLE_NEW_SOURCE_TASK_IDENTIFIED_IN_FINITE_REVIEW__INTERNAL_RELEASE_PARK_AND_INDIVIDUAL_DEPENDENCIES_RETAINED.
