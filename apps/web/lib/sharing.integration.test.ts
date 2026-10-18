@@ -21,12 +21,20 @@ import {
   takeawayPdf,
   validShare,
 } from './sharing';
+import * as sharing from './sharing';
+import { GET as recipientPdf } from '../app/api/share/[token]/document/route';
 
 const run = Boolean(process.env.TEST_DATABASE_URL);
 if (run) process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 const suite = run ? describe : describe.skip;
 const prefix = `sharing-${randomUUID()}`;
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
+let pdfWork: {
+  active: boolean;
+  stopped: boolean;
+  pending: Set<Promise<unknown>>;
+  release: () => void;
+} | undefined;
 suite('approved documents and recipient access against isolated PostgreSQL', () => {
   let tenantId: string;
   let userId: string;
@@ -151,6 +159,11 @@ suite('approved documents and recipient access against isolated PostgreSQL', () 
     shareId = share.id;
   });
   afterAll(async () => {
+    if (pdfWork && (pdfWork.active || pdfWork.pending.size)) {
+      pdfWork.stopped = true;
+      pdfWork.release();
+      throw new Error('Recipient PDF work is unsettled; fixture deletion and disconnect are prohibited.');
+    }
     await getDb().tenant.delete({ where: { id: tenantId } });
     cookieValues.clear();
     await getDb().$disconnect();
@@ -272,5 +285,174 @@ suite('approved documents and recipient access against isolated PostgreSQL', () 
       (await getDb().shareSession.findUniqueOrThrow({ where: { tokenHash: digest(sessionToken) } }))
         .revokedAt,
     ).not.toBeNull();
+  });
+  test('withholds rendered recipient PDF bytes when access is revoked before response release', async () => {
+    const began = performance.now();
+    const workEnd = began + 20000;
+    const cleanupEnd = began + 30000;
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    const state = { active: true, stopped: false, pending: new Set<Promise<unknown>>(), release };
+    pdfWork = state;
+    let firstFailure: Error | undefined;
+    let restoreRenderer: (() => void) | undefined;
+    const token = randomBytes(32).toString('base64url');
+    const session = randomBytes(32).toString('base64url');
+    let cookieName: string | undefined;
+    let cookieInstalled = false;
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+    function fail(cause: unknown): Error {
+      firstFailure ??= cause instanceof Error ? cause : new Error('Recipient PDF work failed.');
+      state.stopped = true;
+      return firstFailure;
+    }
+    function requireWork() {
+      if (state.stopped || performance.now() >= workEnd)
+        throw fail(new Error('Recipient PDF work stopped or exceeded its original deadline.'));
+    }
+    function track<T>(operation: () => PromiseLike<T>): Promise<T> {
+      requireWork();
+      const pending = Promise.resolve().then(() => { requireWork(); return operation(); });
+      state.pending.add(pending);
+      void pending.then(
+        () => { state.pending.delete(pending); },
+        (cause) => { state.pending.delete(pending); fail(cause); },
+      );
+      return pending;
+    }
+    async function wait<T>(pending: Promise<T>, cleanup = false): Promise<T> {
+      const remaining = (cleanup ? cleanupEnd : workEnd) - performance.now();
+      if (remaining <= 0) throw fail(new Error('Recipient PDF settlement deadline exceeded.'));
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        const value = await Promise.race([pending, new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(fail(new Error('Recipient PDF work did not settle.'))), remaining);
+          timers.add(timer);
+        })]);
+        if (!cleanup) requireWork();
+        return value;
+      } finally {
+        if (timer !== undefined) { clearTimeout(timer); timers.delete(timer); }
+      }
+    }
+    const work = <T,>(operation: () => PromiseLike<T>) => wait(track(operation));
+    function expectPrivate(response: Response) {
+      expect(response.headers.get('cache-control')).toBe('private, no-store, max-age=0');
+      expect(response.headers.get('pragma')).toBe('no-cache');
+      expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    }
+    const request = () => recipientPdf(
+      new Request(`http://localhost:3000/api/share/${encodeURIComponent(token)}/document`, { method: 'GET' }),
+      { params: Promise.resolve({ token }) },
+    );
+    try {
+      const db = getDb();
+      const snapshot = await work(() => approvedTakeaway(tenantId, consultationId, userId));
+      const document = readTakeaway(snapshot);
+      const expiresAt = new Date(Date.now() + 3600000);
+      const link = await work(() => db.shareLink.create({ data: {
+        tenantId, takeawayId: snapshot.id, tokenHash: digest(token),
+        recipientEmail: 'synthetic-recipient@example.test', createdById: userId, expiresAt,
+      } }));
+      const recipient = await work(() => db.shareSession.create({ data: {
+        shareLinkId: link.id, tokenHash: digest(session), expiresAt,
+      } }));
+      expect(link).toMatchObject({ tenantId, takeawayId: snapshot.id, tokenHash: digest(token), revokedAt: null });
+      expect(recipient).toMatchObject({ shareLinkId: link.id, tokenHash: digest(session), revokedAt: null });
+      expect(link.expiresAt.getTime()).toBeGreaterThan(Date.now());
+      expect(recipient.expiresAt.getTime()).toBeGreaterThan(Date.now());
+      cookieName = `dw-share-session-${link.id}`;
+      expect(cookieValues.has(cookieName)).toBe(false);
+      // Reuse the existing explicitly preverified-session/cookie fixture. No OTP or email is simulated.
+      cookieValues.set(cookieName, session);
+      cookieInstalled = true;
+      const control = await work(request);
+      expect(control.status).toBe(200);
+      expectPrivate(control);
+      expect(control.headers.get('content-type')).toBe('application/pdf');
+      expect(control.headers.get('content-disposition')).toBe('attachment; filename="wellness-visit.pdf"');
+      expect(control.headers.get('referrer-policy')).toBe('no-referrer');
+      expect(control.headers.get('x-robots-tag')).toBe('noindex, nofollow, noarchive');
+      const controlBytes = await work(() => control.arrayBuffer());
+      expect(controlBytes.byteLength).toBeGreaterThan(5);
+      expect(Buffer.from(controlBytes).subarray(0, 5).toString()).toBe('%PDF-');
+
+      const originalRenderer = sharing.takeawayPdf;
+      let ready!: (value: Uint8Array) => void;
+      const renderReady = new Promise<Uint8Array>((resolve) => { ready = resolve; });
+      const renderer = vi.spyOn(sharing, 'takeawayPdf').mockImplementationOnce((value) => track(async () => {
+        expect(value).toEqual(document);
+        const bytes = await originalRenderer(value);
+        expect(bytes.byteLength).toBeGreaterThan(5);
+        expect(Buffer.from(bytes.subarray(0, 5)).toString()).toBe('%PDF-');
+        ready(bytes);
+        await held;
+        return bytes;
+      }));
+      restoreRenderer = () => {
+        expect(sharing.takeawayPdf).toBe(renderer);
+        renderer.mockRestore();
+      };
+      let responseSettled = false;
+      const inFlight = track(request);
+      void inFlight.then(() => { responseSettled = true; }, () => { responseSettled = true; });
+      await wait(Promise.race([renderReady, inFlight.then(() => {
+        throw new Error('Recipient request settled before the real renderer was held.');
+      })]));
+      expect(renderer).toHaveBeenCalledOnce();
+      expect(responseSettled).toBe(false);
+      await work(() => revokeShare(tenantId, userId, link.id));
+      const revokedLink = await work(() => db.shareLink.findUniqueOrThrow({ where: { id: link.id } }));
+      const revokedSession = await work(() => db.shareSession.findUniqueOrThrow({ where: { id: recipient.id } }));
+      expect(revokedLink).toMatchObject({ tenantId, takeawayId: snapshot.id, tokenHash: digest(token) });
+      expect(revokedSession).toMatchObject({ shareLinkId: link.id, tokenHash: digest(session) });
+      expect(revokedLink.revokedAt).toBeInstanceOf(Date);
+      expect(revokedSession.revokedAt).toEqual(revokedLink.revokedAt);
+      const events = await work(() => db.consultationEvent.findMany({ where: {
+        tenantId, consultationId, userId, action: 'TAKEAWAY_SHARE_REVOKED',
+      } }));
+      const ownedEvents = events.filter((event) => event.after && typeof event.after === 'object' &&
+        !Array.isArray(event.after) && event.after.shareId === link.id);
+      expect(ownedEvents).toHaveLength(1);
+      expect(ownedEvents[0]).toMatchObject({ tenantId, consultationId, userId,
+        action: 'TAKEAWAY_SHARE_REVOKED', after: { shareId: link.id } });
+      expect(responseSettled).toBe(false);
+      release();
+      const denied = await wait(inFlight);
+      expect(denied.status).toBe(410);
+      expectPrivate(denied);
+      expect(denied.headers.get('content-type')).toContain('application/json');
+      expect(denied.headers.get('content-disposition')).toBeNull();
+      const body = await work(() => denied.text());
+      expect(JSON.parse(body)).toEqual({
+        error: 'This share has expired or is no longer available.', code: 'REQUEST_FAILED',
+      });
+      expect(body).not.toContain('%PDF-');
+      expect(body).not.toContain(document.reference);
+      expect(body).not.toContain('PRIVATE_');
+      expect(renderer).toHaveBeenCalledOnce();
+    } catch (cause) {
+      fail(cause);
+    } finally {
+      state.stopped = true;
+      release();
+      try {
+        if (state.pending.size) await wait(Promise.allSettled([...state.pending]), true);
+        expect(state.pending.size).toBe(0);
+        restoreRenderer?.();
+        if (cookieInstalled && cookieName) {
+          expect(cookieValues.get(cookieName)).toBe(session);
+          cookieValues.delete(cookieName);
+        }
+        state.active = false;
+        if (performance.now() > cleanupEnd) fail(new Error('Recipient PDF total deadline exceeded.'));
+      } catch (cause) {
+        fail(cause); // Preserve the first failure; active/pending keeps afterAll from deleting live work.
+      } finally {
+        for (const timer of timers) clearTimeout(timer);
+        timers.clear();
+      }
+    }
+    if (firstFailure) throw firstFailure;
   });
 });
