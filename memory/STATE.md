@@ -1,5 +1,23 @@
 # STATE.md
 
+## Current task, October 18, 2026: owner improvement-proposal regression
+
+Execution status: TASK158_IMPLEMENTED_AWAITING_EXACT_SOURCE_REVIEW_AND_FIRST_ORDINARY_CI.
+
+[TASK157](../tasks/TASK-157.md) completed its scoped access handoff/private CLI restoration/review/learning/publication at3b20a6ff/tree33ffcda5/soleparent18c8, independently verified907leaves/exact9docs/898unchanged/originalPR2body-base-open/clean and genuinely accepted. Prior pending labels below are historical. Actual shell/native Git works; required current governance/operative text was refreshed and no other active worker was present before158 admission.
+
+[TASK158](../tasks/TASK-158.md) independently confirmed one missing positive persisted proposal-lifecycle regression, no production defect. Findingadc8cdc3/typedfd5a7d61 was actually fully read, required descriptors verified and genuinely accepted before specific authoring authority. Coder then verified the official exact Next16.3.8 archive/SRI, privately extracted regular docs/metadata and read relevant testing/handler guides before code; no app dependency/runtime import or Prisma generation occurred. Actual applicable Vercel Plugin auth/verification reads are retained, without a global catalog/install claim.
+
+One131-line case is appended to clinic.integration.node.test.ts, candidate72162/5ea76838, preserving every prior62402 baseline byte/import/fixture and production code. It drives one real synthetic visit/adjustment through normal proposal creation/rejection/reapproval/evaluation/activation, independently checks evidence/classification, both rejection409/no-mutation branches, one reused draft, approval/audit history, evaluation/activatedVersionId linkage and final immutability. Proposal prepublication approvedByOwner:false and configuration approved copytrue are distinct. Static preservation/diff checks passed. New application/test/build/typecheck/SQL/provider/browser executions remain0; source/runtime PASS is not claimed.
+
+Next at this snapshot: exact independent source/three-file documentary review of only the test/TASK158/STATE, then hooks-disabled expected3b20 lease fast-forward publication to the same review branch and first ordinary materially changed-test CI using the existing fresh disposable PostgreSQL pipeline. Actual publication/CI review and genuine uptake precede distinct learning and factual closure. No local application checks, shared migrations, passing-check/log/provider replay or account/deploy effect is admitted. No duplicate positive configuration/rollback/pinning test or all-source-exhaustion/all-external wait is inferred.
+
+Selected-service account lane remains parked on actual connector team/project403 and restored normalCLI loggedIn:false; funds/verification/entitlement/checkout minimum UNKNOWN. [Current handoff](../docs/AI_ACCESS_HANDOFF_CURRENT.md) provides the exact dashboard/access steps. Do not repeat unchanged requests or pending questions. Stripe sandbox is complete; Resend owned sender/domain and selected platform-admin/MFA remain once-requested choices.
+
+All9/all12OPEN/hostedUNKNOWN/protected/requestedALLOW_REAL_CLIENT_DATA=false/default-disabled maintenance/ICM/authored agent-workflows/permanent057 and older closed scopes/caps/onces remain. No purchase/provider swap/pooling/upgrade/partner/outbound/admin bootstrap/realdata/merge/production rollout. Standing until-done authorization/automation settings are unchanged; scheduled continuation is a wake-up, not an uninterrupted worker.
+
+## Historical TASK157 prepublication snapshot, scoped task subsequently closed
+
 ## Current task, October 18, 2026: selected AI/transcription access handoff
 
 Execution status: TASK157_HANDOFF_REVIEWED__TASK158_NEXT_AFTER_DOCUMENTARY_PUBLICATION.

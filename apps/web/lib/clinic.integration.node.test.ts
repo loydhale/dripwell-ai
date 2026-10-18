@@ -797,4 +797,135 @@ suite('clinic transactions against isolated PostgreSQL', { concurrency: false },
       }
     }
   });
+
+  it('preserves owner proposal evidence, review, saved evaluation and activation linkage', async () => {
+    const other = await fixture();
+    const db = getDb();
+    const visit = await start(other);
+    await mutate(other, visit.id, 'consultation.summary.update', { summary: reviewedSummary,
+      reason: 'STAFF_JUDGMENT', reasonNote: 'Synthetic staff correction for owner proposal evidence.' }, other.staff);
+    const adjustment = await db.consultationAdjustment.findFirstOrThrow({ where: {
+      tenantId: other.owner.tenantId, consultationId: visit.id, kind: 'SUMMARY' } });
+    const normalized = (value: unknown): unknown => JSON.parse(JSON.stringify(value));
+    const expectedEvidence = normalized([{ ...adjustment, consultation: {
+      configurationVersionId: other.configurationId, reference: visit.reference, summary: reviewedSummary,
+      actualCare: null, wellnessDecision: null } }]);
+    const originalActive = await db.clinicConfigurationVersion.findUniqueOrThrow({ where: { id: other.configurationId } });
+    const proposedConfiguration: ClinicConfiguration = { ...syntheticConfiguration,
+      clinic: { ...syntheticConfiguration.clinic, name: 'Synthetic proposal clinic only' } };
+    const draft = (await mutateClinicAction(other.owner, { action: 'config.saveDraft', locationId: other.locationId,
+      configuration: proposedConfiguration, source: 'Synthetic descriptive-only improvement fixture.' })).result as { id: string; revision: number };
+    const created = (await mutateClinicAction(other.owner, { action: 'improvement.create',
+      title: 'Review the synthetic staff correction', classification: 'APPROPRIATE_CORRECTION',
+      evidenceAdjustmentIds: [adjustment.id], configurationVersionId: other.configurationId,
+      notes: 'Synthetic evidence, not a live model or a clinical policy change.' })).result as { id: string };
+    const snapshot = async () => {
+      const [proposal, target, active] = await Promise.all([
+        db.improvementProposal.findUniqueOrThrow({ where: { id: created.id } }),
+        db.clinicConfigurationVersion.findUniqueOrThrow({ where: { id: draft.id } }),
+        db.clinicConfigurationVersion.findUniqueOrThrow({ where: { id: other.configurationId } }),
+      ]);
+      return { proposal, target, active };
+    };
+    const proposed = await snapshot();
+    assert.equal(proposed.proposal.tenantId, other.owner.tenantId);
+    assert.equal(proposed.proposal.userId, other.owner.userId);
+    assert.equal(proposed.proposal.configurationVersionId, other.configurationId);
+    assert.equal(proposed.proposal.classification, 'APPROPRIATE_CORRECTION');
+    assert.equal(proposed.proposal.status, 'PROPOSED');
+    assert.deepEqual(proposed.proposal.evidence, expectedEvidence);
+    assert.deepEqual(proposed.proposal.proposedPayload, originalActive.payload);
+    assert.deepEqual(proposed.proposal.tests, []);
+    assert.equal(proposed.proposal.reviewedById, null);
+    assert.equal(proposed.proposal.activatedVersionId, null);
+    const classified = await db.consultationAdjustment.findUniqueOrThrow({ where: { id: adjustment.id } });
+    assert.equal(classified.ownerClassification, 'APPROPRIATE_CORRECTION');
+    assert.equal(classified.ownerReviewedById, other.owner.userId);
+    assert.ok(classified.ownerReviewedAt && Number.isFinite(classified.ownerReviewedAt.getTime()));
+    assert.deepEqual({ ...classified, ownerClassification: adjustment.ownerClassification,
+      ownerReviewedById: adjustment.ownerReviewedById, ownerReviewedAt: adjustment.ownerReviewedAt }, adjustment);
+    assert.deepEqual(proposed.active, originalActive);
+
+    await mutateClinicAction(other.owner, { action: 'improvement.review', improvementId: created.id,
+      decision: 'REJECTED', notes: 'Synthetic owner rejection before evaluating the saved draft.' });
+    const rejected = await snapshot();
+    assert.equal(rejected.proposal.status, 'REJECTED');
+    assert.equal(rejected.proposal.reviewedById, other.owner.userId);
+    assert.ok(rejected.proposal.reviewedAt && Number.isFinite(rejected.proposal.reviewedAt.getTime()));
+    for (const action of [
+      { action: 'improvement.test', improvementId: created.id, configurationVersionId: draft.id,
+        expectedVersion: draft.revision, summary: reviewedSummary, notes: 'Rejected proposals cannot save evaluations.' },
+      { action: 'improvement.activate', improvementId: created.id, configurationVersionId: draft.id,
+        expectedVersion: draft.revision, approvedTestIds: [randomUUID()] },
+    ]) {
+      await assert.rejects(mutateClinicAction(other.owner, action), (error: unknown) =>
+        error instanceof ApiError && error.status === 409 && error.code === 'IMPROVEMENT_REJECTED');
+      assert.deepEqual(await snapshot(), rejected);
+    }
+    await mutateClinicAction(other.owner, { action: 'improvement.review', improvementId: created.id,
+      decision: 'APPROVED', notes: 'Synthetic owner approval for the descriptive-only draft evaluation.' });
+    const approved = await snapshot();
+    assert.equal(approved.proposal.status, 'APPROVED');
+    assert.equal(approved.proposal.reviewedById, other.owner.userId);
+    assert.ok(approved.proposal.reviewedAt && Number.isFinite(approved.proposal.reviewedAt.getTime()));
+    assert.equal(approved.proposal.reviewNote, 'Synthetic owner approval for the descriptive-only draft evaluation.');
+    const reviewHistory = (await db.auditLog.findMany({ where: { tenantId: other.owner.tenantId,
+      entityType: 'ClinicConfigurationVersion', entityId: other.configurationId, action: 'SETTINGS_CHANGED' } })).flatMap(entry => {
+      const details = entry.details as { action?: string; improvementId?: string; decision?: string } | null;
+      return details?.action === 'IMPROVEMENT_REVIEWED' && details.improvementId === created.id
+        ? [{ decision: details.decision, userId: entry.userId, createdAt: entry.createdAt }] : [];
+    });
+    assert.deepEqual(reviewHistory.map(entry => entry.decision).sort(), ['APPROVED', 'REJECTED']);
+    assert.ok(reviewHistory.every(entry => entry.userId === other.owner.userId && Number.isFinite(entry.createdAt.getTime())));
+
+    const tested = (await mutateClinicAction(other.owner, { action: 'improvement.test', improvementId: created.id,
+      configurationVersionId: draft.id, expectedVersion: draft.revision, summary: reviewedSummary,
+      notes: 'Synthetic deterministic evaluation, not model inference.' })).result as {
+      configuration: { id: string; revision: number };
+      test: { id: string; summary: ConsultationSummary; approvedByOwner: boolean; initial: {
+        configurationVersionId: string; blocked: boolean; items: { productId: string; priceCents: number | null; currency: string }[] } };
+    };
+    assert.equal(tested.configuration.id, draft.id);
+    assert.notEqual(tested.test.id, '');
+    assert.deepEqual(tested.test.summary, reviewedSummary);
+    assert.equal(tested.test.initial.configurationVersionId, draft.id);
+    assert.equal(tested.test.initial.blocked, false);
+    assert.deepEqual(tested.test.initial.items.map(item => ({ productId: item.productId, priceCents: item.priceCents, currency: item.currency })),
+      [{ productId: 'fixture-iv', priceCents: 10000, currency: 'USD' }]);
+    assert.equal(tested.test.approvedByOwner, false);
+    const evaluated = await snapshot();
+    assert.equal(evaluated.target.status, 'TESTED');
+    assert.equal(evaluated.target.revision, tested.configuration.revision);
+    assert.deepEqual(evaluated.target.payload, proposedConfiguration);
+    assert.deepEqual(evaluated.target.tests, [normalized(tested.test)]);
+    assert.equal(evaluated.proposal.status, 'APPROVED');
+    assert.deepEqual(evaluated.proposal.proposedPayload, proposedConfiguration);
+    assert.deepEqual(evaluated.proposal.tests, [normalized(tested.test)]);
+    assert.deepEqual(evaluated.proposal.evidence, expectedEvidence);
+    assert.deepEqual(evaluated.active, originalActive);
+
+    const activated = (await mutateClinicAction(other.owner, { action: 'improvement.activate', improvementId: created.id,
+      configurationVersionId: draft.id, expectedVersion: tested.configuration.revision,
+      approvedTestIds: [tested.test.id] })).result as { id: string };
+    assert.equal(activated.id, draft.id);
+    const published = await snapshot();
+    assert.equal(published.proposal.status, 'ACTIVATED');
+    assert.equal(published.proposal.activatedVersionId, draft.id);
+    assert.deepEqual(published.proposal.evidence, expectedEvidence);
+    assert.deepEqual(published.proposal.proposedPayload, proposedConfiguration);
+    assert.deepEqual(published.proposal.tests, [normalized(tested.test)]);
+    assert.equal(published.proposal.reviewedById, approved.proposal.reviewedById);
+    assert.deepEqual(published.proposal.reviewedAt, approved.proposal.reviewedAt);
+    assert.equal(published.proposal.reviewNote, approved.proposal.reviewNote);
+    assert.equal(published.target.status, 'ACTIVE');
+    assert.equal(published.target.activatedById, other.owner.userId);
+    assert.equal(published.target.clinicalValidatedById, other.owner.userId);
+    assert.ok(published.target.activatedAt && Number.isFinite(published.target.activatedAt.getTime()));
+    assert.deepEqual(published.target.payload, proposedConfiguration);
+    assert.deepEqual(published.target.tests, [normalized({ ...tested.test, approvedByOwner: true })]);
+    await assert.rejects(mutateClinicAction(other.owner, { action: 'improvement.review', improvementId: created.id,
+      decision: 'REJECTED', notes: 'An activated proposal must preserve its finalized review.' }), (error: unknown) =>
+      error instanceof ApiError && error.status === 409 && error.code === 'IMMUTABLE_IMPROVEMENT');
+    assert.deepEqual(await snapshot(), published);
+  });
 });
