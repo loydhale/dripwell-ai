@@ -1,5 +1,11 @@
 # PRD_CHANGELOG.md
 
+## 2026-10-22, v2.0, MINOR TASK162 SELECTED-TEAM ACCESS RECOVERY
+
+Section8 factual checkpoint only. Record the fresh direct Owner recovery instruction, successful normal identity read versus selected-project403, corrected action-permission/OAuth distinction, inconclusive unreplayed CLI inspection and one real supported device sign-in challenge. The explicit login reached its original local trigger without observed authentication success/denial; actual process/session closure is within permitted cleanup grace, with no post-login project read. Actual-result PASS98e75f1b/typed339fcaac was genuinely adopted01:31:09UTC before distinct L-045 learning23d7c0ea/typed12305f21 and exact1601/703-byte appends. No authenticated project/model/provider or application completion is claimed. All requirements/prices/architecture/nine pilot criteria/twelve production gates and safeguards remain unchanged. Exact final documentary publication/readback is separate at this snapshot.
+Independent Auditor co-sign, 2026-10-22, /root/access162_auditor: MINOR factual section8 checkpoint accepted. Requirements, architecture, prices, eligibility and pilot/production gates are unchanged. This co-sign does not establish recovered account/project access, provider execution or pilot completion.
+
+
 ## 2026-10-12, v2.0, MINOR TASK095 MAINTAINED NATIVE UI FACTS
 
 Section8 factual checkpoint only, all12features/nine numbered criteria/architecture/prices/safeguards unchanged. Three-source maintained harness/sourceR1 review and one actual run are retained; native readinessFAILED/states0/PNGs0/causeUNKNOWN. Four gate/compiler/runtime/closure receipts have explicit source-enforced/raw limits; actual review LATE_UNAPPROVED/no timely acceptance. Count44 and all original closed scopes held. TASK096 next plans missing bounded token-free candidate/predicate diagnosis after exact factual closure/readback, no source/hour/runtime grant.
