@@ -1,0 +1,73 @@
+{
+  "schema": "DRIPWELL_TASK056_SCOPED_PROVENANCE_INDEX_EVIDENCE_V1",
+  "task": "TASK-056",
+  "status": "DONE_SCOPED",
+  "acceptedAtUtc": "2026-10-06T05:26:28.014351+00:00",
+  "source": {
+    "head": "834329e80eb35387a59e551c64b56b9ab96e1758",
+    "tree": "bfccf1d79f0d6475d322e3806815ff2460e83b6d",
+    "parent": "e919b3d3f38dc73f4ed9826b6a5de2b6f8f2ccd3",
+    "test": "apps/web/lib/recording-cleanup-pages.integration.test.ts",
+    "testSha256": "c166bc6b764f0feca9a0dfbd5c15bab1badf2c46d80259c1539e47a3327e8686",
+    "testGitBlob": "af185c10048a9856d0eb43cd912557fe92e9da27",
+    "retainedCaseBodies": 8,
+    "addedCase": "attributes duplicate immutable provenance independently of tenant path uniqueness",
+    "publishedLeaves": 419,
+    "approvedChangedPaths": 9,
+    "heldBaseLeaves": 410,
+    "sourcePrBodyBytes": 8568
+  },
+  "actualCI": {
+    "run": 37416931444,
+    "attempt": 1,
+    "event": "pull_request",
+    "jobAndCheck": 112117490427,
+    "suite": 101349670249,
+    "conclusion": "success",
+    "listedStagesSuccess": 22,
+    "reportedTestsPassed": 237,
+    "reportedTestsTotal": 237,
+    "reportedFilesPassed": 18,
+    "reportedFilesTotal": 18,
+    "cleanupFileReportedCases": 9,
+    "cleanupFileReportedMs": 2550,
+    "postgres": "17.11",
+    "freshMigrations": 14,
+    "compiledWorkflowSteps": 27,
+    "compiledWorkflows": 3,
+    "explicitSkipTotal": null,
+    "individualNewCaseTiming": null,
+    "innerLoopTotal": null,
+    "normalAppDecodedLogUtf8Bytes": 191005,
+    "normalAppDecodedLogSha256": "50512e31050c1541c5b13bb5a6061cabd1c3c636e898dfba87ba601f7ee6f287"
+  },
+  "independentActualReview": {
+    "verdict": "PASS_SCOPED_ACTUAL_PUBLICATION_AND_FIRST_CI",
+    "bytes": 22220,
+    "sha256": "631f471bc4f3541bc9b15ccf93b3a1be4085a69560218b549844673f7b4909a5",
+    "uniqueDirectInputs": 42,
+    "rootAcceptanceSha256": "4f1c408c985af436fdb31ea631db134fdce37ff2d0f819c402eacef7c2d67bb8"
+  },
+  "learning": {
+    "disposition": "NO_NEW_LEARNING",
+    "changeLogFragmentBytes": 647,
+    "sessionFragmentBytes": 529,
+    "applicationReceiptSha256": "28dfec693b010e704c3fb90ff3afba767e2068896888e8722aa5cc4b97d2b1e6",
+    "successfulTaskCount": 34,
+    "L035Seen": 5
+  },
+  "limits": [
+    "Source-bound owned case/hooks and disposable service only.",
+    "No independent global/shared/hosted zero-row census or physical deletion proof.",
+    "Direct synthetic source/target identity is not clinical ownership or adoption.",
+    "No new deployment, hosted cadence, model, commercial payment or full-pilot proof.",
+    "All twelve requirements/nine pilot criteria remain held."
+  ],
+  "heldDefaults": {
+    "allowRealClientData": false,
+    "recordingMaintenanceEnabled": false,
+    "protectedPreview": true,
+    "lastVerifiedPreviewSource": "80729f2f2352fa55b1e0ba911082ab52eeca8032",
+    "mainAndProductionSource": "9fa134fc9005dd0d5d351f14b35882d158dc1de4"
+  }
+}

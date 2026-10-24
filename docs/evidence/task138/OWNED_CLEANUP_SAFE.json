@@ -1,0 +1,55 @@
+{
+  "observations": [
+    {
+      "operation": "registered TERM dispatch",
+      "name": "adapter",
+      "status": "observed"
+    },
+    {
+      "operation": "registered TERM dispatch",
+      "name": "native-desktop",
+      "status": "observed"
+    },
+    {
+      "operation": "adapter",
+      "returncode": 0,
+      "group_absent": true,
+      "status": "observed"
+    },
+    {
+      "operation": "native-desktop",
+      "returncode": 0,
+      "group_absent": true,
+      "status": "observed"
+    },
+    {
+      "operation": "owned birth absence",
+      "status": "observed"
+    },
+    {
+      "operation": "owned birth absence",
+      "status": "observed"
+    },
+    {
+      "operation": "owned listener nonconnectable",
+      "status": "observed"
+    },
+    {
+      "operation": "owned listener nonconnectable",
+      "status": "observed"
+    },
+    {
+      "operation": "final owned-child absence",
+      "remaining": [],
+      "status": "observed"
+    }
+  ],
+  "compiler_children": [
+    {
+      "closed": true,
+      "code": 0,
+      "signal": null
+    }
+  ],
+  "cleanup_failures": []
+}

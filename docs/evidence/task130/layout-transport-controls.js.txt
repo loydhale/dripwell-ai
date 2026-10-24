@@ -1,0 +1,22 @@
+async function layoutTransportDeadlineControls(){
+  const cases=[];const check=async(name,mono,utc,wantDelay,expires=null,failure=null)=>{
+    let sends=0,cancels=0,delay=null;const handle={},marker={},primary=failure,secondary=new Error('Synthetic secondary sink');
+    const session={on(){},send(){sends++;if(primary)throw primary;return marker;}};
+    const acquisition=new DocumentAcquisition(session,'synthetic-owned','synthetic-current',()=>({session,target:'synthetic-owned',url:'synthetic-current'}),()=>{},()=>false,()=>false,()=>{if(primary)throw secondary;});
+    let result,error;try{result=await layoutTransport(acquisition,session,'DOM.getBoxModel',{},(_fn,ms)=>{delay=ms;if(expires==='mono')mono=0;if(expires==='utc')utc=0;return handle;},timer=>{need(timer===(delay===null?undefined:handle),'Actual timer handle');cancels++;},{remaining:()=>[mono,utc]});}catch(e){error=e;}
+    need(cancels===1&&delay===wantDelay,'Actual deadline/cancellation');
+    if(primary)need(error===primary&&sends===1&&acquisition.first==='DOM.getBoxModel failed','Original sender primary');
+    else if(mono<=0||utc<=0)need(error instanceof Error&&sends===0&&acquisition.first==='DOM.getBoxModel failed','Expired transport sent');
+    else need(!error&&result===marker&&sends===1&&acquisition.first===null,'Actual admitted sender');
+    cases.push(name);
+  };
+  await check('ordinary-local-cap',8000,9000,5000);
+  await check('short-monotonic-budget',23,9000,23);
+  await check('short-utc-budget',8000,17,17);
+  await check('expired-monotonic-zero-send',0,9000,null);
+  await check('expired-utc-zero-send',8000,0,null);
+  await check('deferred-monotonic-expiration',23,9000,23,'mono');
+  await check('deferred-utc-expiration',8000,17,17,'utc');
+  await check('original-sender-failure',8000,9000,5000,null,new Error('Synthetic original sender'));
+  record.layout_transport_deadline_controls={status:'PASS',count:cases.length,cases,provenance:'SYNTHETIC_ACTUAL_TRANSPORT_SENDER_SCHEDULER_CLOCK_LEAVES'};
+}

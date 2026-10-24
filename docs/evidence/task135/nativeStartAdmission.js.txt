@@ -1,0 +1,4 @@
+function nativeStartAdmission(monotonicRemainingMs,utcRemainingMs){
+  need([monotonicRemainingMs,utcRemainingMs].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=130000),'Before Start needs paired130s work');
+  return{minimumWorkMs:130000,monotonicRemainingMs:Math.floor(monotonicRemainingMs),utcRemainingMs:Math.floor(utcRemainingMs),rolloverLeaseMs:75000,initialReadinessReserveMs:5000,remainingPhasesReserveMs:50000};
+}

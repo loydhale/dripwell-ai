@@ -8,3 +8,13 @@ dist/
 .pnpm-store/
 .vercel/
 packages/shared/.env
+
+.next/
+.output/
+.eve/
+.workflow-data/
+apps/web/app/.well-known/workflow/
+*.tsbuildinfo
+.env.*
+!.env.example
+coverage/

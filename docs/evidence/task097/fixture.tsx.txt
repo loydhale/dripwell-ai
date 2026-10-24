@@ -1,0 +1,57 @@
+import { config as zodConfig } from 'zod';
+import { createContext, useContext } from 'react';
+import { createRoot } from 'react-dom/client';
+import '/workspace/dripwell-build/apps/web/app/globals.css';
+declare const __CAPTURE_SOURCE_SHA__: string;
+const state = (window as any).__CAPTURE__;
+export const BoundaryContext = createContext<any>(null);
+export function useBoundary() { const value = useContext(BoundaryContext); if (!value) throw new Error('Missing fictional context'); return value; }
+export function BoundaryProvider({ children }: any) { return children; }
+zodConfig({ jitless: true });
+void (async () => {
+  const shared = await import('/workspace/dripwell-build/packages/shared/src/v2/index.ts');
+  const { emptyConfiguration } = await import('/workspace/dripwell-build/apps/web/components/configuration-editor');
+  const { Consultation } = await import('/workspace/dripwell-build/apps/web/components/consultation');
+  const locationId = '77777777-7777-4777-8777-777777777701';
+  const configurationId = '77777777-7777-4777-8777-777777777703';
+  const id = '77777777-7777-4777-8777-777777777710';
+  const timestamp = '2026-10-11T12:00:00.000Z';
+  const configuration = emptyConfiguration('Fictional keyboard clinic');
+  configuration.questions = [{ id: 'synthetic-required', text: 'Fictional required question?', why: 'Synthetic keyboard fixture only.',
+    type: 'TEXT', required: true, safetyRelevant: true, priority: 1, options: [], activeWhen: [] }];
+  const visit: any = { id, reference: 'SYNTHETIC-KEYBOARD-VISIT', locationId, version: 1, stage: 'CONSULTATION_STARTED',
+    providerId: 'fictional-staff', providerName: 'Fictional Staff', isTest: true, configurationVersionId: configurationId,
+    consentAt: null, consentDeclined: true, summary: shared.emptyConsultationSummary(), transcript: [], initialRecommendation: null,
+    initialRevision: 0, clinicalApprovedVersion: null, clinicalApprovedAt: null,
+    actualCare: { outcome: 'NOT_STARTED', items: [], observations: '', reason: 'Fictional fixture only.',
+      membershipEnrolled: null, membershipProductId: null, servicePurchased: null, confirmedCollectedCents: null, currency: 'USD' },
+    careOutcome: 'NOT_STARTED', wellnessPlan: null, wellnessRevision: 0, wellnessApprovedVersion: null, wellnessApprovedAt: null,
+    wellnessDecision: null, wellnessDecisionRevision: null, archivedAt: null, archiveReason: null, createdAt: timestamp, updatedAt: timestamp };
+  const active = { id: configurationId, version: 1, revision: 1, status: 'ACTIVE', configuration, createdAt: timestamp };
+  const ledger: string[] = [];
+  const proof = document.createElement('pre'); proof.id = '__keyboard_fixture'; proof.hidden = true;
+  const reflect = () => { proof.textContent = JSON.stringify({ source: __CAPTURE_SOURCE_SHA__, version: visit.version,
+    initialRevision: visit.initialRevision, wellnessRevision: visit.wellnessRevision, ledger, jitless: zodConfig().jitless }); };
+  document.body.append(proof); reflect();
+  const deny = (reason: string): never => { state.fault(reason); throw new Error(reason); };
+  window.fetch = async (input, init) => {
+    if (state.failed) throw new Error(state.failed);
+    const url = new URL(input instanceof Request ? input.url : String(input), location.href);
+    const method = init?.method || (input instanceof Request ? input.method : 'GET');
+    const leaf = url.pathname + url.search;
+    if (method !== 'GET' || url.origin !== location.origin || ledger.includes(leaf)) deny('Denied fixture request');
+    const responses: Record<string, any> = { ['/api/clinic?id=' + id]: { consultation: visit, configuration },
+      ['/api/recordings?consultationId=' + id]: { recordings: [] } };
+    if (!Object.hasOwn(responses, leaf) || ledger.length >= 2) deny('Undeclared fixture request');
+    ledger.push(leaf); reflect();
+    return new Response(JSON.stringify(responses[leaf]), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  const data: any = { user: { id: 'fictional-staff', name: 'Fictional Staff', email: 'staff@example.invalid', role: 'PROVIDER', canApproveClinical: false },
+    clinic: { id: 'fictional-clinic', name: 'Fictional keyboard clinic' }, locations: [{ id: locationId, name: 'Fictional location' }],
+    configuration: { draft: null, active, versions: [active] }, consultations: [visit], staff: [], adjustments: [], notifications: [] };
+  const value: any = { data, loading: false, error: '', pageError: '', locationId, captureBusy: false, pathname: '/consultations/' + id,
+    mutate: async () => deny('Mutation denied'), refresh: async () => deny('Refresh denied'), loadMore: async () => deny('Pagination denied'),
+    selectLocation: async () => deny('Location change denied'), setCaptureBusy: () => deny('Recording denied'), navigate: () => deny('Navigation denied') };
+  const mount = document.getElementById('root'); if (!mount) deny('Missing mount');
+  createRoot(mount!).render(<BoundaryContext.Provider value={value}><Consultation id={id} /></BoundaryContext.Provider>);
+})().catch(error => state.fault(String(error)));

@@ -1,0 +1,24 @@
+# Recording-test recovery proposal
+
+Status: independently reviewed planning proposal, **waiting for the Owner to reopen this specific investigation**. No application execution or repair is authorized by this document. [Independent assessment](AUDIT_OWNER_HELP_RECONCILIATION.md).
+
+The Owner asks what help is needed and requests continued coding. AI account access, direct Resend/sender DNS access and a selected DripWell platform administrator remain the account prerequisites described in [owner setup actions](OWNER_SETUP_ACTIONS.md). Stripe sandbox account setup is complete. Spa catalogs, prices and clinical reviewers belong to spa onboarding. The recording failure is our engineering responsibility.
+
+Current reviewed application source is `9bd84b46`; the completed documentary checkpoint is `6132d142`. Its first ordinary [CI38080612363](https://github.com/loydhale/dripwell-ai/actions/runs/38080612363) failed the existing recording-exhaustion test: 11 completed publication bodies and rollbacks, with one injected failure remaining, versus required 12/12/0. It committed nothing. The first unexpected P2034 occurred at `CONSULTATION_WRITE/DELEGATE_ASYNC` after `REVISION_WRITE`. This metadata does not establish the SQL cause. The five new care-form cases, builds/types and separate Node suites passed. Whole CI and TASK073 remain incomplete.
+
+The independent source-only check of related InitialReview/Wellness reload paths found that each already refreshes every saved field it submits. It identified no necessary patch. This is a limited static assessment, not new runtime verification or pilot completion.
+
+## Decision needed
+
+Reopen **only the current recording-exhaustion investigation**, for one new allocation of at most **60 active minutes** on a fresh isolated synthetic target. Keep all historical TASK052/TASK061R1/TASK064/TASK066 allocations, retained targets/processes/cache and the separate TASK057 release hold closed. This does not start or refill the seven service/gate budgets.
+
+The saved queue explicitly says, “No automatic rerun, correction or old scope refill is admitted.” It also holds new diagnostics, cache generation and CI reruns. The Owner made that queue authoritative. The [one-hour budgets](BLOCKER_TIME_BUDGETS.md) require existing authority before execution and preserve spent attempts. The independent review therefore requires this narrow reopening; general continuation has not silently refilled the allocation.
+
+## Plan after that decision
+
+1. Record the changed authority and prepare a concrete Coder brief. Pin the current source, exact failed case, installed dependency/tool versions, one owned fresh PostgreSQL target, private runtime/output paths, original-rejection capture, process closure and compensation. Split work into Coder phases of at most 15 model minutes under the single 60-active-minute ceiling. Obtain independent admission before effects.
+2. Prepare only the new disposable synthetic target and runtime copy. Apply reviewed migrations once to that new target. Existing package versions do not prove a current generated client. If generation is necessary, expressly confine it to the fresh copy and verify that resolved output paths cannot reach the repository/shared generated cache or retained target. Require ownership and teardown plans first. Stop if this isolation cannot be established with pinned installed dependencies; no dependency install or download is inherited.
+3. Run exactly one targeted reproduction. Define useful first-rejection observability before entry, limited to the new owned target. Capture the actual native exit, case result, available original operation/SQLSTATE/constraint/cause, process closure and compensation without credentials or unowned payloads. A pass, absent useful cause, setup or closure failure, or elapsed allocation stops the lane with that limited result. No repeat to obtain a preferred result.
+4. Admit a correction only if the evidence demonstrates a necessary fix. The concrete patch and meaningful regression plan may touch at most three source paths, within the remaining allocation. Preserve the twelve-attempt, no-commit, provider, tenant and cleanup assertions. Coder implementation and independent source review precede publication to the existing review branch/PR2. A relevant reviewed change may run its first ordinary CI; independent actual-result review, distinct learning and STATE/CHANGELOG updates follow.
+
+This proposal leaves all nine PRD section 8 criteria and production gates intact. Protected previews, requested `ALLOW_REAL_CLIENT_DATA=false` and default-disabled maintenance remain. Current deployed source and effective hosted safeguards are unverified. It grants no release-helper execution/repair/replacement, purchase, provider switch, administrator bootstrap, real-data use or outbound email/message. An unreproduced failure or unsupported repair remains a parked engineering outcome, not completion.

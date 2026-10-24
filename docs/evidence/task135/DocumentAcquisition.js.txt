@@ -1,0 +1,44 @@
+class DocumentAcquisition {
+  constructor(session, target, url, current, transport, terminal, intentionalClose, failure, observation = null) {
+    this.session = session; this.target = target; this.url = url; this.current = current; this.transport = transport;
+    this.terminal = terminal; this.failure = failure; this.bound = null; this.first = null;
+    session.on('DOM.documentUpdated', () => {
+      if (this.bound) {
+        const firstAttempt = observation ? observation.receipt.begin() : false;
+        try { this.stop('Bound document invalidated'); }
+        finally { if(firstAttempt) { try { observation.receipt.finish(this, observation.owner, observation.state); } catch {} } }
+      }
+    });
+    session.on('close', () => { if (!intentionalClose()) this.stop('Owned session closed'); });
+  }
+  stop(reason) { if (this.first === null) { this.first = reason; this.failure(reason); } }
+  reject(reason) { this.stop(reason); throw new Error(this.first); }
+  check() {
+    guard();
+    if (this.first !== null) throw new Error(this.first);
+    if (this.terminal()) this.reject('Terminal document boundary');
+    const current = this.current();
+    if (current.session !== this.session || current.target !== this.target || current.url !== this.url) this.reject('Foreign document binding');
+  }
+  async request(method, params = {}) {
+    this.check();
+    try { const response = await this.transport(method, params); this.check(); return response; }
+    catch (error) { this.stop('Document native command failed'); throw error; }
+  }
+  handle(node) {
+    this.check();
+    if (!node || !Number.isSafeInteger(node.nodeId) || node.nodeId <= 0 || !Number.isSafeInteger(node.backendNodeId) || node.backendNodeId <= 0) this.reject('Unknown native document handle');
+  }
+  async tree() {
+    const described = this.bound !== null;
+    const reply = await this.request(described ? 'DOM.describeNode' : 'DOM.getDocument', described ? { nodeId: this.bound.nodeId, depth: -1, pierce: false } : { depth: -1, pierce: false });
+    const root = described ? reply.node : reply.root; this.handle(root);
+    if (root.nodeType !== 9) this.reject('Native root is not a document');
+    if (described && (root.nodeId !== this.bound.nodeId || root.backendNodeId !== this.bound.backendNodeId)) this.reject('Bound document identity changed');
+    return root;
+  }
+  complete(root) {
+    this.check();
+    if (this.bound === null) this.bound = { nodeId: root.nodeId, backendNodeId: root.backendNodeId, nodeType: root.nodeType };
+  }
+}

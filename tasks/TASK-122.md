@@ -1,0 +1,7 @@
+# TASK122: Native synthetic-device recording success
+
+Implement the independently approved TASK119 proposal in exactly three private verifier files. SOURCE_GO.json is the concrete source-only authority; source, command and a later once grant remain separate. Keep the original AudioRecorder/Consultation imports and six-field multipart. Verify real native media and the disclosed local503/retry/discard boundary only. Provider, actual storage/transcription, physical performance and full pilot remain unverified.
+
+Preserve the Auditor clarification: idle capture may retain unsaved captureBusy; recorder Start is disabled only by actual consent. Preserve native constructor/prototype-object/static identity while explicitly disclosing changed wrapped-method reflection and proving same original receiver/argument references/result/throw and passive observer-fault safety. Browser microphone GRANTED permission must bind both exact owned origins/defaultownedcontext, with documented synthetic device and no broad flag/profile/protection bypass. Native stream/chunks/sourceFile hash, drain, pause/resume/stop and tracks-ended evidence must come from original methods/events, not mocked leaf output.
+
+Return exact three-source hashes/canonical paths/modes, real added+deleted unified-diff counts <=500 each, one proposed exact command and typed inputs/limits; do not import/parse/check/compile/launch. Old passing batches stay inert. Independent source-command PASS, Root genuine and separate bounded native once precede any execution.

@@ -1,0 +1,57 @@
+{
+  "task": "TASK135_FULL_ACTUAL_SIX_ASSERTION_RESULT_UPTAKE",
+  "disposition": "PASS_SIX_SOURCE_BOUND_SYNTHETIC_ASSERTIONS_RECORDED_CLOSURE_ONLY",
+  "genuinely_adopted_utc": "2026-10-14T04:56:29.093433+00:00",
+  "original_total_until": "2026-10-14T05:00:00+00:00",
+  "report": {
+    "path": "/workspace/pw135-final-send-regression/ACTUAL_RESULT_AUDIT.md",
+    "canonical": "/workspace/pw135-final-send-regression/ACTUAL_RESULT_AUDIT.md",
+    "bytes": 4485,
+    "sha256": "6bbe63f8f3b7c5bfe28594c70ad1e232a867e490220e95ffce8a31984c1c2cdf",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw135-final-send-regression/ACTUAL_RESULT_AUDIT_PINS.json",
+    "canonical": "/workspace/pw135-final-send-regression/ACTUAL_RESULT_AUDIT_PINS.json",
+    "bytes": 11993,
+    "sha256": "67022afdf50227afc4e0e3d6328f7e6b1147502bb327cad70306a0656660f518",
+    "mode": "0400"
+  },
+  "proof": {
+    "path": "/workspace/pw135-final-send-regression/ACTUAL_RECONCILIATION_PROOF.json",
+    "canonical": "/workspace/pw135-final-send-regression/ACTUAL_RECONCILIATION_PROOF.json",
+    "bytes": 5635,
+    "sha256": "2a82cc0683415ccf2383a6ccfd7d7a95288412c09afa153866cc821d6ec00d2a",
+    "mode": "0400"
+  },
+  "safe_result": {
+    "path": "/workspace/pw135-final-send-regression/SAFE_ACTUAL_RESULT.json",
+    "canonical": "/workspace/pw135-final-send-regression/SAFE_ACTUAL_RESULT.json",
+    "bytes": 5497,
+    "sha256": "32f273668c8d34249676a2786e46af45ff18abe93438ed61402d54d683f04ea1",
+    "mode": "0400"
+  },
+  "safe_derivation": {
+    "path": "/workspace/pw135-final-send-regression/SAFE_ACTUAL_DERIVATION.json",
+    "canonical": "/workspace/pw135-final-send-regression/SAFE_ACTUAL_DERIVATION.json",
+    "bytes": 3804,
+    "sha256": "a50b68e618f6b544159da0b6d878d64bda0baa6fa57841fe4773fbeac03d075d",
+    "mode": "0400"
+  },
+  "full_report_proof_derivation_read": true,
+  "actual_typed_raw_verified": 18,
+  "exact_safe_30_values_and_child_copy_verified": true,
+  "actual_case_names": [
+    "timely-original-prepared-send",
+    "aged-monotonic-zero-final-send",
+    "aged-utc-zero-final-send",
+    "pre-release-monotonic-keeps-prior-press",
+    "pre-release-utc-keeps-prior-press",
+    "original-prepared-sender-error"
+  ],
+  "runner_elapsed_seconds": 0.04078565794043243,
+  "child_elapsed_ms": 5.942170999999998,
+  "tool_wall_seconds": 0.112698566,
+  "basis": "Full4485 independent actual report,5635 saved parity proof,3804 derivation/current18 raw identities accepted. Actual terminal exit0/sticky firstnull/cleanup[] and recorded child0-groupabsence true agree; raw pending status preserved in exact safe projection. No target replay or live probe.",
+  "limits": "Six synthetic assertions only; native defaultowner/clocks/recording/transcription/model/clinicfullstory unverified. Outerterminalstderr not separately supplied. Old133native0/134publicationclosed/old8-69/all9/count52-Seen/privacy/protectedfalse/defaultdisabled/hostedUNKNOWN/external/ICM held. Distinct learning/STATE-CHANGELOG and separately reviewed136 publication remain."
+}

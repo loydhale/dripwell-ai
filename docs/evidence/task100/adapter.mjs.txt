@@ -1,0 +1,604 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import http from 'node:http';
+import cp from 'node:child_process';
+import Module, { createRequire, isBuiltin } from 'node:module';
+const require = createRequire(import.meta.url);
+const base = '/workspace/pw100', app = '/workspace/dripwell-build';
+const run = process.argv[2];
+if (!run?.startsWith(base + '/run-') || path.resolve(run) !== run) throw new Error('Fresh run path required');
+const hash = body => crypto.createHash('sha256').update(body).digest('hex');
+const frozen = p => { if (fs.realpathSync(p) !== p || (fs.statSync(p).mode & 511) !== 256) throw new Error('Nonfrozen input'); return fs.readFileSync(p); };
+const ctx = JSON.parse(frozen(run + '/context.json'));
+const inputsBody = frozen(base + '/INPUTS.json'), sourcesBody = frozen(base + '/SOURCE_PINS.json');
+if (hash(inputsBody) !== ctx.input_sha || hash(sourcesBody) !== ctx.source_sha) throw new Error('Context input binding');
+const inputs = JSON.parse(inputsBody), sourcePins = JSON.parse(sourcesBody);
+for (const item of sourcePins.files) { const b = frozen(item.path); if (b.length !== item.bytes || hash(b) !== item.sha256) throw new Error('Source changed'); }
+const roots = Object.values(inputs.declared_readonly_package_roots).map(x => x.canonical);
+const sdkRoot = inputs.SDK_prospective_readonly_root.canonical;
+const exact = new Map(Object.entries(inputs.compiled_application_inputs));
+for (const item of sourcePins.files) exact.set(item.path, item);
+const library = app + '/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js';
+const nativeBuild = app + '/node_modules/.pnpm/@esbuild+linux-x64@0.25.12/node_modules/@esbuild/linux-x64/bin/esbuild';
+const started = performance.now(), workEnd = started + Math.max(0, Date.parse(ctx.work_end_utc) - Date.now());
+const record = { status: 'FAILED', source_sha: ctx.source_sha, states: [], images: [], requests: [], compiled_inputs: [], runtime_modules: [], children: [] };
+let browser, server, sdkSession, binding, firstError = null, cleanupStarted = false;
+const journal = run + '/events.ndjson';
+function emit(value) { fs.appendFileSync(journal, JSON.stringify(value) + '\n', { mode: 0o600 }); }
+function firstFailure(current, reason, secret) { return current === null ? String(reason).replaceAll(secret, '[REDACTED]') : current; }
+function fail(reason) { if (firstError === null) { firstError = firstFailure(firstError, reason, ctx.token); record.first_failure = firstError; emit({ first_failure: firstError }); } }
+function need(ok, reason) { if (!ok) throw new Error(reason); }
+function identity(pid) { const body = fs.readFileSync('/proc/' + pid + '/stat', 'utf8'); const f = body.slice(body.lastIndexOf(')') + 2).trim().split(/\s+/); return { pid, ppid: Number(f[1]), pgid: Number(f[2]), birth: f[19] }; }
+function guard() {
+  need(firstError === null, 'Sticky first failure');
+  need(performance.now() < workEnd && Date.now() < Date.parse(ctx.work_end_utc), 'Owned work lease expired');
+  const owner = identity(ctx.supervisor.pid); need(owner.birth === ctx.supervisor.birth, 'Supervisor birth changed');
+  if (binding) { const native = identity(binding.native.pid); need(native.birth === binding.native.birth && native.pgid === binding.native.pgid, 'Native ownership changed'); }
+}
+async function bounded(label, action, milliseconds = 5000, closing = false) {
+  if (!closing) guard();
+  let timer;
+  try { return await Promise.race([Promise.resolve().then(action), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(label + ' timeout')), milliseconds); })]); }
+  catch { if (!closing) fail(label + ' failed'); throw new Error(label + ' failed'); }
+  finally { clearTimeout(timer); }
+}
+class ActionGate {
+  constructor(expected, deadline, terminal) { this.expected = expected; this.deadline = deadline; this.terminal = terminal; this.first = null; }
+  check(actual, now) {
+    if (this.first) throw new Error(this.first);
+    if (this.terminal()) this.first = 'Terminal action boundary';
+    else if (!(now < this.deadline)) this.first = 'Expired action lease';
+    else if (actual !== this.expected) this.first = 'Foreign action binding';
+    if (this.first) throw new Error(this.first);
+  }
+  async send(actual, now, action) { this.check(actual, now); return action(); }
+}
+async function focusedControls() {
+  const cases = [];
+  for (const reason of ['binding', 'deadline', 'terminal']) {
+    let sent = 0, terminal = reason === 'terminal'; const gate = new ActionGate('owned', 10, () => terminal);
+    try { await gate.send(reason === 'binding' ? 'foreign' : 'owned', reason === 'deadline' ? 10 : 0, async () => sent++); } catch {}
+    const first = gate.first; terminal = false;
+    try { await gate.send('owned', 0, async () => sent++); } catch {}
+    need(first && first === gate.first && sent === 0, 'Composed action control failed'); cases.push(reason + '-then-zero-key-send');
+  }
+  const gate = new ActionGate('owned', 10, () => false); let sent = 0; await gate.send('owned', 0, async () => sent++);
+  need(sent === 1, 'Valid action gate failed'); cases.push('valid-action-binding');
+  return { scope: 'NEW_MAINTAINED_ACTION_GATE_ONLY', count: cases.length, cases };
+}
+const runtimeAllow = candidate => candidate === library || candidate.startsWith(sdkRoot + '/') || roots.some(r => candidate.startsWith(r + '/'));
+const load = Module._load;
+Module._load = function(request, parent, main) {
+  if (!isBuiltin(request)) {
+    const resolved = Module._resolveFilename(request, parent, main); const canonical = fs.realpathSync(resolved);
+    need(runtimeAllow(canonical), 'Undeclared runtime module before load');
+    const body = fs.readFileSync(canonical); const declared = inputs.sdk_entry_descriptors.find(x => x.canonical === canonical) || inputs.explicit_tool_docs_binary_inputs[canonical]; need(!declared || (body.length === declared.bytes && hash(body) === declared.sha256), 'Declared runtime module changed before load'); record.runtime_modules.push({ path: canonical, bytes: body.length, sha256: hash(body) });
+  }
+  return load.apply(this, arguments);
+};
+const spawn = cp.spawn;
+const compilerChildren = [];
+cp.spawn = (command, args, options) => {
+  need(fs.realpathSync(command) === fs.realpathSync(nativeBuild) && args.join('|') === '--service=0.25.12|--ping' && !options?.detached && !compilerChildren.length, 'Unexpected adapter child');
+  const child = spawn(command, args, options);
+  const item = { pid: child.pid, expected_pgid: process.pid, closed: false, code: null, signal: null };
+  compilerChildren.push({ child, item, close: new Promise((resolve, reject) => { child.once('error', reject); child.once('close', (code, signal) => { Object.assign(item, { closed: true, code, signal }); resolve(); }); }) });
+  return child;
+};
+const authorize = p => exact.has(p) || roots.some(r => p.startsWith(r + '/'));
+function resolveFile(candidate) {
+  const suffix = path.extname(candidate);
+  for (const p of [candidate, ...(suffix ? [] : ['.tsx', '.ts', '.js', '.json'].map(x => candidate + x)), ...(suffix === '.js' ? [candidate.slice(0, -3) + '.ts'] : [])]) {
+    if (!authorize(p) || !fs.existsSync(p)) continue;
+    const canonical = fs.realpathSync(p); need(authorize(canonical), 'Compiled symlink escape'); return canonical;
+  }
+  throw new Error('Missing or undeclared compiled input');
+}
+const packages = Object.fromEntries(roots.map(r => [path.basename(r), r]));
+const entry = base + '/fixture.tsx', actualContext = app + '/apps/web/components/clinic-context.tsx';
+const virtual = {
+  context: `export * from 'dripwell:actual-context';export {useBoundary as useClinic,BoundaryProvider as ClinicProvider} from '${entry}';`,
+  navigation: `import {useBoundary} from '${entry}';export function usePathname(){return useBoundary().pathname;}export function useRouter(){return {push:useBoundary().navigate};}`,
+  link: `import {createElement} from 'react';import {useBoundary} from '${entry}';export default function Link({href,onClick,children,...props}){const b=useBoundary();return createElement('a',{...props,href,onClick:e=>{onClick?.(e);if(!e.defaultPrevented){e.preventDefault();b.navigate(href);}}},children);}`,
+  audio: `import {createElement} from 'react';export function AudioRecorder(){return createElement('div',{'data-testid':'inert-recorder'},'Synthetic recording boundary');}`,
+  segments: 'export function RecordingSegments(){return null;}'
+};
+const bare = { react: packages.react + '/index.js', 'react/jsx-runtime': packages.react + '/jsx-runtime.js', 'react/jsx-dev-runtime': packages.react + '/jsx-dev-runtime.js', 'react-dom': packages['react-dom'] + '/index.js', 'react-dom/client': packages['react-dom'] + '/client.js', scheduler: packages.scheduler + '/index.js', zod: packages.zod + '/index.js' };
+const plugin = { name: 'canonical-allow-before-read', setup(build) {
+  build.onResolve({ filter: /.*/ }, args => {
+    if (args.path === 'dripwell:actual-context') return { path: actualContext };
+    if (args.path === 'next/link') return { path: 'link', namespace: 'fixture' };
+    if (args.path === 'next/navigation') return { path: 'navigation', namespace: 'fixture' };
+    if (args.path === '@dripwell/shared/v2') return { path: resolveFile(app + '/packages/shared/src/v2/index.ts') };
+    if (Object.hasOwn(bare, args.path)) return { path: resolveFile(bare[args.path]) };
+    need(args.path.startsWith('.') || path.isAbsolute(args.path), 'Undeclared bare import');
+    const p = path.resolve(args.resolveDir || base, args.path);
+    if (p === actualContext || p === actualContext.slice(0, -4)) return { path: 'context', namespace: 'fixture' };
+    for (const [name, leaf] of [['audio', 'audio-recorder'], ['segments', 'recording-segments']]) if (p === app + '/apps/web/components/' + leaf || p === app + '/apps/web/components/' + leaf + '.tsx') return { path: name, namespace: 'fixture' };
+    return { path: resolveFile(p) };
+  });
+  build.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ contents: virtual[args.path], loader: 'jsx', resolveDir: base }));
+  build.onLoad({ filter: /.*/, namespace: 'file' }, args => {
+    need(authorize(args.path), 'Compiled read denied'); const canonical = fs.realpathSync(args.path); need(authorize(canonical), 'Canonical compiled read denied');
+    const body = fs.readFileSync(canonical), pin = exact.get(canonical);
+    need(!pin || (body.length === pin.bytes && hash(body) === pin.sha256), 'Compiled input changed');
+    record.compiled_inputs.push({ path: canonical, bytes: body.length, sha256: hash(body) });
+    const loader = { '.tsx': 'tsx', '.ts': 'ts', '.js': 'js', '.mjs': 'js', '.cjs': 'js', '.json': 'json', '.css': 'css' }[path.extname(canonical)];
+    need(loader, 'Undeclared loader'); return { contents: body.toString(), loader, resolveDir: path.dirname(canonical) };
+  });
+} };
+const send = async (method, params = {}) => bounded(method, () => sdkSession.send(method, params));
+const ids = ['intake', 'recommendation', 'care', 'wellness', 'history'];
+const labels = ['Conversation & facts', 'Review & approve', 'Actual care', 'Wellness & sharing', 'Change history'];
+let documentAcquisition;
+class DocumentAcquisition {
+  constructor(session, target, url, current, transport, terminal, intentionalClose, failure) {
+    this.session = session; this.target = target; this.url = url; this.current = current; this.transport = transport;
+    this.terminal = terminal; this.failure = failure; this.bound = null; this.first = null;
+    session.on('DOM.documentUpdated', () => { if (this.bound) this.stop('Bound document invalidated'); });
+    session.on('close', () => { if (!intentionalClose()) this.stop('Owned session closed'); });
+  }
+  stop(reason) { if (this.first === null) { this.first = reason; this.failure(reason); } }
+  reject(reason) { this.stop(reason); throw new Error(this.first); }
+  check() {
+    if (this.first !== null) throw new Error(this.first);
+    if (this.terminal()) this.reject('Terminal document boundary');
+    const current = this.current();
+    if (current.session !== this.session || current.target !== this.target || current.url !== this.url) this.reject('Foreign document binding');
+  }
+  async request(method, params = {}) {
+    this.check();
+    try { const response = await this.transport(method, params); this.check(); return response; }
+    catch (error) { this.stop('Document native command failed'); throw error; }
+  }
+  handle(node) {
+    this.check();
+    if (!node || !Number.isSafeInteger(node.nodeId) || node.nodeId <= 0 || !Number.isSafeInteger(node.backendNodeId) || node.backendNodeId <= 0) this.reject('Unknown native document handle');
+  }
+  async tree() {
+    const described = this.bound !== null;
+    const reply = await this.request(described ? 'DOM.describeNode' : 'DOM.getDocument', described ? { nodeId: this.bound.nodeId, depth: -1, pierce: false } : { depth: -1, pierce: false });
+    const root = described ? reply.node : reply.root; this.handle(root);
+    if (root.nodeType !== 9) this.reject('Native root is not a document');
+    if (described && (root.nodeId !== this.bound.nodeId || root.backendNodeId !== this.bound.backendNodeId)) this.reject('Bound document identity changed');
+    return root;
+  }
+  complete(root) {
+    this.check();
+    if (this.bound === null) this.bound = { nodeId: root.nodeId, backendNodeId: root.backendNodeId, nodeType: root.nodeType };
+  }
+}
+async function snapshot(acquisition = documentAcquisition) {
+  const root = await acquisition.tree();
+  const pending = [root], elements = new Map(); let count = 0, question = false, recorder = false;
+  while (pending.length) {
+    const node = pending.pop(); need(++count <= 4096, 'DOM node bound');
+    const raw = node.attributes || []; need(raw.length % 2 === 0, 'DOM attribute shape'); const attrs = Object.fromEntries(raw.filter((_, i) => i % 2 === 0).map((k, i) => [k, raw[i * 2 + 1]]));
+    if (attrs.id) elements.set(attrs.id, { node, attrs });
+    question ||= (attrs.class || '').split(' ').includes('question-row'); recorder ||= attrs['data-testid'] === 'inert-recorder';
+    pending.push(...(node.children || []));
+  }
+  if (!ids.every(id => elements.has('tab-' + id) && elements.has('panel-' + id)) || !elements.has('__keyboard_fixture')) { acquisition.check(); if (acquisition.bound) acquisition.reject('Bound snapshot incomplete'); return null; }
+  const tabs = [], panels = [];
+  for (const [index, id] of ids.entries()) {
+    const { node, attrs } = elements.get('tab-' + id); acquisition.handle(node); const axNodes = (await acquisition.request('Accessibility.getPartialAXTree', { nodeId: node.nodeId, fetchRelatives: false })).nodes;
+    const ax = axNodes.find(n => n.backendDOMNodeId === node.backendNodeId); need(ax?.role?.value === 'tab' && ax.name?.value === labels[index], 'AX identity/role/name mismatch');
+    const props = Object.fromEntries((ax.properties || []).map(x => [x.name, x.value.value]));
+    tabs.push({ id, node: node.nodeId, controls: attrs['aria-controls'], tabindex: attrs.tabindex, selected: attrs['aria-selected'], focused: props.focused || false, ax_selected: props.selected || false });
+    const panel = elements.get('panel-' + id); panels.push({ id, hidden: Object.hasOwn(panel.attrs, 'hidden'), children: panel.node.childNodeCount || 0, labelledby: panel.attrs['aria-labelledby'] });
+  }
+  const proofNode = elements.get('__keyboard_fixture').node; acquisition.handle(proofNode);
+  const markup = (await acquisition.request('DOM.getOuterHTML', { nodeId: proofNode.nodeId })).outerHTML;
+  const result = { tabs, panels, question, recorder, proof: JSON.parse(markup.slice(markup.indexOf('>') + 1, markup.lastIndexOf('</pre>'))) };
+  acquisition.complete(root); return result;
+}
+const checkNames = ['state-present', 'intake-leaves', ...ids.flatMap(id => ['relation', 'tabindex', 'AX-focus', 'DOM-selected', 'AX-selected', 'panel-hidden', 'child-presence'].map(n => id + ':' + n)), 'raw-repeat'];
+const bool = value => typeof value === 'boolean' ? value : 'INVALID';
+const enumValue = (value, allowed) => allowed.includes(value) ? value : 'UNLISTED';
+const ordinal = value => Number.isSafeInteger(value) && value >= 1 && value <= 512 ? value : 'LIMIT';
+function collectCandidate(state, focus, selected, poll) {
+  const checks = Object.fromEntries(checkNames.map(n => [n, 'SKIPPED']));
+  const item = { poll: ordinal(poll), candidate: state ? 'COMPLETE' : 'NULL', question: state ? bool(state.question) : false, recorder: state ? bool(state.recorder) : false, tabs: [], checks };
+  if (!state) return item;
+  need(ids.includes(focus) && ids.includes(selected) && Array.isArray(state.tabs) && Array.isArray(state.panels) && state.tabs.length === 5 && state.panels.length === 5, 'DIAGNOSTIC_SCHEMA');
+  for (const [i, id] of ids.entries()) {
+    const tab = state.tabs[i], panel = state.panels[i]; need(tab?.id === id && panel?.id === id, 'DIAGNOSTIC_SCHEMA');
+    item.tabs.push({ id, controls_match: tab.controls === 'panel-' + id, labelledby_match: panel.labelledby === 'tab-' + id,
+      tabindex: enumValue(tab.tabindex, ['0', '-1']), selected: enumValue(tab.selected, ['true', 'false']), focused: bool(tab.focused), ax_selected: bool(tab.ax_selected), hidden: bool(panel.hidden),
+      children: Number.isSafeInteger(panel.children) && panel.children >= 0 && panel.children <= 4096 ? panel.children : 'OUT_OF_RANGE' });
+  }
+  return item;
+}
+function matches(state, focus, selected, trace = (_name, value) => value) {
+  if (!trace('state-present', Boolean(state)) || (selected === 'intake' && !trace('intake-leaves', Boolean(state.question && state.recorder)))) return false;
+  return state.tabs.every((tab, i) => { const panel = state.panels[i]; need(trace(tab.id + ':relation', tab.controls === 'panel-' + tab.id && panel.labelledby === 'tab-' + tab.id), 'Reciprocal relation changed');
+    return trace(tab.id + ':tabindex', tab.tabindex === (tab.id === focus ? '0' : '-1')) && trace(tab.id + ':AX-focus', tab.focused === (tab.id === focus)) && trace(tab.id + ':DOM-selected', tab.selected === (tab.id === selected ? 'true' : 'false')) && trace(tab.id + ':AX-selected', tab.ax_selected === (tab.id === selected)) && trace(tab.id + ':panel-hidden', panel.hidden === (panel.id !== selected)) && trace(tab.id + ':child-presence', (panel.children > 0) === (panel.id === selected)); });
+}
+const tabKeys = ['id', 'node', 'controls', 'tabindex', 'selected', 'focused', 'ax_selected'], panelKeys = ['id', 'hidden', 'children', 'labelledby'];
+const proofKeys = ['source', 'version', 'initialRevision', 'wellnessRevision', 'ledger', 'jitless'];
+const memberPaths = [['question'], ['recorder'], ...ids.flatMap((_id, i) => tabKeys.map(k => ['tabs', i, k])), ...ids.flatMap((_id, i) => panelKeys.map(k => ['panels', i, k])), ...proofKeys.filter(k => k !== 'ledger').map(k => ['proof', k]), ['proof', 'ledger', 'length'], ['proof', 'ledger', 0], ['proof', 'ledger', 1]];
+const memberNames = memberPaths.map(p => p.map((k, i) => typeof k === 'number' && i === 1 && ['tabs', 'panels'].includes(p[0]) ? ids[k] : k).join('.'));
+const orderNames = ['state', ...ids.map(id => 'tabs.' + id), ...ids.map(id => 'panels.' + id), 'proof'];
+const memberTypes = ['MISSING', 'NULL', 'BOOLEAN', 'INTEGER', 'NUMBER', 'STRING'], missing = Symbol('owned-missing');
+const memberStatuses = ['SKIPPED', 'NO_PREVIOUS', 'COMPARED', 'UNKNOWN_SHAPE', 'UNKNOWN_TYPE', 'UNKNOWN_BOUND', 'UNKNOWN_FAULT', 'UNAVAILABLE_AFTER_THROW'];
+function memberUnavailable(poll, status = 'SKIPPED', rawEqual = 'SKIPPED') { return { status, previous_poll: poll > 1 ? ordinal(poll - 1) : 0, current_poll: ordinal(poll), raw_equal: rawEqual, names: [], before_types: [], after_types: [], equal: [], order_names: [], order_equal: [] }; }
+function frameMembers(state) {
+  let containers = 0; const orders = [];
+  const data = (value, names, array = false) => {
+    if (++containers > 15) throw 'UNKNOWN_BOUND';
+    if (!value || typeof value !== 'object' || Array.isArray(value) !== array) throw 'UNKNOWN_SHAPE';
+    const keys = Reflect.ownKeys(value); if (keys.length > names.length) throw 'UNKNOWN_BOUND';
+    if (keys.length !== names.length || !keys.every(k => names.includes(k))) throw 'UNKNOWN_SHAPE';
+    const descriptors = Object.getOwnPropertyDescriptors(value), result = Object.create(null);
+    for (const name of names) { const d = descriptors[name]; if (!d || !Object.hasOwn(d, 'value')) throw 'UNKNOWN_TYPE'; if (name !== 'length' && d.enumerable !== true) throw 'UNKNOWN_SHAPE'; result[name] = d.value; }
+    if (!array) orders.push(keys); return result;
+  };
+  const root = data(state, ['tabs', 'panels', 'question', 'recorder', 'proof']);
+  const tabs = data(root.tabs, ['0', '1', '2', '3', '4', 'length'], true); if (tabs.length !== 5) throw 'UNKNOWN_SHAPE';
+  const tabRows = ids.map((_id, i) => data(tabs[i], tabKeys));
+  const panels = data(root.panels, ['0', '1', '2', '3', '4', 'length'], true); if (panels.length !== 5) throw 'UNKNOWN_SHAPE';
+  const panelRows = ids.map((_id, i) => data(panels[i], panelKeys));
+  const proof = data(root.proof, proofKeys); if (!Array.isArray(proof.ledger)) throw 'UNKNOWN_SHAPE';
+  const lengthDescriptor = Object.getOwnPropertyDescriptor(proof.ledger, 'length'); if (!lengthDescriptor || !Object.hasOwn(lengthDescriptor, 'value')) throw 'UNKNOWN_SHAPE';
+  const length = lengthDescriptor.value; if (!Number.isSafeInteger(length) || length < 0 || length > 2) throw 'UNKNOWN_BOUND';
+  const ledger = data(proof.ledger, [...Array.from({ length }, (_v, i) => String(i)), 'length'], true);
+  const values = [root.question, root.recorder, ...tabRows.flatMap(row => tabKeys.map(k => row[k])), ...panelRows.flatMap(row => panelKeys.map(k => row[k])), ...proofKeys.filter(k => k !== 'ledger').map(k => proof[k]), length, length > 0 ? ledger[0] : missing, length > 1 ? ledger[1] : missing];
+  const types = values.map(v => { if (v === missing) return 'MISSING'; if (v === null) return 'NULL'; if (typeof v === 'boolean') return 'BOOLEAN'; if (typeof v === 'number' && Number.isFinite(v)) return Number.isInteger(v) ? 'INTEGER' : 'NUMBER'; if (typeof v === 'string') { if (v.length > 2048) throw 'UNKNOWN_BOUND'; return 'STRING'; } throw 'UNKNOWN_TYPE'; });
+  if (containers !== 15 || orders.length !== 12 || values.length !== 65) throw 'UNKNOWN_SHAPE'; return { values, types, orders };
+}
+function collectRawMembers(current, previous, poll, rawEqual) {
+  if (previous === undefined) return memberUnavailable(poll, 'NO_PREVIOUS', rawEqual);
+  try { const before = frameMembers(previous), after = frameMembers(current); return { ...memberUnavailable(poll, 'COMPARED', rawEqual), names: [...memberNames], before_types: before.types, after_types: after.types, equal: before.values.map((v, i) => v === after.values[i]), order_names: [...orderNames], order_equal: before.orders.map((v, i) => v.length === after.orders[i].length && v.every((k, j) => k === after.orders[i][j])) }; }
+  catch (error) { return memberUnavailable(poll, ['UNKNOWN_SHAPE', 'UNKNOWN_TYPE', 'UNKNOWN_BOUND'].includes(error) ? error : 'UNKNOWN_FAULT', rawEqual); }
+}
+function captureMember(capture, value) { try { capture(value); } catch {} }
+function originalRawCompare(current, previous, poll, capture) {
+  let equal;
+  try { equal = JSON.stringify(current) === JSON.stringify(previous); }
+  catch (error) { captureMember(capture, memberUnavailable(poll, 'UNAVAILABLE_AFTER_THROW', 'UNAVAILABLE')); throw error; }
+  captureMember(capture, collectRawMembers(current, previous, poll, equal)); return equal;
+}
+function denseLiteralNames(value, expected) {
+  if (!Array.isArray(value)) return false;
+  const length = Object.getOwnPropertyDescriptor(value, 'length');
+  if (!length || !Object.hasOwn(length, 'value') || length.value !== expected.length) return false;
+  for (let i = 0; i < expected.length; i++) { const slot = Object.getOwnPropertyDescriptor(value, String(i)); if (!slot || !Object.hasOwn(slot, 'value') || slot.value !== expected[i]) return false; }
+  return true;
+}
+function validateRawMembers(value) {
+  need(exactKeys(value, ['status', 'previous_poll', 'current_poll', 'raw_equal', 'names', 'before_types', 'after_types', 'equal', 'order_names', 'order_equal']) && memberStatuses.includes(value.status), 'MEMBER_SCHEMA');
+  need((value.previous_poll === 0 || value.previous_poll === 'LIMIT' || ordinal(value.previous_poll) === value.previous_poll) && (value.current_poll === 'LIMIT' || ordinal(value.current_poll) === value.current_poll), 'MEMBER_SCHEMA');
+  need(value.status === 'SKIPPED' ? value.raw_equal === 'SKIPPED' : value.status === 'UNAVAILABLE_AFTER_THROW' ? value.raw_equal === 'UNAVAILABLE' : typeof value.raw_equal === 'boolean', 'MEMBER_SCHEMA');
+  const count = value.status === 'COMPARED' ? 65 : 0, orderCount = count ? 12 : 0;
+  for (const k of ['names', 'before_types', 'after_types', 'equal']) need(Array.isArray(value[k]) && value[k].length === count, 'MEMBER_SCHEMA');
+  for (const k of ['order_names', 'order_equal']) need(Array.isArray(value[k]) && value[k].length === orderCount, 'MEMBER_SCHEMA');
+  need(denseLiteralNames(value.names, count ? memberNames : []) && denseLiteralNames(value.order_names, orderCount ? orderNames : []) && [...value.before_types, ...value.after_types].every(v => memberTypes.includes(v)) && [...value.equal, ...value.order_equal].every(v => typeof v === 'boolean'), 'MEMBER_SCHEMA');
+}
+function evaluateReadiness(state, previous, focus, selected, poll, capture, pairCapture = () => {}) {
+  let observation = null, diagnosticError = 'NONE';
+  try { observation = collectCandidate(state, focus, selected, poll); } catch { diagnosticError = 'REJECTED'; }
+  try { capture(observation, diagnosticError); } catch {}
+  const trace = (name, value) => { try { if (observation && Object.hasOwn(observation.checks, name)) observation.checks[name] = value; } catch {} return value; };
+  captureMember(pairCapture, memberUnavailable(poll));
+  return matches(state, focus, selected, trace) && trace('raw-repeat', originalRawCompare(state, previous, poll, pairCapture));
+}
+function exactKeys(value, keys) { return value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === keys.length && keys.every(k => Object.hasOwn(value, k)); }
+function serializeDiagnostic(value, secret, maximum = 8192) {
+  need(exactKeys(value, ['version', 'category', 'phase', 'focus', 'selected', 'poll', 'incomplete', 'diagnostic_error', 'last', 'raw_members']), 'DIAGNOSTIC_SCHEMA');
+  need(value.version === 2 && ['STABLE_TIMEOUT', 'RELATION', 'INITIAL_UNAVAILABLE', 'OTHER_BOUNDARY'].includes(value.category) && ['NONE', 'INITIAL_NODES', 'STABLE'].includes(value.phase) && ids.includes(value.focus) && ids.includes(value.selected), 'DIAGNOSTIC_SCHEMA');
+  need((value.poll === 'LIMIT' || ordinal(value.poll) === value.poll) && typeof value.incomplete === 'boolean' && ['NONE', 'REJECTED'].includes(value.diagnostic_error), 'DIAGNOSTIC_SCHEMA');
+  validateRawMembers(value.raw_members);
+  const last = value.last;
+  if (last !== null) {
+    need(exactKeys(last, ['poll', 'candidate', 'question', 'recorder', 'tabs', 'checks']) && (last.poll === 'LIMIT' || ordinal(last.poll) === last.poll), 'DIAGNOSTIC_SCHEMA');
+    need(['COMPLETE', 'NULL'].includes(last.candidate) && [true, false, 'INVALID'].includes(last.question) && [true, false, 'INVALID'].includes(last.recorder) && Array.isArray(last.tabs) && last.tabs.length === (last.candidate === 'COMPLETE' ? 5 : 0), 'DIAGNOSTIC_SCHEMA');
+    need(exactKeys(last.checks, checkNames) && checkNames.every(k => [true, false, 'SKIPPED'].includes(last.checks[k])), 'DIAGNOSTIC_SCHEMA');
+    for (const [i, tab] of last.tabs.entries()) {
+      need(exactKeys(tab, ['id', 'controls_match', 'labelledby_match', 'tabindex', 'selected', 'focused', 'ax_selected', 'hidden', 'children']) && tab.id === ids[i], 'DIAGNOSTIC_SCHEMA');
+      need(typeof tab.controls_match === 'boolean' && typeof tab.labelledby_match === 'boolean' && ['0', '-1', 'UNLISTED'].includes(tab.tabindex) && ['true', 'false', 'UNLISTED'].includes(tab.selected) && [true, false, 'INVALID'].includes(tab.focused) && [true, false, 'INVALID'].includes(tab.ax_selected) && [true, false, 'INVALID'].includes(tab.hidden), 'DIAGNOSTIC_SCHEMA');
+      need(tab.children === 'OUT_OF_RANGE' || (Number.isSafeInteger(tab.children) && tab.children >= 0 && tab.children <= 4096), 'DIAGNOSTIC_SCHEMA');
+    }
+  }
+  const body = Buffer.from(JSON.stringify(value)); need(Number.isSafeInteger(maximum) && maximum >= 0 && maximum <= 8192 && body.length <= maximum && (!secret || !body.includes(Buffer.from(secret))), 'DIAGNOSTIC_BOUND_OR_CAPABILITY'); return body;
+}
+class ReadinessReceipt {
+  constructor(destination, secret) { this.destination = destination; this.secret = secret; this.sealed = false; this.outcome = null; }
+  commit(value) {
+    if (this.sealed) return this.outcome;
+    this.sealed = true; let body;
+    try { body = serializeDiagnostic(value, this.secret); } catch { this.outcome = { status: 'FAILED', code: 'DIAGNOSTIC_REJECTED' }; return this.outcome; }
+    try {
+      fs.writeFileSync(this.destination, body, { flag: 'wx', mode: 0o400 }); const persisted = frozen(this.destination); need(persisted.equals(body), 'DIAGNOSTIC_PERSISTENCE');
+      this.outcome = { status: 'PERSISTED', receipt: { path: this.destination, bytes: persisted.length, sha256: hash(persisted) } };
+    } catch { this.outcome = { status: 'FAILED', code: 'DIAGNOSTIC_WRITE_FAILED' }; }
+    return this.outcome;
+  }
+}
+let readiness = null;
+function readinessContext(phase, focus, selected) { return { phase, focus, selected, poll: 1, incomplete: false, diagnostic_error: 'NONE', last: null, raw_members: memberUnavailable(1) }; }
+function captureReadiness(context, last, error) { context.diagnostic_error = error; if (error === 'NONE') context.last = last; }
+function projectEnvelope(context, category) { return { version: 2, category, ...context }; }
+const nativeReceipt = new ReadinessReceipt(run + '/readiness-last.json', ctx.token);
+function retainReadiness() {
+  if (firstError === null) return;
+  const category = firstError === 'DOM AX stable observation boundary' ? 'STABLE_TIMEOUT' : firstError === 'Reciprocal relation changed' ? 'RELATION' : firstError === 'Initial Consultation unavailable' ? 'INITIAL_UNAVAILABLE' : 'OTHER_BOUNDARY';
+  try { record.readiness_diagnostic = nativeReceipt.commit(projectEnvelope(readiness || readinessContext('NONE', 'intake', 'intake'), category)); }
+  catch { record.readiness_diagnostic = { status: 'FAILED', code: 'DIAGNOSTIC_UNEXPECTED' }; }
+}
+async function stable(focus, selected, milliseconds = 5000) {
+  const end = Math.min(workEnd, performance.now() + milliseconds); let previous, poll = 0; readiness = readinessContext('STABLE', focus, selected);
+  while (performance.now() < end) {
+    guard(); readiness.poll = ordinal(++poll); readiness.incomplete = true; const state = await snapshot(); readiness.incomplete = false;
+    const ready = evaluateReadiness(state, previous, focus, selected, poll, (last, error) => captureReadiness(readiness, last, error), pair => { readiness.raw_members = pair; });
+    if (ready) return state; previous = state; await new Promise(r => setTimeout(r, 20));
+  }
+  fail('DOM AX stable observation boundary'); throw new Error('DOM AX boundary');
+}
+function memberControls() {
+  const cases = [], directory = run + '/controls'; fs.mkdirSync(directory, { mode: 0o700 });
+  const summary = { scope: 'NEW_RAW_MEMBER_DIAGNOSTICS_ONLY_SYNTHETIC', status: 'RUNNING', count: 0, cases }; record.member_controls = summary;
+  const check = (name, action) => { try { action(); cases.push(name); summary.count = cases.length; } catch { summary.status = 'FAILED'; summary.failed = name; throw new Error('Member control failed: ' + name); } };
+  const make = () => ({ tabs: ids.map((id, i) => ({ id, node: i + 10, controls: 'panel-' + id, tabindex: i ? '-1' : '0', selected: i ? 'false' : 'true', focused: !i, ax_selected: !i })), panels: ids.map((id, i) => ({ id, hidden: Boolean(i), children: i ? 0 : 2, labelledby: 'tab-' + id })), question: true, recorder: true, proof: { source: 'synthetic-source', version: 1, initialRevision: 0, wellnessRevision: 0, ledger: ['synthetic-get-A', 'synthetic-get-B'], jitless: true } });
+  const clone = value => JSON.parse(JSON.stringify(value)), envelope = pair => projectEnvelope({ ...readinessContext('STABLE', 'intake', 'intake'), raw_members: pair }, 'STABLE_TIMEOUT');
+  const pair = (current, previous, poll = 2) => { let value; const equal = originalRawCompare(current, previous, poll, v => { value = v; }); need(value.raw_equal === equal, 'Authoritative raw result lost'); return value; };
+  const thrown = action => { let error; try { action(); } catch (e) { error = e; } need(error !== undefined, 'Expected rejection absent'); return error; };
+  check('identical-pair-and-first-predecessor', () => { const state = make(), value = pair(state, clone(state)); need(value.status === 'COMPARED' && value.equal.every(Boolean) && value.order_equal.every(Boolean) && value.raw_equal, 'Identical pair failed'); need(pair(state, undefined, 1).status === 'NO_PREVIOUS' && !pair(state, undefined, 1).raw_equal, 'First predecessor changed'); });
+  for (const [index, name] of memberNames.entries()) check('leaf-' + name, () => { const before = make(), after = clone(before), p = memberPaths[index]; let owner = after; for (const k of p.slice(0, -1)) owner = owner[k]; const key = p.at(-1), v = owner[key]; owner[key] = key === 'length' ? 1 : typeof v === 'boolean' ? !v : typeof v === 'number' ? v + 1 : v + '-changed'; const value = pair(after, before); need(value.status === 'COMPARED' && value.equal[index] === false && value.raw_equal === false, 'Declared leaf unobserved'); serializeDiagnostic(envelope(value), ctx.token); });
+  for (const [i, id] of ids.entries()) check('native-shaped-node-only-' + id, () => { const before = make(), after = clone(before); after.tabs[i].node++; let value; const ready = evaluateReadiness(after, before, 'intake', 'intake', 2, () => {}, v => { value = v; }); need(!ready && matches(after, 'intake', 'intake') && value.status === 'COMPARED' && value.equal.filter(v => !v).length === 1 && value.before_types[memberNames.indexOf('tabs.' + id + '.node')] === 'INTEGER', 'Node-only comparison weakened'); });
+  check('positive-child-count-original-predicate-true', () => { const before = make(), after = clone(before); after.panels[0].children = 3; need(matches(after, 'intake', 'intake') && !pair(after, before).equal[memberNames.indexOf('panels.intake.children')], 'Positive child variation lost'); });
+  check('order-only-raw-false-identical-leaves', () => { const before = make(), after = clone(before); after.proof = Object.fromEntries(Object.entries(after.proof).reverse()); const value = pair(after, before); need(!value.raw_equal && value.equal.every(Boolean) && value.order_equal.at(-1) === false, 'Raw property order normalized'); });
+  check('zero-negative-zero-json-equivalent', () => { const before = make(), after = clone(before); after.proof.initialRevision = -0; const value = pair(after, before); need(value.raw_equal && value.equal.every(Boolean), 'Finite JSON scalar semantics changed'); });
+  check('missing-slots-ledger-zero-through-two', () => { for (const length of [0, 1, 2]) { const state = make(); state.proof.ledger.length = length; const value = pair(state, clone(state)); need(value.status === 'COMPARED' && value.before_types.at(-1) === (length === 2 ? 'STRING' : 'MISSING') && value.raw_equal, 'Missing ledger slot lost'); } });
+  check('unknown-keys-are-not-echoed', () => { const state = make(); state.proof[ctx.token] = ctx.token; const value = pair(state, make()); need(value.status === 'UNKNOWN_BOUND' && !serializeDiagnostic(envelope(value), ctx.token).includes(Buffer.from(ctx.token)), 'Unknown key escaped'); });
+  check('missing-and-sparse-shapes', () => { const state = make(); delete state.proof.source; need(pair(state, make()).status === 'UNKNOWN_SHAPE', 'Missing shape accepted'); const sparse = make(); delete sparse.proof.ledger[0]; need(pair(sparse, make()).status === 'UNKNOWN_SHAPE', 'Sparse ledger accepted'); });
+  check('no-extra-accessor-invocation', () => { const state = make(); let calls = 0; Object.defineProperty(state.tabs[0], 'node', { enumerable: true, get() { calls++; return 40; } }); const value = pair(state, make()); need(calls === 1 && value.status === 'UNKNOWN_TYPE', 'Observer invoked accessor'); });
+  check('unsupported-types-and-depth-without-recursion', () => { for (const v of [NaN, Infinity, () => {}, Symbol('synthetic'), { deeper: { token: ctx.token } }]) { const state = make(); state.proof.source = v; need(pair(state, make()).status === 'UNKNOWN_TYPE', 'Unsupported scalar inspected'); } });
+  check('array-and-container-bounds', () => { const state = make(); state.tabs.push(clone(state.tabs[0])); need(pair(state, make()).status === 'UNKNOWN_BOUND', 'Array bound missed'); const ledger = make(); ledger.proof.ledger.push('synthetic-C'); need(pair(ledger, make()).status === 'UNKNOWN_BOUND', 'Ledger bound missed'); });
+  check('string2048-and2049', () => { const state = make(); state.proof.source = 'x'.repeat(2048); need(pair(state, make()).status === 'COMPARED', 'Exact string limit rejected'); state.proof.source += 'x'; need(pair(state, make()).status === 'UNKNOWN_BOUND', 'String bound missed'); });
+  check('token-url-values-only-boolean-types', () => { const state = make(); state.proof.source = ctx.token; state.proof.ledger[0] = 'https://example.invalid/' + ctx.token; const body = serializeDiagnostic(envelope(pair(state, make())), ctx.token); need(!body.includes(Buffer.from(ctx.token)) && !body.includes(Buffer.from('example.invalid')), 'Raw value escaped'); });
+  check('strict-member-name-type-vector-schema', () => { const good = pair(make(), make()); for (const key of ['names', 'before_types', 'equal', 'order_equal']) { const value = clone(good); value[key].push(ctx.token); thrown(() => serializeDiagnostic(envelope(value), ctx.token)); } const value = clone(good); value.names[0] = ctx.token; thrown(() => serializeDiagnostic(envelope(value), ctx.token)); });
+  check('receipt-UTF8-bound-and-version2', () => { const value = envelope(pair(make(), make())), body = serializeDiagnostic(value, ctx.token); need(value.version === 2 && serializeDiagnostic(value, ctx.token, body.length).equals(body), 'Exact byte bound failed'); thrown(() => serializeDiagnostic(value, ctx.token, body.length - 1)); value.version = 1; thrown(() => serializeDiagnostic(value, ctx.token)); });
+  check('raw-short-circuit-does-not-inspect-proof', () => { const state = make(); state.question = false; let calls = 0, value; Object.defineProperty(state, 'proof', { enumerable: true, get() { calls++; throw new Error('synthetic'); } }); need(!evaluateReadiness(state, make(), 'intake', 'intake', 2, () => {}, v => { value = v; }) && calls === 0 && value.status === 'SKIPPED', 'Raw short circuit changed'); });
+  check('unavailable-after-original-stringify-throw', () => { const state = make(), original = new Error('ORIGINAL_SERIALIZATION_BOUNDARY'); let calls = 0, value; Object.defineProperty(state.proof, 'source', { enumerable: true, get() { calls++; throw original; } }); need(thrown(() => originalRawCompare(state, make(), 2, v => { value = v; })) === original && calls === 1 && value.status === 'UNAVAILABLE_AFTER_THROW' && value.raw_equal === 'UNAVAILABLE', 'Original throw suppressed/fabricated result'); });
+  check('capture-fault-preserves-original-raw-result', () => { const before = make(), after = clone(before); after.tabs[0].node++; need(originalRawCompare(after, before, 2, () => { throw new Error('observer'); }) === false, 'Observer fault changed raw decision'); });
+  check('collector-fault-fixed-alias-no-echo', () => { const state = make(); state.proof = new Proxy(state.proof, { ownKeys() { throw ctx.token; } }); const value = collectRawMembers(state, make(), 2, false); need(value.status === 'UNKNOWN_FAULT' && !serializeDiagnostic(envelope(value), ctx.token).includes(Buffer.from(ctx.token)), 'Collector fault leaked/changed reason'); });
+  check('poll512-and-limit-with-last-pair-provenance', () => { const value = pair(make(), make(), 513), context = { ...readinessContext('STABLE', 'intake', 'intake'), poll: 'LIMIT', incomplete: true, raw_members: value }; need(value.previous_poll === 512 && value.current_poll === 'LIMIT' && JSON.parse(serializeDiagnostic(projectEnvelope(context, 'STABLE_TIMEOUT'), ctx.token)).incomplete, 'Pair provenance lost'); });
+  check('version2-first-receipt-is-sealed', () => { const writer = new ReadinessReceipt(directory + '/pair.json', ctx.token), value = envelope(pair(make(), make())), first = writer.commit(value); need(first.status === 'PERSISTED' && writer.commit(envelope(memberUnavailable(1))) === first && hash(frozen(first.receipt.path)) === first.receipt.sha256, 'Version2 transaction replaced'); });
+  check('version2-rejected-first-later-valid-no-write', () => { const writer = new ReadinessReceipt(directory + '/reject.json', ctx.token), value = envelope(pair(make(), make())); value.raw_members.names[0] = ctx.token; const first = writer.commit(value); need(first.code === 'DIAGNOSTIC_REJECTED' && writer.commit(envelope(pair(make(), make()))) === first && !fs.existsSync(writer.destination), 'Version2 rejected first reopened'); });
+  for (const key of ['names', 'order_names']) check('sparse-' + key + '-serializer-and-sealed-rejection', () => {
+    const value = envelope(pair(make(), make())), labels = value.raw_members[key], length = labels.length; delete labels[0];
+    need(labels.length === length && !Object.hasOwn(labels, '0'), 'Sparse regression fixture not sparse');
+    thrown(() => serializeDiagnostic(value, ctx.token));
+    const before = firstError, writer = new ReadinessReceipt(directory + '/sparse-' + key + '.json', ctx.token), first = writer.commit(value);
+    need(first.code === 'DIAGNOSTIC_REJECTED' && writer.commit(envelope(pair(make(), make()))) === first && !fs.existsSync(writer.destination) && firstError === before, 'Sparse rejected first reopened or changed primary');
+  });
+  summary.status = 'PASS'; return summary;
+}
+const successPhases = ['initial', ...['ArrowLeft', 'ArrowRight', 'End', 'Home'].flatMap(name => [name + '-down', name + '-up']), 'enter-down', 'enter-up', 'home-down', 'home-up', 'space-down', 'space-release'];
+function successProjection(phase, focus, selected, context) {
+  need(successPhases.includes(phase) && ids.includes(focus) && ids.includes(selected) && context.focus === focus && context.selected === selected && context.raw_members.raw_equal === true, 'Success projection binding');
+  const checks = Object.fromEntries(checkNames.map(name => {
+    const descriptor = Object.getOwnPropertyDescriptor(context.last.checks, name);
+    need(descriptor && Object.hasOwn(descriptor, 'value') && [true, false, 'SKIPPED'].includes(descriptor.value), 'Success projection flag');
+    return [name, descriptor.value];
+  }));
+  need(checks['raw-repeat'] === true && checks['state-present'] === true, 'Success projection before raw acceptance');
+  const safe = { phase, focus, selected, checks, proof_equal: true };
+  const body = Buffer.from(JSON.stringify(safe)); need(body.length <= 8192 && !body.includes(Buffer.from(ctx.token)), 'Success projection bound'); return safe;
+}
+function verifiedSuccess(state, proof, phase, focus, selected, context) {
+  need(JSON.stringify(state.proof) === JSON.stringify(proof), 'GET/revision changed');
+  return successProjection(phase, focus, selected, context);
+}
+async function sendNativeKey(kind, name, acquisition, actionGate, request, native) {
+  acquisition.check();
+  const current = (await request('Target.getTargetInfo')).targetInfo;
+  acquisition.check();
+  if (current?.targetId !== acquisition.target) acquisition.reject('Foreign action binding');
+  if (current.url !== acquisition.url || current.type !== 'page') acquisition.reject('Fresh target binding mismatch');
+  const result = await actionGate.send(current.targetId, performance.now(), () => native(kind, name));
+  acquisition.check(); return result;
+}
+const viewportKinds = ['NUMBER', 'MISSING', 'INVALID_TYPE', 'NONFINITE', 'OUT_OF_RANGE', 'ACCESSOR', 'UNKNOWN_SHAPE', 'UNKNOWN_FAULT'];
+const viewportFields = ['clientWidth', 'clientHeight'];
+function collectViewport(viewport) {
+  const unknown = kind => Object.fromEntries(viewportFields.map(name => [name, { kind, value: null }]));
+  try {
+    if (!viewport || typeof viewport !== 'object' || Array.isArray(viewport) || Reflect.ownKeys(viewport).some(name => !['pageX', 'pageY', ...viewportFields].includes(name))) return unknown('UNKNOWN_SHAPE');
+    const descriptors = Object.getOwnPropertyDescriptors(viewport);
+    return Object.fromEntries(viewportFields.map(name => {
+      const descriptor = descriptors[name]; let kind, value = null;
+      if (!descriptor) kind = 'MISSING';
+      else if (!Object.hasOwn(descriptor, 'value')) kind = 'ACCESSOR';
+      else if (typeof descriptor.value !== 'number') kind = 'INVALID_TYPE';
+      else if (!Number.isFinite(descriptor.value)) kind = 'NONFINITE';
+      else if (descriptor.value < 0 || descriptor.value > 10000000) kind = 'OUT_OF_RANGE';
+      else { kind = 'NUMBER'; value = descriptor.value; }
+      return [name, { kind, value }];
+    }));
+  } catch { return unknown('UNKNOWN_FAULT'); }
+}
+function viewportEnvelope(observed) { return { version: 1, phase: 'INITIAL_VIEWPORT_FAILURE', units: 'CSS_PIXELS_EXCLUDING_SCROLLBARS', expected: { clientWidth: 1280, clientHeight: 800 }, observed }; }
+function viewportData(value, keys) {
+  need(value && typeof value === 'object' && !Array.isArray(value), 'VIEWPORT_SCHEMA');
+  const names = Reflect.ownKeys(value); need(names.length === keys.length && names.every(name => keys.includes(name)), 'VIEWPORT_SCHEMA');
+  const descriptors = Object.getOwnPropertyDescriptors(value), data = {};
+  for (const name of keys) { const descriptor = descriptors[name]; need(descriptor && Object.hasOwn(descriptor, 'value') && descriptor.enumerable, 'VIEWPORT_SCHEMA'); data[name] = descriptor.value; }
+  return data;
+}
+function serializeViewport(value, secret, maximum = 1024) {
+  const data = viewportData(value, ['version', 'phase', 'units', 'expected', 'observed']), expected = viewportData(data.expected, viewportFields), observed = viewportData(data.observed, viewportFields);
+  need(data.version === 1 && data.phase === 'INITIAL_VIEWPORT_FAILURE' && data.units === 'CSS_PIXELS_EXCLUDING_SCROLLBARS' && expected.clientWidth === 1280 && expected.clientHeight === 800, 'VIEWPORT_SCHEMA');
+  const safe = {};
+  for (const name of viewportFields) { const dimension = viewportData(observed[name], ['kind', 'value']); need(viewportKinds.includes(dimension.kind), 'VIEWPORT_SCHEMA'); need(dimension.kind === 'NUMBER' ? typeof dimension.value === 'number' && Number.isFinite(dimension.value) && dimension.value >= 0 && dimension.value <= 10000000 : dimension.value === null, 'VIEWPORT_SCHEMA'); safe[name] = { kind: dimension.kind, value: dimension.value }; }
+  const body = Buffer.from(JSON.stringify(viewportEnvelope(safe))); need(Number.isSafeInteger(maximum) && maximum >= 0 && maximum <= 1024 && body.length <= maximum && (!secret || !body.includes(Buffer.from(secret))), 'VIEWPORT_BOUND_OR_CAPABILITY'); return body;
+}
+class ViewportReceipt {
+  constructor(destination, secret, preservePrimary, maximum = 1024) { this.destination = destination; this.secret = secret; this.preservePrimary = preservePrimary; this.maximum = maximum; this.sealed = false; this.primary = null; this.outcome = null; }
+  commit(viewport, primary) {
+    if (this.sealed) return this.outcome;
+    this.sealed = true; this.primary = primary;
+    try { this.preservePrimary(primary); } catch {}
+    let body;
+    try { body = serializeViewport(viewportEnvelope(collectViewport(viewport)), this.secret, this.maximum); }
+    catch { this.outcome = { status: 'FAILED', code: 'VIEWPORT_DIAGNOSTIC_REJECTED' }; return this.outcome; }
+    try { fs.writeFileSync(this.destination, body, { flag: 'wx', mode: 0o400 }); const persisted = frozen(this.destination); need(persisted.equals(body), 'VIEWPORT_PERSISTENCE'); this.outcome = { status: 'PERSISTED', receipt: { path: this.destination, bytes: persisted.length, sha256: hash(persisted) } }; }
+    catch { this.outcome = { status: 'FAILED', code: 'VIEWPORT_DIAGNOSTIC_WRITE_FAILED' }; }
+    return this.outcome;
+  }
+}
+const nativeViewportReceipt = new ViewportReceipt(run + '/viewport-failure.json', ctx.token, error => fail(error?.message || 'Viewport mismatch'));
+function retainViewportFailure(viewport, error) { try { record.viewport_diagnostic = nativeViewportReceipt.commit(viewport, error); } catch { record.viewport_diagnostic = { status: 'FAILED', code: 'VIEWPORT_DIAGNOSTIC_UNEXPECTED' }; } }
+function protocolFixture() {
+    const events = new Map(), calls = [], failures = [], proof = { source: 'synthetic-source', version: 1, initialRevision: 0, wellnessRevision: 0, ledger: ['synthetic-get-A', 'synthetic-get-B'], jitless: true };
+    const root = { nodeId: 1, backendNodeId: 101, nodeType: 9, children: [
+      ...ids.map((id, i) => ({ nodeId: i + 10, backendNodeId: i + 110, attributes: ['id', 'tab-' + id, 'aria-controls', 'panel-' + id, 'tabindex', i ? '-1' : '0', 'aria-selected', i ? 'false' : 'true'] })),
+      ...ids.map((id, i) => ({ nodeId: i + 20, backendNodeId: i + 120, attributes: ['id', 'panel-' + id, 'aria-labelledby', 'tab-' + id, ...(i ? ['hidden', ''] : [])], childNodeCount: i ? 0 : 2 })),
+      { nodeId: 30, backendNodeId: 130, attributes: ['id', '__keyboard_fixture'] }, { nodeId: 31, backendNodeId: 131, attributes: ['class', 'question-row'] }, { nodeId: 32, backendNodeId: 132, attributes: ['data-testid', 'inert-recorder'] }] };
+    const session = { on(name, action) { events.set(name, action); return this; } }, current = { session, target: 'owned', url: 'synthetic-page' };
+    const fixture = { root, proof, session, current, calls, failures, terminal: false, closing: false, hook: null, error: null, emit(name) { need(events.has(name), 'Missing public event handler'); events.get(name)(); } };
+    const transport = async (method, params) => {
+      calls.push({ method, params }); if (fixture.hook) await fixture.hook(method); if (fixture.error) throw fixture.error;
+      if (method === 'DOM.getDocument') return { root: JSON.parse(JSON.stringify(root)) };
+      if (method === 'DOM.describeNode') return { node: JSON.parse(JSON.stringify(root)) };
+      if (method === 'Accessibility.getPartialAXTree') { const node = root.children.find(n => n.nodeId === params.nodeId), i = ids.findIndex(id => node.attributes[1] === 'tab-' + id); return { nodes: [{ backendDOMNodeId: node.backendNodeId, role: { value: 'tab' }, name: { value: labels[i] }, properties: [{ name: 'focused', value: { value: i === 0 } }, { name: 'selected', value: { value: node.attributes.at(-1) === 'true' } }] }] }; }
+      if (method === 'DOM.getOuterHTML') return { outerHTML: '<pre>' + JSON.stringify(proof) + '</pre>' };
+      throw new Error('Undeclared synthetic transport command');
+    };
+    fixture.acquisition = new DocumentAcquisition(session, 'owned', 'synthetic-page', () => current, transport, () => fixture.terminal, () => fixture.closing, reason => failures.push(reason)); return fixture;
+}
+async function retainInitialEvidence(acquisition, context, request, append, capture, report = retainViewportFailure) {
+  acquisition.check();
+  const viewport = (await request('Page.getLayoutMetrics')).cssLayoutViewport;
+  acquisition.check();
+  try { need(viewport.clientWidth === 1280 && viewport.clientHeight === 800, 'Viewport mismatch'); }
+  catch (error) { try { report(viewport, error); } catch {} throw error; }
+  append(successProjection('initial', 'intake', 'intake', context));
+  return await capture('initial');
+}
+async function acquisitionControls() {
+  const cases = [], summary = { scope: 'NEW_BOUND_DOCUMENT_ACQUISITION_AND_SAFE_SUCCESS_ONLY_SYNTHETIC', status: 'RUNNING', count: 0, cases }; record.acquisition_controls = summary;
+  const check = async (name, action) => { try { await action(); cases.push(name); summary.count = cases.length; } catch { summary.status = 'FAILED'; summary.failed = name; throw new Error('Acquisition control failed: ' + name); } };
+  const rejected = async action => { let error; try { await action(); } catch (e) { error = e; } need(error !== undefined, 'Expected acquisition rejection'); return error; };
+  const make = protocolFixture;
+  const evaluated = (state, previous) => { const context = readinessContext('STABLE', 'intake', 'intake'); context.poll = 2; const ready = evaluateReadiness(state, previous, 'intake', 'intake', 2, (last, error) => captureReadiness(context, last, error), pair => { context.raw_members = pair; }); return { context, ready }; };
+  await check('incomplete-bootstrap-unbound', async () => { const f = make(); f.root.children = []; need(await snapshot(f.acquisition) === null && f.acquisition.bound === null && f.calls.length === 1 && f.calls[0].method === 'DOM.getDocument', 'Incomplete bootstrap bound'); });
+  await check('complete-bind-exact-describe-and-original-RAW', async () => { const f = make(), first = await snapshot(f.acquisition), second = await snapshot(f.acquisition), trees = f.calls.filter(x => ['DOM.getDocument', 'DOM.describeNode'].includes(x.method)); need(trees.length === 2 && trees[0].method === 'DOM.getDocument' && trees[1].method === 'DOM.describeNode' && JSON.stringify(trees[1].params) === JSON.stringify({ nodeId: 1, depth: -1, pierce: false }) && second.tabs[0].node === 10 && evaluated(second, first).ready, 'Bound acquisition or RAW changed'); });
+  await check('fresh-frontend-ID-is-still-RAW-unequal', async () => { const f = make(), first = await snapshot(f.acquisition); f.root.children[0].nodeId = 45; const next = await snapshot(f.acquisition), result = evaluated(next, first); need(next.tabs[0].node === 45 && matches(next, 'intake', 'intake') && !result.ready && result.context.raw_members.raw_equal === false, 'Frontend ID cached or normalized'); });
+  await check('fresh-semantic-attribute-is-still-rejected', async () => { const f = make(), first = await snapshot(f.acquisition); f.root.children[1].attributes[5] = '0'; const next = await snapshot(f.acquisition); need(next.tabs[1].tabindex === '0' && !evaluated(next, first).ready && originalRawCompare(next, first, 2, () => {}) === false, 'Attributes cached or comparison relaxed'); });
+  for (const event of ['DOM.documentUpdated', 'close']) await check(event + '-first-sticky-no-later-RPC', async () => { const f = make(); await snapshot(f.acquisition); f.emit(event); const count = f.calls.length, reason = f.acquisition.first; await rejected(() => snapshot(f.acquisition)); await rejected(() => snapshot(f.acquisition)); need(f.calls.length === count && reason === f.acquisition.first && f.failures.length === 1, 'Lifetime failure reopened'); });
+  for (const field of ['session', 'target', 'url']) await check('foreign-' + field + '-no-RPC', async () => { const f = make(); await snapshot(f.acquisition); f.current[field] = field === 'session' ? {} : 'foreign'; const count = f.calls.length; await rejected(() => snapshot(f.acquisition)); need(f.calls.length === count && f.failures.length === 1, 'Foreign ownership used'); });
+  for (const field of ['nodeId', 'backendNodeId']) await check('changed-document-' + field + '-sticky', async () => { const f = make(); await snapshot(f.acquisition); f.root[field]++; await rejected(() => snapshot(f.acquisition)); const count = f.calls.length; await rejected(() => snapshot(f.acquisition)); need(f.calls.length === count && f.acquisition.first === 'Bound document identity changed', 'Root rebound'); });
+  for (const value of [0, undefined]) await check('required-handle-' + (value === 0 ? 'zero' : 'missing'), async () => { const f = make(); await snapshot(f.acquisition); f.root.children[0].nodeId = value; await rejected(() => snapshot(f.acquisition)); need(f.calls.at(-1).method === 'DOM.describeNode' && f.acquisition.first === 'Unknown native document handle', 'Untracked handle used'); });
+  await check('native-command-error-preserved-sticky', async () => { const f = make(); await snapshot(f.acquisition); const error = new Error('Synthetic original native error'); f.error = error; need(await rejected(() => snapshot(f.acquisition)) === error, 'Native error replaced'); f.error = null; const count = f.calls.length; await rejected(() => snapshot(f.acquisition)); need(f.calls.length === count && f.failures.length === 1, 'Command rejection reopened'); });
+  for (const method of ['DOM.describeNode', 'Accessibility.getPartialAXTree', 'DOM.getOuterHTML']) await check('awaited-' + method + '-invalidation', async () => { const f = make(); await snapshot(f.acquisition); f.hook = async current => { if (current === method) { await Promise.resolve(); f.emit('DOM.documentUpdated'); } }; await rejected(() => snapshot(f.acquisition)); const count = f.calls.length; await rejected(() => snapshot(f.acquisition)); need(f.calls.length === count && f.acquisition.first === 'Bound document invalidated', 'Awaited lifetime accepted'); });
+  await check('bound-missing-elements-no-rebootstrap', async () => { const f = make(); await snapshot(f.acquisition); f.root.children = []; await rejected(() => snapshot(f.acquisition)); need(f.calls.at(-1).method === 'DOM.describeNode' && f.acquisition.first === 'Bound snapshot incomplete', 'Bound incomplete rebootstrap'); });
+  await check('intentional-cleanup-close-distinct', async () => { const f = make(); await snapshot(f.acquisition); f.closing = true; f.emit('close'); need(f.acquisition.first === null && f.failures.length === 0, 'Intentional close changed first failure'); });
+  await check('success-projection-no-raw-proof-ID-capability', async () => { const f = make(); f.proof.source = ctx.token; f.proof.ledger[0] = 'https://example.invalid/' + ctx.token; f.root.children[0].nodeId = 987654321; const first = await snapshot(f.acquisition), next = await snapshot(f.acquisition), result = evaluated(next, first); need(result.ready, 'Synthetic projection raw prerequisite'); const safe = verifiedSuccess(next, first.proof, 'initial', 'intake', 'intake', result.context), body = JSON.stringify(safe); need(safe.proof_equal === true && safe.checks['raw-repeat'] === true && !body.includes(ctx.token) && !body.includes('987654321') && !body.includes('example.invalid') && !Object.hasOwn(safe, 'state'), 'Raw success leaked'); });
+  await check('full-raw-proof-mismatch-denies-success', async () => { const f = make(), first = await snapshot(f.acquisition); f.proof.version++; const next = await snapshot(f.acquisition), again = await snapshot(f.acquisition), result = evaluated(again, next); need(result.ready, 'Proof mismatch prerequisite'); const error = await rejected(() => verifiedSuccess(again, first.proof, 'enter-down', 'intake', 'intake', result.context)); need(error.message === 'GET/revision changed', 'Projected proof replaced full raw assertion'); });
+  await check('invalid-success-flag-rejected-without-getter', async () => { const f = make(), first = await snapshot(f.acquisition), next = await snapshot(f.acquisition), result = evaluated(next, first); let calls = 0; Object.defineProperty(result.context.last.checks, 'raw-repeat', { get() { calls++; return ctx.token; } }); await rejected(() => successProjection('initial', 'intake', 'intake', result.context)); need(calls === 0, 'Success getter invoked'); });
+  await check('real-key-valid-native-send-once', async () => { const f = make(); await snapshot(f.acquisition); const sent = [], requests = [], gate = new ActionGate('owned', performance.now() + 10000, () => f.acquisition.first !== null); await sendNativeKey('down', 'Enter', f.acquisition, gate, async method => { requests.push(method); return { targetInfo: { targetId: 'owned', url: 'synthetic-page', type: 'page' } }; }, async (kind, name) => { sent.push([kind, name]); }); need(JSON.stringify(requests) === JSON.stringify(['Target.getTargetInfo']) && JSON.stringify(sent) === JSON.stringify([['down', 'Enter']]), 'Real key path changed send count or value'); });
+  for (const field of ['session', 'target', 'url']) await check('real-key-' + field + '-changes-during-target-await-zero-send', async () => { const f = make(); await snapshot(f.acquisition); let requests = 0, sent = 0; const gate = new ActionGate('owned', performance.now() + 10000, () => f.acquisition.first !== null), request = async method => { need(method === 'Target.getTargetInfo', 'Extra key RPC'); requests++; await Promise.resolve(); f.current[field] = field === 'session' ? {} : 'foreign'; return { targetInfo: { targetId: 'owned', url: 'synthetic-page', type: 'page' } }; }; await rejected(() => sendNativeKey('down', 'Enter', f.acquisition, gate, request, async () => sent++)); const reason = f.acquisition.first; await rejected(() => sendNativeKey('down', 'Enter', f.acquisition, gate, request, async () => sent++)); need(requests === 1 && sent === 0 && reason === 'Foreign document binding' && f.failures.length === 1, 'After-target ownership sent native key or reopened'); });
+  for (const field of ['targetId', 'url', 'type']) await check('real-key-foreign-reply-' + field + '-unchanged-cache-zero-send', async () => { const f = make(); await snapshot(f.acquisition); let requests = 0, sent = 0; const gate = new ActionGate('owned', performance.now() + 10000, () => f.acquisition.first !== null), request = async method => { need(method === 'Target.getTargetInfo', 'Extra key RPC'); requests++; const targetInfo = { targetId: 'owned', url: 'synthetic-page', type: 'page' }; targetInfo[field] = 'foreign'; return { targetInfo }; }; await rejected(() => sendNativeKey('down', 'Enter', f.acquisition, gate, request, async () => sent++)); await rejected(() => sendNativeKey('down', 'Enter', f.acquisition, gate, request, async () => sent++)); need(f.current.url === 'synthetic-page' && f.current.target === 'owned' && f.current.session === f.session && requests === 1 && sent === 0 && f.failures.length === 1, 'Fresh foreign response overridden by local cache'); });
+  await check('real-initial-evidence-valid-one-state-one-image', async () => { const f = make(), first = await snapshot(f.acquisition), next = await snapshot(f.acquisition), result = evaluated(next, first); need(result.ready, 'Initial evidence raw prerequisite'); const states = [], images = [], requests = []; const image = await retainInitialEvidence(f.acquisition, result.context, async method => { requests.push(method); return { cssLayoutViewport: { clientWidth: 1280, clientHeight: 800 } }; }, state => states.push(state), async name => { images.push(name); return 'synthetic-image-sink'; }); need(states.length === 1 && states[0].phase === 'initial' && states[0].checks['raw-repeat'] === true && JSON.stringify(images) === JSON.stringify(['initial']) && JSON.stringify(requests) === JSON.stringify(['Page.getLayoutMetrics']) && image === 'synthetic-image-sink', 'Real initial evidence flow changed'); });
+  await check('real-initial-metrics-invalidation-zero-state-zero-image', async () => { const f = make(), first = await snapshot(f.acquisition), next = await snapshot(f.acquisition), result = evaluated(next, first); need(result.ready, 'Initial invalidation raw prerequisite'); const states = [], images = []; let requests = 0; const request = async method => { need(method === 'Page.getLayoutMetrics', 'Extra metrics RPC'); requests++; await Promise.resolve(); f.emit('DOM.documentUpdated'); return { cssLayoutViewport: { clientWidth: 1280, clientHeight: 800 } }; }; await rejected(() => retainInitialEvidence(f.acquisition, result.context, request, state => states.push(state), async name => { images.push(name); })); const reason = f.acquisition.first; await rejected(() => retainInitialEvidence(f.acquisition, result.context, request, state => states.push(state), async name => { images.push(name); })); need(requests === 1 && states.length === 0 && images.length === 0 && reason === 'Bound document invalidated' && f.failures.length === 1, 'Invalid metrics boundary recorded success or reopened'); });
+  summary.status = 'PASS'; return summary;
+}
+async function viewportControls() {
+  const directory = run + '/viewport-controls'; fs.mkdirSync(directory, { mode: 0o700 });
+  const cases = [], summary = { scope: 'NEW_FAILURE_ONLY_VIEWPORT_DIAGNOSTIC_SYNTHETIC', status: 'RUNNING', count: 0, cases }; record.viewport_controls = summary;
+  const check = async (name, action) => { try { await action(); cases.push(name); summary.count = cases.length; } catch { summary.status = 'FAILED'; summary.failed = name; throw new Error('Viewport control failed: ' + name); } };
+  const rejected = async action => { let error; try { await action(); } catch (e) { error = e; } need(error !== undefined, 'Expected viewport rejection'); return error; };
+  const composed = async (viewport, name, options = {}) => {
+    const f = protocolFixture(), before = await snapshot(f.acquisition), state = await snapshot(f.acquisition), context = readinessContext('STABLE', 'intake', 'intake'); context.poll = 2;
+    need(evaluateReadiness(state, before, 'intake', 'intake', 2, (last, error) => captureReadiness(context, last, error), pair => { context.raw_members = pair; }), 'Viewport fixture raw prerequisite');
+    const states = [], images = [], primaries = [], calls = [], writer = new ViewportReceipt(options.path || directory + '/' + name + '.json', ctx.token, error => { primaries.push(error); if (options.primaryFault) throw new Error('Synthetic primary sink failure'); }, options.maximum ?? 1024); let attempts = 0, error, result;
+    try { result = await retainInitialEvidence(f.acquisition, context, async method => { calls.push(method); need(method === 'Page.getLayoutMetrics', 'Extra viewport RPC'); if (options.invalidated) { await Promise.resolve(); f.emit('DOM.documentUpdated'); } return { cssLayoutViewport: viewport }; }, safe => states.push(safe), async name => { images.push(name); return 'synthetic-image-sink'; }, (value, primary) => { attempts++; return writer.commit(value, primary); }); } catch (e) { error = e; }
+    need(calls.length === 1, 'Viewport metrics request count changed'); return { f, writer, states, images, primaries, attempts, error, result };
+  };
+  const persisted = result => { need(result.error && result.states.length === 0 && result.images.length === 0 && result.attempts === 1 && result.primaries[0] === result.error && result.writer.primary === result.error && result.writer.outcome.status === 'PERSISTED', 'Original failure/evidence/primary changed'); const body = frozen(result.writer.destination); need(body.length <= 1024 && !body.includes(Buffer.from(ctx.token)), 'Unsafe metric receipt'); return JSON.parse(body); };
+  await check('real-match-one-state-one-image-zero-diagnostic', async () => { const r = await composed({ clientWidth: 1280, clientHeight: 800 }, 'match'); need(!r.error && r.states.length === 1 && r.states[0].checks['raw-repeat'] === true && JSON.stringify(r.images) === JSON.stringify(['initial']) && r.attempts === 0 && !r.writer.sealed && !fs.existsSync(r.writer.destination), 'Passing viewport changed or recorded failure'); });
+  for (const field of viewportFields) await check('real-mismatch-' + field + '-exact-existing-metrics', async () => { const viewport = { pageX: 0, pageY: 0, clientWidth: 1280, clientHeight: 800 }; viewport[field]--; const r = await composed(viewport, field), body = persisted(r); need(r.error.message === 'Viewport mismatch' && body.observed.clientWidth.value === viewport.clientWidth && body.observed.clientHeight.value === viewport.clientHeight, 'Mismatching dimension lost'); });
+  for (const [name, value] of [['zero', 0], ['fraction', 1279.5], ['maximum', 10000000]]) await check('real-number-' + name + '-without-coercion', async () => { const body = persisted(await composed({ clientWidth: value, clientHeight: 800 }, name)); need(body.observed.clientWidth.kind === 'NUMBER' && body.observed.clientWidth.value === value, 'Native number normalized'); });
+  const malformed = [['string', ctx.token, 'INVALID_TYPE'], ['boolean', true, 'INVALID_TYPE'], ['object', { secret: ctx.token }, 'INVALID_TYPE'], ['null', null, 'INVALID_TYPE'], ['nan', NaN, 'NONFINITE'], ['infinity', Infinity, 'NONFINITE'], ['negative', -1, 'OUT_OF_RANGE'], ['over-bound', 10000001, 'OUT_OF_RANGE']];
+  for (const [name, value, kind] of malformed) await check('real-malformed-' + name + '-fixed-unknown', async () => { const body = persisted(await composed({ clientWidth: value, clientHeight: 800 }, name)); need(body.observed.clientWidth.kind === kind && body.observed.clientWidth.value === null, 'Malformed native value echoed/coerced'); });
+  await check('real-missing-dimension-is-not-zero', async () => { const body = persisted(await composed({ clientHeight: 800 }, 'missing')); need(body.observed.clientWidth.kind === 'MISSING' && body.observed.clientWidth.value === null, 'Missing dimension fabricated'); });
+  await check('real-missing-viewport-preserves-TypeError', async () => { const r = await composed(undefined, 'absent'), body = persisted(r); need(r.error instanceof TypeError && body.observed.clientWidth.kind === 'UNKNOWN_SHAPE' && body.observed.clientHeight.value === null, 'Original access error replaced'); });
+  await check('real-width-short-circuit-no-extra-getters', async () => { let width = 0, height = 0; const viewport = {}; Object.defineProperties(viewport, { clientWidth: { enumerable: true, get() { width++; return 1279; } }, clientHeight: { enumerable: true, get() { height++; throw new Error('Unexpected height read'); } } }); const r = await composed(viewport, 'accessors'), body = persisted(r); need(width === 1 && height === 0 && r.error.message === 'Viewport mismatch' && body.observed.clientWidth.kind === 'ACCESSOR' && body.observed.clientHeight.kind === 'ACCESSOR', 'Comparison short-circuit/getter order changed'); });
+  await check('real-original-throw-object-survives-diagnostic', async () => { const original = new Error('Synthetic original width access'); let calls = 0; const viewport = { clientHeight: 800 }; Object.defineProperty(viewport, 'clientWidth', { enumerable: true, get() { calls++; throw original; } }); const r = await composed(viewport, 'throw', { primaryFault: true }), body = persisted(r); need(r.error === original && calls === 1 && body.observed.clientWidth.kind === 'ACCESSOR', 'Original thrown object/primary lost'); });
+  await check('real-foreign-shape-no-key-getter-echo', async () => { const viewport = { clientWidth: 1279, clientHeight: 800 }; let calls = 0; Object.defineProperty(viewport, ctx.token, { enumerable: true, get() { calls++; return ctx.token; } }); const body = persisted(await composed(viewport, 'foreign')); need(calls === 0 && body.observed.clientWidth.kind === 'UNKNOWN_SHAPE', 'Foreign key/getter inspected'); });
+  await check('real-proxy-fault-fixed-unknown-no-primary-replacement', async () => { const viewport = new Proxy({ clientWidth: 1279, clientHeight: 800 }, { ownKeys() { throw ctx.token; } }); const r = await composed(viewport, 'proxy'), body = persisted(r); need(r.error.message === 'Viewport mismatch' && body.observed.clientWidth.kind === 'UNKNOWN_FAULT', 'Observer fault replaced original'); });
+  await check('serializer-strict-numeric-label-keys-and-getters', async () => { const good = viewportEnvelope(collectViewport({ clientWidth: 0, clientHeight: 800 })); const body = serializeViewport(good, ctx.token); need(serializeViewport(good, ctx.token, body.length).equals(body), 'Exact byte bound rejected'); await rejected(() => serializeViewport(good, ctx.token, body.length - 1)); for (const change of [v => { v[ctx.token] = ctx.token; }, v => { v.phase = ctx.token; }, v => { v.observed.clientWidth.value = true; }, v => { v.observed.clientWidth.value = Infinity; }, v => { v.observed.clientWidth.value = 10000001; }]) { const v = JSON.parse(JSON.stringify(good)); change(v); await rejected(() => serializeViewport(v, ctx.token)); } let calls = 0; const accessor = JSON.parse(JSON.stringify(good)); Object.defineProperty(accessor.observed.clientWidth, 'value', { enumerable: true, get() { calls++; return ctx.token; } }); await rejected(() => serializeViewport(accessor, ctx.token)); need(calls === 0, 'Serializer getter invoked'); });
+  await check('real-rejected-first-later-valid-never-reopens', async () => { const r = await composed({ clientWidth: 1279, clientHeight: 800 }, 'reject', { maximum: 0 }); need(r.error.message === 'Viewport mismatch' && r.writer.outcome.code === 'VIEWPORT_DIAGNOSTIC_REJECTED' && r.primaries[0] === r.error && !fs.existsSync(r.writer.destination), 'First reject missing'); const first = r.writer.outcome; r.writer.maximum = 1024; need(r.writer.commit({ clientWidth: 1280, clientHeight: 800 }, new Error('Later')) === first && r.writer.primary === r.error && r.primaries.length === 1 && !fs.existsSync(r.writer.destination), 'Rejected first reopened'); });
+  await check('real-persisted-first-later-valid-never-reopens', async () => { const r = await composed({ clientWidth: 1279, clientHeight: 800 }, 'first'); persisted(r); const first = r.writer.outcome, before = frozen(r.writer.destination); need(r.writer.commit({ clientWidth: 1280, clientHeight: 800 }, new Error('Later')) === first && frozen(r.writer.destination).equals(before) && r.writer.primary === r.error && r.primaries.length === 1, 'Persisted first replaced'); });
+  await check('real-exclusive-collision-preserves-original-bytes', async () => { const path = directory + '/collision.json', before = Buffer.from('owned-collision-control'); fs.writeFileSync(path, before, { flag: 'wx', mode: 0o400 }); const r = await composed({ clientWidth: 1279, clientHeight: 800 }, 'collision', { path }); need(r.writer.outcome.code === 'VIEWPORT_DIAGNOSTIC_WRITE_FAILED' && r.error.message === 'Viewport mismatch' && r.states.length === 0 && r.images.length === 0 && frozen(path).equals(before), 'Collision replaced original'); const first = r.writer.outcome; need(r.writer.commit({ clientWidth: 1280, clientHeight: 800 }, new Error('Later')) === first && r.primaries.length === 1, 'Collision reopened'); });
+  await check('real-write-error-preserves-primary-and-seal', async () => { const r = await composed({ clientWidth: 1279, clientHeight: 800 }, 'write', { path: directory + '/missing-parent/receipt.json' }); need(r.writer.outcome.code === 'VIEWPORT_DIAGNOSTIC_WRITE_FAILED' && r.error.message === 'Viewport mismatch' && r.writer.primary === r.error && r.states.length === 0 && r.images.length === 0, 'Write error replaced original'); const first = r.writer.outcome; need(r.writer.commit({ clientWidth: 1280, clientHeight: 800 }, new Error('Later')) === first && r.primaries.length === 1, 'Write failure reopened'); });
+  await check('real-metrics-invalidation-zero-diagnostic-state-image', async () => { const r = await composed({ clientWidth: 1279, clientHeight: 800 }, 'invalidated', { invalidated: true }); need(r.error.message === 'Bound document invalidated' && r.f.acquisition.first === 'Bound document invalidated' && r.attempts === 0 && r.states.length === 0 && r.images.length === 0 && !fs.existsSync(r.writer.destination), 'Unowned metrics published'); });
+  summary.status = 'PASS'; return summary;
+}
+async function image(name) {
+  documentAcquisition.check();
+  const { data } = await send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false }); const b = Buffer.from(data, 'base64');
+  documentAcquisition.check();
+  need(b.length > 1000 && b.length <= 2097152 && b.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && b.toString('ascii',12,16) === 'IHDR' && b.readUInt32BE(16) === 1280 && b.readUInt32BE(20) === 800, 'PNG dimensions/size');
+  const p = run + '/' + name + '.png'; fs.writeFileSync(p, b, { flag: 'wx', mode: 0o400 }); return { path: p, bytes: b.length, sha256: hash(b) };
+}
+try {
+  record.viewport_controls = await viewportControls(); record.retained_controls = 'TASK09931/TASK09793/TASK09634/TASK0954/291/32/12/40 retained, not invoked'; guard();
+  const esbuild = require(library); let compilation;
+  try { compilation = await bounded('changed fixture build', () => esbuild.build({ absWorkingDir: base, entryPoints: [entry], outfile: run + '/app.js', bundle: true, platform: 'browser', format: 'iife', jsx: 'automatic', tsconfigRaw: {}, define: { 'process.env.NODE_ENV': '"development"', __CAPTURE_SOURCE_SHA__: JSON.stringify(ctx.source_sha) }, metafile: true, legalComments: 'none', logLevel: 'silent', plugins: [plugin] }), 35000); }
+  finally { esbuild.stop(); await bounded('compiler close', () => Promise.all(compilerChildren.map(x => x.close)), 3000); record.children = compilerChildren.map(x => x.item); need(record.children.length === 1 && record.children.every(x => x.closed && (x.code === 0 || x.signal === 'SIGTERM')), 'Compiler close unverified'); }
+  fs.writeFileSync(run + '/metafile.json', JSON.stringify(compilation.metafile), { flag: 'wx', mode: 0o400 });
+  const assets = { '/app.js': fs.readFileSync(run + '/app.js'), '/app.css': fs.readFileSync(run + '/app.css') };
+  const script = `const token=${JSON.stringify(ctx.token)};const native=window.fetch.bind(window);window.__CAPTURE__={failed:'',fault(reason,csp){if(this.failed)return;this.failed=String(reason);void native('/failure',{method:'POST',body:JSON.stringify({token,source:${JSON.stringify(ctx.source_sha)},failure:'Frontend terminal error',csp})});}};window.addEventListener('error',()=>window.__CAPTURE__.fault('Frontend error'),true);window.addEventListener('unhandledrejection',()=>window.__CAPTURE__.fault('Frontend rejection'));window.addEventListener('securitypolicyviolation',e=>window.__CAPTURE__.fault('CSP violation',{blockedURI:e.blockedURI,effectiveDirective:e.effectiveDirective,violatedDirective:e.violatedDirective,sourceFile:e.sourceFile,lineNumber:e.lineNumber,columnNumber:e.columnNumber,disposition:e.disposition}));const prior=console.error;console.error=(...a)=>{prior(...a);window.__CAPTURE__.fault('Frontend console error');};`;
+  const pageBody = Buffer.from('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><link rel="stylesheet" href="/app.css"></head><body><div id="root"></div><script>' + script + '</script><script defer src="/app.js"></script></body></html>');
+  const CSP = "default-src 'none';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';connect-src 'self';img-src data:;font-src 'self';frame-src 'none';worker-src 'none'";
+  const sockets = new Set();
+  server = http.createServer((request, response) => {
+    response.setHeader('Content-Security-Policy', CSP); response.setHeader('Connection','close'); record.requests.push({ method: request.method, path: request.url });
+    if (request.method === 'POST' && request.url === '/failure') {
+      let body = Buffer.alloc(0); request.on('data', chunk => { body = Buffer.concat([body, chunk]); if (body.length > 32768) { fail('Failure receipt size'); request.destroy(); } });
+      request.on('end', () => { try { const value = JSON.parse(body); need(value.token === ctx.token && value.source === ctx.source_sha, 'Foreign failure receipt'); if (value.csp !== undefined && record.first_csp === undefined) { need(value.csp && typeof value.csp === 'object' && !JSON.stringify(value.csp).includes(ctx.token), 'CSP projection rejected'); record.first_csp = value.csp; } fail('Frontend terminal error'); response.writeHead(200).end('OK'); } catch { fail('Failure receipt rejected'); response.writeHead(405).end('Denied'); } }); return;
+    }
+    if (firstError || request.method !== 'GET' || !['/?case=native-visit', '/app.js', '/app.css'].includes(request.url)) { fail('Undeclared fixture request'); response.writeHead(410).end('Denied'); return; }
+    response.setHeader('Content-Type', request.url === '/?case=native-visit' ? 'text/html' : request.url.endsWith('.css') ? 'text/css' : 'application/javascript'); response.end(request.url === '/?case=native-visit' ? pageBody : assets[request.url]);
+  });
+  server.requestTimeout = 1000; server.headersTimeout = 1000; server.on('connection', socket => { sockets.add(socket); socket.on('close', () => sockets.delete(socket)); }); server.on('error', () => fail('Fixture listener failed'));
+  await bounded('fixture listen', () => new Promise((resolve,reject) => { server.once('error',reject); server.listen(0,'127.0.0.1',resolve); }));
+  const origin = 'http://127.0.0.1:' + server.address().port;
+  const ready = { source_sha: ctx.source_sha, token: ctx.token, adapter: identity(process.pid), origin, url: origin + '/?case=native-visit', assets: Object.entries(assets).map(([name,b])=>({name,bytes:b.length,sha256:hash(b)})) };
+  fs.writeFileSync(run + '/listener.json', JSON.stringify(ready), { flag:'wx',mode:0o400 });
+  while (!fs.existsSync(run + '/browser.json')) { guard(); await new Promise(r=>setTimeout(r,20)); }
+  binding = JSON.parse(frozen(run + '/browser.json')); const endpoint = new URL(binding.ws); need(endpoint.protocol === 'ws:' && endpoint.hostname === '127.0.0.1' && endpoint.port === String(binding.port) && /^\/devtools\/browser\/[A-Za-z0-9-]+$/.test(endpoint.pathname) && !endpoint.search && !endpoint.hash && !endpoint.username && !endpoint.password, 'Foreign native websocket'); need(binding.token === ctx.token && binding.source_sha === ctx.source_sha && binding.origin === origin && binding.url === ready.url && binding.ws.startsWith('ws://127.0.0.1:' + binding.port + '/devtools/browser/'), 'Browser descriptor mismatch'); guard();
+  const sdk = require(sdkRoot + '/index.js');
+  browser = await bounded('maintained CDP connect', () => sdk.chromium.connectOverCDP(binding.ws, { timeout:5000,noDefaults:true,isLocal:true,artifactsDir:run + '/sdk',headers:{Origin:origin} }));
+  need(browser.version() === '151.0.7922.173', 'Native browser version mismatch');
+  const contexts = browser.contexts(); need(contexts.length === 1, 'Unexpected context'); const pages = contexts[0].pages(); need(pages.length === 1 && pages[0].url() === ready.url, 'Unexpected owned page'); const page = pages[0];
+  page.on('pageerror', ()=>fail('Owned page error')); page.on('console', message=>{if(message.type()==='error')fail('Owned page console error');}); browser.on('disconnected',()=>{if(!cleanupStarted)fail('Owned browser disconnected');});
+  sdkSession = await bounded('new CDP session', () => contexts[0].newCDPSession(page));
+  const target = (await send('Target.getTargetInfo')).targetInfo; need(target.type === 'page' && target.url === ready.url, 'Target binding mismatch');
+  documentAcquisition = new DocumentAcquisition(sdkSession, target.targetId, ready.url, () => ({ session: sdkSession, target: target.targetId, url: page.url() }), send, () => firstError !== null, () => cleanupStarted, fail);
+  const actionGate = new ActionGate(target.targetId, workEnd, () => firstError !== null);
+  async function key(kind, name) { guard(); documentAcquisition.check(); need(page.url() === ready.url, 'Page navigated'); return sendNativeKey(kind, name, documentAcquisition, actionGate, send, (kind, name) => bounded('native '+name+' '+kind, () => page.keyboard[kind](name))); }
+  await send('Accessibility.enable'); await send('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});
+  let initial, end = Math.min(workEnd,performance.now()+10000), initialPoll = 0; readiness = readinessContext('INITIAL_NODES', 'intake', 'intake');
+  while(performance.now()<end){guard();readiness.poll=ordinal(++initialPoll);readiness.incomplete=true;initial=await snapshot();readiness.incomplete=false;try{captureReadiness(readiness,collectCandidate(initial,'intake','intake',initialPoll),'NONE');}catch{readiness.diagnostic_error='REJECTED';}if(initial)break;await new Promise(r=>setTimeout(r,20));}
+  need(initial,'Initial Consultation unavailable'); await documentAcquisition.request('DOM.focus',{nodeId:initial.tabs[0].node}); initial=await stable('intake','intake');
+  const proof=initial.proof, visit='77777777-7777-4777-8777-777777777710'; need(JSON.stringify(proof)===JSON.stringify({source:ctx.source_sha,version:1,initialRevision:0,wellnessRevision:0,ledger:['/api/clinic?id='+visit,'/api/recordings?consultationId='+visit],jitless:true}),'Fixture proof/GET/revision mismatch');
+  record.images.push(await retainInitialEvidence(documentAcquisition, readiness, send, state => record.states.push(state), image));
+  async function observe(phase,focus,selected){const state=await stable(focus,selected);const safe=verifiedSuccess(state,proof,phase,focus,selected,readiness);documentAcquisition.check();record.states.push(safe);emit(safe);}
+  for(const [name,focus] of [['ArrowLeft','history'],['ArrowRight','intake'],['End','history'],['Home','intake'],['ArrowRight','recommendation'],['ArrowRight','care'],['ArrowLeft','recommendation'],['ArrowRight','care']]){await key('down',name);await observe(name+'-down',focus,'intake');await key('up',name);await observe(name+'-up',focus,'intake');}
+  await key('down','Enter');await observe('enter-down','care','care');await key('up','Enter');await observe('enter-up','care','care');record.images.push(await image('actual-care'));
+  await key('down','Home');await observe('home-down','intake','care');await key('up','Home');await observe('home-up','intake','care');
+  await key('down',' ');await observe('space-down','intake','care');await key('up',' ');await observe('space-release','intake','intake');
+  guard(); record.status='PASS_PENDING_SUPERVISOR_CLOSURE';
+} catch(error) { fail(error?.message || 'Adapter failure'); }
+finally {
+  retainReadiness(); cleanupStarted = true;
+  if(browser){try{await bounded('optional browser.close',()=>browser.close(),1000,true);}catch{record.optional_close='FAILED_OR_TIMED_OUT';}}
+  if(server){server.closeAllConnections();await bounded('fixture listener close',()=>new Promise(resolve=>server.close(resolve)),1000,true).catch(()=>{record.listener_close='UNKNOWN';});record.listener_closed=!server.listening;}
+  record.first_failure=firstError;record.finished_utc=new Date().toISOString();
+  fs.writeFileSync(run+'/ADAPTER_RESULT.json',JSON.stringify(record,null,2),{flag:'wx',mode:0o400});
+}
+if(firstError)process.exitCode=1;

@@ -1,0 +1,29 @@
+# TASK-096: Retain the missing native readiness diagnosis
+
+Owner basis: finish DripWell, verify the current UI and existing PRD8 story. Prerequisite: independently reviewed factual TASK095 closure and actual same-branch readback, latest boot/queue and idle workers reconciled.
+
+Goal for the next plan-only scope: derive a concrete minimal proposal for bounded token-free last native DOM/AX candidate and named matches() predicate failures in the maintained browser adapter. TASK095 produced only a generic readiness label, no states/screenshots and an UNKNOWN predicate cause. Its completed late actual review supports this observability gap, not a UI/CSP causal fix.
+
+CTO must issue a separate explicit read-only plan scope after prerequisites. Coder reads current frozen sources/results only as authoring/diagnostic references and current installed SDK/framework guidance; no old helper imports or execution. Specify exact retained data/bounds/redaction/first-failure behavior and a meaningful focused new check. Preserve canonical target/revision/GET/native-key/CSP/owned-cleanup oracles. Do not weaken readiness to get a screenshot or copy the transport suite.
+
+Independent Auditor plan PASS and genuine Root adoption must precede any fresh source/command scope. Any source/tests/runtime need their own concrete bounded authority. No source/hour/once retry or provider effect is opened by this queue; all TASK095/older failed/late scopes remain. Do not replay291/32/12/40 or four recorded gate checks without a relevant change. This is not a fourth TASK094 recovery or permanent TASK057 acceptance substitute.
+
+Count44/all9 actual pilot/production/hosted-guard UNVERIFIED/default-disabled/provider/admin/sender/payment/retention holds remain. Stripe account complete; no new questions/spending/provider swap/pooling/outbound/bootstrap/realdata. Until-done/scheduled continuationON.
+
+## Actual plan/source admission, October12
+
+Current3cbb documentary publication is independently accepted through remaining readback2634/ead904fa and Root genuine1051/131db704 adoption. Read-only concrete plan5849/97d84736 plus current inputpins30771/3e5e07d0 received timely independent PASS_PLAN_ONLY3798/ef276104 at05:11:35.772062Z. Root fully read/genuinely adopted947/2c7e2f43 at05:14:05Z before proposal expiry. These are plan/metadata findings, not source/runtime proof.
+
+Fresh sole-Coder source scope opened2026-10-12T05:14:05.155221Z under /workspace/pw96/SOURCE_GO.json4205/a4ce641b and INPUTS25938/2d7c03db. Source freeze05:34:05.155221Z, at most15 model minutes within20 wall, exactly three fresh files<=500 changed lines each. Original TASK096 outer90minute ceiling06:44:05.155221Z covers all phases without reset and leaves every095/older source/once/hour/lateness held. No source import/parser/control/test/compiler/browser/probe/provider/SQL/Git effect is admitted by authoring. Exact implemented-source/command independentPASS/genuine adoption then separate exclusive once remain required.
+
+Accepted goal: one safe last completed DOM/AX projection or explicit NO_CANDIDATE plus named observations of the authoritative original comparisons/raw-repeat, not a copied predicate or UI cause. Keep original value/order/short-circuit/need throw/raw equality unchanged. Diagnostics-only limits cannot alter readiness. Fixed known field/type allowlist<=8192 UTF8/<=512polls, explicit SKIPPED/provenance, seal-before-validation/exclusive wx0400 and sticky original failure with no overwrite/retry. Meaningful new controls exercise real collector/predicate/repeat/serializer/writer, including excluded-proof/raw-equality, bounds, rejected-first/later-valid, collision and ENOTDIR/cleanup behavior. All existing oracles/keys/CSP/canonical roots/mandatory owned closure are preserved; retained passing checks are not replayed.
+
+## Actual one-once outcome, pending independent review
+
+Source/command PASS5690/1eecff0a and genuine Root447/06575c96 adoption preceded exclusive GO765/1348d4be. Exactly one run05:41:44.846425Z to05:41:51.475878Z exited1. Recorded34 new controls pass; safe2066-byte last candidatef7a6282a is persisted at poll177 with individual DOM/AX comparisons true and raw-repeat false. Native states0/images0. Root has read RESULT2065/69f411e6 and the complete safe receipt; actual-result Auditor acceptance, distinct learning and reviewed documentation/publication remain. Source freeze/original outer06:44:05.155221Z/closed095 scopes unchanged, no retry or cause/UI/pilot inference.
+
+## Narrow diagnostic goal closure and publication queue
+
+SCOPED_DIAGNOSTIC_DONE: actual independent PASS_DIAGNOSTICS_ONLY5845/044c9e2c timely05:54:21Z was genuinely adopted977/f438a369 at05:57:36Z. Distinct3552/7c15157e NO_NEW proposal/actual DA minor co-sign were genuinely adopted1026/652b480c before one exact38-byte application1654/918da9fa at06:08:03Z; session44062/346fd06c/all corpus/Seen unchanged, actual application fully read/reconciled729/0ad730e6. Current STATE/CHANGELOG record count44 to45 once for this diagnostic task only. Original native story/085/095/057/all9pilot remain unaccepted;0states0images/raw-changing field and cause UNKNOWN/recorded compilerSIGTERM code-null/raw proof and observer limits remain. Source/once closed, original outer06:44:05.155221Z unchanged.
+
+Exact reviewed source snapshots are inactive .txt evidence under docs/evidence/task096; safe2066-byte receipt and exact actual audit are inspectable. No old helper or source/once is revived and no app/dependency/migration/passing check is changed or rerun. Final exact documentary/source-copy publication review and same-branch readback remain. Next TASK097 is a read-only concrete raw-snapshot-member/acquisition investigation only after that prerequisite, with separate prospective plan authority and all provider/security/pilot holds.

@@ -1,0 +1,32 @@
+{
+  "task": "TASK138_R1_DISTINCT_POST_RESULT_LEARNING_GENUINE_UPTAKE",
+  "genuine_utc": "2026-10-14T06:56:47.607530+00:00",
+  "report": {
+    "path": "/workspace/pw138-native-start-r1/POST_RESULT_LEARNING_AUDIT.md",
+    "canonical": "/workspace/pw138-native-start-r1/POST_RESULT_LEARNING_AUDIT.md",
+    "bytes": 4428,
+    "sha256": "be5f582769ea04554663409e2c946c793c1489ee9af0030205c2c045ec1997fd",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw138-native-start-r1/POST_RESULT_LEARNING_PINS.json",
+    "canonical": "/workspace/pw138-native-start-r1/POST_RESULT_LEARNING_PINS.json",
+    "bytes": 7180,
+    "sha256": "6487377821bfdd503cc50dad143a2852118739a544ab2566ad0ddf4ebfcf6df8",
+    "mode": "0400"
+  },
+  "complete_report_bytes_read": 4428,
+  "complete_typed_raw_comparisons": 8,
+  "actual_genuine": {
+    "path": "/workspace/pw138-native-start-r1/ROOT_ACTUAL_RESULT_ADOPTION.json",
+    "canonical": "/workspace/pw138-native-start-r1/ROOT_ACTUAL_RESULT_ADOPTION.json",
+    "bytes": 3100,
+    "sha256": "a94673cfae7f905497a300e7412c6658a6badad817cafbc70a093a9867aa9927",
+    "mode": "0400"
+  },
+  "exact457_session842_prd_journal_proposals_verified": true,
+  "learning": "NO_NEW_LEARNING_FACTUAL_MINOR_SCOPED_ACTUAL_ONLY",
+  "original_total_until": "2026-10-14T07:00:00+00:00",
+  "corpora_seen_count_unchanged": true,
+  "scope": "Timelylearningreport52:28 andcurrentRootuptakebeforeoriginal7. Actualreporttimely/currentactualgenuineafterartifactcapunderOriginal7 chronologyretained; no oldtimelyRoot/clock-goal-once promotion. Sourceenforced/unretained/UTC-only/save-transcription-model-pilotlimits held. Next139finalreview-full1200-currentreadback, no publicationauthority. Rootfirstlearningdescriptorassumptionfailedbeforewrite; correctedtoactualdeclaredNO_NEWenum only/no evidence effect."
+}

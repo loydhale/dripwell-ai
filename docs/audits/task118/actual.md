@@ -1,0 +1,11 @@
+PASS — CURRENT_CUSTODY_OF_NATIVE_DENIED_CAPTURE_ONLY
+
+Completed actual analysis is admitted prospectively with NEW exact raw/canonical/mode observations. Original actual review stays HELD/LATE/CLOSED, its three outputs absent; old transient machine records are not credited. Current declared bindings match, with historical STATE chronology typed separately. Original metafile root/filter and non-ASCII bytes-literal formation errors caused no source effects and no original report.
+
+Completed receipt/source-trace and visual analysis confirms one original native call, exact receiver/constraints/returned Promise, rejection with cached NotAllowedError/original conditional MATCH, notAllowed true/observerFault false. Exact main-workspace banner/same native identity and idle reset (enabled Start,00:00,no requesting/busy/pending/recording/pause-stop) are evidenced by states and viewed1280x800 PNG. Five NEW same-launch-helper/collector-parent categories pass; old controls remain historical INERT.
+
+NOT_OBSERVED concerns absent invalidation events, with null invalidation and first_failure; separate native case/state/forward/banner/PNG predicates succeed.122 compiled files versus126 metafile entries include two retained-control defines and fixture link/navigation virtual modules.110 loaded entries/7 unique paths and current45 effect bindings match. This formation repeats no metafile oracle, core audit, browser/view or passing check.
+
+Sole run15:51:02.381301–15:51:04.431450 (2.050149 seconds) followed genuine current source adoption/strict5+8 once; grant SPENT. Compiler0/no signal; adapter/native0; two owned groups/births absent, listeners nonconnectable, final owned children empty/style handles outstanding0. Closure is scoped, not global/profile absence. Synthetic-device declaration does not prove physical availability, permission mechanism or prior NotFound cause.
+
+Original late source phase/114 FAILED goals/spent grants/count52/nine pilot-production gates/protected previews-realdata false/default-disabled maintenance/hosted UNVERIFIED/external057-oldSQL-untilDone holds persist. No full story. Root genuine uptake precedes distinct learning/final checkpoint/publication/readback.

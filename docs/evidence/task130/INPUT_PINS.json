@@ -1,0 +1,179 @@
+{
+  "task": "TASK130",
+  "scope": "FIRST_EIGHT_SOURCE_BOUND_RPC_ASSERTIONS_ONLY",
+  "native_budget": 0,
+  "original_total_until": "2026-10-14T01:40:00+00:00",
+  "files": [
+    {
+      "kind": "accepted_complete_current_source_report",
+      "path": "/workspace/pw128-native-r1/SOURCE_COMMAND_AUDIT.md",
+      "canonical": "/workspace/pw128-native-r1/SOURCE_COMMAND_AUDIT.md",
+      "bytes": 5200,
+      "sha256": "6bdbce1a2f539a2c066e3ffb1eb7644fb49ad2d265840093dec5e24e9bd112bd",
+      "mode": "0400"
+    },
+    {
+      "kind": "accepted_actual_source_verdict",
+      "path": "/workspace/pw128-native-r1/SOURCE_COMMAND_VERDICT.json",
+      "canonical": "/workspace/pw128-native-r1/SOURCE_COMMAND_VERDICT.json",
+      "bytes": 872,
+      "sha256": "7324fbe617639ca3cce7a87df6cb2c989d22034957d7f6886dcdb113f862c7b0",
+      "mode": "0400"
+    },
+    {
+      "kind": "prior_actual124active21span_credit",
+      "path": "/workspace/pw128-native-r1/SOURCE_COMMAND_AUDIT_PINS.json",
+      "canonical": "/workspace/pw128-native-r1/SOURCE_COMMAND_AUDIT_PINS.json",
+      "bytes": 65091,
+      "sha256": "66bb956d71ee18fd4b4844d80411967cb157c425a147ceec382a12974fb8bb6f",
+      "mode": "0400"
+    },
+    {
+      "kind": "current_source_only_full_genuine_prerequisite",
+      "path": "/workspace/pw128-native-r1/ROOT_FULL_SOURCE_COMMAND_UPTAKE.json",
+      "canonical": "/workspace/pw128-native-r1/ROOT_FULL_SOURCE_COMMAND_UPTAKE.json",
+      "bytes": 1967,
+      "sha256": "6146b29166e511197947d8a0de0458896cc4b72dac2efc36d03500dfbdfc7977",
+      "mode": "0400"
+    },
+    {
+      "kind": "current_source_only_strict5adoption",
+      "path": "/workspace/pw128-native-r1/ROOT_SOURCE_ADOPTION.json",
+      "canonical": "/workspace/pw128-native-r1/ROOT_SOURCE_ADOPTION.json",
+      "bytes": 616,
+      "sha256": "6de829743a288ae8a58e1deee1ded51282a8132d35a746c32b21ee56af1c0885",
+      "mode": "0400"
+    },
+    {
+      "kind": "accepted125R1_harness_read_credit_only_no_old_replay",
+      "path": "/workspace/pw125-nullable-r1/regression.py",
+      "canonical": "/workspace/pw125-nullable-r1/regression.py",
+      "bytes": 29479,
+      "sha256": "d25d155990640706096322865ae3bbb549328e385c87b2d811f4ef25293a3d91",
+      "mode": "0400"
+    },
+    {
+      "kind": "prior_harness_source_genuine_credit_only",
+      "path": "/workspace/pw125-nullable-r1/ROOT_SOURCE_COMMAND_ADOPTION.json",
+      "canonical": "/workspace/pw125-nullable-r1/ROOT_SOURCE_COMMAND_ADOPTION.json",
+      "bytes": 1211,
+      "sha256": "431e82733f82be5f5a54eb9bb6dc426ae98ba3ce4b6d699e48859231440ebae8",
+      "mode": "0400"
+    },
+    {
+      "kind": "installed_vm_api_selected_read",
+      "path": "/workspace/dripwell-build/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/vm.d.ts",
+      "canonical": "/workspace/dripwell-build/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/vm.d.ts",
+      "bytes": 46012,
+      "sha256": "47613031a5a31510831304405af561b0ffaedb734437c595256bb61a90f9311b",
+      "mode": "0600"
+    },
+    {
+      "kind": "installed_python_process_api_prior_exact_read",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py",
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py",
+      "bytes": 88747,
+      "sha256": "85d29b2bf0249f5436838298c9a60ee93508b1102e9ac43b001f8a7e7ae8f375",
+      "mode": "0644"
+    },
+    {
+      "kind": "installed_python_signal_api_prior_exact_read",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/signal.py",
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/signal.py",
+      "bytes": 2495,
+      "sha256": "0363c964c90ac0b3e515de5749205e6e6454051a1211058375d84d91eab6071a",
+      "mode": "0644"
+    },
+    {
+      "kind": "unchanged_prior_full_vercel_verification_credit",
+      "path": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "canonical": "/workspace/dripwell-vercel-plugin-reference/skills/verification/SKILL.md",
+      "bytes": 7922,
+      "sha256": "1dd50aa65a4f8a287f8d8e2fbbaf4e52a3998451a9011659ab0ab38d19539932",
+      "mode": "0600"
+    },
+    {
+      "kind": "independent_concrete_plan_distinct_learning_report",
+      "path": "/workspace/pw130-rpc-regression/PLAN_LEARNING_AUDIT.md",
+      "canonical": "/workspace/pw130-rpc-regression/PLAN_LEARNING_AUDIT.md",
+      "bytes": 6542,
+      "sha256": "dd119992f0e4e701f30dab739c1d7e62983026c187f5a7e991e2cb83471e0490",
+      "mode": "0400"
+    },
+    {
+      "kind": "exact_derived_clarified_brief_no_base_rewrite",
+      "path": "/workspace/pw130-rpc-regression/CLARIFIED_TASK_BRIEF.md",
+      "canonical": "/workspace/pw130-rpc-regression/CLARIFIED_TASK_BRIEF.md",
+      "bytes": 4601,
+      "sha256": "9cf5208c94f4f6ac1b4fa1a872a72ade7432ef92964f269081a46914002a55f1",
+      "mode": "0400"
+    },
+    {
+      "kind": "accepted_exact_concrete_plan_pins",
+      "path": "/workspace/pw130-rpc-regression/PLAN_LEARNING_AUDIT_PINS.json",
+      "canonical": "/workspace/pw130-rpc-regression/PLAN_LEARNING_AUDIT_PINS.json",
+      "bytes": 18285,
+      "sha256": "3803de042f8425dde6baccd61aa748dbdc16877d142688f027957a527f60a7bf",
+      "mode": "0400"
+    },
+    {
+      "kind": "full_genuine_plan_learning_uptake",
+      "path": "/workspace/pw130-rpc-regression/ROOT_PLAN_LEARNING_ADOPTION.json",
+      "canonical": "/workspace/pw130-rpc-regression/ROOT_PLAN_LEARNING_ADOPTION.json",
+      "bytes": 1549,
+      "sha256": "25969e4425a0712c0ddbd7800aa43b3fd238d216b185216ec95638e5b53d09e4",
+      "mode": "0400"
+    },
+    {
+      "kind": "source_only_no_execution_authority",
+      "path": "/workspace/pw130-rpc-regression/RUNNER_SOURCE_GO.json",
+      "canonical": "/workspace/pw130-rpc-regression/RUNNER_SOURCE_GO.json",
+      "bytes": 2002,
+      "sha256": "1d5130f2cd94d122a1fe4022a452d5732e232e50519e93299429e1feb1df8024",
+      "mode": "0400"
+    },
+    {
+      "kind": "current_exact_clarified_authoritative_brief",
+      "path": "/workspace/dripwell-build/tasks/TASK-130.md",
+      "canonical": "/workspace/dripwell-build/tasks/TASK-130.md",
+      "bytes": 4601,
+      "sha256": "9cf5208c94f4f6ac1b4fa1a872a72ade7432ef92964f269081a46914002a55f1",
+      "mode": "0644"
+    },
+    {
+      "kind": "actual_node_executable",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "bytes": 125989464,
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "mode": "0755"
+    },
+    {
+      "kind": "actual_python_executable_target",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "bytes": 30894944,
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "mode": "0755"
+    }
+  ],
+  "python_alias": {
+    "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "canonical": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "target": "python3.12",
+    "observed_link_bytes": 10,
+    "observed_link_mode": "0777"
+  },
+  "selection_dependencies": [
+    "need",
+    "DocumentAcquisition",
+    "layoutTransport",
+    "layoutTransportDeadlineControls",
+    "paired_child_work_guard_host_leaf",
+    "record",
+    "performance/setTimeout/clearTimeout",
+    "public_child_workEnd/ctx_fallback"
+  ],
+  "read_credit": "Accepted125R1 body-identical need/sha/exact/pin/exclusive/identity/group_absent/bounded_child_output only; adapted fresh main/Node program remain unreviewed. All historical source bodies are inert.",
+  "holds": "Native budget0; original128 and129 CLOSED_UNFINISHED; old69/parentAST/native-main/partial129helpers never invoked; count52/Seen/allnine/protectedfalse/defaultdisabled/external057oldSQL/alloldergoals-caps-onces held."
+}

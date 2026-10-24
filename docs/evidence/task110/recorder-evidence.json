@@ -1,0 +1,124 @@
+{
+  "task": "TASK110",
+  "derivative": "INDEPENDENT_SAFE_RETAINED_FIRST_R1_EVIDENCE",
+  "overall_status": "FAILED",
+  "accepted_scope": "SYNTHETIC_CONTROLS_AND_FAILED_RUN_CUSTODY_ONLY",
+  "adapter_first_failure": "BOUND_DOCUMENT_INVALIDATED",
+  "parent_first_failure": "RECORDER_STORY_OR_LISTENER_FAILED",
+  "invalidated_document_case": "UNKNOWN",
+  "invalidation_cause": "UNKNOWN",
+  "synthetic_controls": {
+    "status": "PASS",
+    "count": 8,
+    "names": [
+      "unconsented-disabled-no-media",
+      "archived-consented-disabled-no-media",
+      "real-requesting-capture-busy",
+      "busy-tabs-retain-intake",
+      "busy-back-shell-cancel-visible",
+      "busy-location-logout-denied",
+      "synthetic-denial-resets-navigation",
+      "unmount-before-reject-no-segment"
+    ],
+    "provenance": "SYNTHETIC_PENDING_MEDIA_REAL_COMPONENTS"
+  },
+  "completed_cases": [
+    {
+      "case": "synthetic",
+      "status": "STORY_PASSED",
+      "provenance": "SYNTHETIC_MEDIA"
+    }
+  ],
+  "native_completed_cases": 0,
+  "retained_states": 15,
+  "state_provenance": "ALL_SYNTHETIC",
+  "persisted_state_receipts_verified": 15,
+  "main_error_presentations": [
+    {
+      "phase": "back",
+      "exact_message": true,
+      "same_selected_native_identity": true,
+      "main_within_workspace": true,
+      "sidebar_copy_present": false,
+      "within_desktop_viewport": true
+    },
+    {
+      "phase": "shell-navigation",
+      "exact_message": true,
+      "same_selected_native_identity": true,
+      "main_within_workspace": true,
+      "sidebar_copy_present": true,
+      "within_desktop_viewport": true
+    },
+    {
+      "phase": "logout",
+      "exact_message": true,
+      "same_selected_native_identity": true,
+      "main_within_workspace": true,
+      "sidebar_copy_present": true,
+      "within_desktop_viewport": true
+    }
+  ],
+  "parent_presentation_state_validators": "NOT_REACHED_AFTER_FAILED_STORY_GUARD",
+  "independent_saved_projection_validation": "PASSED",
+  "permission_setup": {
+    "denied_ACK_count": 2,
+    "cases": [
+      "synthetic",
+      "desktop"
+    ],
+    "owned_default_context": true,
+    "exact_origin_and_embedded_origin_bound": true,
+    "before_document": true,
+    "raw_ACK_trace": "NOT_RETAINED"
+  },
+  "native_capture_denial": "UNVERIFIED",
+  "successful_recording_transcription_model": "UNVERIFIED",
+  "retained_image_records": 0,
+  "image_views": 0,
+  "HTTP": {
+    "count": 10,
+    "all_GET": true
+  },
+  "synthetic_fixture_ledger": {
+    "shares": 0,
+    "mutations": 0,
+    "mock_media_rejections_only": true
+  },
+  "inputs": {
+    "effect_descriptors_matched": 45,
+    "compiled_records_rehashed": 122,
+    "compiled_unique_paths": 122,
+    "metafile_inputs": 124,
+    "fixture_aliases": 2,
+    "runtime_records_rehashed": 110,
+    "runtime_unique_paths": 7,
+    "whole_transitive_SDK_immutability": "UNVERIFIED"
+  },
+  "recorded_owned_closure": {
+    "root_groups_absent": 4,
+    "birth_absences": 4,
+    "listeners_nonconnectable": 4,
+    "final_owned_children": 0,
+    "compiler_closed": true,
+    "compiler_exit_code": 0,
+    "compiler_signal": null,
+    "style_group_ACKs": 0,
+    "style_group_unknown": 0,
+    "style_group_outstanding": 0,
+    "global_thread_socket_remote_handle_absence": "UNVERIFIED"
+  },
+  "execution": {
+    "once": "SPENT",
+    "duration_UTC_seconds": 3.139268,
+    "cleanup_reserve_seconds": 90,
+    "source_adoption_before_GO_before_marker": true
+  },
+  "source_artifacts": {
+    "parent_result_bytes": 3011,
+    "parent_result_sha256": "6543525498a8f4d9e756798524adcac8c3f32a7b72fbed1a99cd104e761f8900",
+    "adapter_result_bytes": 108688,
+    "adapter_result_sha256": "d0b6867cc53b6e77773982a028b2ba144d8906239839cbbaf48a7ab05d67ca31"
+  },
+  "holds": "Count51 prior109 only; native UI/nine pilot-production OPEN; hosted effective guard UNVERIFIED/protected requested false/default disabled/external/permanent057/oldSQL/hourly held."
+}

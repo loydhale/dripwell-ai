@@ -1,0 +1,1 @@
+function need(ok, reason) { if (!ok) throw new Error(reason); }

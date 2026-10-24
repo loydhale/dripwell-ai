@@ -1,0 +1,283 @@
+"""TASK130 first-eight source-bound RPC regression, separate reviewed once required."""
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import secrets
+import selectors
+import signal
+import subprocess
+import time
+
+BASE = Path('/workspace/pw130-rpc-regression')
+NODE = '/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node'
+PYTHON = '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python'
+ENV = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1'}
+OUTER_TEXT = '2026-10-14T01:40:00+00:00'
+OUTER = datetime.fromisoformat(OUTER_TEXT).timestamp()
+NAMES = ['ordinary-local-cap', 'short-monotonic-budget', 'short-utc-budget',
+         'expired-monotonic-zero-send', 'expired-utc-zero-send',
+         'deferred-monotonic-expiration', 'deferred-utc-expiration', 'original-sender-failure']
+NODE_PROGRAM = r'''
+'use strict';
+const fs=require('node:fs'),crypto=require('node:crypto'),vm=require('node:vm');
+const enteredMono=performance.now(),enteredUtc=Date.now();
+const cfg=JSON.parse(process.argv[1]);
+const out={task:'TASK130',scope:'FIRST_EIGHT_SOURCE_BOUND_RPC_ASSERTIONS_ONLY',status:'FAILED',first_failure:null,spans:[],controls:null,hidden_locals:'UNKNOWN/NOT_RETAINED',entered_utc_ms:enteredUtc,entered_monotonic_ms:enteredMono};
+const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+const assert=(ok,label)=>{if(!ok)throw new Error(label);};
+(async()=>{
+ try{
+  assert(Number.isFinite(cfg.remaining_ms)&&cfg.remaining_ms>0&&Number.isFinite(cfg.work_end_utc),'Child lease schema');
+  const workEnd=enteredMono+Math.min(25000,cfg.remaining_ms),workUtc=cfg.work_end_utc;
+  const guard=()=>assert(performance.now()<workEnd&&Date.now()<workUtc,'Paired child work deadline');
+  guard();
+  assert(fs.realpathSync(cfg.run)===cfg.run&&!fs.lstatSync(cfg.run).isSymbolicLink()&&(fs.statSync(cfg.run).mode&511)===448,'Owned run namespace');
+  assert(fs.realpathSync(cfg.source.path)===cfg.source.canonical&&!fs.lstatSync(cfg.source.path).isSymbolicLink()&&(fs.statSync(cfg.source.path).mode&511)===256,'Actual source canonical mode');
+  const source=fs.readFileSync(cfg.source.path);
+  assert(source.length===cfg.source.bytes&&hash(source)===cfg.source.sha256,'Actual full source hash');
+  const order=['need','DocumentAcquisition','layoutTransport','layoutTransportDeadlineControls'];
+  assert(cfg.spans.length===4&&cfg.spans.every((s,i)=>s.name===order[i]),'Four exact source selectors');
+  const selected=[];
+  for(const span of cfg.spans){
+   guard();const begin=Buffer.from(span.begin_token),end=Buffer.from(span.end_token_excluded);
+   const at=source.indexOf(begin);
+   assert(at>=0&&source.indexOf(begin,at+1)===-1,'Unique begin selector');
+   const first=at+(span.strip_begin_token?begin.length:0),last=source.indexOf(end,first);
+   assert(last>=first&&source.indexOf(end,last+1)===-1&&first===span.start_byte&&last===span.end_byte,'Exact literal byte boundaries');
+   const body=source.subarray(first,last);
+   assert(body.length===span.bytes&&hash(body)===span.sha256,'Exact actual body hash');
+   const text=body.toString('utf8');assert(Buffer.from(text).equals(body),'Actual source UTF8');
+   selected.push(text);out.spans.push({name:span.name,bytes:body.length,sha256:hash(body),start_byte:first,end_byte:last});
+  }
+  const record={};
+  const context=vm.createContext({guard,record,performance,setTimeout,clearTimeout,workEnd,ctx:{work_end_utc:new Date(workUtc).toISOString()}},{codeGeneration:{strings:false,wasm:false}});
+  guard();const timeout=Math.floor(Math.min(1000,workEnd-performance.now(),workUtc-Date.now()));
+  assert(timeout>0,'Finite positive VM timeout');
+  const script=new vm.Script('"use strict";\n'+selected.join('\n')+'\nlayoutTransportDeadlineControls();',{filename:'TASK130_FOUR_PINNED_BODIES_ONLY'});
+  await script.runInContext(context,{timeout});guard();
+  const controls=record.layout_transport_deadline_controls;
+  assert(controls&&Object.keys(controls).sort().join(',')==='cases,count,provenance,status'&&controls.status==='PASS'&&controls.count===8&&controls.provenance==='SYNTHETIC_ACTUAL_TRANSPORT_SENDER_SCHEDULER_CLOCK_LEAVES'&&Array.isArray(controls.cases)&&controls.cases.length===8&&controls.cases.every((name,i)=>name===cfg.names[i]),'Eight actual named assertion outcomes');
+  out.controls=controls;out.status='PASS';
+ }catch(error){out.first_failure='RPC_BOUNDARY_'+error.name;process.exitCode=1;}
+ out.finished_utc_ms=Date.now();out.finished_monotonic_ms=performance.now();out.elapsed_ms=out.finished_monotonic_ms-enteredMono;
+ const body=JSON.stringify(out);assert(Buffer.byteLength(body)<=65536,'Bounded actual child output');process.stdout.write(body);
+})().catch(()=>{process.exitCode=1;process.stderr.write('TASK130_CHILD_FINAL_REPORT_FAILED');});
+'''
+
+def need(ok, label):
+    if not ok:
+        raise AssertionError(label)
+
+def sha(body):
+    return hashlib.sha256(body).hexdigest()
+
+def exact(path, mode=0o400, maximum=1048576):
+    path = Path(path)
+    need(path.resolve() == path and not path.is_symlink(), 'Canonical input')
+    stat = path.stat()
+    need(stat.st_mode & 0o777 == mode and stat.st_size <= maximum, 'Input mode/bound')
+    return path.read_bytes()
+
+def pin(item):
+    path = Path(item['path'])
+    need(str(path.resolve()) == item['canonical'], 'Pinned canonical input')
+    body = exact(path.resolve(), int(item['mode'], 8), 134217728)
+    need(len(body) == item['bytes'] and sha(body) == item['sha256'], 'Pinned input bytes')
+    return body
+
+def exclusive(path, value):
+    need(path.parent.resolve() == path.parent and not path.is_symlink(), 'Exclusive parent')
+    body = json.dumps(value, indent=2, allow_nan=False).encode()
+    need(len(body) <= 131072, 'Owned result bound')
+    fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o400)
+    with os.fdopen(fd, 'wb') as file:
+        file.write(body)
+
+def identity(pid):
+    body = Path('/proc/' + str(pid) + '/stat').read_text()
+    fields = body[body.rfind(')') + 2:].split()
+    return {'pid': pid, 'pgid': int(fields[2]), 'birth': fields[19]}
+
+def group_absent(pgid):
+    try:
+        os.killpg(pgid, 0)
+        return False
+    except ProcessLookupError:
+        return True
+
+def bounded_child_output(child, work_end, work_utc):
+    end = min(time.monotonic()+25,work_end)
+    buffers = {'stdout':bytearray(),'stderr':bytearray()}
+    limits = {'stdout':65536,'stderr':16384}
+    with selectors.DefaultSelector() as selector:
+        for name, stream in [('stdout',child.stdout),('stderr',child.stderr)]:
+            os.set_blocking(stream.fileno(),False)
+            selector.register(stream,selectors.EVENT_READ,name)
+        while selector.get_map():
+            need(time.monotonic()<end and time.time()<work_utc,'Actual child output deadline')
+            for key, _ in selector.select(min(0.1,max(0,end-time.monotonic()),max(0,work_utc-time.time()))):
+                name=key.data
+                block=os.read(key.fd,min(4096,limits[name]-len(buffers[name])+1))
+                if not block:
+                    selector.unregister(key.fileobj)
+                else:
+                    need(len(buffers[name])+len(block)<=limits[name],'Actual pipe output cap')
+                    buffers[name].extend(block)
+        child.wait(timeout=min(1,max(0.001,end-time.monotonic()),max(0.001,work_utc-time.time())))
+    return bytes(buffers['stdout']),bytes(buffers['stderr'])
+
+def main():
+    need(dict(os.environ) == ENV and Path.cwd() == Path('/workspace'), 'Literal sanitized command environment/cwd')
+    need(BASE.resolve() == BASE and not BASE.is_symlink() and BASE.stat().st_mode & 0o777 == 0o700, 'Private canonical namespace')
+    source_bytes = exact(BASE/'SOURCE_PINS.json')
+    input_bytes = exact(BASE/'INPUT_PINS.json')
+    command_bytes = exact(BASE/'COMMAND.txt')
+    grant_bytes = exact(BASE/'REGRESSION_EXECUTION_GO.json')
+    sources, inputs, grant = json.loads(source_bytes), json.loads(input_bytes), json.loads(grant_bytes)
+    need(set(grant) == {'task','scope','original_total_until','source_pins_sha256','input_pins_sha256','command_sha256','total_seconds','cleanup_seconds','opened_utc','latest_start_utc'}, 'Exact separately reviewed execution grant')
+    binding = {key:value for key,value in grant.items() if key not in ['opened_utc','latest_start_utc']}
+    need(binding == {'task':'TASK130','scope':'FIRST_EIGHT_SOURCE_BOUND_RPC_ASSERTIONS_ONLY','original_total_until':OUTER_TEXT,'source_pins_sha256':sha(source_bytes),'input_pins_sha256':sha(input_bytes),'command_sha256':sha(command_bytes),'total_seconds':60,'cleanup_seconds':20}, 'Fresh exact grant binding')
+    need(command_bytes == ('/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 '+PYTHON+' -B -I '+str(BASE/'regression.py')+'\n').encode(), 'Exact reviewed command')
+    provider_bytes = {item['role']:pin(item) for item in sources['files']}
+    need(len(sources['files']) == 2 and set(provider_bytes) == {'adapter','runner'} and provider_bytes['runner'] == Path(__file__).read_bytes(), 'Only two exact source providers')
+    need(sources['task'] == inputs['task'] == 'TASK130' and sources['native_budget'] == inputs['native_budget'] == 0, 'Native effect allocation zero')
+    for item in inputs['files']:
+        pin(item)
+    need(Path(PYTHON).is_symlink() and str(Path(PYTHON).resolve()) == inputs['python_alias']['canonical'] and os.readlink(PYTHON) == inputs['python_alias']['target'], 'Pinned Python command alias')
+    opened = datetime.fromisoformat(grant['opened_utc']).timestamp()
+    latest = datetime.fromisoformat(grant['latest_start_utc']).timestamp()
+    need(opened <= latest and latest + 60 <= OUTER, 'Fresh grant full original ceiling')
+    # All metadata and input reads precede the only paired lease anchor and once.
+    started, start_utc = time.monotonic(), time.time()
+    need(opened <= start_utc <= latest and start_utc + 60 < OUTER, 'Postmetadata full sixty admission')
+    total_end, total_utc = started + 60, start_utc + 60
+    work_end, work_utc = started + 40, start_utc + 40
+    need(total_end-time.monotonic() > 59.99 and total_utc-time.time() > 59.99, 'Paired full lease admission before once')
+    exclusive(BASE/'REGRESSION_ONCE.json', {'task':'TASK130','scope':binding['scope'],'started_utc':datetime.fromtimestamp(start_utc,timezone.utc).isoformat(),'started_monotonic':started,'total_end_monotonic':total_end,'total_end_utc':total_utc,'source_pins_sha256':sha(source_bytes),'input_pins_sha256':sha(input_bytes),'grant_sha256':sha(grant_bytes)})
+    record = {'task':'TASK130','scope':binding['scope'],'status':'FAILED','first_failure':None,'cleanup_failures':[],'controls':None,'hidden_locals':'UNKNOWN/NOT_RETAINED','native_budget':0,'sources_sha256':sha(source_bytes),'inputs_sha256':sha(input_bytes),'command_sha256':sha(command_bytes),'grant_sha256':sha(grant_bytes),'started_utc':datetime.fromtimestamp(start_utc,timezone.utc).isoformat(),'started_monotonic':started,'work_end_utc':work_utc,'work_end_monotonic':work_end,'total_end_utc':total_utc,'total_end_monotonic':total_end,'owned_child':None}
+    run = BASE/('regression-run-'+secrets.token_hex(8))
+    child, owned, stdout, stderr = None, None, b'', b''
+    watched = {signal.SIGINT,signal.SIGTERM,signal.SIGHUP}
+    previous_handlers, cleanup_mask = {}, None
+    def fail(label):
+        if record['first_failure'] is None:
+            record['first_failure'] = label
+    def step(label, action):
+        try:
+            return action()
+        except BaseException as error:
+            record['cleanup_failures'].append(label+'_'+type(error).__name__)
+            return None
+    def work_guard():
+        need(time.monotonic() < work_end and time.time() < work_utc, 'Paired parent work deadline')
+    def interrupted(_signal, _frame):
+        raise KeyboardInterrupt('TASK130_REGISTERED_CHILD_CLEANUP')
+    def remaining_cleanup(maximum):
+        return max(0.001,min(maximum,total_end-time.monotonic(),total_utc-time.time()))
+    try:
+        run.mkdir(mode=0o700)
+        need(run.resolve() == run and run.stat().st_mode & 0o777 == 0o700, 'Fresh exclusive run namespace')
+        for signum in watched:
+            previous_handlers[signum] = signal.getsignal(signum)
+            signal.signal(signum, interrupted)
+        adapter = next(item for item in sources['files'] if item['role'] == 'adapter')
+        cfg = {'run':str(run),'source':adapter,'spans':sources['javascript_spans'],'names':NAMES,'remaining_ms':min(25000,(work_end-time.monotonic())*1000),'work_end_utc':work_utc*1000}
+        work_guard(); need(cfg['remaining_ms'] > 0, 'Actual child remaining lease')
+        argv = [NODE,'-e',NODE_PROGRAM,json.dumps(cfg,separators=(',',':'))]
+        record['child_argv'] = [NODE,'-e','LITERAL_NODE_PROGRAM_SHA256_'+sha(NODE_PROGRAM.encode()),'DECLARED_SOURCE_CONFIGURATION_SHA256_'+sha(argv[-1].encode())]
+        record['child_configuration'] = cfg
+        blocked = signal.pthread_sigmask(signal.SIG_BLOCK,watched)
+        try:
+            child = subprocess.Popen(argv,cwd=str(BASE),env=ENV,shell=False,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
+            # Successful Popen immediately registers handle/PID/new-session PGID.
+            owned = {'pid':child.pid,'pgid':child.pid,'birth':None}
+            record['owned_child'] = owned
+            observed = identity(child.pid)
+            owned['birth'] = observed['birth']
+            need(observed['pgid'] == owned['pgid'], 'Actual registered child identity')
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK,blocked)
+        stdout, stderr = bounded_child_output(child,work_end,work_utc)
+        work_guard()
+        result = json.loads(stdout)
+        if type(result) is dict and result.get('status') == 'FAILED':
+            first = result.get('first_failure')
+            if first in ['RPC_BOUNDARY_Error','RPC_BOUNDARY_TypeError','RPC_BOUNDARY_RangeError','RPC_BOUNDARY_SyntaxError','RPC_BOUNDARY_EvalError']:
+                fail(first)
+        need(child.returncode == 0 and not stderr and set(result) == {'task','scope','status','first_failure','spans','controls','hidden_locals','entered_utc_ms','entered_monotonic_ms','finished_utc_ms','finished_monotonic_ms','elapsed_ms'}, 'Exact actual bounded child envelope')
+        need(result['task'] == 'TASK130' and result['scope'] == binding['scope'] and result['status'] == 'PASS' and result['first_failure'] is None and result['hidden_locals'] == 'UNKNOWN/NOT_RETAINED', 'Actual child source assertions passed')
+        expected_spans = [{key:item[key] for key in ['name','bytes','sha256','start_byte','end_byte']} for item in sources['javascript_spans']]
+        need(result['spans'] == expected_spans, 'Actual four selected body identities')
+        controls = result['controls']
+        need(set(controls) == {'status','count','cases','provenance'} and controls == {'status':'PASS','count':8,'cases':NAMES,'provenance':'SYNTHETIC_ACTUAL_TRANSPORT_SENDER_SCHEDULER_CLOCK_LEAVES'}, 'Exactly eight ordered actual source assertions')
+        record['controls'] = controls
+        record['javascript_spans'] = result['spans']
+        record['child_entry_utc_ms'] = result['entered_utc_ms']
+        record['child_entry_monotonic_ms'] = result['entered_monotonic_ms']
+        record['child_elapsed_ms'] = result['elapsed_ms']
+        record['status'] = 'PASS_PENDING_INDEPENDENT_REVIEW'
+    except BaseException as error:
+        fail('REGRESSION_BOUNDARY_'+type(error).__name__)
+    finally:
+        cleanup_mask = step('CLEANUP_SIGNAL_BLOCK',lambda:signal.pthread_sigmask(signal.SIG_BLOCK,watched))
+        record['cleanup_started_utc'] = datetime.now(timezone.utc).isoformat()
+        record['cleanup_started_monotonic'] = time.monotonic()
+        if child is not None:
+            def terminate_registered():
+                try:
+                    observed = identity(owned['pid'])
+                    need(observed['pgid'] == owned['pgid'] and (owned['birth'] is None or observed['birth'] == owned['birth']), 'Known registered cleanup identity')
+                    if owned['birth'] is None:
+                        owned['birth'] = observed['birth']
+                    os.killpg(owned['pgid'],signal.SIGTERM)
+                except BaseException as error:
+                    record['cleanup_failures'].append('REGISTERED_METADATA_'+type(error).__name__)
+                    child.terminate()
+            if child.poll() is None:
+                step('TERM',terminate_registered)
+                try:
+                    child.wait(timeout=remaining_cleanup(2))
+                except BaseException:
+                    step('GROUP_KILL',lambda:os.killpg(owned['pgid'],signal.SIGKILL))
+                    step('CHILD_KILL',child.kill)
+            step('REAP',lambda:child.wait(timeout=remaining_cleanup(5)))
+            record['cleanup_child_returncode'] = child.returncode
+            record['cleanup_group_absent'] = step('GROUP_ABSENCE',lambda:group_absent(owned['pgid']))
+            if record['cleanup_group_absent'] is not True:
+                record['cleanup_failures'].append('KNOWN_OWNED_GROUP_PRESENT_OR_UNKNOWN')
+            for stream in [child.stdout,child.stderr]:
+                if stream is not None:
+                    step('PIPE_CLOSE',stream.close)
+        else:
+            record['cleanup_child_returncode'] = None
+            record['cleanup_group_absent'] = 'NOT_SPAWNED'
+        record['child_output'] = {'stdout':stdout.decode('utf8',errors='replace'),'stderr':stderr.decode('utf8',errors='replace'),'returncode':child.returncode if child is not None else None}
+        for signum, previous in previous_handlers.items():
+            step('SIGNAL_HANDLER_RESTORE',lambda signum=signum,previous=previous:signal.signal(signum,previous))
+        if cleanup_mask is not None:
+            step('SIGNAL_MASK_RESTORE',lambda:signal.pthread_sigmask(signal.SIG_SETMASK,cleanup_mask))
+        if record['cleanup_failures']:
+            fail('OWNED_CLEANUP_FAILED')
+        if time.monotonic() >= total_end or time.time() >= total_utc:
+            fail('TOTAL_DEADLINE_EXCEEDED')
+        if record['first_failure'] is not None:
+            record['status'] = 'FAILED'
+        record['finished_utc'] = datetime.now(timezone.utc).isoformat()
+        record['finished_monotonic'] = time.monotonic()
+        record['elapsed_seconds'] = record['finished_monotonic']-started
+        # Mandatory owned termination/reap precedes any final evidence IO.
+        step('CHILD_OUTPUT_WRITE',lambda:exclusive(run/'child-output.json',record['child_output']))
+        if record['cleanup_failures']:
+            fail('EVIDENCE_FINALIZATION_FAILED'); record['status'] = 'FAILED'
+        step('RESULT_WRITE',lambda:exclusive(run/'RESULT.json',record))
+        if record['cleanup_failures']:
+            fail('EVIDENCE_FINALIZATION_FAILED'); record['status'] = 'FAILED'
+        if time.monotonic() >= total_end or time.time() >= total_utc:
+            fail('TOTAL_DEADLINE_EXCEEDED'); record['status'] = 'FAILED'
+    print(json.dumps({'run':str(run),'status':record['status'],'cases':record['controls']['count'] if record['controls'] is not None else 0,'first_failure':record['first_failure'],'cleanup_failures':record['cleanup_failures']}))
+    return 0 if record['status'] == 'PASS_PENDING_INDEPENDENT_REVIEW' else 1
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -1,0 +1,1 @@
+async function freshLayoutOwner(acquisition){acquisition.check();need(acquisition.bound!==null,'Layout input before document binding');const info=(await acquisition.request('Target.getTargetInfo')).targetInfo;acquisition.check();if(info?.targetId!==acquisition.target||info.type!=='page'||info.url!==acquisition.url)acquisition.reject('Foreign layout target');}

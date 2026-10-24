@@ -1,0 +1,145 @@
+{
+  "task": "TASK122_NATIVE_SYNTHETIC_SUCCESS",
+  "frozen_utc": "2026-10-13T19:25:25.975431+00:00",
+  "original_total_until": "2026-10-13T20:15:00+00:00",
+  "files": [
+    {
+      "path": "/workspace/pw-native-success/fixture.tsx",
+      "canonical": "/workspace/pw-native-success/fixture.tsx",
+      "bytes": 28722,
+      "sha256": "aa494f2769f3209275df2f2b591819c18b5d42cf0999731a90fd0d4eb98657ef",
+      "mode": "0o400"
+    },
+    {
+      "path": "/workspace/pw-native-success/adapter.mjs",
+      "canonical": "/workspace/pw-native-success/adapter.mjs",
+      "bytes": 278370,
+      "sha256": "9b93261e0ff1bc653b5fe003135fd409e870d92d4ef2e5c89421733367aee3e0",
+      "mode": "0o400"
+    },
+    {
+      "path": "/workspace/pw-native-success/supervisor.py",
+      "canonical": "/workspace/pw-native-success/supervisor.py",
+      "bytes": 78894,
+      "sha256": "d71eff96d8dac6be44adebc6648e86959c87650f9e38fa8b120d69a9f391f0c2",
+      "mode": "0o400"
+    }
+  ],
+  "baseline_files": [
+    {
+      "path": "/workspace/dripwell-build/docs/evidence/task118/fixture.tsx.txt",
+      "canonical": "/workspace/dripwell-build/docs/evidence/task118/fixture.tsx.txt",
+      "bytes": 19533,
+      "sha256": "ec638af3a50021926a51f6b17d9f7bed437569fc4897ed2988254c6ee450e098",
+      "mode": "0o644"
+    },
+    {
+      "path": "/workspace/dripwell-build/docs/evidence/task118/adapter.mjs.txt",
+      "canonical": "/workspace/dripwell-build/docs/evidence/task118/adapter.mjs.txt",
+      "bytes": 269930,
+      "sha256": "8870c80285813b79f056abc8b81bf16325dc876c5c42469b1bea87b3bc49373c",
+      "mode": "0o644"
+    },
+    {
+      "path": "/workspace/dripwell-build/docs/evidence/task118/supervisor.py.txt",
+      "canonical": "/workspace/dripwell-build/docs/evidence/task118/supervisor.py.txt",
+      "bytes": 70888,
+      "sha256": "bc4870840e92bb1e925c86fb1c08631baa8e921dca1dd5f22bfe410e35b4a4f9",
+      "mode": "0o644"
+    }
+  ],
+  "standard_unified_added_deleted": {
+    "fixture.tsx": 74,
+    "adapter.mjs": 85,
+    "supervisor.py": 102
+  },
+  "input_manifest": {
+    "path": "/workspace/pw-native-success/CURRENT_INPUT_BINDINGS.json",
+    "canonical": "/workspace/pw-native-success/CURRENT_INPUT_BINDINGS.json",
+    "bytes": 48599,
+    "sha256": "b793e950d59f8a4d78b617a571c195aa1d7ac53d9b50451270653864207e7ff1",
+    "mode": "0o400"
+  },
+  "source_GO": {
+    "path": "/workspace/pw-native-success/SOURCE_GO.json",
+    "canonical": "/workspace/pw-native-success/SOURCE_GO.json",
+    "bytes": 3131,
+    "sha256": "0f57b269e2ada88e70d27f67909869bc6fb4410200cc67aebf4c500fc8b1aa80",
+    "mode": "0o400"
+  },
+  "task_brief": {
+    "path": "/workspace/pw-native-success/TASK_BRIEF.md",
+    "canonical": "/workspace/pw-native-success/TASK_BRIEF.md",
+    "bytes": 1533,
+    "sha256": "94bd06b3ed89191ef8fe0a6b5bf653986f8c3755f93b9af606b7fe1d487fc346",
+    "mode": "0o400"
+  },
+  "diff": {
+    "path": "/workspace/pw-native-success/SOURCE_DIFF.patch",
+    "canonical": "/workspace/pw-native-success/SOURCE_DIFF.patch",
+    "bytes": 61658,
+    "sha256": "1844673af6ca797f6ee8ed530917a085854b1518f25216f7184cb8c0e2d9adc1",
+    "mode": "0o400"
+  },
+  "input_diff": {
+    "path": "/workspace/pw-native-success/INPUT_DIFF.patch",
+    "canonical": "/workspace/pw-native-success/INPUT_DIFF.patch",
+    "bytes": 7470,
+    "sha256": "1df141def5ac54245d417cb3de169849f2103087bfd72eb5fcfe00915251c136",
+    "mode": "0o400"
+  },
+  "command": {
+    "path": "/workspace/pw-native-success/EXACT_RUNTIME_COMMAND.txt",
+    "canonical": "/workspace/pw-native-success/EXACT_RUNTIME_COMMAND.txt",
+    "bytes": 196,
+    "sha256": "6462da1bb691ff80e980b04232d9f7ce26176fa9aea884b20f8288d2a436680e",
+    "mode": "0o400"
+  },
+  "runtime_command_literal": "/usr/bin/env -i PATH=/usr/bin:/bin LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python -B -I /workspace/pw-native-success/supervisor.py",
+  "runtime_shell_login": false,
+  "runtime_workdir": "/workspace",
+  "unchanged_actual_runtime_input_groups": {
+    "compiled_application_inputs": true,
+    "explicit_tool_docs_binary_inputs": true,
+    "retained_control_evidence": true,
+    "retained_reaction_evidence": true,
+    "retained_r2_evidence": true,
+    "declared_readonly_package_roots": true,
+    "SDK_prospective_readonly_root": true,
+    "sdk_entry_descriptors": true
+  },
+  "input_roles": "Current scope new GO/brief/plan/genuine private descriptors plus retained historical references; historical governance fields explicitly historical. Root119publication may change HEAD/docs only; no app input rebind needed unless exact bytes change.",
+  "new_affected_categories": [
+    "original-method-receiver-args-return-throw",
+    "passive-observer-fault-original-result-primary",
+    "exact-multipart-file-retry-preservation",
+    "changed-proof-schema-accessor-and-primary",
+    "actual-success-collector-parent-binding"
+  ],
+  "once_contract": "No runtime admitted. Independent current source/command PASS, exact strict5 genuine uptake before fresh strict8 once; original12220:15 fixed, <=240seconds including unchanged90-second cleanup reserve; original once scopes remain spent.",
+  "source_only_effects": "Three new private sources plus own exact metadata; no app edit/import/parse/check/compiler/browser/permission/provider/SQL/Gitmutation",
+  "limits": "One actual synthetic-device desktop lifecycle; exact local503 POST twice/retained retry/discard only, no backend/storage/provider/transcription/physical/iPad/rollover/active-unmount/fullpilot claim; original constructor/prototype object/static preserved, wrapped function properties/reflection intentionally changed; five changed categories only; all old passing batches inert.",
+  "attempt": 2,
+  "source_correction_GO": {
+    "path": "/workspace/pw-native-success/SOURCE_CORRECTION_R1_GO.json",
+    "canonical": "/workspace/pw-native-success/SOURCE_CORRECTION_R1_GO.json",
+    "bytes": 1774,
+    "sha256": "6763adbee61562e793d58c16bb137926fbb5394718d74cbb2a595e8cb25764c2",
+    "mode": "0o400"
+  },
+  "root_attempt1_rejection": {
+    "path": "/workspace/pw-native-success/ROOT_SOURCE_REJECTION_ADOPTION.json",
+    "canonical": "/workspace/pw-native-success/ROOT_SOURCE_REJECTION_ADOPTION.json",
+    "bytes": 1008,
+    "sha256": "f750ea0e07bef306914db54060d9b372975563aeabe8c68687db72b6cf479e20",
+    "mode": "0o400"
+  },
+  "preserved_attempt1": {
+    "path": "/workspace/pw-native-success/rejected-attempt1/PRESERVATION_PINS.json",
+    "canonical": "/workspace/pw-native-success/rejected-attempt1/PRESERVATION_PINS.json",
+    "bytes": 8041,
+    "sha256": "6a42b792046f2bf0ef5bb5152f8257ed958fdd3f10179320db5860e83d5eccbb",
+    "mode": "0o400"
+  },
+  "correction_only": "One explicit current documentary-reference rebind/role, corresponding manifest INPUT_SHA and metadata pins/diffs. Native source semantics/command unchanged. Original20:15 unchanged and once unattempted."
+}

@@ -1,0 +1,560 @@
+{
+  "version": 1,
+  "task": "TASK106",
+  "classification": "Bounded public derivative of independently accepted private synthetic browser records; not original raw proof/RPC/native-ID data or full-UI/pilot evidence",
+  "actual_source_pins_sha256": "a49a672a825ea66a566e58c3533ece8fdece4ae998a20676043798f14e888c95",
+  "original_private_adapter_descriptor": {
+    "bytes": 87363,
+    "sha256": "3e48a2bd3f8c8bd3dbed7fd04fab62a8141ed8f4300601643100dd745fc4424b"
+  },
+  "actual_review_descriptor": {
+    "bytes": 6797,
+    "sha256": "b786606c929f1f67ae895272a3105e09faf62a7cbfe23fa95446b04c308f04d7"
+  },
+  "genuine_root_actual_adoption_utc": "2026-10-12T21:48:17.103869+00:00",
+  "actual_result": {
+    "status": "FAILED",
+    "started_utc": "2026-10-12T21:40:01.526996+00:00",
+    "finished_utc": "2026-10-12T21:40:04.210049+00:00",
+    "duration_utc_seconds": 2.683053,
+    "adapter_first_failure": "Foreign native hit target",
+    "parent_first_failure": "AssertionError: Whole layout story/listener failed",
+    "completed_cases": 0,
+    "accepted_states": 3,
+    "raw_state_receipts": 3,
+    "images": 2
+  },
+  "controls": {
+    "status": "PASS",
+    "count": 29,
+    "ordered_names": [
+      "production-reminder-extraction-valid-three-native-rows",
+      "production-reminder-wrong-visible-unread-count-rejected",
+      "style-valid-six-no-receipt",
+      "style-unexpected-literal-unchanged-success",
+      "style-missing-property-transaction",
+      "style-multiple-property-first-scalar",
+      "style-invalid-type-unavailable",
+      "style-oversize-unavailable",
+      "style-first-later-never-replaces",
+      "style-rejected-first-never-reopens",
+      "style-foreign-schema-denial",
+      "style-value-accessor-zero-collector-read",
+      "style-capability-denial",
+      "style-exact-byte-bound",
+      "style-collision-original-primary",
+      "style-real-write-error-original-primary",
+      "style-secondary-sink-original-primary",
+      "style-before-await-foreign-zero-RPC",
+      "style-after-await-invalidation-zero-receipt",
+      "native-style-six-visible-exact",
+      "native-style-six-hidden-exact",
+      "native-style-six-call-order-owned-release",
+      "native-style-resolve-error-release-firstprimary",
+      "native-style-foreign-handle-zero-function",
+      "native-style-await-ownership-loss-zero-laterread",
+      "native-style-function-exception-release",
+      "native-style-primary-plus-release-error",
+      "native-style-release-only-error-fails",
+      "native-style-document-mismatch-denial"
+    ],
+    "unchanged_Node_actions_uninvoked": 44,
+    "synthetic_receipt_count": 8,
+    "unchanged_parent_control_uninvoked": true,
+    "scope": "Actual synthetic composed helper controls, not native or hidden-mobile compatibility proof"
+  },
+  "native_owned_style_groups": {
+    "acknowledged": 35,
+    "unknown": 0,
+    "outstanding": 0,
+    "scope": "Owned group RPC acknowledgements, not global handle absence"
+  },
+  "states": [
+    {
+      "case": "desktop",
+      "phase": "initial",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "contentWidth": 1280,
+      "panes": {
+        "navigation": {
+          "style": {
+            "display": "flex",
+            "position": "sticky",
+            "background-color": "rgb(246, 245, 248)",
+            "overflow-x": "auto",
+            "overflow-y": "auto",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 0,
+            "y": 0,
+            "width": 210,
+            "height": 800
+          }
+        },
+        "main": {
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "background-color": "rgb(255, 255, 255)",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 210,
+            "y": 72,
+            "width": 790,
+            "height": 960.75
+          }
+        },
+        "reminders": {
+          "style": {
+            "display": "block",
+            "position": "sticky",
+            "background-color": "rgb(250, 249, 251)",
+            "overflow-x": "auto",
+            "overflow-y": "auto",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 1000,
+            "y": 0,
+            "width": 280,
+            "height": 800
+          }
+        },
+        "topbar": {
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "background-color": "rgb(255, 255, 255)",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 210,
+            "y": 0,
+            "width": 790,
+            "height": 72
+          }
+        }
+      },
+      "board": [
+        {
+          "title": "Consultation started",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777710?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-01"
+        },
+        {
+          "title": "Initial recommendations",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777711?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-02"
+        },
+        {
+          "title": "Wellness plan produced",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777712?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-03"
+        },
+        {
+          "title": "Wellness accepted",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777713?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-04"
+        },
+        {
+          "title": "Wellness rejected",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777714?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-05"
+        },
+        {
+          "title": "Decision pending",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777715?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-06"
+        }
+      ],
+      "reporting": false,
+      "reminders": {
+        "rows": [
+          {
+            "title": "Fictional care outcome reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777711?locationId=77777777-7777-4777-8777-777777777701",
+            "read": false,
+            "markReadCount": 1,
+            "fixtureExpectation": "UNREAD"
+          },
+          {
+            "title": "Fictional wellness decision reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777713?locationId=77777777-7777-4777-8777-777777777701",
+            "read": true,
+            "markReadCount": 0,
+            "fixtureExpectation": "READ_AT_ONLY"
+          },
+          {
+            "title": "Fictional completed reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777714?locationId=77777777-7777-4777-8777-777777777701",
+            "read": true,
+            "markReadCount": 0,
+            "fixtureExpectation": "IS_READ_ONLY"
+          }
+        ],
+        "unread": 1,
+        "toggleName": "Reminders, 1 unread",
+        "count": {
+          "text": "1 unread",
+          "whiteSpace": "nowrap",
+          "displayed": true,
+          "box": {
+            "x": 1204.3125,
+            "y": 24,
+            "width": 57.6875,
+            "height": 22
+          }
+        }
+      }
+    },
+    {
+      "case": "desktop",
+      "phase": "first-board",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "contentWidth": 1280,
+      "panes": {
+        "navigation": {
+          "style": {
+            "display": "flex",
+            "position": "sticky",
+            "background-color": "rgb(246, 245, 248)",
+            "overflow-x": "auto",
+            "overflow-y": "auto",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 0,
+            "y": 0,
+            "width": 210,
+            "height": 800
+          }
+        },
+        "main": {
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "background-color": "rgb(255, 255, 255)",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 210,
+            "y": 25,
+            "width": 790,
+            "height": 960.75
+          }
+        },
+        "reminders": {
+          "style": {
+            "display": "block",
+            "position": "sticky",
+            "background-color": "rgb(250, 249, 251)",
+            "overflow-x": "auto",
+            "overflow-y": "auto",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 1000,
+            "y": 0,
+            "width": 280,
+            "height": 800
+          }
+        },
+        "topbar": {
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "background-color": "rgb(255, 255, 255)",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 210,
+            "y": -47,
+            "width": 790,
+            "height": 72
+          }
+        }
+      },
+      "board": [
+        {
+          "title": "Consultation started",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777710?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-01"
+        },
+        {
+          "title": "Initial recommendations",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777711?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-02"
+        },
+        {
+          "title": "Wellness plan produced",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777712?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-03"
+        },
+        {
+          "title": "Wellness accepted",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777713?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-04"
+        },
+        {
+          "title": "Wellness rejected",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777714?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-05"
+        },
+        {
+          "title": "Decision pending",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777715?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-06"
+        }
+      ],
+      "reporting": false,
+      "reminders": {
+        "rows": [
+          {
+            "title": "Fictional care outcome reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777711?locationId=77777777-7777-4777-8777-777777777701",
+            "read": false,
+            "markReadCount": 1,
+            "fixtureExpectation": "UNREAD"
+          },
+          {
+            "title": "Fictional wellness decision reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777713?locationId=77777777-7777-4777-8777-777777777701",
+            "read": true,
+            "markReadCount": 0,
+            "fixtureExpectation": "READ_AT_ONLY"
+          },
+          {
+            "title": "Fictional completed reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777714?locationId=77777777-7777-4777-8777-777777777701",
+            "read": true,
+            "markReadCount": 0,
+            "fixtureExpectation": "IS_READ_ONLY"
+          }
+        ],
+        "unread": 1,
+        "toggleName": "Reminders, 1 unread",
+        "count": {
+          "text": "1 unread",
+          "whiteSpace": "nowrap",
+          "displayed": true,
+          "box": {
+            "x": 1204.3125,
+            "y": 24,
+            "width": 57.6875,
+            "height": 22
+          }
+        }
+      }
+    },
+    {
+      "case": "desktop",
+      "phase": "last-board",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "contentWidth": 1280,
+      "panes": {
+        "navigation": {
+          "style": {
+            "display": "flex",
+            "position": "sticky",
+            "background-color": "rgb(246, 245, 248)",
+            "overflow-x": "auto",
+            "overflow-y": "auto",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 0,
+            "y": 0,
+            "width": 210,
+            "height": 800
+          }
+        },
+        "main": {
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "background-color": "rgb(255, 255, 255)",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 210,
+            "y": 25,
+            "width": 790,
+            "height": 960.75
+          }
+        },
+        "reminders": {
+          "style": {
+            "display": "block",
+            "position": "sticky",
+            "background-color": "rgb(250, 249, 251)",
+            "overflow-x": "auto",
+            "overflow-y": "auto",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 1000,
+            "y": 0,
+            "width": 280,
+            "height": 800
+          }
+        },
+        "topbar": {
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "background-color": "rgb(255, 255, 255)",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "white-space": "normal"
+          },
+          "box": {
+            "x": 210,
+            "y": -47,
+            "width": 790,
+            "height": 72
+          }
+        }
+      },
+      "board": [
+        {
+          "title": "Consultation started",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777710?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-01"
+        },
+        {
+          "title": "Initial recommendations",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777711?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-02"
+        },
+        {
+          "title": "Wellness plan produced",
+          "trigger": "Automatic milestone",
+          "href": "/consultations/77777777-7777-4777-8777-777777777712?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-03"
+        },
+        {
+          "title": "Wellness accepted",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777713?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-04"
+        },
+        {
+          "title": "Wellness rejected",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777714?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-05"
+        },
+        {
+          "title": "Decision pending",
+          "trigger": "Staff-recorded decision",
+          "href": "/consultations/77777777-7777-4777-8777-777777777715?locationId=77777777-7777-4777-8777-777777777701",
+          "reference": "SYNTHETIC-LAYOUT-06"
+        }
+      ],
+      "reporting": false,
+      "reminders": {
+        "rows": [
+          {
+            "title": "Fictional care outcome reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777711?locationId=77777777-7777-4777-8777-777777777701",
+            "read": false,
+            "markReadCount": 1,
+            "fixtureExpectation": "UNREAD"
+          },
+          {
+            "title": "Fictional wellness decision reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777713?locationId=77777777-7777-4777-8777-777777777701",
+            "read": true,
+            "markReadCount": 0,
+            "fixtureExpectation": "READ_AT_ONLY"
+          },
+          {
+            "title": "Fictional completed reminder",
+            "href": "/consultations/77777777-7777-4777-8777-777777777714?locationId=77777777-7777-4777-8777-777777777701",
+            "read": true,
+            "markReadCount": 0,
+            "fixtureExpectation": "IS_READ_ONLY"
+          }
+        ],
+        "unread": 1,
+        "toggleName": "Reminders, 1 unread",
+        "count": {
+          "text": "1 unread",
+          "whiteSpace": "nowrap",
+          "displayed": true,
+          "box": {
+            "x": 1204.3125,
+            "y": 24,
+            "width": 57.6875,
+            "height": 22
+          }
+        }
+      }
+    }
+  ],
+  "state_original_private_receipt_descriptors": [
+    {
+      "name": "desktop-initial.json",
+      "bytes": 3360,
+      "sha256": "c61e3cbe9de621f3ac78ef12ad3cdceb6beecdb77cfb6b5c79a5e91dc4d2e971"
+    },
+    {
+      "name": "desktop-first-board.json",
+      "bytes": 3497,
+      "sha256": "4946dad7f91dc6f1bc768d63ab4381aac3b514d6b5f69119da3dbd41fdb8931b"
+    },
+    {
+      "name": "desktop-last-board.json",
+      "bytes": 3496,
+      "sha256": "97bb6c8c0e21ade70cd8d72b9ae8c709840abae224452e1ac332566568965e75"
+    }
+  ],
+  "images": [
+    {
+      "name": "desktop-first-board.png",
+      "bytes": 108290,
+      "sha256": "81af3c31b7c520ca045dd56c5a30516fdc57960e9c0598f83885e514f71ed3ee"
+    },
+    {
+      "name": "desktop-last-board.png",
+      "bytes": 103647,
+      "sha256": "a2e5810730a39b8f37909e555681e8523b5127a869b2da6d119f1211be1f8b5f"
+    }
+  ],
+  "limits": "Native layout ownership/containment/zero-send are source-correlated; full RPC hit coordinates/node/ancestor/monotonic data unretained. Reporting-open/closed/mobile/hidden styles/realAudioRecorder/provider/two-clinic/pilot remain unverified. Known-owned closure and release ACKs do not prove global handle/process absence. Fixture readAt-only/isRead-only expectations are provenance, rendered read cues are observed. No retry/PASS upgrade."
+}

@@ -1,0 +1,59 @@
+name: DripWell v2 checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: dripwell_test
+          POSTGRES_PASSWORD: synthetic_test_only
+          POSTGRES_DB: dripwell_verification
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://dripwell_test:synthetic_test_only@localhost:5432/dripwell_verification
+      TEST_DATABASE_URL: postgresql://dripwell_test:synthetic_test_only@localhost:5432/dripwell_verification
+      APP_URL: http://localhost:3000
+      ALLOW_REAL_CLIENT_DATA: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm db:validate
+      - run: pnpm db:deploy
+      - name: Build the Vercel agent service with its shared dependencies
+        run: pnpm --filter @dripwell/web build:eve
+      - name: Build the Vercel web entrypoint from a fresh install
+        run: pnpm --filter @dripwell/web build
+      - run: pnpm typecheck
+      - name: Verify deterministic consultation domain
+        run: pnpm --filter @dripwell/shared test
+      - name: Verify authentication against isolated PostgreSQL
+        run: pnpm --filter @dripwell/web test:auth
+      - name: Verify consultation lifecycle against isolated PostgreSQL
+        run: pnpm --filter @dripwell/web test:clinic
+      - name: Verify transcript extraction boundaries
+        run: pnpm --filter @dripwell/web test:ai
+      - name: Verify billing and sharing boundaries
+        run: pnpm --filter @dripwell/web test:unit

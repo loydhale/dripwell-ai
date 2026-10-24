@@ -1,0 +1,19 @@
+{
+  "task": "TASK113",
+  "disposition": "NO_NEW_LEARNING",
+  "factual_minor_cosign": "APPROVED",
+  "frozen_utc": "2026-10-13T11:01:34.468630+00:00",
+  "applied_existing_rules": [
+    "L-035",
+    "L-047",
+    "L-048",
+    "L-050"
+  ],
+  "scope": "Current accepted corrected reporting/failed diagnostic facts only; exact Root1587 PRD append preserves prefix/criteria. Unique pending journal co-signed and exactly one SESSION entry. Three corpora/Seen/count52 unchanged. Original late source/actual held forever, native FAILED/once spent/nine pilot-production/hostedguard unknown; no authority or runtime effects.",
+  "session_entries_appended": 1,
+  "corpus_changes": 0,
+  "seen_changes": 0,
+  "original_total_ceiling_utc": "2026-10-13T11:18:18.562137+00:00",
+  "learning_go_sha256": "4c05e01dcf7ed1c92c65c15d72dd214f22bc85e810c03d4f44802fadcf4bdcf2",
+  "complete_six_file_diff_sha256": "c7aa9853ff292e10637e8ee8d57cda98fc7ef20e769b3a5a6e0a04fd95e2ba56"
+}

@@ -1,0 +1,198 @@
+{
+  "schema": "TASK061_CURRENT_CLINIC_AUTHORITY_AND_R1_SAFE_EVIDENCE_V1",
+  "scope": "SCOPED_SYNTHETIC_IN_PROCESS_COOKIE_ACTOR_AND_DIRECT_PG_TRANSACTION_WITH_TEST_LOCAL_RETRY_DIAGNOSTIC",
+  "source": {
+    "commit": "5624632fc8838674aa6a26ca721dc06933ce2cc3",
+    "tree": "b09d4ad9f336781eb7facaf0988ddb8f49f84134",
+    "soleParent": "e532325686986594aea97f6b08617aa78cd26dae",
+    "leaves": 432,
+    "otherLeavesHeld": 431,
+    "clinicSourceSha256": "8523fe144e914f9f9f5d03fd87adf755384c253ac4ec156ce2c50daa11b8b85f",
+    "diagnosticSourceSha256": "063529d6915d4f1a7f27d33413bf0a02e0919a97da007bbec767d7f52be19357"
+  },
+  "genuineIndependentActualReview": {
+    "path": "/workspace/dripwell-task061-audit-private/TASK061_R1_ACTUAL_SOURCE_PUBLICATION_AND_FIRST_CHANGED_SOURCE_CI_INDEPENDENT_REVIEW.json",
+    "bytes": 36704,
+    "mode": "0600",
+    "sha256": "4de44e7861fb24cb638c2a580195d20ff581e68ad583cdb8ed2b4dc735a5dfde"
+  },
+  "genuineAfterVerdictLearning": {
+    "path": "/workspace/dripwell-task061-audit-private/TASK061_R1_ACTUAL_SOURCE_PUBLICATION_AND_FIRST_CHANGED_SOURCE_CI_AFTER_VERDICT_LEARNING.json",
+    "bytes": 5293,
+    "mode": "0600",
+    "sha256": "9ab1ab7c859bfd41b874147d59c4ea6f04d62582a663fd33a4ac605850ad9907"
+  },
+  "rootAdoption": {
+    "path": "/workspace/dripwell-task061-root-private/R1_ACTUAL_PUBLICATION_FIRST_CI_REVIEW_AND_LEARNING_ROOT_ADOPTION.json",
+    "bytes": 35112,
+    "mode": "0600",
+    "sha256": "96babd4a15fb4c98799de98c72880a1e85457d54df438695a337c892adf07070"
+  },
+  "currentCI": {
+    "runId": 37581836016,
+    "jobId": 112663054161,
+    "checkoutMerge": "c23b887b3c2f3a3ee301d5e2af2351ed402a1002",
+    "runNumber": 40,
+    "runAttempt": "UNRETAINED_NOT_INFERRED",
+    "conclusion": "success",
+    "all22StagesSuccess": true,
+    "Vitest": {
+      "passed": 240,
+      "failed": 0,
+      "files": 21
+    },
+    "separateClinicNode": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0
+    },
+    "freshDB": "localhost dripwell_verification PostgreSQL17.11, initialALLOW_REAL_CLIENT_DATA=false;14 empty disposable migrations, no sharedDDL"
+  },
+  "currentClinic": {
+    "task": "TASK061",
+    "outcome": "CLOSURE_CANDIDATE",
+    "first": null,
+    "phase": "CLOSURE",
+    "auth": 1,
+    "domain": 3,
+    "returned": 3,
+    "additionalOrm": 64,
+    "deleted": 10,
+    "pending": 0,
+    "unresolved": false,
+    "elapsedMs": 738
+  },
+  "currentClinicCaseMs": 743,
+  "currentClinicFileMs": 746,
+  "initialRetry": {
+    "scope": "INITIAL_PUBLICATION_RETRY",
+    "kind": "CATALOG_EXTRACTION",
+    "completedKinds": 3,
+    "outcome": "COMPLETE",
+    "boundary": "RETRY_ORACLES",
+    "callbacks": {
+      "entered": 5,
+      "returned": 5
+    },
+    "faults": {
+      "completedPublicationBodies": 2,
+      "rollbacks": 1,
+      "commits": 1,
+      "remaining": 0,
+      "injectedErrors": 1
+    },
+    "providerCalls": {
+      "get": 1,
+      "transcribe": 0,
+      "summary": 0,
+      "catalog": 1,
+      "start": 0
+    },
+    "pendingCount": 0,
+    "firstUnexpectedError": null,
+    "masked": {
+      "seen": false,
+      "calls": 0,
+      "class": "UNKNOWN",
+      "code": "UNKNOWN",
+      "ownedInjectedError": null,
+      "lastInjectedError": null
+    }
+  },
+  "initialCounterMeaning": "completedKinds3 covers original all-three-kind oracles; callback/fault/provider fields are finalCATALOG only",
+  "mappedSentinel": {
+    "scope": "MAPPED_EXHAUSTION_SENTINEL",
+    "kind": "TRANSCRIPTION",
+    "completedKinds": 1,
+    "outcome": "COMPLETE",
+    "boundary": "OUTCOME_ASSERTION",
+    "callbacks": {
+      "entered": 15,
+      "returned": 15
+    },
+    "faults": {
+      "completedPublicationBodies": 12,
+      "rollbacks": 12,
+      "commits": 0,
+      "remaining": 0,
+      "injectedErrors": 12
+    },
+    "providerCalls": {
+      "get": 1,
+      "transcribe": 1,
+      "summary": 0,
+      "catalog": 0,
+      "start": 0
+    },
+    "pendingCount": 0,
+    "firstUnexpectedError": null,
+    "masked": {
+      "seen": true,
+      "calls": 1,
+      "class": "PRISMA_KNOWN",
+      "code": "P2034",
+      "ownedInjectedError": true,
+      "lastInjectedError": true
+    }
+  },
+  "COMPLETEmeaning": "Observer/oracle section only; genuine named cases and full15-case file/outerCI PASS corroborate later controls/hooks",
+  "diagnosticBounds": {
+    "recordCount": 11,
+    "maxActualUtf8": 998,
+    "ordinaryCap": 11,
+    "withOverflowCap": 12,
+    "byteCap": 1024,
+    "newBytes": [
+      512,
+      519
+    ],
+    "overflowOrNotQuiescentFrame": false
+  },
+  "historicalOriginalFailure": {
+    "runId": 37574789977,
+    "jobId": 112641135607,
+    "conclusion": "FAILURE",
+    "Vitest": "239passed/1failed/240;20passed/1failed/21files",
+    "currentSeparateNodeAtThatRun": "Previously accepted15/15/0skips",
+    "historicalFailingKind": "UNKNOWN",
+    "historicalUnderlyingCause": "UNKNOWN",
+    "newGreenChangesHistoricalCause": false,
+    "flakyOrProductionRepairClaim": false,
+    "qualification": "This R1 is bounded test-local observability, not an established causal product repair. Original failed records and previous static/result verdicts remain immutable."
+  },
+  "proofLimits": [
+    "No raw complete DB rows, individual handler bodies, fault object arrays or every callback/query/teardown response are independently retained; PASS supports the source-bound assertions and disclosed safe records.",
+    "No exact total transaction retry count, concurrent external participant identity, direct API event/head/run_attempt or third-party response/latency fields are inferred beyond retained records.",
+    "Mocks remain at approved provider/Workflow/Blob leaves. Provider counts are mock-invocation deltas, not actual transcription/model/Stripe/Workflow execution.",
+    "No current hosted deployment/source/full-story browser/clinical activation/history/positive rollback/paid referral/payment/service/protection/real-client/full-pilot proof. CI builds do not establish deployment; automatic Git deployment UNKNOWN, direct native deployment0.",
+    "Initial pipeline configuration false and the selected nonclinical source guard are retained; no global production/project/default-row/maintenance flag change is inferred."
+  ],
+  "privateOriginalLog": {
+    "raw": {
+      "path": "/workspace/dripwell-task061-root-private/R1_FIRST_CI_TERMINAL_JOB_LOG.raw.txt",
+      "bytes": 210442,
+      "mode": "0600",
+      "sha256": "5e11d9b90587e9c43ef71b249649825f6ca9522db433cd322e3c76a63a4fd489"
+    },
+    "wrapper": {
+      "path": "/workspace/dripwell-task061-root-private/R1_FIRST_CI_TERMINAL_JOB_LOG_ORIGINAL.json",
+      "bytes": 229150,
+      "mode": "0600",
+      "sha256": "0b5b2292639dd1bdcd45ce867af1f75ecf47a55edb7e26bcb6637a2d7b38a6fd"
+    },
+    "decodedEquality": true,
+    "fetchCount": 1,
+    "publiclyEmbeddedRawLog": false
+  },
+  "counter": {
+    "before": 36,
+    "afterReviewedScopedClosure": 37,
+    "increments": 1,
+    "TASK060planningIncrement": 0,
+    "R1increment": 0,
+    "Seen": 5
+  },
+  "all12FeaturesAndNineCriteriaStillRequired": true,
+  "wholePilotOrProductionAccepted": false,
+  "sourceExecutionOrNextTaskEffectAuthority": false
+}

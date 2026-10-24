@@ -1,0 +1,48 @@
+{
+  "task": "TASK138_R1_COMPLETE_CURRENT_SOURCE_COMMAND_GENUINE_UPTAKE",
+  "genuine_utc": "2026-10-14T06:31:07.203435+00:00",
+  "disposition": "PASS_SOURCE_COMMAND_ONLY",
+  "report": {
+    "path": "/workspace/pw138-native-start-r1/SOURCE_AUDIT.md",
+    "canonical": "/workspace/pw138-native-start-r1/SOURCE_AUDIT.md",
+    "bytes": 11298,
+    "sha256": "777e9ead954f3a32493d777b6518d9eff05a97cfcd84e8f5633b04cf791a89d2",
+    "mode": "0400"
+  },
+  "pins": {
+    "path": "/workspace/pw138-native-start-r1/SOURCE_AUDIT_PINS.json",
+    "canonical": "/workspace/pw138-native-start-r1/SOURCE_AUDIT_PINS.json",
+    "bytes": 168546,
+    "sha256": "d9545aabe7d62f8ed6e2bd8a2fc6e336f7211a77e508784bd18933ae081ddf96",
+    "mode": "0400"
+  },
+  "proof": {
+    "path": "/workspace/pw138-native-start-r1/INDEPENDENT_BODY_DIFF_PROOF.json",
+    "canonical": "/workspace/pw138-native-start-r1/INDEPENDENT_BODY_DIFF_PROOF.json",
+    "bytes": 107431,
+    "sha256": "56c7779cfd82dc841969b44ef47b2b93e58355f9cf5b6ed4297295771f86726f",
+    "mode": "0400"
+  },
+  "complete_report_bytes_read": 11298,
+  "complete_typed_raw_comparisons": 195,
+  "complete_active_descriptor_comparisons": 168,
+  "protected_actual_byte_spans_checked": 29,
+  "whole_incremental_cumulative_metadata_reconciled": true,
+  "source_pins": {
+    "path": "/workspace/pw138-native-start-r1/SOURCE_PINS.json",
+    "canonical": "/workspace/pw138-native-start-r1/SOURCE_PINS.json",
+    "bytes": 18929,
+    "sha256": "c6d5d42db9ddb20bacebd7a2c79546b77ac11cee2f12b4ab24693d33d52ea034",
+    "mode": "0400"
+  },
+  "input_pins": {
+    "path": "/workspace/pw138-native-start-r1/CURRENT_INPUT_BINDINGS.json",
+    "canonical": "/workspace/pw138-native-start-r1/CURRENT_INPUT_BINDINGS.json",
+    "bytes": 75024,
+    "sha256": "c549e05a9c5e86963d3335dbef754757e1aa8e8e6e0e8b67fc9a977391cab73a",
+    "mode": "0400"
+  },
+  "native_control_outcomes": "UNRUN_UNVERIFIED",
+  "original_total_until": "2026-10-14T07:00:00+00:00",
+  "scope": "Completegenuinesource-command/proofuptake only. Actual37/native2states1image/compilation/cleanup needsoleboundedexecution thenindependentactualreview+laterdistinctlearning. Firstsource rejected immutable/oldcapclosed, allnine/count52/privacyheld; nopublicationauthority."
+}
