@@ -1,5 +1,18 @@
 # Current AI and transcription access handoff
 
+## Current supported consent handoff, October 24, 2026
+
+[TASK164](../tasks/TASK-164.md) resumed after the05:08:27UTC catalog newly exposed Vercel's supported team-consent action. The independent V2 plan first checked the existing project, avoiding another approval step if access already worked. Preflight was genuinely adopted05:19:30.958011UTC before operations.
+
+One get_project for dripwell-ai under team_ATVYA30szlVoy5XxAIiaf2OD / loyd-1222s-projects, observed05:21:31 to05:21:32UTC, reported403 forbidden with explicit authorize_team_access, user approval, then same-connection retry. Outer INVALID_ARGUMENT is distinct wrapper metadata, not an invalid-argument diagnosis or reconnect remedy. One conditional authorize_team_access05:22:40 to05:22:41UTC returned requires_user_action for the exact team. Its real JSON.parse(content[0].text) payload, structuredContent=null, supplies a one-time HTTPS Vercel consent URL and explicit expiresAt1792819961419,2026-10-24T05:32:41.419UTC.
+
+No URL/nonce is included here. Root confirms delivering the independently inspected real link in commentary while live after05:25:42UTC validation. Retained files do not independently timestamp that chat delivery. No agent fetch/consumption or post-link request occurred; actual user approval/server-side consumption remains unobserved. The returned expiry has elapsed by learning uptake. Vercel requires the Owner's real consent-screen approval for the existing connection. A finite link is not permanent entry authority: do not present it as live after expiry, regenerate it on unchanged wakes or infer grant from issuance. Actual relevant approval/grant evidence admits a separately scoped exact selected-project check on the same connection. A separately scoped relevant changed readiness/channel is required for new consent.
+
+Actual-result PASS d98ba500/typedc577652f/check90047fd0 was genuinely adopted05:30:26.364339UTC; distinct NO_NEW learning def5bc91 was adopted05:35:54.987526UTC, then the exact591-byte SESSION append applied once. Both reported diagnostic disclosures are retained: Coder's opaque-path display and Root's nested-URL display. No private-only-output guarantee. Root corrected only saved-data field-subset reporting after a read-only assertion omitted primary requestId, and later corrected a pre-write documentary title assumption for CHANGELOG. Neither replays an operation or proves a grant. [Audit and limits](audits/task164/README.md). Exact documentary review/publication/readback is separate at this snapshot.
+
+This operational handoff establishes neither recovered project access, balance/entitlement, inference/transcription nor pilot completion. All nine pilot stories/twelve production gates remain OPEN and hosted source/effective guards UNKNOWN. Preserve protected previews, requested ALLOW_REAL_CLIENT_DATA=false, default-disabled maintenance and all no-purchase/no-provider-swap/no-outbound/no-bootstrap/no-realdata/no-merge/no-production boundaries. Stripe sandbox remains COMPLETE; other once-requested lanes stay parked. Earlier dated sections below are historical, not current tool availability or live-link authority.
+
+
 ## Current access state, October 22, 2026
 
 [TASK163](../tasks/TASK-163.md) used the Owner's fresh “Ready” to start one normal Vercel device sign-in. That client is now closed. No successful authentication or denial was observed, and no selected-project read is reported or recorded. The stopped approval link/code must not be offered as live. A new scheduled wake does not restart sign-in or imply an active coding worker.
